@@ -9,61 +9,63 @@ C++ library for the description and management of an experimental setup
 
 *Warning*: Do not even  dare to dream to hope to use  Vire now!  It is
 still in intensive development phase  and not ready for production and
-even testing.
+even testing for fun.
 
 Introduction
 ------------
 
 This is the Vire_ C++ software suite.
 
-Vire ([vir]) stands for (Vir)tual  (E)xperiment.  It consists in a C++
-library and  some helper applications to  model the components/devices
-(mechanics,   electronic   devices,   cables...)   that   compose   an
-experimental  setup.    Vire  is  inspired  by   some  other  software
-architectures  like  the  ones  used  in  SystemC_,  Geant4_/GDML  and
-Bayeux_.
+*Vire* ([vir])  stands for (Vir)tual  (E)xperiment.  It consists  in a
+C++   library   and   some    helper   applications   to   model   the
+components/devices  (mechanics, electronic  devices, cables...)   that
+compose an experimental setup, typically for physics experiment.  Vire
+is inspired by some other software architectures like the ones used in
+SystemC_, Geant4_/GDML_ and Bayeux_.
 
 .. _Vire:   https://github.com/BxCppDev/Vire
 .. _Bayeux:   https://github.com/BxCppDev/Bayeux
 .. _SystemC:  http://www.systemc.org/
 .. _Geant4:   http://geant4.org/
+.. _GDML: http://gdml.web.cern.ch/GDML/
 
 The purpose of Vire is to provide basic tools to:
 
- - Describe an experimental setup, its architecture and hierarchy, components and
-   connections (cable, pipe, abstract links) between components,
- - Define an addressing scheme for all (or parts of) the components in the system:
-   devices, channels, cables, registers, configuration parameters and measurement
-   data points, control and monitoring actions...
- - Define/generate cabling tables,
- - Build helper tools for setup management, simulation, data analysis...
- - Implement a real time control and monitoring system with:
+  * Describe an experimental setup, its architecture and hierarchy, components and
+    connections (cable, pipe, abstract links) between components,
+  * Define an addressing scheme for all (or parts of) the components in the system:
+    devices, channels, cables, registers, configuration parameters and measurement
+    data points, control and monitoring actions...
+  * Define/generate cabling tables,
+  * Build helper tools for setup management, simulation, data analysis...
+  * Implement a real time control and monitoring system with:
 
-   - Support for users, groups of users, roles and resources management,
-   - Device configuration and system parametrization,
-   - Build online control and monitoring applications (*Command and control*),
+    * Support for users, groups of users, roles and resources management,
+    * Device configuration and system parametrization,
+    * Build online control and monitoring applications (*Command and control*),
 
 Vire team
 ---------
 
-The Vire design  and development team is hosted at  the Laboratoire de
-Physique Corpusculaire de Caen (`LPC Caen`_, Normandie Univ, ENSICAEN,
+The Vire design  and development team is hosted at  the *Laboratoire de
+Physique Corpusculaire de Caen* (`LPC Caen`_, Normandie Univ, ENSICAEN,
 UNICAEN, CNRS/IN2P3):
 
- - Jean Hommet <hommet@lpccaen.in2p3.fr>
- - François Mauger <mauger@lpccaen.in2p3.fr>
- - Jérôme Poincheval <poincheval@lpccaen.in2p3.fr>
+  * Jean Hommet <hommet@lpccaen.in2p3.fr>
+  * François Mauger <mauger@lpccaen.in2p3.fr>
+  * Jérôme Poincheval <poincheval@lpccaen.in2p3.fr>
 
 The *Vire/MOS*  and *Vire/CMSLAPPInterface* plugins are  developped in
 collaboration  with the  authors  of the  *Multipurpose OPCUA  Server*
-control and  monitoring software at  Laboratoire d'Annecy le  Vieux de
-Physique  des Particules  (LAPP_, CNRS/IN2P3,  Université Savoie  Mont
+control and  monitoring software at  *Laboratoire d'Annecy le  Vieux de
+Physique  des Particules*  (LAPP_, CNRS/IN2P3,  Université Savoie  Mont
 Blanc) in the framework of the SuperNEMO double beta decay experiment.
 
 .. _`LPC Caen`: http://www.lpc-caen.in2p3.fr/
 .. _LAPP: https://lapp.in2p3.fr/
 
- License
+
+License
 -------
 
 Vire is free  software, released under the GNU  GENERAL PUBLIC LICENSE
@@ -82,11 +84,10 @@ Vire  is built  on top  of the  Bayeux_ library  which assumes  itself
 you'll build and run the software from a Linuxbrew_ system.
 
  * Linuxbrew_  is  a  package  manager  for  Linux  and  macosX  (visit
-   https://github.com/SuperNEMO-DBD/brew).
+   https://github.com/BxCppDev/homebrew-bxtap for more informations).
  * Bayeux_ provides  its Bayeux/datatools and  Bayeux/geomtools modules
    which are used to build core parts of Vire.
 
-  .. _Linuxbrew:   http://linuxbrew.sh/
 
 More, Vire depends on other third party software packages:
 
@@ -99,13 +100,15 @@ More, Vire depends on other third party software packages:
  * Java : OpenJDK Runtime Environment (version 1.8.0) (Ubuntu 16.04: ``sudo apt-get install openjdk-8-jdk``)
  * Bayeux_ : The Bayeux library (version >= 3.0.0)
 
+.. _Linuxbrew:   http://linuxbrew.sh/
 .. _protobuf: https://github.com/google/protobuf
 .. _librabbitmq-c:    https://github.com/alanxz/rabbitmq-c
 .. _BxProtobuftools: https://github.com/BxCppDev/bxprotobuftools
 .. _BxJsontools:     https://github.com/BxCppDev/bxjsontools
 .. _BxRabbitMQ:      https://github.com/BxCppDev/bxrabbitmq
 
-We recommend to use Linuxbrew_ and the `BxCppDev Linuxbrew tap`_ to install Vire library's  core dependencies.
+We warmly recommend to use Linuxbrew_ and the `BxCppDev Linuxbrew tap`_
+to install Vire library's  core dependencies.
 
 .. _`BxCppDev Linuxbrew tap`: https://github.com/BxCppDev/homebrew-bxtap
 
@@ -113,20 +116,20 @@ We recommend to use Linuxbrew_ and the `BxCppDev Linuxbrew tap`_ to install Vire
 Getting Vire
 ------------
 
-Vire is hosted at https://github.com/BxCppDev/Vire.
-
-From a directory of your choice, clone Vire source code and cd in the Vire source directory:
+Vire is hosted at  https://github.com/BxCppDev/Vire.  From a directory
+of  your choice,  clone Vire  source code  and cd  in the  Vire source
+directory:
 
 .. code:: sh
 
    $ mkdir -p ${HOME}/Vire
-   $ cd ${HOME}/Vire # Choice any suitable place to host the Vire repository
+   $ cd ${HOME}/Vire # You can choose any suitable place to host the Vire repository
    $ git clone https://github.com/BxCppDev/Vire Vire.git
    $ cd Vire.git
 ..
 
-The default branch is named ``develop``. You way want to switch to the master stable branch
-before to build the Vire software:
+The default branch is named ``develop``. You way want to switch to the
+``master`` stable branch before to build the Vire software:
 
 .. code:: sh
 
@@ -160,16 +163,22 @@ List of required libraries and tools:
   - BxRabbitMQ 0.3.0 (installed from the Linuxbrew BxCppDev tap)
   - Bayeux 3.0.0 (installed from the Linuxbrew BxCppDev tap)
 
-Example on Ubuntu Linux 16.04:
+Example of dependency installation for Ubuntu Linux 16.04:
 
 .. code::sh
 
+   $ brew tap bxcppdev/homebrew-bxtap
    $ brew install bxcppdev/bxtap/bxrabbitmq --with-manager
    $ brew install bxcppdev/bxtap/bxprotobuftools
    $ brew install bxcppdev/bxtap/bayeux@3.0.0
 ..
 
+Vire on Linuxbrew
+------------------
 
+WIP
+
+No brew formula is provided for Vire yet.
 
 
 Installation
