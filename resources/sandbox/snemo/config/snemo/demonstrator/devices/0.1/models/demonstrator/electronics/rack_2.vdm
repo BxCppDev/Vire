@@ -1,0 +1,40 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator electronics rack 2
+#@key_label  "name"
+#@meta_label "type"
+
+
+##############################################################################
+[name="sndemo.rack_2@device" type="vire::device::base_electronics_rack_model"]
+
+#@config Parameters describing the electronics rack 2
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+###################
+# Embedded crates #
+###################
+
+#@description Maximum number of crates
+max_number_of_crates : integer = 3
+
+#@description List of embedded crates
+crates.slot_0.model  : string = "sndemo.calo_hv_crate"
+crates.slot_0.label  : string = "CaloHV_0"
+crates.slot_1.model  : string = "sndemo.calo_hv_crate"
+crates.slot_1.label  : string = "CaloHV_1"
+crates.slot_2.model  : string = "sndemo.main_calo_crate"
+crates.slot_2.label  : string = "CaloCrate_0"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+# end of rack_2.vdm

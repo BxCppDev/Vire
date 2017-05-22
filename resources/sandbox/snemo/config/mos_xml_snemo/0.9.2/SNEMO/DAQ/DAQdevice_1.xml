@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd"><!-- Mandatory : the xsd file -->
+	<Name>MOS_Server</Name> 				<!-- Mandatory : name of the OPCUA server -->
+	<SimpleDevice> 									<!-- Example : Here we define one device or the PowerDevice SM45-70D -->
+		<!-- =========Here define the device =========================== -->
+		<Name>DAQ</Name>
+		<Interface>tcp</Interface> 
+
+		<!-- =========Here define instruction list or this device =========================== -->
+		<Instruction_set>
+			<Instruction>
+				<Name>GetEventSize</Name>
+				<Cmd>GetEventSize</Cmd>
+				<Acknowledge>false</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>SetEnable</Name>
+				<Cmd>SetEnable</Cmd>
+				<Acknowledge>false</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>Start</Name>
+				<Cmd>Start</Cmd>
+				<Acknowledge>false</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>Stop</Name>
+				<Cmd>Stop</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>Reset</Name>
+				<Cmd>Reset</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>Acknowledge</Name>
+				<Cmd>Acknowledge</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>Configure</Name>
+				<Cmd>Configure</Cmd>
+				<Acknowledge>true</Acknowledge>
+				<!--<Acknowledge>true</Acknowledge> <Asynchronous>true</Asynchronous> -->
+			</Instruction>
+			<Instruction>
+				<Name>Pause</Name>
+				<Cmd>Pause</Cmd>
+				<Acknowledge>false</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>Resume</Name>
+				<Cmd>Resume</Cmd>
+				<Acknowledge>false</Acknowledge>
+			</Instruction>
+		</Instruction_set>
+		<HardwareConfig>
+			<NameHardwareConfig>Init</NameHardwareConfig>
+			<Argument>
+				<Name>Address</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<!-- <DefaultValue>192.168.75.133</DefaultValue> -->
+				<!-- <DefaultValue>134.158.98.55</DefaultValue>  -->
+				<DefaultValue>134.158.98.55</DefaultValue> 
+				<!-- <DefaultValue>192.168.1.52</DefaultValue> -->
+			</Argument>
+			<Argument>
+				<Name>Port</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<!-- <DefaultValue>1977</DefaultValue>-->
+				<DefaultValue>1977</DefaultValue>
+			</Argument>
+			<Argument>
+				<Name>Connection</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>server</DefaultValue>
+			</Argument>
+
+			<Argument>
+				<Name>Validity</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>permanent</DefaultValue>
+			</Argument>
+
+
+			<DeviceInstruction>
+				<Value>Configure</Value>
+			</DeviceInstruction>
+		</HardwareConfig>
+
+		     <DataFrameStructureRef>tramestruct.xml</DataFrameStructureRef>
+		<!--<DataIdDescriptorRef>typetrame.xml</DataIdDescriptorRef> -->
+		<FSM>
+			<NameFSM>Configure</NameFSM>
+			 <DeviceInstruction>
+				<Value>Configure</Value>
+			</DeviceInstruction> 
+		</FSM>
+		<FSM>
+			<NameFSM>Start</NameFSM>
+			<Argument> 
+				<Name>Name</Name> 
+				<Type>string</Type> 
+				<Access>Input</Access> 
+				<DefaultValue>test</DefaultValue> 
+			</Argument> 
+			<DeviceInstruction>
+				<Value>Start</Value>
+			</DeviceInstruction>
+		</FSM>
+		<FSM> 
+			<NameFSM>Reset</NameFSM> 
+			<DeviceInstruction> 
+				<Value>Reset</Value> 
+			</DeviceInstruction> 
+		</FSM> 
+		<FSM> 
+			<NameFSM>Acknowledge</NameFSM> 
+			<DeviceInstruction> 
+				<Value>Acknowledge</Value> 
+			</DeviceInstruction> 
+		</FSM> 
+		<FSM>
+			<NameFSM>Resume</NameFSM>
+			<DeviceInstruction>
+				<Value>Resume</Value>
+			</DeviceInstruction>
+		</FSM>
+		<FSM>
+			<NameFSM>Stop</NameFSM>
+			<DeviceInstruction>
+				<Value>Stop</Value>
+			</DeviceInstruction>
+		</FSM>
+		<FSM>
+			<NameFSM>Pause</NameFSM>
+			<DeviceInstruction>
+				<Value>Pause</Value>
+			</DeviceInstruction>
+		</FSM>
+
+ 	<Method>
+		<Name>gotoLoaded</Name>
+		<DeviceInstruction>
+			<Value>Acknowledge</Value>
+		</DeviceInstruction>
+	</Method>
+
+                      <CompoundDatapoint>
+                                <Name>0_ProgramInformations</Name>
+                <Attribut>
+                        <Name>DeviceModelName</Name>
+                        <Value>SNEMO/DAQ/DAQModel.xml</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelVersion</Name>
+                        <Value>1.0.0</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDate</Name>
+                        <Value>29-06-2015</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelAuthor</Name>
+                        <Value>Panazol Jean-luc</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDescription</Name>
+                        <Value></Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceName</Name>
+                        <Value>SNEMO/DAQ/DAQdevice_1.xml</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceDate</Name>
+                        <Value>29-06-2015 14:08</Value>
+                </Attribut>
+                        </CompoundDatapoint>
+
+
+<CompoundDatapoint>
+			<Name>Control</Name>
+ 	<Method>
+		<Name>SetEnable</Name>
+		<Argument> 
+			<Name>Name</Name> 
+			<Type>string</Type> 
+			<Access>Input</Access> 
+			<DefaultValue>test</DefaultValue> 
+		</Argument> 
+		<DeviceInstruction>
+			<Value>SetEnable</Value>
+		</DeviceInstruction>
+	</Method>
+</CompoundDatapoint>
+		<SimpleDatapoint>
+			<Id>6</Id>
+			<Name>CounterLocal</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+
+		<SimpleDatapoint>
+			<Id>7</Id>
+			<Name>EventSize</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+
+
+		<SimpleDatapoint>
+			<Id>9</Id>
+			<Name>ControlBoard1_EnableStatus</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+
+<!--		<SimpleDatapoint>
+			<Id>11</Id>
+			<Name>ControlBoard2_EnableStatus</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+		<SimpleDatapoint>
+			<Id>12</Id>
+			<Name>ControlBoard3_EnableStatus</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+		<SimpleDatapoint>
+			<Id>13</Id>
+			<Name>ControlBoard4_EnableStatus</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+		<SimpleDatapoint>
+			<Id>14</Id>
+			<Name>ControlBoard5_EnableStatus</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+		<SimpleDatapoint>
+			<Id>15</Id>
+			<Name>ControlBoard6_EnableStatus</Name>
+			<Type>int32</Type>
+		</SimpleDatapoint>
+-->
+
+		<Watchdog>
+			<Enable>true</Enable>
+			<Acknowledge>true</Acknowledge>
+			<Cmd>AAAAAAAA  TestWatchdogAAAAAAAA</Cmd>
+		</Watchdog>
+	</SimpleDevice>
+
+
+	<!-- we can define other device in this Server : just add other <SimpleDevice> -->
+</OPCUA>

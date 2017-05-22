@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
+  <help_text>// Uncomment the following line to change the fontsize and font:
+fontsize=12
+fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Welcome to UMLet!
+//
+// Double-click on elements to add them to the diagram, or to copy them
+// Edit elements by modifying the text in this panel
+// Hold Ctrl to select multiple elements
+// Use Ctrl+mouse to select via lasso
+//
+// Use +/- or Ctrl+mouse wheel to zoom
+// Drag a whole relation at its central square icon
+//
+// Press Ctrl+C to copy the whole diagram to the system clipboard (then just paste it to, eg, Word)
+// Edit the files in the "palettes" directory to create your own element palettes
+//
+// Select "Custom Elements &gt; New..." to create new element types
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// This text will be stored with each diagram;  use it for notes.</help_text>
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>0</y>
+      <w>400</w>
+      <h>280</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;struct&gt;&gt;
+*Time_Interval*
+--
++begin : Date
++end   : Date
+--
+ 
+_Null_Interval : const Time_Interval = (0, 0)_
+ 
+_Duration     (Time_Interval)                : Time_
+_Are_Disjoint (Time_Interval, Time_Interval) : Boolean_
+_Cover        (Time_Interval, Time_Interval) : Boolean_
+_Cover        (Time_Interval, Date)          : Boolean_
+
+  
+_"+"   (Time_Interval, Time)          : Time_Interval_
+_"-"   (Time_Interval, Time)          : Time_Interval_
+_"*"   (Time_Interval, float)         : Time_Interval_
+_"and" (Time_Interval, Time_Interval) : Time_Interval_
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>260</x>
+      <y>490</y>
+      <w>280</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>*Role*
+--
+-Functionnal_Set : Resource_Set
+-Scope_Set       : Resource_Set
+--
+Is_Valid () : Boolean
+ 
+_User   (Device)               : Role_
+_Expert (Device)               : Role_
+_Expert (Device, Role_Tags []) : Role_
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>310</y>
+      <w>120</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>*Resource_Id*
+--
+-Id   : Long
+-Path : String
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>490</y>
+      <w>210</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*Device*
+
+--
+-Id   : Long
+-Path : String
+--
+Resources () : Resource_Set</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>650</y>
+      <w>320</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>*Configuration*
+--
+-Id: Long
+--
+Name             ()     : String
+Theme            ()     : String
+Key_Words        ()     : String []
+Authorized_Roles ()     : Role []
+Resources        ()     : Resource_Set []
+Get_Resource     (R_Id) : Resource
+--
+Responsibilities
+-- Global or partial experiment config</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>370</x>
+      <y>650</y>
+      <w>430</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;singleton&gt;&gt;
+*Configuration_Mgr*
+--
+--
+Themes       ()               : String []
+Config_Names (String : Theme) : String []
+Get          (String : Name)  : Config
+Add          (Config)
+--
+Responsibilities
+-- Blessed configurations storage
+Possible implementation
+-- As Service associated with Device Configuration_Mgr_Dev
+   Resources : 
+      &lt;&lt;U&gt;&gt; Get (String : Name) : config
+      &lt;&lt;X&gt;&gt; Add (Config)
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>560</x>
+      <y>490</y>
+      <w>150</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*User*
+--
+-Id    : Long
+-Name  : String
+-Roles : Roles []</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>1270</y>
+      <w>360</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>/*Service*/
+--
+-Sess : Session
+--
+/Constructor (User, As, When)/
+/Resources   () : Ressource_Set/
+/Status      () : String/
+/Finish      ()   --  free session/
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>900</y>
+      <w>170</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>*Session_Id*
+--
+-Id   : Long  -- auto
+-Who  : User
+-As   : Role
+-When : Time_Interval
+-What : String
+ 
+--
+_-Next_Id () : Long_
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>220</x>
+      <y>900</y>
+      <w>270</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>*Session*
+--
+-Key          : Long
+-Id           : Session_Id
+-Func_Session : Effective_Session
+-Sub_Sessions : Session []
+-Availables   : Resource_Set
+ 
+--
++Finish ()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>430</x>
+      <y>1100</y>
+      <w>410</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*Effective_Session*
+--
+-Resources : Resource_Set
+--
+/abstract Call, Write, Read .../
+--
+Responsability :
+-- Effective side of the session (access of resources)
+     =&gt; Resources == Session.As.Functionnal_Set
+     =&gt; Use Session.Key as access key
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>510</x>
+      <y>960</y>
+      <w>150</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*User_Session*
+--
+-
+--
+Enter (User, As)
+Leave ()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>430</x>
+      <y>1270</y>
+      <w>180</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>*User_Service*
+--
+-
+--
+Enter        (User, As)
+Leave        ()
+Who_Is_There () : User
+Macro_Exec   (Script)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>450</x>
+      <y>10</y>
+      <w>190</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes> Date and Time (second)
+ ----------------------
+type Time is new U_Int
+type Date is new U_Int 
+
+bg=yellow
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>450</x>
+      <y>100</y>
+      <w>320</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes> Time_Interval : invalid bounds
+ ------------------------------
+  
+Time_Inerval (d, d - 1)   =&gt; Null_Interval
+ 
+ti - (ti.Duration () - 1) =&gt; Null_Interval
+ 
+Time_Interval (1, 3) and
+Time_Interval (6, 9)      =&gt; Null_Interval 
+
+bg=yellow
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>780</x>
+      <y>300</y>
+      <w>410</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>
+TODO : pas clair mais je me comprends
+       à reformuler 
+ 
+valeur min des limited = 1 (en dessous, sort de la map)
+  
+"and" Inter (set) &amp; Min (map)
+      
+"or"  Union (set) &amp; Max (map)
+      
+"+"   Union (set) &amp; Somme (map)
+      
+"-"   Union (set) &amp; Diff (map)
+ 
+rs1.Cover (rs2) =&gt; rs1 and rs2 == rs2
+
+bg=yellow
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>170</x>
+      <y>310</y>
+      <w>200</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>/*Resource*/
+--
+-Status_Bit_Set : U_Char
+-&lt;&lt;Bottom_Role&gt;&gt;  : [U|X|A]
+-Max_Nos        : U_Int
+--
+Is_Limited ()   : Boolean
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>390</x>
+      <y>310</y>
+      <w>360</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*Resource_Set*
+--
+-Limited_Resources   : map &lt;Resource_Id, Int&gt;
+-Unlimited_Resources : set &lt;Resource_Id&gt;
+--
+Cover (rs : Resource_Set) : Boolean
+ 
+_"and" (rs1, rs2 : Resource_Set) : Resource_Set_
+_"or"  (rs1, rs2 : Resource_Set) : Resource_Set_
+_"+"   (rs1, rs2 : Resource_Set) : Resource_Set_
+_"-"   (rs1, rs2 : Resource_Set) : Resource_Set_
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>680</x>
+      <y>900</y>
+      <w>500</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>Session creation = f (Id) :
+  Availables             = Id.As.Scope_Set - Id.As.Functionnal_Set
+  Func_Session.Resources = Id.As.Functionnal_Set
+  Sub_Sessions           = []
+ 
+Session invariant :
+  Availables ==    Id.As.Scope_Set 
+                 - Id.As.Functionnal_Set 
+                 - Sub_Session [1].Id.As.Scope_Set 
+                 - Sub_Session [2].Id.As.Scope_Set
+                 - ...
+
+bg=yellow
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>1050</y>
+      <w>380</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;singleton&gt;&gt;
+*Session_Key_Mgr*
+--
+--
+Get_Root_Session_Key ()                  : Long
+Get_Subsession_Key   (Mother_Key : Long) : Long
+Is_Valid             (Key : Long)        : Boolean
+Session_Finished     (Key : Long)
+--
+Responsibilities
+-- Key generator and validity check
+Possible implementation
+-- As static private properties of Session</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>460</x>
+      <y>900</y>
+      <w>90</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>30;30;70;30;70;60</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>650</x>
+      <y>1270</y>
+      <w>370</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;singleton&gt;&gt;
+*User_Service_Factory*
+--
+-Tag_Ctor_Registry
+--
+New_Service (Service_Tag, Session) : User_Service
+--
+Possible implementation
+--  as static private properties of User_Service</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>360</x>
+      <y>1270</y>
+      <w>90</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>30;30;70;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>30</x>
+      <y>1420</y>
+      <w>260</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*User_Reservation*
+--
+-Reservation : Session_Id
+-Service_Tag : String
+-Start_Macro : String
+-Stop_Macro  : String
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>310</x>
+      <y>1420</y>
+      <w>520</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>*Agenda*
+--
+-Resources    : Resource_Set
+-Sessions     : User_Reservation []
+-Current_Time : Date
+-Next_Event   : User_Reservation  -- session to open or close
+--
+ 
+-Get_Currents  ()               : Session_Id []
+-Get_Futurs    ()               : Session_Id []
+-Get_Next_Slot (Role, Duration) : Time_Interval
+ 
+-Reserve (Who, As, What, Duration, Service_Tag, Macro)    : Long
+-Reserve (Who, As, When, What, Service_Tag, Macro)        : Long
+-Reserve (W, A, What, Dur, At, Fq, N, Service_Tag, Macro) : Long
+-Cancel  (Id)
+-Release (Id)</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

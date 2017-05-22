@@ -1,0 +1,47 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator electronics
+#@key_label  "name"
+#@meta_label "type"
+
+
+#########################################################################
+[name="sndemo.electronics@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator electronics
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type      : string  = "generic"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[3] = "Rack2" "Rack3" "Rack4"
+
+#@description The device model associated to the rack 2
+embedded_devices.model.Rack2 : string = "sndemo.calo_rack_2"
+
+#@description The device model associated to the rack 3
+embedded_devices.model.Rack3 : string = "sndemo.calo_rack_3"
+
+#@description The device model associated to the rack 4
+embedded_devices.model.Rack4 : string = "sndemo.calo_rack_4"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the setup
+aux.model        : string = "urn:snemo:demonstrator:electronics"
+
+
+# end of electronics.vdm

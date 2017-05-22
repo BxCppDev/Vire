@@ -16,8 +16,9 @@ add_executable(viremos_xml2viredev
 target_link_libraries(viremos_xml2viredev
   Vire_MOS
   Vire
-  ${XERCESC_LIBRARIES}
-  ${Boost_LOG_LIBRARY})
+  #XercesC::XercesC
+  #Boost::log
+  )
 
 # - RPath it
 set_target_properties(viremos_xml2viredev PROPERTIES INSTALL_RPATH_USE_LINK_PATH 1)

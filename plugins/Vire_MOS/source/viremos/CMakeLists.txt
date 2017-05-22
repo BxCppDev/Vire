@@ -55,7 +55,7 @@ add_library(Vire_MOS
 
 target_link_libraries(Vire_MOS
   Vire
-  ${XercesC_LIBRARIES}
+  XercesC::XercesC
   )
 
 # - RPATH it

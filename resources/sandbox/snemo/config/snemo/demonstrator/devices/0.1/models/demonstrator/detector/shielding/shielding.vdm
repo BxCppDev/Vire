@@ -1,0 +1,25 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to the shielding
+#@key_label  "name"
+#@meta_label "type"
+
+
+################################################################
+[name="shielding@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO Demonstrator shielding
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+# end of shielding.vdm

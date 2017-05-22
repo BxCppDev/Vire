@@ -1,0 +1,172 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator calorimeter front-end board
+#@key_label  "name"
+#@meta_label "type"
+
+
+##########################################################################################
+[name="sndemo.calo_feb_fe_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the SAMLONG ship
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "chip_pld"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model        : string = "Cyclone III"
+
+#@description Version of the board
+aux.version      : string = ""
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10102"
+
+
+#####################################################################################
+[name="sndemo.calo_feb_ctrl_fpga_ethernet_socket@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the ethernet socket
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type      : string  = "inout"
+
+#@description Format of the port
+format : string  = "Ethernet"
+
+
+#####################################################################################
+[name="calo_feb_ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the calorimeter FEB control FPGA
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "chip_pld"
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[1] = "Ethernet"
+
+# Port model associated to the Ethernet port:
+ports.model.Ethernet     : string = "calo_feb_ctrl_fpga_ethernet_socket"
+
+# Auxiliary properties:
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model        : string = "Cyclone III"
+
+#@description Version of the board
+aux.version      : string = ""
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10103"
+
+
+#########################################################################
+[name="sndemo.calo_feb_input_channel@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the signal input port of the calorimeter FEB
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type      : string  = "in"
+
+#@description Format of the port
+format : string  = "lemo-coaxial-00"
+
+
+##################################################################################
+[name="sndemo.calo_feb@device" type="vire::device::base_electronics_module_model"]
+
+#@config Parameters describing the calorimeter frontend board
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Format of the board
+format : string = "VME-6U-extended"
+
+#@description Slot width of the board
+slot_width : integer = 1
+
+####################
+# Embedded devices #
+####################
+
+#@description List of embedded chips
+embedded_devices.labels : string[3] = "Samlong" "FeFpga" "CtrlFpga"
+
+# Device model associated to the embedded ASICs:
+embedded_devices.model.Samlong     : string = "samlong2"
+embedded_devices.instance.Samlong  : string = "vire::device::regular_1d_instance=[nslots=8;first_slot=(1:0);step=(1)]"
+
+# Device model associated to the embedded frontend FPGAs:
+embedded_devices.model.FeFpga     : string = "sndemo.calo_feb_fe_fpga"
+embedded_devices.instance.FeFpga  : string = "vire::device::regular_1d_instance=[nslots=4;first_slot=(1:0);step=(1)]"
+
+# Device model associated to the embedded control FPGA:
+embedded_devices.model.CtrlFpga    : string = "sndemo.calo_feb_ctrl_fpga"
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[2] = "Input" "Ethernet"
+
+# Port model associated to the input signal ports:
+ports.model.Input     : string = "calo_feb_input_channel"
+ports.instance.Input  : string = "vire::device::regular_1d_instance=[nslots=16;first_slot=(1:0);step=(1)]"
+
+# Port model associated to the Ethernet ports:
+ports.model.Ethernet  : string = "ethernet_socket"
+
+#########
+# Links #
+#########
+
+#@description List of links
+links.labels : string[2] = "InputWires" "EthernetWire"
+links.from.InputWires : string = "Input[nslots=16;first_slot=(1:0);step=(1)]"
+links.to.InputWires   : string = "Samlong[nslots=8;first_slot=(1:0);step=(1)]/Input[nslots=2;first_slot=(1:0);step=(1)]"
+
+links.from.EthernetWire : string = "Ethernet"
+links.to.EthernetWire   : string = "CtrlFpga/Ethernet"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer of the board
+aux.manufacturer : string = "SuperNEMO Collaboration/LAL Orsay"
+
+#@description Model of the board
+aux.model : string = "16-channel WaveCatcher Board"
+
+
+# end of calo_feb.vdm

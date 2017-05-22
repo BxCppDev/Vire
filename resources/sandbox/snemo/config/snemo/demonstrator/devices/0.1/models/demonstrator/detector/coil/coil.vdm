@@ -1,0 +1,64 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to the SuperNEMO coil
+#@key_label  "name"
+#@meta_label "type"
+
+
+########################################################################
+[name="sndemo.coil_connector@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the connector for the input current port of the coil
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of I/O
+io_type      : string  = "in"
+
+#@description Format of the port
+format : string  = "screwable"
+
+
+##################################################################
+[name="sndemo.coil@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO coil
+#
+#    +--------------------+
+#    |                    |
+#    |  Coil              o<- Current supply
+#    |                    |
+#    +--------------------+
+#
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of the model
+type      : string  = "generic"
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[1] = "Connector"
+
+# Port model associated to the current supply connector port:
+ports.model.Connector : string = "sndemo.coil_connector"
+### ports_devices.instance.Connector : string = "vire::device::single_instance=[slot=(0)]"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the board
+aux.model        : string = "urn:snemo:demonstrator:detector:coil"
+
+
+# end of coil.vdm

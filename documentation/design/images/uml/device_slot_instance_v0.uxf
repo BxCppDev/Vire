@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
+  <zoom_level>7</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>273</x>
+      <y>126</y>
+      <w>315</w>
+      <h>203</h>
+    </coordinates>
+    <panel_attributes>vire::device::slot
+--
+-dimension: vire::space::dimension_type
+-coordinates: uint32_t[3]
+--
++is_dimension_0(): bool
++is_dimension_1(): bool
++is_dimension_2(): bool
++is_dimension_3(): bool
++get_max_coordinate_index(): int32_t
++has_valid_coordinate(unsigned int): bool
++get_coordinate(unsigned int): uint32_t
++fetch_coordinates(std::vector&lt;uint32_t&gt;&amp;,...);
++get_coordinates(): std::vector&lt;uint32_t&gt;
++is_valid(): bool
+--
+Responsibilities
+-- locate the unique position of a physical object within 
+   an instantiation space</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>196</x>
+      <y>343</y>
+      <w>301</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>/vire::device::i_instance/
+--
+--
+/+get_dimension(): vire::device::space::dimension_type/
+/+get_number_of_items(): std::size_t/
+/+fetch_slot(int, vire::device::slot &amp;)/
+/+is_valid(): bool/
+/+reset()/
+/+from_string(const std::string &amp;): bool/
++has_dimension(): bool
++is_unique(): bool
++is_multiple(): bool
++has_slot(const vire::device::slot &amp;): bool
+_+create(...): i_instance *_
+_default_instance(): const i_instance &amp;_
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>28</x>
+      <y>560</y>
+      <w>280</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>vire::device::single_instance
+--
+-slot: vire::device::slot
+--
++has_slot(): bool
++get_slot(): const vire::device::slot &amp;
++get_dimension(): vire::device::space::dimension_type
++get_number_of_items(): std::size_t
++fetch_slot(int,vire::device::slot&amp;)
++is_valid(): bool
++from_string(const std::string &amp;): bool
+--
+Responsibilities
+-- represent the unique placement (singleton) of a 
+   physical objet in an instantiation space</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>196</x>
+      <y>476</y>
+      <w>34</w>
+      <h>97</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;56;21;84</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>70</x>
+      <y>217</y>
+      <w>216</w>
+      <h>356</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1
+unique dimensionless slot</panel_attributes>
+    <additional_attributes>84;343;84;35;203;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>322</x>
+      <y>560</y>
+      <w>280</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>vire::device::regular_1d_instance
+--
+-first_slot: vire::device::slot
+-number_of_slots: uint32_t
+-coord_step: int32_t[3]
+--
++get_number_of_slots(): uint32_t
++get_first_slot(): const vire::device::slot&amp;
++get_coord_step(int): int32_t
++get_dimension(): vire::device::space::dimension_type
++get_number_of_items(): std::size_t
++fetch_slot(int, vire::device::slot&amp;)
++is_valid(): bool
++from_string(const std::string&amp;): bool
+--
+Responsibilities
+-- represent a multiple 1 dimensional regular placement of
+   several physical objects in an instantiation space</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>322</x>
+      <y>476</y>
+      <w>34</w>
+      <h>97</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;84</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>616</x>
+      <y>560</y>
+      <w>294</w>
+      <h>238</h>
+    </coordinates>
+    <panel_attributes>vire::device::regular_2d_instance
+--
+-first_slot: vire::device::slot
+-number_of_slots_0: uint32_t
+-number_of_slots_1: uint32_t
+-coord_step_0: int32_t[3]
+-coord_step_1: int32_t[3]
+--
++get_number_of_slots_0(): uint32_t
++get_number_of_slots_1(): uint32_t
++get_first_slot(): const vire::device::slot&amp;
++get_coord_step_0(int): int32_t
++get_coord_step_1(int): int32_t
++get_dimension(): vire::device::space::dimension_type
++get_number_of_items(): std::size_t
++fetch_slot(int, vire::device::slot&amp;)
++is_valid(): bool
++from_string(const std::string&amp;): bool
+--
+Responsibilities
+-- represent a multiple 2 dimensional grid placement of
+   several physical objects in an instantiation space</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>441</x>
+      <y>476</y>
+      <w>216</w>
+      <h>97</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;56;203;56;203;84</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>567</x>
+      <y>287</y>
+      <w>158</w>
+      <h>286</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1
+first 2D-slot on a
+2D-space</panel_attributes>
+    <additional_attributes>105;273;105;35;21;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>504</x>
+      <y>308</y>
+      <w>106</w>
+      <h>265</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2= 1
+first 1D-slot on 
+a 1-D space</panel_attributes>
+    <additional_attributes>56;252;56;147;56;63;56;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>707</x>
+      <y>105</y>
+      <w>294</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>_dimensionless_slot: vire::device::slot_
+--
+dimension: space::dimension_type=vire::device::space::DIM_0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>567</x>
+      <y>98</y>
+      <w>153</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;instanceOf&gt;&gt;</panel_attributes>
+    <additional_attributes>21;35;140;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>707</x>
+      <y>147</y>
+      <w>294</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>_slot_dim1: vire::device::slot_
+--
+dimension: space::dimension_type=vire::device::space::DIM_1
+coordinates: uint32_t[1]={4}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>567</x>
+      <y>119</y>
+      <w>153</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;instanceOf&gt;&gt;</panel_attributes>
+    <additional_attributes>21;35;140;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>707</x>
+      <y>196</y>
+      <w>294</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>_slot_dim2: vire::device::slot_
+--
+dimension: space::dimension_type=vire::device::space::DIM_2
+coordinates: uint32_t[2]={2,0}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>567</x>
+      <y>168</y>
+      <w>153</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;instanceOf&gt;&gt;</panel_attributes>
+    <additional_attributes>21;35;140;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>707</x>
+      <y>252</y>
+      <w>294</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>_slot_dim3: vire::device::slot_
+--
+dimension: space::dimension_type=vire::device::space::DIM_3
+coordinates: uint32_t[3]={0,3,1}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>567</x>
+      <y>224</y>
+      <w>153</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;instanceOf&gt;&gt;</panel_attributes>
+    <additional_attributes>21;35;140;35</additional_attributes>
+  </element>
+</diagram>

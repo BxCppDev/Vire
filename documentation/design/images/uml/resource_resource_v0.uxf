@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>310</x>
+      <y>10</y>
+      <w>200</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>datatool::enriched_base
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>140</x>
+      <y>110</y>
+      <w>340</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>vire::resource::resource
+--
+-id: resource_id
+-access: rw_access_type
+-max_nb_subscribers_: uint32_t
+-allowed_subscription: bool
+-allowed_non_blocking: bool
+-resource_instance: base_resource_instance*
+-dependencies: std::vector&lt;const resource*&gt;
+--
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>350</x>
+      <y>10</y>
+      <w>60</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>40;30;30;100</additional_attributes>
+  </element>
+</diagram>

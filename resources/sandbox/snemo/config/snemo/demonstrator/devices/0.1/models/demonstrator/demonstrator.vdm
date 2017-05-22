@@ -1,0 +1,50 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator
+#@key_label  "name"
+#@meta_label "type"
+
+
+#########################################################################
+[name="snemo.demonstrator@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type      : string  = "generic"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[2] = "Detector" "Electronics" # "CMS"
+
+#@description The device model associated to the Detector
+embedded_devices.model.Detector  : string = "sndemo.detector"
+# embedded_devices.instance.Detector : string = "vire::device::single_instance=[slot=(1:0)]"
+
+#@description The device model associated to the Electronics
+embedded_devices.model.Electronics  : string = "sndemo.electronics"
+# embedded_devices.instance.Electronics : string = "vire::device::single_instance=[slot=(1:0)]"
+
+# #@description The device model associated to the CMS
+# embedded_devices.model.CMS       : string = "sndemo.cms"
+# embedded_devices.instance.CMS : string = "vire::device::single_instance=[slot=(1:0)]"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the experimental setup
+aux.model        : string = "urn:snemo:demonstrator:setup"
+
+
+# end of demonstrator.vdm

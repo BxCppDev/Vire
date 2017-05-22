@@ -124,7 +124,7 @@ endif()
 #
 message (STATUS "[info] Searching for BxRabbitMQ...")
 find_package(BxRabbitMQ 0.1 REQUIRED CONFIG COMPONENTS manager)
-if (BxProtobuftools_FOUND)
+if (BxRabbitMQ_FOUND)
   message( STATUS "[info] Found the BxRabbitMQ library:")
   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
   message( STATUS "[info]   BxRabbitMQ_INCLUDE_DIRS      = '${BxRabbitMQ_INCLUDE_DIRS}'")

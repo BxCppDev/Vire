@@ -1,0 +1,24 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of network devices/ports
+#@key_label  "name"
+#@meta_label "type"
+
+
+##################################################################
+[name="ethernet_socket@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing a generic Ethernet socket
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type : string = "inout"
+
+#@description Format of the port
+format : string = "Ethernet"
+
+
+# end of network.vdm

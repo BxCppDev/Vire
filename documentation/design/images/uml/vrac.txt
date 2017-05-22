@@ -1,0 +1,217 @@
+
+Descriptions et idees en vrac à propos des diagrammes uml préliminaires.
+
+---------------------------------------------------------------------------------------------------
+
+UMLet & uxf
+-----------
+
+Les diagrammes UML sont créés avec l'outil UMLet et stockés dans des fichiers ascii au format .uxf
+(Uml eXchange Format)
+usage :
+ > umlet
+     sans argument, lance l'ihm. permet de charger, modifier et enregistrer des uxf
+ > umlet -filename=bob.uxf
+     lance l'ihm sur bob.uxf
+ > umlet -action=convert -format=pdf -filename=bob.uxf
+     crée un fichier bob.pdf à partir de bob.uxf
+
+---------------------------------------------------------------------------------------------------
+  Version 0
+-----------
+
+  ---------------------------------
+  Diagramme de classe config_v0.uxf
+  ---------------------------------
+
+	* Resource (abstraite)
+      - Resource_Id    : Identifiant
+      - Status_Bit_Set : Missing | Disable | Pending | Error
+	    - NOS            : Number of subscribers
+	    - Bottom Role    : Role à priori User "U", Expert "X", Expert Specifique "A", "B", ...
+	    => Trois TYPES de Resource -> PROC, ROV, WOV pour Procedure, ReadOnlyValue, WriteOnlyValue
+      => on peut souscrire aux ROVs
+	    => les WOVs ont des valeurs nominales et des plages de variations définies
+	    => chaque accès à une resource renvoie au moins son Status_Bit_Set
+
+	* Resource_Id
+      - Chaque Resource est identifiée par son Resource_Id =>  Id & Path
+
+	* Resource_Set
+      - ensemble de Resources disposant d'opérateurs Union, Intersection, ...
+	    Exemples :
+         Univers_Set : la totale
+         Empty_Set : nib
+	       Acq_Set : resources necéssaires à l'acquisition déduites du Device virtuel Acq_Dev
+	       Calo_Set : ensembles des resources qui définissent le Calo déduites de Calo_Dev
+
+	* Device
+      - réel ou virtuel (hard vs soft)
+	    - dispose d'un Id et de son équivalent Path
+      - englobe (dépend d') un ensemble de ressources (Resource_Set)
+      Rq : le concept de Device est lié à celui de Resource (un Device sans Resource ?)
+           -> permet de le singulariser, de le reserver, d'avoir un comportement à priori (ie: "X")
+           -> Configuration_Mgr_Dev => Add => Ressource Expert
+
+	* Role
+	    - Défini par deux ensembles de resources : Functionnal_Set et Scope_Set
+	    - Functionnal_Set recouvre les Resources utilisées 'directement par' le rôle
+	    - Scope_Set recouvre l'ensemble des resources utilisées
+            => implique que Functionnal_Set est inclus dans Scope_Set => Is_Valid
+	    - Création de rôles à priori à partir de Devices - méthodes de classe (static)
+          => User (Device), Expert (Device), Expert (Device, Role_Tag)
+	        Exemples :
+             User (Configuration_Mgr_Dev)   => peut chercher et récupérer une config
+             Expert (Configuration_Mgr_Dev) => peut en plus ajouter/modifier une config
+      		   User (Acq_Dev)                 => peut demarrer/arreter
+             Expert (Acq_Dev)               => peut en plus charger/décharger une config
+
+	* Configuration
+      - Est une configuration complète ou partielle de l'expérience (valeurs prédéterminées des WOV)
+	    - Dispose d'un id, d'un nom, est associée à un thème et a des mots clés.
+      - Est autorisée au chargement pour un certain nombre de rôles prédéfinis.
+          => on peut créer des ressources 'vides' simplement pour définir des rôles symboliques
+          => ex : shifter, calibration, ...
+
+	* Configuration_Mgr
+      - Est un Device => singulariser et profiter de la discrimination 'Expert'.
+      - Permet de ranger les conf (stockage, classement, recherche)
+
+
+  ----------------------------------
+  Diagramme de classe session_v0.uxf
+  ----------------------------------
+
+	* User
+      - Id, Name
+      - peut jouer plusieurs rôles distincts
+
+	* Time_Prog
+      - Définit un ou plusieurs intervalles de temps
+      - a un début, une fin, une durée.
+	    - on peut sommer deux Time_Prog, soustraire ou répéter ...
+      - on peut savoir si un time_prog (ou une date) est inclus(e) dans un autre.
+
+	* Session
+	    - Définit et donne accès en exclusivité à un ensemble de resources,
+       	 -> à un utilisateur (who),
+	    	 -> jouant un rôle donné (as)
+       	 -> pendant un temps pas forcément continu (when)
+	    - Les resources sont segmentées en deux en fonction du role : Functionnal_Set vs Scope_Set
+         -> Func_Session => session effective donnant accès à User aux resources (Functionnal_Set)
+         -> Sub_Sessions => sous sessions laissée à des acteurs ayant droit (utilisateurs/programmes spécialisés)
+	    - le session est responsable de ses resources, c'est elle qui CRÉE ses sous-sessions à partir des
+        resources non allouées qui lui restent.
+         => gestion locale des ensembles -> partage et minimise le travail
+         => garantie de non recouvrement des ensembles
+	    - la validité d'une session est garantie par sa clé (cf Session_Key_Mgr)
+	    - à la fin de la session la clé est rendue, et les resources libérée à la session mère
+
+	* Effective_Session
+      - Responsable des acces aux resources :
+  	  	-> les resources ne sont accessibles qu'à partir d'une effective_session
+	 	    -> utilisation de la clé de sa session mère (composition un pour un stricte)
+        -> methodes d'accès locales, distantes, spécifiques
+	      -> garantie d'accès exclusif
+
+	* Session_Key_Mgr
+      - objet unique ayant la responsabilité d'allouer des clés de session
+	    - maintient la liste des clés allouées -> vérification de clé valide
+	    - une session obtient une clé pour une sous session en utilisant sa clé
+	    - les clés ne sortent pas du cercle défini par les classes suivantes
+         Session_Key_Mgr, Session et Effective_Session,
+         respectivement générateur, garant et utilisateur.
+
+	* Persistant_Session
+	    - Le cycle de vie d'une session normale est constitué de
+         -> création = f (who, as, when)
+         -> utilisation
+         -> destruction
+      - La session persistante, permet à l'utilisateur de sortir sans détruire la session (Leave),
+      - Cette session peut poursuivre sa vie avec User=Nobody,
+      - Un utilisateur ayant un role suffisant peut alors entrer dans cette session (Enter),
+      - etc ..., jusqu'à la fin de session (destruction normale)
+
+  * Service (abstrait)
+      - fonctionnalité offerte aux utilisateurs (use case d'entrée) ou privée (service interne)
+      - créé avec une session = f (who, as, when)
+      - partie executive d'une session au sens général
+           Vire Service -> actions / algos
+           Vire Session -> gestion des ressources
+      - comparaison Service et Virtual_Device
+           -> points communs :
+                partie executive
+                orchestration de Resources
+           -> différences :
+                Device : associé fortement à des resources (composition)
+                         -> doit être reservé
+                Service : point d'entrée d'un utilisateur dans une session
+                         -> fait de reserver
+      - exemples :
+           -> Shell_Service :
+                point d'entrée d'un utilisateur expert, permettant d'atteindre directement les
+                resources définies par le role
+           -> Config_Lock_Service :
+                service interne permettant d'appliquer une configuration à une partie de l'expérience
+                - dispose d'un maximum de pouvoirs mais d'un minimum de fonctionnalités
+                - permet à un utilisateur basic d'effectuer des Writes par wagons sans pour autant
+                  avoir les droits individuels nécessaires. Les writes sont validés à l'avance et
+                  garantis par la config.
+           -> Acq_Service :
+                - service qui wrap un device
+                  -> accès utilisateur au device Acq_Dev
+                  -> def de la session acq
+                  -> singleton par la force des choses (compo Acq_Dev)
+
+  * Persistant_Service
+       - service dont la session est persistante
+         => Acq_Service
+
+
+  -----------
+  Discussions
+  -----------
+
+  * DEFINITONS des Service, Virtual_Device, Robot, Demon, ...
+       - voir Service ci-dessus
+       - ...
+
+  * LIENS entre Session et Agenda
+       - Jean     -> la session est l'agenda
+                     chaque session a son propre agenda
+                     l'agenda de l'expérience est celui de la session mère
+       - François -> agenda statique (persistance du future)
+                     session dynamique (vue du présent)
+
+  * GENERALISATION de Resource
+       - pour l'instant la ressource a été vue essentiellement à travers l'exemple CMS
+          -> les attributs et méthodes associées viennent de là (Status_Bit_Set, Subscribe, ...)
+       - Ok pour tout ?
+       - Domaine de définition et frontière entre Vire et SNEMO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

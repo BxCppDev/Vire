@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ******************************************************************************************* -->
+<!-- **** file :       *** -->
+<!-- **** description :                    *** -->
+<!-- **** author      : panazol@lapp.in2p3.fr                                                *** -->
+<!-- **** date        : 14/01/15                                                             *** -->
+<!-- ******************************************************************************************* -->
+
+
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v1_0_0/dict_cta.xsd">
+	<Name>MOS_server</Name>
+	<SimpleDevice>
+		<Name>LSM_Environment</Name>
+                        <CompoundDatapoint>
+                                <Name>0_ProgramInformations</Name>
+                <Attribut>
+                        <Name>DeviceModelName</Name>
+                        <Value>SNEMO/LSM_ENVIRONMENT/LSM_ENVIRONMENTModel.xml</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelVersion</Name>
+                        <Value>1.0.0</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDate</Name>
+                        <Value>29-06-2015</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelAuthor</Name>
+                        <Value>Panazol Jean-luc</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDescription</Name>
+                        <Value></Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceName</Name>
+                        <Value>SNEMO/LSM_ENVIRONMENT/LSM_ENVIRONMENT_1.xml</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceDate</Name>
+                        <Value>29-06-2015 14:23</Value>
+                </Attribut>
+                        </CompoundDatapoint>
+
+	</SimpleDevice>
+</OPCUA>

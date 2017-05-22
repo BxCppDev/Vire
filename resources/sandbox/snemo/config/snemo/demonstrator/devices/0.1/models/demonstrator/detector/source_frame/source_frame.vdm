@@ -1,0 +1,28 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to source frame
+#@key_label  "name"
+#@meta_label "type"
+
+
+##########################################################################
+[name="sndemo.source_frame@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO Demonstrator source frame
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the setup
+aux.model        : string = "urn:snemo:demonstrator:source_frame"
+
+
+# end of source_frame.vdm

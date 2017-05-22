@@ -1,0 +1,54 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator detector
+#@key_label  "name"
+#@meta_label "type"
+
+
+######################################################################
+[name="sndemo.detector@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator detector
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type      : string  = "generic"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[4] = \
+  "Calorimeter" \
+  "Tracker" \
+  "SourceFrame"
+  "Coil" \
+
+#@description The device model associated to the calorimeter
+embedded_devices.model.Calorimeter : string = "sndemo.calorimeter"
+
+#@description The device model associated to the Tracker
+embedded_devices.model.Tracker     : string = "sndemo.tracker"
+
+#@description The device model associated to the source frame
+embedded_devices.model.SourceFrame : string = "sndemo.source_frame"
+
+#@description The device model associated to the coil
+embedded_devices.model.Coil        : string = "sndemo.coil"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the setup
+aux.model        : string = "urn:snemo:demonstrator:detector"
+
+
+# end of detector.vdm

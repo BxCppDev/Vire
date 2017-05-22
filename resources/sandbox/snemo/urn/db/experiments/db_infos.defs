@@ -1,0 +1,16 @@
+# -*- mode: conf-unix; -*-
+
+#@description Definition list of URNs associated to experiments in the SuperNEMO collaboration
+#@key_label  "urn"
+#@meta_label "category"
+
+
+####################################################
+[urn="urn:snemo:demonstrator" category="experiment"]
+
+#@config URN registration of the SuperNEMO demonstrator experiment
+
+description : string = "SuperNEMO demonstrator detector"
+
+
+# end

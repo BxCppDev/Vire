@@ -175,7 +175,7 @@ add_subdirectory(source)
 
 #-----------------------------------------------------------------------
 # Resource installation
-# add_subdirectory(resources)
+add_subdirectory(resources)
 
 #-----------------------------------------------------------------------
 # - CMake Support files

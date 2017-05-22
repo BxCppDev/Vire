@@ -1,0 +1,29 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator tracker HV crate
+#@key_label  "name"
+#@meta_label "type"
+
+
+##############################################################################
+[name="sndemo.tracker_hv_crate@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the tracker HV power supply crate
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "ACME"
+
+# #@description Model of the setup
+# aux.model        : string = ""
+
+
+# end of tracker_hv_crate.vdm

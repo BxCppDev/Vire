@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ******************************************************************************************* -->
+<!-- **** file :       *** -->
+<!-- **** description :                    *** -->
+<!-- **** author      : panazol@lapp.in2p3.fr                                                *** -->
+<!-- **** date        : 14/01/15                                                             *** -->
+<!-- ******************************************************************************************* -->
+
+
+
+<!-- .......................................................................... -->
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd">
+
+<Name>MOS_server</Name>
+
+	<SimpleDevice>
+	
+		<Name>CalibrationLight</Name>
+
+		<Plugins>
+			<Location>/MOS/plugins/libPlugin_PulserLib.so</Location> 
+			<Name>ptr_Plugin</Name>
+		</Plugins>
+<!-- .......................................................................... -->
+
+
+		
+		<!-- .......................................................................... -->
+		<Instruction_set>
+		
+			<Instruction>
+				<Name>Start</Name>
+				<Cmd>-c -l %1 -h %2 -w %3</Cmd>
+			</Instruction>
+		
+			<Instruction>
+				<Name>StartSeq</Name>
+				<Cmd>-q -l %1 -h %2 -w %3 -n %4 -r %5</Cmd>
+			</Instruction>
+		
+			<Instruction>
+				<Name>Stop</Name>
+				<Cmd>-s</Cmd>
+			</Instruction>
+		
+			<Instruction>
+				<Name>GetLedNumber</Name>
+				<Cmd>GetLedNumber</Cmd>
+			</Instruction>
+			
+			<Instruction>
+				<Name>GetHeight</Name>
+				<Cmd>GetHeight</Cmd>
+			</Instruction>
+			
+			<Instruction>
+				<Name>GetWidth</Name>
+				<Cmd>GetWidth</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetN_pulses</Name>
+				<Cmd>GetN_pulses</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetRepetition</Name>
+				<Cmd>GetRepetition</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetPort</Name>
+				<Cmd>GetPort</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetAddress</Name>
+				<Cmd>GetAddress</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetBoxType</Name>
+				<Cmd>GetBoxType</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetConnectionType</Name>
+				<Cmd>GetConnectionType</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetTrigger</Name>
+				<Cmd>GetTrigger</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>GetAddressCard</Name>
+				<Cmd>GetAddressCard</Cmd>
+			</Instruction>
+
+		</Instruction_set>
+		<!-- .......................................................................... -->
+
+
+
+		<!-- .......................................................................... -->
+		<HardwareConfig>
+		
+			<NameHardwareConfig>Init</NameHardwareConfig>
+			
+			<!-- Address is not used because serial connection 
+			<Argument>
+				<Name>Address</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>192.168.1.200</DefaultValue> 
+			</Argument> -->
+			
+			<Argument>
+				<Name>Port</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue> <!-- here serial port  -->
+			</Argument>
+			
+			<Argument>
+				<Name>BoxType</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>3</DefaultValue> <!-- 3 = boxP3 -->
+			</Argument>
+
+			<Argument>
+				<Name>ConnectionBox</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>u</DefaultValue> <!-- s = Serial -->
+			</Argument>
+
+			<Argument>
+				<Name>Trigger</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>i</DefaultValue> <!-- i = internal -->
+			</Argument>
+
+			<Argument>
+				<Name>AddressCard</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue> <!-- here A = 1 -->
+			</Argument>
+
+		</HardwareConfig>
+		<!-- .......................................................................... -->
+
+
+
+		<!-- .......................................................................... -->
+		<Method>
+			<Name>StartPulse</Name>
+			
+			<Argument>
+				<Name>NumLED</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>20</Max>
+				</Range>
+				<Description>range [1,20] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>heigth</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>50</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>1023</Max>
+				</Range>
+				<Description>range [1,1023] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>width</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>7</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>7</Max>
+				</Range>
+				<Description>range [1,7] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>Return</Name>
+				<Type>string</Type>
+				<Access>Output</Access>
+			</Argument>	                    
+			<DeviceInstruction>
+				<Value>Start</Value>
+			</DeviceInstruction>
+			<Event>
+				<Message>Start pulser box</Message>
+			</Event>
+		</Method>
+		<!-- .......................................................................... -->
+
+
+
+		<!-- .......................................................................... -->
+		<Method>
+			<Name>StartPulseSeq</Name>
+			
+			<Argument>
+				<Name>NumLED</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>20</Max>
+				</Range>
+				<Description>range [1,20] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>heigth</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>50</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>1023</Max>
+				</Range>
+				<Description>range [1,1023] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>width</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>7</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>7</Max>
+				</Range>
+				<Description>range [1,7] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>n_pulse</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>65635</Max>
+				</Range>
+				<Description>range [1,65635] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>repetition</Name>
+				<Type>int32</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+				<Range>
+					<Min>1</Min>
+					<Max>65635</Max>
+				</Range>
+				<Description>range [1,65635] </Description>
+			</Argument>
+			
+			<Argument>
+				<Name>Return</Name>
+				<Type>string</Type>
+				<Access>Output</Access>
+			</Argument>
+			<DeviceInstruction>
+				<Value>StartSeq</Value>
+			</DeviceInstruction>
+			<Event>
+				<Message>Start sequence pulse</Message>
+			</Event>
+		</Method>
+		<!-- .......................................................................... -->
+		
+		
+		
+		<!-- .......................................................................... -->
+		<Method>
+			<Name>StopPulse</Name>
+			<Argument>
+				<Name>Return</Name>
+				<Type>string</Type>
+				<Access>Output</Access>
+			</Argument>
+			<DeviceInstruction>
+				<Value>Stop</Value>
+			</DeviceInstruction>
+			<Event>
+				<Message>Stop pulser box</Message>
+			</Event>
+		</Method>
+		<!-- .......................................................................... -->
+		
+		
+		
+		<!-- .......................................................................... -->
+		<Method>
+			<Name>GetVersion</Name>
+			<Argument>
+				<Name>version</Name>
+				<Type>string</Type>
+				<Access>Output</Access>
+			</Argument>
+			<DeviceInstruction>
+				<Value>GetVersion</Value>
+			</DeviceInstruction>
+		</Method>
+		<!-- .......................................................................... -->
+		
+		
+		
+		<!-- .......................................................................... -->	
+		<CompoundDatapoint>
+			<Name>0_ProgramInformations</Name>
+			
+			<Attribut>
+				<Name>DeviceModelName</Name>
+				<Value>SNEMO/LIGHT_INJECTION/LIGHT_INJECTIONModel.xml</Value>
+			</Attribut>
+			
+			<Attribut>
+				<Name>DeviceModelVersion</Name>
+				<Value>1.0.0</Value>
+			</Attribut>
+			
+			<Attribut>
+				<Name>DeviceModelDate</Name>
+				<Value>10-06-2016</Value>
+			</Attribut>
+			
+			<Attribut>
+				<Name>DeviceModelAuthor</Name>
+				<Value>PANAZOL Jean-luc : LE NOBLET Thibaud</Value>
+			</Attribut>
+			
+			<Attribut>
+				<Name>DeviceModelDescription</Name>
+				<Value></Value>
+			</Attribut>
+			<Attribut>
+                	        <Name>InstanceName</Name>
+                	        <Value>SNEMO/LIGHT_INJECTION/@Name@</Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>InstanceDate</Name>
+                	        <Value>@DateCreation@</Value>
+                	</Attribut>
+		</CompoundDatapoint>
+		<!-- .......................................................................... -->
+		
+		
+		
+		<!-- .......................................................................... -->
+		<CompoundDatapoint>
+			<Name>Monitoring</Name>                
+			<CompoundDatapoint>
+				
+				<Name>Box</Name>
+				<!-- .......................................................................... -->              
+				<SimpleDatapoint>
+					<Name>Port</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>900</MonitoringRate>
+					<Historizing>0</Historizing>			            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetPort</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... 
+				     not used because serial link
+				<SimpleDatapoint>
+					<Name>Address</Name>                
+					<Type>string</Type>
+					<MonitoringRate>900</MonitoringRate>
+					<Historizing>0</Historizing>				            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetAddress</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint> -->
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>BoxType</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>900</MonitoringRate>
+					<Historizing>0</Historizing>					            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetBoxType</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>ConnectionType</Name>                
+					<Type>string</Type>
+					<MonitoringRate>900</MonitoringRate>
+					<Historizing>0</Historizing>					            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetConnectionType</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>Trigger</Name>                
+					<Type>string</Type>
+					<MonitoringRate>900</MonitoringRate>
+					<Historizing>0</Historizing>					            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetTrigger</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>AddressCard</Name>                
+					<Type>string</Type>
+					<MonitoringRate>900</MonitoringRate>
+					<Historizing>0</Historizing>					            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetAddressCard</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+		
+			</CompoundDatapoint>
+			<!-- .......................................................................... -->
+			
+			
+			
+			<!-- .......................................................................... -->
+			<CompoundDatapoint>
+				<Name>Led</Name>
+				<!-- .......................................................................... -->             
+				<SimpleDatapoint>
+					<Name>Heigth</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>1</MonitoringRate>
+					<Historizing>1</Historizing>						            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetHeight</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>Width</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>1</MonitoringRate>
+					<Historizing>1</Historizing>					            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetWidth</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>LedNumber</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>1</MonitoringRate>
+					<Historizing>1</Historizing>				            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetLedNumber</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>N_pulses</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>1</MonitoringRate>
+					<Historizing>1</Historizing>		            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetN_pulses</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+				<!-- .......................................................................... -->
+				<SimpleDatapoint>
+					<Name>Repetition</Name>                
+					<Type>int32</Type>
+					<MonitoringRate>1</MonitoringRate>
+					<Historizing>1</Historizing>	            
+					<Method>
+						<Name>get</Name>
+						<DeviceInstruction>
+							<Value>GetRepetition</Value>
+						</DeviceInstruction>
+					</Method>
+				</SimpleDatapoint>
+				<!-- .......................................................................... -->
+				
+			</CompoundDatapoint>
+		</CompoundDatapoint>
+	</SimpleDevice>
+</OPCUA>

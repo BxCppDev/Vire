@@ -1,0 +1,141 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator tracker front-end board
+#@key_label  "name"
+#@meta_label "type"
+
+
+#########################################################################################
+[name="sndemo.tracker_feb.feast.input_channel@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the signal input port of the FEAST ship
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of I/O
+io_type : string = "in"
+
+
+###########################################################################################
+[name="sndemo.tracker_feb.feast@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the FEAST ship
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type : string = "chip_asic"
+
+####################
+# Embedded devices #
+####################
+
+#@description Manufacturer the board
+aux.manufacturer : string = "SuperNEMO Collaboration/LPC Caen"
+
+#@description Model of the board
+aux.model : string = "FEAST"
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[1] = "Input"
+
+# Port model associated to the input signal ports:
+ports.model.Input    : string = "sndemo.tracker_feb.feast.input_channel"
+ports.instance.Input : string = "vire::device::regular_1d_instance=[nslots=54;first_slot=(1:0);step=(1)]"
+
+
+###############################################################################################
+[name="sndemo.tracker_feb.ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the tracker FEB control FPGA
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type : string  = "chip_pld"
+
+####################
+# Embedded devices #
+####################
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model : string = "Cyclone III"
+
+
+###################################################################################
+[name="sndemo.tracker_feb.input_channel@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the signal input port of the tracker FEB
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of I/O
+io_type : string = "in"
+
+#@description Format of the port
+format : string = "ACME"
+
+
+#####################################################################################
+[name="sndemo.tracker_feb@device" type="vire::device::base_electronics_module_model"]
+
+#@config Parameters describing the tracker frontend board
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Format of the board
+format : string = "VME-6U-extended"
+
+#@description Slot width of the board
+slot_width : integer = 1
+
+####################
+# Embedded devices #
+####################
+
+#@description List of embedded chips
+embedded_devices.labels : string[2] = "Feast" "ControlFPGA"
+
+# Device model associated to the embedded Feast ASICs:
+embedded_devices.model.Feast    : string = "sndemo.tracker_feb.feast"
+embedded_devices.instance.Feast : string = "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
+
+# Device model associated to the embedded control FPGA:
+embedded_devices.model.ControlFPGA : string = "sndemo.tracker_feb.ctrl_fpga"
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[1] = "Input"
+
+# Port model associated to the input signal ports:
+ports.model.Input    : string = "sndemo.tracker_feb.input_channel"
+ports.instance.Input : string = "vire::device::regular_1d_instance=[nslots=108;first_slot=(1:0);step=(1)]"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer of the board
+aux.manufacturer : string = "University of Manchester"
+
+#@description Model of the board
+aux.model : string = "108-channel SuperNEMO Tracker Front-end Board"
+
+
+# end of tracker_feb.vdm

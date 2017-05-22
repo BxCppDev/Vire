@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
+  <zoom_level>7</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>105</x>
+      <y>84</y>
+      <w>308</w>
+      <h>238</h>
+    </coordinates>
+    <panel_attributes>vire::device::base_physical
+--
+-mother_instance: const logical_device*
+-owned_instance: bool
+-instance: const i_instance *
+--
++has_mother_logical(): bool
++set_mother_logical(const vire::device::logical_device&amp;)
++get_mother_logical(): const logical_device &amp;
++reset_mother_logical()
++has_instance(): bool
++set_instance(const i_instance&amp;)
++set_instance(const i_instance*)
++get_instance(): const i_instance&amp;
++reset_instance()
++reset()
+/+tree_dump(std::ostream&amp;,...)/
+_+physical_name_suffix(): const std::string &amp;_
+_+make_physical_name(const std::string &amp;): std::string_
+--
+Responsibilities
+-- manage the instantiation of the physical object in the 
+   scope of the mother logical device</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>518</x>
+      <y>119</y>
+      <w>133</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>/vire::device::i_instance/
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>392</x>
+      <y>91</y>
+      <w>139</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1
+instance object for
+positioning</panel_attributes>
+    <additional_attributes>21;35;126;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>518</x>
+      <y>91</y>
+      <w>133</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>/vire::device::logical_device/
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>392</x>
+      <y>70</y>
+      <w>139</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2=1
+reference to mother
+logical device
+</panel_attributes>
+    <additional_attributes>21;35;126;35</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>182</x>
+      <y>14</y>
+      <w>154</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>datatools::enriched_base
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>238</x>
+      <y>14</y>
+      <w>34</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>21</x>
+      <y>371</y>
+      <w>161</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::physical_link
+--
+-logical: vire::device::logical_link</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>77</x>
+      <y>301</y>
+      <w>83</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>70;21;70;49;21;49;21;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>196</x>
+      <y>371</y>
+      <w>161</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::physical_port
+--
+-logical: vire::device::logical_port
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>245</x>
+      <y>301</y>
+      <w>34</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>371</x>
+      <y>371</y>
+      <w>175</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::physical_device
+--
+-logical: vire::device::logical_device
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>357</x>
+      <y>301</y>
+      <w>76</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;49;63;49;63;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>434</x>
+      <y>385</y>
+      <w>34</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2= 1
+</panel_attributes>
+    <additional_attributes>21;21;21;91</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>245</x>
+      <y>385</y>
+      <w>34</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2= 1
+</panel_attributes>
+    <additional_attributes>21;21;21;91</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>77</x>
+      <y>385</y>
+      <w>34</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2= 1</panel_attributes>
+    <additional_attributes>21;21;21;91</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>21</x>
+      <y>476</y>
+      <w>161</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::logical_link
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>196</x>
+      <y>476</y>
+      <w>161</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::logical_port
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>371</x>
+      <y>476</y>
+      <w>161</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::logical_device
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>574</x>
+      <y>476</y>
+      <w>161</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>vire::device::base_device_model
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>511</x>
+      <y>483</y>
+      <w>76</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+m2= 1
+</panel_attributes>
+    <additional_attributes>21;21;63;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>434</x>
+      <y>385</y>
+      <w>118</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=0..n
+daughter devices</panel_attributes>
+    <additional_attributes>63;91;63;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>315</x>
+      <y>385</y>
+      <w>111</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=0..n
+local ports</panel_attributes>
+    <additional_attributes>98;91;98;56;21;56;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>126</x>
+      <y>385</y>
+      <w>300</w>
+      <h>188</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=0..n
+    
+    
+        
+            
+                
+                    
+                            internal links</panel_attributes>
+    <additional_attributes>287;126;287;154;63;154;63;56;21;56;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>511</x>
+      <y>462</y>
+      <w>76</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1</panel_attributes>
+    <additional_attributes>63;21;21;21</additional_attributes>
+  </element>
+</diagram>

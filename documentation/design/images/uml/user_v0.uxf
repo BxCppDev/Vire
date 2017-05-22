@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
+  <zoom_level>7</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>154</x>
+      <y>231</y>
+      <w>231</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>vire::user::user
+--
+- uid: int32_t
+_+INVALID_UID: int32_t_
+_+ADMIN_UID: int32_t_
+_+MIN_UID: int32_t_
+--
++has_uid() : bool
++set_uid(int32_t)
++get_uid() : int32_t
++initialize(const datatools::properties &amp;)
++export_to_config(datatools::properties &amp;)
++reset()
++tree_dump(std::ostream &amp;,...)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>280</x>
+      <y>42</y>
+      <w>238</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>datatools::enriched_base
+--
+-name: std::string
+-display_name : std::string
+-terse_description : std::string
+-logging_priority : datatools::logger::priority
+-auxiliaries : datatools::properties
+--
++initialize(const datatools::properties &amp;)
++export_to_config(datatools::properties &amp;)
++reset()
+/+tree_dump(std::ostream &amp;, ...)/
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>203</x>
+      <y>147</y>
+      <w>160</w>
+      <h>97</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>147;21;147;70;21;70;21;84</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>420</x>
+      <y>231</y>
+      <w>224</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>vire::user::group
+--
+- gid: int32_t
+- user_selector : cuts::cut_handle_type
+_+INVALID_GID: int32_t_
+_+ADMIN_GID: int32_t_
+_+MIN_GID: int32_t_
+--
++has_gid() : bool
++set_gid(int32_t)
++get_gid() : int32_t
++initialize(const datatools::properties &amp;)
++export_to_config(datatools::properties &amp;)
++reset()
++tree_dump(std::ostream &amp;,...)
++has_uid(int32_t): bool
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>427</x>
+      <y>147</y>
+      <w>125</w>
+      <h>97</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;70;112;70;112;84</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>623</x>
+      <y>259</y>
+      <w>132</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=  1
+
+
+
+
+</panel_attributes>
+    <additional_attributes>21;56;119;56;119;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>665</x>
+      <y>77</y>
+      <w>231</w>
+      <h>203</h>
+    </coordinates>
+    <panel_attributes>/cuts::i_cut/
+--
+-name: std::string
+-description: std::string
+-user_data:&lt;&lt;T&gt;&gt;
+--
++has_user_data() : bool
++set_user_data()
++is_user_data&lt;&lt;T&gt;&gt;() : bool
++get_user_data&lt;&lt;T&gt;&gt;() : const T &amp;
++reset_user_data()
++is_initialized() : bool
+/+initialize(const datatools::properties&amp;,...)/
+/+reset()/
+/+export_to_config(datatools::properties&amp;,...)/
+/+process() : int/
+/+tree_dump(std::ostream &amp;,...)/
+/#accept() : int/</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>665</x>
+      <y>371</y>
+      <w>231</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>vire::user::enumerated_user_selector
+--
+-uids: std::set&lt;int32_t&gt;
+--
++add_uid(int32_t)
++remove_uid(int32_t)
++has_uid(int32_t) : bool
++get_uids() : const std::set&lt;int32_t&gt; &amp;
++initialize(const datatools::properties &amp;,...)
++reset()
++export_to_config(datatools::properties &amp;,...)
+/+tree_dump(std::ostream &amp;,...)/
+#accept(): int
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>756</x>
+      <y>259</y>
+      <w>34</w>
+      <h>125</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;112</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>126</x>
+      <y>434</y>
+      <w>357</w>
+      <h>399</h>
+    </coordinates>
+    <panel_attributes>vire::user::manager
+--
+_+DEFAULT_STANDARD_USER_MIN_UID : int32_t_
+_+DEFAULT_STANDARD_USER_MIN_GID : int32_t_
+-standard_user_min_uid : in32_t
+-standard_group_min_uid : in32_t
+-users_table_path : std::string
+-groups_table_path : std::string
+-backup_tables : bool
+-users : user_dict_type
+-groups : group_dict_type
+--
++is_initialized() : bool
++initialize(const datatools::properties &amp;,...)
++reset()
++store_tables()
++load_tables()
++has_user_by_uid(int32_t) : bool
++has_user_by_name(const std::string &amp;) : bool
++get_user_by_uid(int32_t) : const vire::user::user &amp;
++get_user_by_name(const std::string &amp;) : const vire::user::user &amp;
++has_group_by_gid(int32_t) : bool
++has_group_by_name(const std::string &amp;) : bool
++get_group_by_gid(int32_t) : const vire::user::group &amp;
++get_group_by_name(const std::string &amp;) : const vire::user::group &amp;
++create_new_user_by_name(const std::string &amp;,...) : vire::user::user &amp;
++create_new_group_by_name(const std::string &amp;,...) : vire::user::group &amp;
++remove_user_by_uid(int32_t)
++remove_group_by_gid(int32_t)
++add_user_in_group(int32_t,int32_t)
++remove_user_from_group(int32_t,int32_t)
+...
+--
+Responsibilities
+-- manage the database of users and groups
+-- store/load users and groups definitions in/from files (tables)
+-- check and fetch users and groups by uid/gid or name
+-- creation/deletion of new users and groups</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>231</x>
+      <y>364</y>
+      <w>34</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=   1
+m2=0..n
+</panel_attributes>
+    <additional_attributes>21;70;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>371</x>
+      <y>378</y>
+      <w>153</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=   1
+m2=0..n
+
+
+</panel_attributes>
+    <additional_attributes>21;56;21;35;140;35;140;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>511</x>
+      <y>525</y>
+      <w>231</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>Using the "accept" method of its user selector, 
+the group is able to check if a given user belongs 
+to it.
+bg=yellow
+fg=red
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>518</x>
+      <y>364</y>
+      <w>62</w>
+      <h>174</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fg=red
+</panel_attributes>
+    <additional_attributes>21;21;49;21;49;161</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>588</x>
+      <y>231</y>
+      <w>90</w>
+      <h>307</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fg=red
+</panel_attributes>
+    <additional_attributes>77;21;21;21;21;294</additional_attributes>
+  </element>
+</diagram>

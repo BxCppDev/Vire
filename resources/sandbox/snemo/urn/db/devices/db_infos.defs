@@ -1,0 +1,43 @@
+# -*- mode: conf-unix; -*-
+
+#@description Definition list of URNs associated to SuperNEMO demonstrator device setups
+#@key_label  "urn"
+#@meta_label "category"
+
+
+#######################################################
+[urn="urn:common:devices:1.0" category="configuration"]
+
+#@config URN registration of common device models (version 1.0)
+
+description : string = "Common device models (version 1.0)"
+
+
+
+#################################################################
+[urn="urn:snemo:demonstrator:mos:0.9.1" category="configuration"]
+
+#@config URN registration of SuperNEMO demonstrator MOS model (version 0.9.1)
+
+description : string = "SuperNEMO demonstrator MOS model (version 0.9.1)"
+
+topics : string[1] = "experiment"
+
+topic.experiment.component : string = "urn:snemo:demonstrator"
+
+
+###################################################################
+[urn="urn:snemo:demonstrator:devices:0.1" category="configuration"]
+
+#@config URN registration of SuperNEMO demonstrator devices (version 0.1)
+
+description : string = "SuperNEMO demonstrator devices setup (version 0.1)"
+
+topics : string[3] = "experiment" "mosconfig" "dependency"
+
+topic.experiment.component : string = "urn:snemo:demonstrator"
+topic.mosconfig.component  : string = "urn:snemo:demonstrator:mos:0.9.1"
+topic.dependency.component : string = "urn:common:devices:1.0"
+
+
+# end

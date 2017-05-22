@@ -1,0 +1,229 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to SUperNEMO demonstrator calorimeter detection module
+#@key_label  "name"
+#@meta_label "type"
+
+
+###########################################################################
+[name="sndemo.tracker_xwall@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator tracker X-wall
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of the model
+type      : string  = "generic"
+
+#@parameter Virtual device
+virtual : boolean = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[1] = "OM"
+
+#@description The device model associated to the optical modules
+embedded_devices.model.OM    : string = "sndemo.optical_module"
+
+#@description The instantiation rule of the drift cells
+# Cells are positionned on a 2D rectangular grid with a
+# layer and a row number:
+#
+#       column
+#        1  2
+#      +---+---+
+#   15 |   |   |
+#      +---+---+
+#   14 |   |   |
+# r    +---+---+
+# o    :   :   :
+# w    :   :   :
+#      +---+---+
+#   1  |   |   |
+#      +---+---+
+#   0  |   |   |
+#      +---+---+
+#
+embedded_devices.instance.OM : string = \
+  "vire::device::regular_2d_instance=[nslots0=2;nslots1=16;first_slot=(2:0,0);step0=(1,0);step1=(0,1)]"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+##############################################################################
+[name="sndemo.tracking_chamber@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator tracking chamber
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of the model
+type      : string  = "generic"
+
+#@parameter Virtual device
+virtual : boolean = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[1] = "Cell"
+
+#@description The device model associated to the drift cells
+embedded_devices.model.Cell    : string = "sndemo.tracker_drift_cell"
+
+#@description The instantiation rule of the drift cells
+# Cells are positionned on a 2D rectangular grid with a
+# layer and a row number:
+#
+#                  row
+#     012345679..................112
+#     +---------------------------+
+# l 0 |oooooooooooooooooooo...oooo|
+# a 1 |oooooooooooooooooooo...oooo|
+# y . |...........................|
+# e . |...........................|
+# r 8 |oooooooooooooooooooo...oooo|
+#     +---------------------------+
+#
+#
+embedded_devices.instance.Cell : string = \
+  "vire::device::regular_2d_instance=[nslots0=9;nslots1=113;first_slot=(2:0,0);step0=(1,0);step1=(0,1)]"
+
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+###############################################################################
+[name="sndemo.tracker_submodule@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator tracker submodule
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[3] = "TrackingChamber" "GammaVeto" "XWall"
+
+#@description The device model associated to the tracking chamber
+embedded_devices.model.TrackingChamber : string = "sndemo.tracking_chamber"
+
+#@description The device model associated to the tracking chamber
+embedded_devices.model.GammaVeto       : string = "sndemo.optical_module"
+
+#@description The device model associated to the tracking chamber
+embedded_devices.model.XWall           : string = "sndemo.tracker_xwall"
+
+#@description The instanciation policy of the GammaVeto
+# Gamma veto OMs are positionned as rows on bottom/top of the submodule:
+#
+#  [ | | | | | | | | | | | | | | ] Top gamma veto (1)
+#   | | | | | | | | | | | | | | |
+#   | | | | | | | | | | | | | | |
+#   | | | | | | | | | | | | | | |
+#   | | | | | | | | | | | | | | | wires
+#   | | | | | | | | | | | | | | |
+#   | | | | | | | | | | | | | | |
+#   | | | | | | | | | | | | | | |
+#  [ | | | | | | | | | | | | | | ] Bottom gamma veto (0)
+#   0 1 2 3 4                   15
+#
+embedded_devices.instance.GammaVeto : string = \
+  "vire::device::regular_2d_instance=[nslots0=2;nslots1=16;first_slot=(2:0,0);step0=(1,0);step1=(0,1)]"
+
+embedded_devices.instance.XWall : string = \
+  "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
+
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+#########################################################################
+[name="sndemo.calorimeter@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator calorimeter
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+#####################################################################
+[name="sndemo.tracker@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator tracker
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of the model
+type    : string  = "generic"
+
+#@parameter Virtual device
+virtual : boolean = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[1] = "Submodule"
+
+#@description The device model associated to the tracker submodules
+embedded_devices.model.Submodule : string = "sndemo.tracker_submodule"
+
+#@description The instanciation policy of the tracker submodules
+# Tracker submodules are positionned on each side of the source frame:
+#
+#  [ | | | | | | | | | | | | | | ] Calorimeter wall 1 (France)
+#    ooooooooooooooooooooooooooo
+#    ooooooooooooooooooooooooooo   Tracker submodule 1 (France)
+#    ooooooooooooooooooooooooooo
+#  [-----------------------------] Source frame
+#    ooooooooooooooooooooooooooo
+#    ooooooooooooooooooooooooooo   Tracking chamber 0 (Italy)
+#    ooooooooooooooooooooooooooo
+#  [ | | | | | | | | | | | | | | ] Tracker submodule 0 (Italy)
+#
+embedded_devices.instance.Submodule : string = \
+  "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+# end of tracker.vdm

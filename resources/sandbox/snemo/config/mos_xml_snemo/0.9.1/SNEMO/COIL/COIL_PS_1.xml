@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd"><!-- Mandatory : the xsd file -->
+	<Name>MOS_Server</Name>
+
+	<SimpleDevice>
+		<Name>COIL_PS</Name>
+      	<Plugins>
+		<Location>/MOS/plugins/libPlugin_TCP.so</Location>
+		<Name>ptr_Plugin</Name>
+	</Plugins>
+
+		<!-- =========Here define instruction list or this device =========================== -->
+		<Instruction_set>
+			<Instruction> 
+				<Name>SetVoltageSource</Name> 
+				<Cmd>SOURce:VOLTage</Cmd>  
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>GetVoltageSource</Name>
+				<Cmd>SOURce:VOLTage?</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>SetCurrentSource</Name>
+				<Cmd>SOURce:CURRent</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>GetCurrentSource</Name>
+				<Cmd>SOURce:CURRent?</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>GetCurrent</Name>
+				<Cmd>MEASure:CURRent?</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>GetVoltage</Name>
+				<Cmd>MEASure:VOLTage?</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+			<Instruction>
+				<Name>GetPower</Name>
+				<Cmd>MEASure:POWer?</Cmd>
+				<Acknowledge>true</Acknowledge>
+			</Instruction>
+		</Instruction_set>
+		<HardwareConfig>
+			<NameHardwareConfig>Init</NameHardwareConfig>
+			<Argument>
+				<Name>Address</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>134.158.98.156</DefaultValue>
+				<!-- <DefaultValue>134.158.98.156</DefaultValue> -->
+			</Argument>
+			<Argument>
+				<Name>Port</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				 <DefaultValue>8462</DefaultValue>
+				 <!-- <DefaultValue>8462</DefaultValue>-->
+			</Argument>
+			<Argument>
+				<Name>Connection</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>client</DefaultValue>
+			</Argument>
+
+			<Argument>
+				<Name>Validity</Name>
+				<Type>string</Type>
+				<Access>Input</Access>
+				<DefaultValue>permanent</DefaultValue>
+			</Argument>
+
+
+			<DeviceInstruction>
+				<Value>SetVoltageSource</Value>
+			</DeviceInstruction>
+		</HardwareConfig>
+
+
+               <CompoundDatapoint>
+                                
+		  <Name>0_ProgramInformations</Name>
+                  <Attribut>
+                        <Name>DeviceModelName</Name>
+                        <Value>SNEMO/COIL/PSType2Model.xml</Value>
+                  </Attribut>
+                  <Attribut>
+                        <Name>DeviceModelVersion</Name>
+                        <Value>2.0.0</Value>
+                  </Attribut>
+                  <Attribut>
+                        <Name>DeviceModelDate</Name>
+                        <Value>26-11-2015</Value>
+                  </Attribut>
+                  <Attribut>
+                        <Name>DeviceModelAuthor</Name>
+                        <Value>Panazol Jean-luc</Value>
+                  </Attribut>
+                  <Attribut>
+                        <Name>DeviceModelDescription</Name>
+                        <Value></Value>
+                  </Attribut>
+                  <Attribut>
+                        <Name>InstanceName</Name>
+                        <Value>SNEMO/COIL/COIL_PS_1.xml</Value>
+                  </Attribut>
+                  <Attribut>
+                        <Name>InstanceDate</Name>
+                        <Value>26-11-2015 13:21</Value>
+                  </Attribut>
+                </CompoundDatapoint>
+
+
+		<!-- ===== Here define Datapoints (and compound the datapoints) or this device ========= -->
+		<CompoundDatapoint> 						<!-- Example : Here we group some datapoints into "monitoring" -->
+			<Name>Monitoring</Name> 			<!-- Mandatory : Name of the compound -->
+			<SimpleDatapoint>					<!-- Here we define on datapoint to describe the current -->
+				<Name>Current</Name> 			<!-- Mandatory : Name of the datapoint -->
+				<Type>float</Type>	 			<!-- Mandatory : The type of this datapoint -->
+				<MonitoringRate>1</MonitoringRate>
+				<Historizing>1</Historizing> 	<!-- Optional : We want to have an historic of the value (1) or not (0) -->
+				<Method> 			<!--For this datapoint (current), we want to add a method to get the value -->
+					<Name>get</Name> 	<!-- Mandatory : Name of the method -->
+					<Argument>
+						<Name>retour</Name>
+						<Type>float</Type>
+						<Access>Output</Access>
+					</Argument>
+
+					<DeviceInstruction> 	<!-- Mandatory : define the good instruction to call in the instruction list -->
+						<Value>GetCurrent</Value>
+					</DeviceInstruction>
+					<EndDelimiter>0d</EndDelimiter>
+				</Method>
+			</SimpleDatapoint>
+
+			<SimpleDatapoint>
+				<Name>Voltage</Name>
+				<Type>float</Type>
+				<MonitoringRate>1</MonitoringRate>
+				<Historizing>1</Historizing>
+                                <!--<Alarm>
+                                        <Alarm_LimitHigh>
+                                                <Value>3</Value>
+                                                <Message>value upper the limit</Message>
+                                                <Severity>500</Severity>
+                                                <Enable>true</Enable>
+                                                <Acknowledge>true</Acknowledge>
+                                        </Alarm_LimitHigh>
+                                </Alarm>
+				-->
+				<Method>
+					<Name>get</Name>
+                                        <Argument>
+                                                <Name>retour</Name>
+                                                <Type>float</Type>
+                                                <Access>Output</Access>
+                                        </Argument>
+
+					<DeviceInstruction>
+						<Value>GetVoltage</Value>
+					</DeviceInstruction>
+					<EndDelimiter>0d</EndDelimiter>
+				</Method>
+			</SimpleDatapoint>
+		</CompoundDatapoint>
+
+
+		<CompoundDatapoint>						<!-- Example : Here we group others datapoints into "control" -->
+			<Name>Control</Name>
+			<SimpleDatapoint>
+				<Name>Current</Name>
+				<Type>float</Type>
+				<MonitoringRate>1</MonitoringRate>
+				<Historizing>1</Historizing>
+				<Method> 							<!-- Here a method with one parameter -->
+					<Name>set</Name>		<!-- Mandatory : The name of the method -->
+					<Argument>				<!-- Here we define the list of argument in/oiut of this method -->
+						<Name>value_Current</Name>	<!-- Mandatory : The name of the argument -->
+						<Type>float</Type>			<!-- Mandatory : The type of this argument -->
+						<Access>Input</Access>		<!-- Mandatory : Input argument or Output argument -->
+						<Description>Current (par exemple en mA)</Description><!-- Optional 
+							: Description of this argument -->
+					</Argument>
+					<DeviceInstruction> 			<!-- and of course we define the good instruction to do with method -->
+						<Value>SetCurrentSource</Value>
+					</DeviceInstruction>
+					<EndDelimiter>0d</EndDelimiter>
+					<Event>
+						<Message>Method change the value of voltage !!!!</Message>
+					</Event>
+				</Method>
+				<Method>
+					<Name>get</Name>
+					<Info>
+						<Config>true</Config>
+					</Info>
+                                        <Argument>
+                                                <Name>retour</Name>
+                                                <Type>float</Type>
+                                                <Access>Output</Access>
+                                        </Argument>
+
+					<DeviceInstruction>
+						<Value>GetCurrentSource</Value>
+					</DeviceInstruction>
+					<EndDelimiter>0d</EndDelimiter>
+				</Method>
+			</SimpleDatapoint>
+
+			<SimpleDatapoint>
+				<Name>Voltage</Name>
+				<Type>float</Type>
+				<MonitoringRate>1</MonitoringRate>
+				<Historizing>1</Historizing>
+				<Method>
+					<Name>set</Name>
+					<Argument>
+						<Name>value_Voltage</Name>
+						<Type>float</Type>
+						<Access>Input</Access>
+						<Description>Voltage value (par exemple en mA)</Description>
+					</Argument>
+
+					<DeviceInstruction>
+						<Value>SetVoltageSource</Value>
+					</DeviceInstruction>
+					<EndDelimiter>0d</EndDelimiter>	
+					<Event>
+						<Message>Method change the value of voltage !!!!</Message>
+					</Event>
+				</Method>
+				<Method>
+					<Name>get</Name>
+					<Info>
+						<Config>true</Config>
+					</Info>
+                                        <Argument>
+                                                <Name>retour</Name>
+                                                <Type>float</Type>
+                                                <Access>Output</Access>
+                                        </Argument>
+
+					<DeviceInstruction>
+						<Value>GetVoltageSource</Value>
+					</DeviceInstruction>
+					<EndDelimiter>0D</EndDelimiter>
+				</Method>
+			</SimpleDatapoint>
+		</CompoundDatapoint>
+	</SimpleDevice>
+</OPCUA>

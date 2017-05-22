@@ -9,8 +9,9 @@ endif()
 
 # ----------------
 # Dependencies
-find_package(Boost ${VIRE_BOOST_MIN_VERSION}
-  REQUIRED
+set(VIRE_BOOST_MIN_VERSION 1.60)
+set(Boost_NO_BOOST_CMAKE ON)
+set(VIRE_BOOST_COMPONENTS
   filesystem
   system
   serialization
@@ -20,6 +21,10 @@ find_package(Boost ${VIRE_BOOST_MIN_VERSION}
   thread
   regex
   log
+)
+find_package(Boost ${VIRE_BOOST_MIN_VERSION}
+  REQUIRED
+  ${VIRE_BOOST_COMPONENTS}
   )
 set(_Vire_MOS_Boost_LIBRARIES
   ${Boost_FILESYSTEM_LIBRARY}
@@ -37,9 +42,14 @@ message (STATUS "[Vire_MOS] _Vire_MOS_Boost_LIBRARIES='${_Vire_MOS_Boost_LIBRARI
 message (STATUS "[Vire_MOS] Boost_LOG_LIBRARY='${Boost_LOG_LIBRARY}'")
 message (STATUS "[Vire_MOS] Boost_LOG_SETUP_LIBRARY='${Boost_LOG_SETUP_LIBRARY}'")
 find_package(XercesC 3.1.1 REQUIRED)
-message( STATUS "[Vire_MOS] XercesC_INCLUDE_DIRS=${XercesC_INCLUDE_DIRS}")
-message( STATUS "[Vire_MOS] XercesC_LIBRARIES=${XercesC_LIBRARIES}")
-find_package(CAMP 0.7.1 REQUIRED)
+if (XercesC_FOUND)
+  message( STATUS "[Vire_MOS] XercesC_VERSION       = ${XercesC_VERSION}")
+  message( STATUS "[Vire_MOS] XercesC_INCLUDE_DIRS  = ${XercesC_INCLUDE_DIRS}")
+  message( STATUS "[Vire_MOS] XercesC_LIBRARIES     = ${XercesC_LIBRARIES}")
+else()
+  message( FATAL "[Vire_MOS] Could not found XercesC!")
+endif()
+find_package(CAMP 0.8.0 REQUIRED)
 find_package(CLHEP 2.1.3.1 REQUIRED)
 # find_package(Bayeux 3.0.0 REQUIRED)
 
@@ -52,7 +62,7 @@ find_package(CLHEP 2.1.3.1 REQUIRED)
 # message( STATUS "[Vire_MOS] Vire_LIBRARIES=${Vire_LIBRARIES}")
 # message( STATUS "[Vire_MOS] Vire_DEFINITIONS=${Vire_DEFINITIONS}")
 
-include_directories(${XercesC_INCLUDE_DIRS})
+# include_directories(${XercesC_INCLUDE_DIRS})
 include_directories(${VIRE_BUILD_PREFIX}/include)
 include_directories(${VIRE_BUILD_PREFIX}/include/vire)
 

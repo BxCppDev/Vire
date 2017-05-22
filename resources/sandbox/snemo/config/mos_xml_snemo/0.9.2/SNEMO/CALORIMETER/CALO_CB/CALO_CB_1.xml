@@ -1,0 +1,247 @@
+<!-- ******************************************************************************************* -->
+<!-- **** file :       *** -->
+<!-- **** description :                    *** -->
+<!-- **** author      : panazol@lapp.in2p3.fr                                                *** -->
+<!-- **** date        : 14/01/15                                                             *** -->
+<!-- ******************************************************************************************* -->
+
+
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd">
+        <Name>MOS_server</Name>
+        <SimpleDevice>
+                <Name>ControlBoard</Name>
+			 <Plugins>
+                                <Location>/CMS/plugins/libPlugin_CB_LAL.so</Location>
+                                <Name>ptr_Plugin</Name>
+                        </Plugins>
+			<Instruction_set>
+                                <Instruction>
+                                        <Name>ReadML</Name>
+                                        <Cmd>UdpReadML 20035</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+                                <Instruction>
+                                        <Name>WrtML</Name>
+                                        <Cmd>UdpWrtML</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+				<Instruction>
+                                        <Name>GetFPGAVersion</Name>
+                                        <Cmd>FpgaVersion</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+				<Instruction>
+                                        <Name>GetFPGAEvolution</Name>
+                                        <Cmd>FpgaEvolution</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+				<Instruction>
+                                        <Name>FrameSize</Name>
+                                        <Cmd>FpgaFrameSize</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+				<Instruction>
+                                        <Name>Delay</Name>
+                                        <Cmd>FpgaDelay</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+				<Instruction>
+                                        <Name>Start</Name>
+                                        <Cmd>Start</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+				<Instruction>
+                                        <Name>Stop</Name>
+                                        <Cmd>Stop</Cmd>
+                                        <Acknowledge>true</Acknowledge>
+                                </Instruction>
+                      	</Instruction_set>
+
+			<HardwareConfig>
+                        <NameHardwareConfig>Init</NameHardwareConfig>
+                        <Argument>
+                                <Name>Address</Name>
+                                <Type>string</Type>
+                                <Access>Input</Access>
+                                <!-- <DefaultValue>192.168.0.4</DefaultValue> -->
+                                <DefaultValue>192.168.0.4</DefaultValue> 
+                        </Argument>
+                        <Argument>
+                                <Name>Port</Name>
+                                <Type>string</Type>
+                                <Access>Input</Access>
+                                <!-- <DefaultValue>27015</DefaultValue> -->
+                                <DefaultValue>27015</DefaultValue>
+                        </Argument>
+			</HardwareConfig>
+                                
+                        <CompoundDatapoint>
+                                <Name>0_ProgramInformations</Name>
+		<Attribut>
+			<Name>DeviceModelName</Name>
+			<Value>SNEMO/CALORIMETER/CALO_CB/ControlBoardModel.xml</Value>
+		</Attribut>
+		<Attribut>
+			<Name>DeviceModelVersion</Name>
+			<Value>1.0.0</Value>
+		</Attribut>
+		<Attribut>
+			<Name>DeviceModelDate</Name>
+			<Value>29-06-2015</Value>
+		</Attribut>
+		<Attribut>
+			<Name>DeviceModelAuthor</Name>
+			<Value>Panazol Jean-luc</Value>
+		</Attribut>
+		<Attribut>
+			<Name>DeviceModelDescription</Name>
+			<Value>Model for the test firmware of the Control Board (version 3.0)</Value>
+		</Attribut>
+		<Attribut>
+			<Name>InstanceName</Name>
+			<Value>SNEMO/CALORIMETER/CALO_CB/CALO_CB_1.xml</Value>
+		</Attribut>
+		<Attribut>
+			<Name>InstanceDate</Name>
+			<Value>29-06-2015 13:43</Value>
+		</Attribut>
+                        </CompoundDatapoint>
+
+                        <CompoundDatapoint>
+                                <Name>FPGA_main</Name>
+                        <Method>
+                                <Name>Start</Name>
+                                <DeviceInstruction>
+                                        <Value>Start</Value>
+                                </DeviceInstruction>
+                        </Method>
+                        <Method>
+                                <Name>Stop</Name>
+                                <DeviceInstruction>
+                                        <Value>Stop</Value>
+                                </DeviceInstruction>
+                        </Method>
+
+
+                        <CompoundDatapoint>
+                                <Name>FPGA_</Name>
+                                <Multiplicity>4</Multiplicity>
+                                <StartNumberingMultiplicity>0</StartNumberingMultiplicity>
+
+                                <SimpleDatapoint>
+                                        <Name>version</Name>
+                                        <Type>int8</Type>
+                                        <Method>
+                                                <Name>get</Name>
+                                                <DeviceInstruction>
+                                                        <Value>GetFPGAVersion</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                </SimpleDatapoint>
+				<SimpleDatapoint>
+	                        	<Name>evolution</Name>
+        	                        <Type>int8</Type>
+                	                <Method>
+                        	        	<Name>get</Name>
+                                	        <DeviceInstruction>
+                              		                <Value>GetFPGAEvolution</Value>
+                                               	</DeviceInstruction>
+                                       	</Method>
+                               	</SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>fifo</Name>
+                                        <Type>int8</Type>
+					<ArraySize>1032</ArraySize>
+                                        <Method>
+                                                <Name>set</Name>
+                                                <DeviceInstruction>
+                                                        <Value>WrtML</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                        <Method>
+                                                <Name>get</Name>
+                                                <DeviceInstruction>
+                                                        <Value>ReadML</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                </SimpleDatapoint>
+
+
+
+                        </CompoundDatapoint>
+				<SimpleDatapoint>
+                                        <Name>evolution</Name>
+                                        <Type>int8</Type>
+                                        <Method>
+                                                <Name>get</Name>
+                                                <DeviceInstruction>
+                                                        <Value>GetFPGAEvolution</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                </SimpleDatapoint>
+
+                                <SimpleDatapoint>
+                                        <Name>version</Name>
+                                        <Type>int8</Type>
+                                        <Method>
+                                                <Name>get</Name>
+                                                <DeviceInstruction>
+                                                        <Value>GetFPGAVersion</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>fifo</Name>
+                                        <Type>int8</Type>
+                                        <ArraySize>1032</ArraySize>
+                                        <Method>
+                                                <Name>set</Name>
+                                                <DeviceInstruction>
+                                                        <Value>WrtML</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                        <Method>
+                                                <Name>get</Name>
+                                                <DeviceInstruction>
+                                                        <Value>ReadML</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>delay</Name>
+                                        <Type>int32</Type>
+					<Method>
+                        	        	<Name>set</Name>
+                        	        	<DeviceInstruction>
+                        	        	        <Value>Delay</Value>
+                        	        	</DeviceInstruction>
+                        		</Method>
+					<Method>
+                        	        	<Name>get</Name>
+                        	        	<DeviceInstruction>
+                        	        	        <Value>Delay</Value>
+                        	        	</DeviceInstruction>
+                        		</Method>
+                                </SimpleDatapoint>
+				<SimpleDatapoint>
+                                        <Name>frameSize</Name>
+                                        <Type>int16</Type>
+                                        <Method>
+                                                <Name>set</Name>
+                                                <DeviceInstruction>
+                                                        <Value>FrameSize</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                        <Method>
+                                                <Name>get</Name>
+                                                <DeviceInstruction>
+                                                        <Value>FrameSize</Value>
+                                                </DeviceInstruction>
+                                        </Method>
+                                </SimpleDatapoint>
+
+                        </CompoundDatapoint>
+        </SimpleDevice>
+</OPCUA>
+

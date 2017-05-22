@@ -5,7 +5,7 @@ list(APPEND VireLibrary_HEADERS
   com/domain.h
   com/domain_builder.h
   com/i_transport_driver.h
-  com/rabbitmq_transport_driver.h
+  #com/rabbitmq_transport_driver.h
   com/i_encoding_driver.h
   com/boost_serialization_encoding_driver.h
   com/json_encoding_driver.h

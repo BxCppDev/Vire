@@ -1,0 +1,89 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator tracker control board
+#@key_label  "name"
+#@meta_label "type"
+
+
+############################################################################################
+[name="sndemo.tracker_cb.fe_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the tracker control board frontend FPGAs
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "chip_pld"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model        : string = "Cyclone III"
+
+
+##############################################################################################
+[name="sndemo.tracker_cb.ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the tracker control board control FPGA
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "chip_pld"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model        : string = "Cyclone III"
+
+
+###############################################################################################
+[name="sndemo.tracker_control_board@device" type="vire::device::base_electronics_module_model"]
+
+#@config Parameters describing the tracker control board
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Format of the board
+format : string = "VME-6U-extended"
+
+#@description Slot width of the board
+slot_width : integer = 1
+
+####################
+# Embedded devices #
+####################
+
+#@description List of embedded chips
+embedded_devices.labels : string[2] = "FeFpga" "CtrlFpga"
+
+# Device model associated to the embedded frontend FPGAs:
+embedded_devices.model.FeFpga    : string = "sndemo.tracker_cb.fe_fpga"
+embedded_devices.instance.FeFpga : string = "vire::device::regular_1d_instance=[nslots=5;first_slot=(1:0);step=(1)]"
+
+# Device model associated to the embedded control FPGA:
+embedded_devices.model.CtrlFpga  : string = "sndemo.tracker_cb.ctrl_fpga"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration/LAL Orsay"
+
+
+# end of tracker_control_board.vdm

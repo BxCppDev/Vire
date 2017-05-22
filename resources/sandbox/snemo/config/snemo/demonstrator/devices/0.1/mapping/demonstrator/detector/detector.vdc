@@ -1,0 +1,18 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator detector
+#@key_label  "category"
+#@meta_label "type"
+
+
+####################################
+[category="detector.dc" type="1001"]
+
+#@config The geometry category associated to the SuperNEMO demonstrator detection module
+
+#@description The module number
+inherits : string = "module.dc"
+
+
+# end of detector.vdc

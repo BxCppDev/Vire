@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v1_0_0/dict_cta.xsd"> <!-- Mandatory : the xsd file -->
+  <Name>MOS_Server</Name> <!-- Mandatory : name of the OPCUA server -->
+  <!--ServerPort>2345</ServerPort-->
+
+  <SimpleDevice> <!-- Example : Here we define one device or the PowerDevice SM45-70D -->
+    <!-- =========Here define the device =========================== -->
+    <Name>COIL_PS</Name> <!-- Mandatory : name of the device -->
+    <Plugins>
+      <Location>../plugins/libPlugin_TCP.so</Location>
+      <Name>ptr_Plugin</Name>
+    </Plugins>
+
+    <!-- <UserInfo> -->
+    <!--   <Name>vire::device::class_id</Name> -->
+    <!--   <Value>vire::device::tartampion_device_model</Value> -->
+    <!-- </UserInfo> -->
+
+    <!-- <UserInfo> -->
+    <!--   <Name>vire.device.role.name</Name> -->
+    <!--   <Value>vire.device.expert</Value> -->
+    <!-- </UserInfo> -->
+
+    <!-- <UserInfo> -->
+    <!--   <Name>vire.device.role.tags</Name> -->
+    <!--   <Value>X,Y</Value> -->
+    <!-- </UserInfo> -->
+
+    <!-- <UserInfo> -->
+    <!--   <Name>vire.device.local_role.tags</Name> -->
+    <!--   <Value>advanced,chaman</Value> -->
+    <!-- </UserInfo> -->
+    <!-- <Interface>tcp</Interface> --> <!-- Optional : declare tcp interface for this device -->
+
+    <!-- =========Here define instruction list or this device =========================== -->
+    <Instruction_set>
+      <!-- <Acknowledge>true</Acknowledge> -->
+      <Instruction> <!-- Declare on instruction -->
+        <Name>SetVoltageSource</Name> <!-- Name of instruction -->
+        <Cmd>SOURce:VOLTage</Cmd> <!-- cmd to launch at the device -->
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+      <Instruction>
+        <Name>GetVoltageSource</Name>
+        <Cmd>SOURce:VOLTage?</Cmd>
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+      <Instruction>
+        <Name>SetCurrentSource</Name>
+        <Cmd>SOURce:CURRent</Cmd>
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+      <Instruction>
+        <Name>GetCurrentSource</Name>
+        <Cmd>SOURce:CURRent?</Cmd>
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+      <Instruction>
+        <Name>GetCurrent</Name>
+        <Cmd>MEASure:CURRent?</Cmd>
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+      <Instruction>
+        <Name>GetVoltage</Name>
+        <Cmd>MEASure:VOLTage?</Cmd>
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+      <Instruction>
+        <Name>GetPower</Name>
+        <Cmd>MEASure:POWer?</Cmd>
+        <Acknowledge>true</Acknowledge>
+      </Instruction>
+    </Instruction_set>
+    <HardwareConfig>
+      <NameHardwareConfig>Init</NameHardwareConfig>
+      <Argument>
+        <Name>Address</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>@Address@</DefaultValue>
+        <!-- <DefaultValue>134.158.98.156</DefaultValue> -->
+      </Argument>
+      <Argument>
+        <Name>Port</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>@Port@</DefaultValue>
+        <!-- <DefaultValue>8462</DefaultValue>-->
+      </Argument>
+      <Argument>
+        <Name>Connection</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>client</DefaultValue>
+      </Argument>
+
+      <Argument>
+        <Name>Validity</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>permanent</DefaultValue>
+      </Argument>
+
+      <DeviceInstruction>
+        <Value>SetVoltageSource</Value>
+      </DeviceInstruction>
+    </HardwareConfig>
+
+    <CompoundDatapoint>
+      <Info>
+	<ScopeAccess>protected</ScopeAccess>
+      </Info>
+      <Name>0_ProgramInformations</Name>
+      <Attribut>
+        <Name>DeviceModelName</Name>
+        <Value>SNEMO/COIL/PSType2Model.xml</Value>
+      </Attribut>
+      <Attribut>
+        <Name>DeviceModelVersion</Name>
+        <Value>1.0.0</Value>
+      </Attribut>
+      <Attribut>
+        <Name>DeviceModelDate</Name>
+        <Value>29-06-2015</Value>
+      </Attribut>
+      <Attribut>
+        <Name>DeviceModelAuthor</Name>
+        <Value>Panazol Jean-luc</Value>
+      </Attribut>
+      <Attribut>
+        <Name>DeviceModelDescription</Name>
+        <Value></Value>
+      </Attribut>
+      <Attribut>
+        <Name>InstanceName</Name>
+        <Value>SNEMO/COIL/@Name@</Value>
+      </Attribut>
+      <Attribut>
+        <Name>InstanceDate</Name>
+        <Value>@DateCreation@</Value>
+      </Attribut>
+    </CompoundDatapoint>
+
+    <!-- ===== Here define Datapoints (and compound the datapoints) or this
+         device ========= -->
+    <CompoundDatapoint> <!-- Example : Here we group some datapoints into "monitoring" -->
+      <Name>Monitoring</Name> <!-- Mandatory : Name of the compound -->
+
+      <SimpleDatapoint> <!-- Here we define on datapoint to describe the current -->
+        <Name>Current</Name> <!-- Mandatory : Name of the datapoint -->
+	<Type>float</Type> <!-- Mandatory : The type of this datapoint -->
+	<Unit><electricCurrentUnit unit="mA"/></Unit>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing> <!-- Optional : We want to have an historic of the value (1) or not (0) -->
+        <Method> <!--For this datapoint (current), we want to add a method to get the value -->
+          <Name>get</Name> <!-- Mandatory : Name of the method -->
+          <Info>
+            <ScopeAccess>protected</ScopeAccess>
+	  </Info>
+          <Argument>
+            <Name>retour</Name>
+            <Type>float</Type>
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <Access>Output</Access>
+          </Argument>
+
+          <DeviceInstruction> <!-- Mandatory : define the good instruction to call in the instruction list -->
+            <Value>GetCurrent</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+        </Method>
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Voltage</Name>
+        <Type>float</Type>
+	<Unit><voltageUnit unit="V"/></Unit>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>
+        <!--<Alarm>
+            <Alarm_LimitHigh>
+            <Value>3</Value>
+            <Message>value upper the limit</Message>
+            <Severity>500</Severity>
+            <Enable>true</Enable>
+            <Acknowledge>true</Acknowledge>
+            </Alarm_LimitHigh>
+            </Alarm>
+        -->
+        <Method>
+          <Name>get</Name>
+          <Info>
+            <ScopeAccess>protected</ScopeAccess>
+	  </Info>
+          <Argument>
+            <Name>retour</Name>
+            <Type>float</Type>
+	    <Unit><voltageUnit unit="V"/></Unit>
+            <Access>Output</Access>
+          </Argument>
+          <DeviceInstruction>
+            <Value>GetVoltage</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+        </Method>
+
+      </SimpleDatapoint>
+    </CompoundDatapoint>
+
+    <CompoundDatapoint> <!-- Example : Here we group others datapoints into "expert" -->
+      <Name>Expert</Name>
+
+      <UserInfo>
+	<Name>vire.device.local_role.name</Name>
+	<Value>expert</Value>
+      </UserInfo>
+
+      <SimpleDatapoint>
+        <Name>Config0</Name>
+	<Type>float</Type>
+	<Unit><electricCurrentUnit unit="mA"/></Unit>
+        <Info>
+          <ScopeAccess>external</ScopeAccess>
+          <Config>true</Config>
+	</Info>
+        <Method>
+          <Name>_set</Name>
+          <Info>
+            <Config>true</Config>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>float</Type>
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <Access>Input</Access>
+            <Description>Current setpoint (mA)</Description>
+          </Argument>
+        </Method>
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Config1</Name>
+	<Type>float</Type>
+	<Unit><electricCurrentUnit unit="mA"/></Unit>
+	<UserInfo>
+	  <Name>vire.device.local_role.tags</Name>
+	  <Value>advanced,chaman,guru</Value>
+	</UserInfo>
+        <Info>
+          <ScopeAccess>external</ScopeAccess>
+          <Config>true</Config>
+	</Info>
+        <Method>
+          <Name>_set</Name>
+          <Info>
+            <Config>true</Config>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>float</Type>
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <Access>Input</Access>
+            <Description>Current setpoint (mA)</Description>
+          </Argument>
+        </Method>
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Config2</Name>
+	<Type>float</Type>
+	<Unit><electricCurrentUnit unit="mA"/></Unit>
+	<UserInfo>
+	  <Name>vire.device.local_role.tags</Name>
+	  <Value>chaman,guru</Value>
+	</UserInfo>
+        <Info>
+          <ScopeAccess>external</ScopeAccess>
+          <Config>true</Config>
+	</Info>
+        <Method>
+          <Name>_set</Name>
+          <Info>
+            <Config>true</Config>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>float</Type>
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <Access>Input</Access>
+            <Description>Current setpoint (mA)</Description>
+          </Argument>
+        </Method>
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Config3</Name>
+	<Type>float</Type>
+	<Unit><electricCurrentUnit unit="mA"/></Unit>
+	<UserInfo>
+	  <Name>vire.device.local_role.tags</Name>
+	  <Value>guru</Value>
+	</UserInfo>
+        <Info>
+          <ScopeAccess>internal</ScopeAccess>
+          <Config>true</Config>
+	</Info>
+        <Method>
+          <Name>_set</Name>
+          <Info>
+            <Config>true</Config>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>float</Type>
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <Access>Input</Access>
+            <Description>Current setpoint (mA)</Description>
+          </Argument>
+        </Method>
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Diag0</Name>
+	<Type>int16</Type>
+	<UserInfo>
+	  <Name>vire.device.local_role.tags</Name>
+	  <Value>chaman,guru</Value>
+	</UserInfo>
+        <Info>
+          <ScopeAccess>external</ScopeAccess>
+          <Config>true</Config>
+	</Info>
+        <Method>
+          <Name>_set</Name>
+          <Info>
+            <Config>true</Config>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>int32</Type>
+            <Access>Input</Access>
+            <Description>Command register</Description>
+          </Argument>
+        </Method>
+        <Method>
+          <Name>_get</Name>
+          <Argument>
+            <Name>return</Name>
+            <Type>int32</Type>
+            <Access>Output</Access>
+            <Description>Diagnostic register</Description>
+          </Argument>
+        </Method>
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Diag1</Name>
+	<Type>int16</Type>
+	<UserInfo>
+	  <Name>vire.device.local_role.tags</Name>
+	  <Value>guru</Value>
+	</UserInfo>
+        <Info>
+          <ScopeAccess>external</ScopeAccess>
+	</Info>
+        <Method>
+          <Name>_set</Name>
+          <Info>
+            <Config>true</Config>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>int32</Type>
+            <Access>Input</Access>
+            <Description>Command register</Description>
+          </Argument>
+        </Method>
+        <Method>
+          <Name>_get</Name>
+          <Argument>
+            <Name>return</Name>
+            <Type>int32</Type>
+            <Access>Output</Access>
+            <Description>Diagnostic register</Description>
+          </Argument>
+        </Method>
+      </SimpleDatapoint>
+
+    </CompoundDatapoint>
+
+    <CompoundDatapoint> <!-- Example : Here we group others datapoints into "control" -->
+      <Name>Control</Name>
+
+      <SimpleDatapoint>
+        <Name>Current</Name>
+        <Type>float</Type>
+	<Unit><electricCurrentUnit unit="mA"/></Unit>
+	<MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>
+        <Info>
+          <Config>true</Config>
+        </Info>
+
+        <Method> <!-- Here a method with one parameter -->
+          <Name>set</Name> <!-- Mandatory : The name of the method -->
+          <Info>
+            <Config>true</Config>
+            <ScopeAccess>protected</ScopeAccess>
+	  </Info>
+          <Argument> <!-- Here we define the list of argument in/out of this method -->
+            <Name>setpoint</Name> <!-- Mandatory : The name of the argument -->
+            <Type>float</Type> <!-- Mandatory : The type of this argument -->
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <!-- float/int32/string -->
+            <Access>Input</Access> <!-- Mandatory : Input argument or Output argument -->
+            <Description>Current setpoint (mA)</Description><!-- Optional
+            : Description of this argument -->
+          </Argument>
+          <DeviceInstruction> <!-- and of course we define the good instruction to do with method -->
+            <Value>SetCurrentSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+          <Event>
+            <Message>Method change the value of voltage !!!!</Message>
+          </Event>
+        </Method>
+
+        <Method>
+          <Name>get</Name>
+          <Info>
+            <ScopeAccess>protected</ScopeAccess>
+	  </Info>
+          <Argument>
+            <Name>retour</Name>
+            <Type>float</Type>
+	    <Unit><electricCurrentUnit unit="mA"/></Unit>
+            <Access>Output</Access>
+          </Argument>
+          <DeviceInstruction>
+            <Value>GetCurrentSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+        </Method>
+
+      </SimpleDatapoint>
+
+      <SimpleDatapoint>
+        <Name>Voltage</Name>
+        <Type>float</Type>
+	<Unit><voltageUnit unit="V"/></Unit>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>
+
+        <Method>
+          <Name>set</Name>
+          <Info>
+            <Config>true</Config>
+            <ScopeAccess>protected</ScopeAccess>
+	  </Info>
+          <Argument>
+            <Name>setpoint</Name>
+            <Type>float</Type>
+	    <Unit><voltageUnit unit="V"/></Unit>
+            <Access>Input</Access>
+            <Description>Voltage setpoint (V)</Description>
+          </Argument>
+          <DeviceInstruction>
+            <Value>SetVoltageSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+          <Event>
+            <Message>Method change the value of voltage !!!!</Message>
+          </Event>
+        </Method>
+
+        <Method>
+          <Name>get</Name>
+          <Info>
+            <ScopeAccess>protected</ScopeAccess>
+	  </Info>
+          <Argument>
+            <Name>retour</Name>
+            <Type>float</Type>
+	    <Unit><voltageUnit unit="V"/></Unit>
+            <Access>Output</Access>
+          </Argument>
+          <DeviceInstruction>
+            <Value>GetVoltageSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0D</EndDelimiter>
+        </Method>
+
+        <Info>
+          <Config>true</Config>
+        </Info>
+
+      </SimpleDatapoint>
+    </CompoundDatapoint>
+
+  </SimpleDevice>
+
+  <!-- we can define other device in this Server : just add other <SimpleDevice> -->
+</OPCUA>

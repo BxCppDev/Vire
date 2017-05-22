@@ -1,0 +1,15 @@
+@SuperNEMO:config/common/devices/1.0/models/electronics/network.vdm
+@SuperNEMO:config/common/devices/1.0/models/electronics/samlong.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/trigger_board.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_feb.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_control_board.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_crates.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_hv_crates.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/calo_feb.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/calo_control_board.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/calo_crates.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/calo_hv_crates.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/rack_2.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/rack_3.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/rack_4.vdm
+@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/electronics.vdm

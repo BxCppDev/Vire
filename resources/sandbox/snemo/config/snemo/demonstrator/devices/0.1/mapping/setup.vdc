@@ -1,0 +1,22 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of top level device models for the SuperNEMO Demonstrator experiment
+#@key_label  "category"
+#@meta_label "type"
+
+
+###########################
+[category="setup" type="0"]
+
+#@config The mandatory geometry category of the top-level setup virtual device
+
+#@description The device category associated to the top-level setup virtual device
+addresses : string[1] = "setup"
+
+# Mnemonic:
+#  - extension ".dc" stands for "Device Category"
+#  - extension ".pc" stands for "Port Category"
+#
+
+# end
