@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xs1="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_2"
+    elementFormDefault="qualified">
+
+  <!-- __________________________________ -->
+  <!-- Author : PANAZOL jean-Luc          -->
+  <!-- Date   : 19/11/15                  -->
+  <!-- Name   : MOS_OPCUA.xsd             -->
+  <!--                                    -->
+  <!-- Main dictionary schema for MOS     -->
+  <!-- __________________________________ -->
+
+  <!-- __________________________________    -->
+  <!-- include secondary dictionary          -->
+  <!-- __________________________________    -->
+  <xs:include  schemaLocation="MOS_Unit.xsd"/>
+  <xs:include  schemaLocation="MOS_HardwareInterface.xsd"/>
+  <xs:include  schemaLocation="MOS_Structure.xsd"/>
+  <xs:include  schemaLocation="MOS_Alarm.xsd"/>
+  <xs:include  schemaLocation="MOS_FSM.xsd"/>
+  <xs:include  schemaLocation="MOS_SimpleDefinition.xsd"/>
+  <!-- __________________________________    -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : OPCUA                                                                             -->
+  <!--   Info : Root tag                                                                          -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of the OPCUA server. This name is used to identify              -->
+  <!--                     | the device in the OPCUA name space (represented as a directory)      -->
+  <!--                     | accordingly to the XML hierarchy.                                    -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program                                          -->
+  <!--                         | Just to integrate some informations                              -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--                         | define in MOS_SimpleDefinition.xsd (pair Name/Value)             -->
+  <!--   OPCUA (0..N)          | Needed if using multi XML files : see the FileName Tag           -->
+  <!--   ServerPort (0..1)     | Not use in C++ MOS implementation                                -->
+  <!--   Attribut (0..N)       | Define an attribute in the OPCUA server (pair name/value)        -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   FileName (0..N)       | Allow include some XML files into this global XML file           -->
+  <!--                         | See the example :                                                -->
+  <!--                         | example/0_Tutorial/0_firstApplication/9_declare_Multi_FichierXml.xml -->
+  <!--   CompoundDevice (0..N) | Group some simple device into the OPCUA server.                  -->
+  <!--                         | Not really used in SuperNEMO and CTA at this moment              -->
+  <!--   SimpleDevice (0..N)   | This tag is the entry point to define the OPCUA always composed  -->
+  <!--                         | of devices. Currently, in SuperNEMO and CTA experiments,         -->
+  <!--                         | we use only 1 XML file = 1 SimpleDevice                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="OPCUA">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"       />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="OPCUA"          />
+        <xs:element                                     ref="Name"           />
+        <xs:element minOccurs="0"                       ref="ServerPort"     />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut"       />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="FileName"       />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="CompoundDevice" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDevice"   />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!-- Comment : The <CompoundDevice> is not really used at this moment in MOS Server             -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : CompoundDevice                                                                    -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of the device assembly. This name will be a âdirectoryâname in  -->
+  <!--                     | the OPCUA name space and respectively to the XML hierarchy           -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program  | Just to integrate some informations   -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--   Multiplicity (0..1)   | Used if the data point occurs many time. It will be created in   -->
+  <!--                         | the OPCUA name space as many data points as the value given for  -->
+  <!--                         | the "multiplicity" keyword                                       -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   StartNumberingMultiplicity (0..1)| used with the tag <Multiplicity> in order to define   -->
+  <!--                         | the beginning number in the multiplicity                         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Interface (0..1)      | Used to define the type of interface used by the hardware        -->
+  <!--                         | (If it exists) . Example: TCP/ COM/ UDP etc.                     -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   DataFrameStructureRef (0..N)|Reference to the XML filename containing the data frame     -->
+  <!--                         | structure (if needed). This file will be then used to analyse the-->
+  <!--                         | data coming from the device.                                     -->
+  <!--                         | define in MOS_Structure.xsd                                      -->
+  <!--   HardwareConfig (0..N) | Used to define the parameters needed by the selected interface.  -->
+  <!--                         | Example: TCP/IP hostname, port...                                -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   Attribut (0..N)       | Define an attribut in the OPCUA server (pair name/value)         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   CompoundDevice (0..N) | Group some simple device into the OPCUA server                   -->
+  <!--                         | not really use in SuperNEMO and CTA at this moment               -->
+  <!--   SimpleDevice (0..N)   | This tag is the entry point to define the OPCUA always composed  -->
+  <!--                         | of devices. Currently, in SuperNEMO an CTA experiments,          -->
+  <!--                         | we use only 1 XML file = 1 SimpleDevice                          -->
+  <!--   CompoundDatapoint (0..N)|                                                                -->
+  <!--   SimpleDatapoint (0..N)|                                                                  -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="CompoundDevice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo" />
+        <xs:element                                     ref="Name" />
+        <xs:element minOccurs="0"                       ref="Multiplicity" />
+        <xs:element minOccurs="0"                       ref="StartNumberingMultiplicity" />
+        <xs:element minOccurs="0"                       ref="Interface" />
+        <xs:element minOccurs="0"                       ref="DataFrameStructureRef" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="HardwareConfig" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDevice" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="CompoundDevice" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="CompoundDatapoint" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDatapoint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!-- Comment : <SimpleDevice> : Currently we used only 1 simpleDevice by XML file description   -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : SimpleDevice                                                                      -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Used to define the name of the device. This name is used to identify -->
+  <!--                     | the device in the OPCUA name space. (Repre-sented as a directory)    -->
+  <!--                     | accordingly to the XML hierarchy.                                    -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program                                          -->
+  <!--                         | Just to integrate some informations                              -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--   Multiplicity (0..1)   | Used if the data point occurs many time. It will be created in   -->
+  <!--                         | the OPCUA name space as many data points as the value given for  -->
+  <!--                         | the "multiplicity" keyword                                       -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   StartNumberingMultiplicity (0..1)| used with the tag <Multiplicity> in order to define   -->
+  <!--                         | the beginning number in the multiplicity                         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Attribut (0..N)       | Define an attribut in the OPCUA server (pair name/value)         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Interface (0..1)      | Used to define the type of interface used by the hardware        -->
+  <!--                         | (If it exists) . Example: TCP/ COM/ UDP etc.                     -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   Plugins (0..1)        | Used to describe the plugin of the data processing coming from or-->
+  <!--                         |  to a device.                                                    -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   Instruction_set (0..1)| Tag used for defining a set of instruction associated to the     -->
+  <!--                         | device. A set of instruction is composed of basic instructions   -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   HardwareConfig (0..N) | Used to define the parameters needed by the selected interface.  -->
+  <!--                         | Example: TCP/IP hostname, port...                                -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   DataFrameStructureRef (0..N)|Reference to the XML filename containing the data frame     -->
+  <!--                         | structure (if needed). This file will be then used to analyse the-->
+  <!--                         | data coming from the device.                                     -->
+  <!--                         | define in MOS_Structure.xsd                                      -->
+  <!--   FileFSMRef (0..1)     | This reference of XML file allow to change the official FSM by   -->
+  <!--                         | another FSM description                                          -->
+  <!--                         | define in MOS_FSM.xsd                                            -->
+  <!--   FSM(0..N)             | Each device is associated to a finite state machine. By using    -->
+  <!--                         | this keyword, it is possible to describe to different method     -->
+  <!--                         | calls associated to each state of the FSM.                       -->
+  <!--                         | define in MOS_FSM.xsd                                            -->
+  <!--   Method(0..N)          | It is possible to add methods to perform the control of the      -->
+  <!--                         | device. Example: open() et read().                               -->
+  <!--   CompoundDatapoint (0..N)|                                                                -->
+  <!--   SimpleDatapoint (0..N)|                                                                  -->
+  <!--                         | Used to define all the datapoints composing the assembly.        -->
+  <!--                         | This assembly can be composed of simple or compound datapoints   -->
+  <!--   Watchdog (0..1)       |                                                                  -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="SimpleDevice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"                       />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"                   />
+        <xs:element                                     ref="Name"                       />
+        <xs:element minOccurs="0"                       ref="Multiplicity"               />
+        <xs:element minOccurs="0"                       ref="StartNumberingMultiplicity" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut"                   />
+        <xs:element minOccurs="0"                       ref="Interface"                  />
+        <xs:element minOccurs="0"                       ref="Plugins"                    />
+        <xs:element minOccurs="0"                       ref="Instruction_set"            />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="HardwareConfig"             />
+        <xs:element minOccurs="0"                       ref="DataFrameStructureRef"      />
+        <xs:element minOccurs="0"                       ref="DataIdDescriptorRef"        />
+        <xs:element minOccurs="0"                       ref="FileFSMRef"                 />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="FSM"                        />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Method"                     />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="CompoundDatapoint"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDatapoint"            />
+        <xs:element minOccurs="0"                       ref="Watchdog"                   />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : CompoundDatapoint                                                                 -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of the device assembly. This name will be a âdirec-toryâname in-->
+  <!--                     | the OPCUA name space and respectively to the XML hierarchy           -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program                                          -->
+  <!--                         | Just to integrate some informations                              -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--   Info(0..1)            | define lots of informations about the element                    -->
+  <!--                         | (config/monitoring, public/protected/private  etc..              -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Multiplicity (0..1)   | Used if the data point occurs many time. It will be created in   -->
+  <!--                         | the OPCUA name space as many data points as the value given for  -->
+  <!--                         | the "multiplicity" keyword                                       -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   StartNumberingMultiplicity (0..1)| used with the tag <Multiplicity> in order to define   -->
+  <!--                         | the beginning number in the multiplicity                         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Attribut (0..N)             | Define an attribut in the OPCUA server (pair name/value)   -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   CompoundDatapoint (0..N)|                                                                -->
+  <!--   SimpleDatapoint (0..N)|                                                                  -->
+  <!--                         | Used to define all the datapoints composing the assembly.        -->
+  <!--                         | This assembly can be composed of simple or compound datapoints   -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="CompoundDatapoint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo" />
+        <xs:element                                     ref="Name"                       />
+        <xs:element minOccurs="0"                       ref="Multiplicity"               />
+        <xs:element minOccurs="0"                       ref="StartNumberingMultiplicity" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut"                   />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Method"                     />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="CompoundDatapoint"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDatapoint"            />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : SimpleDatapoint                                                                   -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of datapoint element in the OPCUA server                        -->
+  <!--                     | This name is used to identify the data point in the OPCUA name space.-->
+  <!--                     | This object will be created accordingly to the hierarchy of the XML  -->
+  <!--                     | description. Defined in MOS_simpleDefinition.xsd                     -->
+  <!--   Type              | Type of the datapoint                                                -->
+  <!--                     | Used to define the data type of the data point (string, int, float,) -->
+  <!--                     | for the created object in the OPCUA name space.                      -->
+  <!--                     |  Possible types are:                                                 -->
+  <!--                     |  *       string                                                      -->
+  <!--                     |  *       float                                                       -->
+  <!--                     |  *       double                                                      -->
+  <!--                     |  *       int8                                                        -->
+  <!--                     |  *       int32                                                       -->
+  <!--                     |  *       int16                                                       -->
+  <!--                     |  *       int64                                                       -->
+  <!--                     |  *       boolean                                                     -->
+  <!--                     |  define in MOS_simpleDefinition.xsd                                  -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program                                          -->
+  <!--                         | Just to integrate some informations                              -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--   Id (0..1)             | Associates the id received from a frame with this datapoint.     -->
+  <!--                         | needed for internal MOS system to acces to hardware              -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   AccesLevel (0..1)     | Define if the datapoint is in R/W acces.                         -->
+  <!--                         | Used to set the data point access rights.                        -->
+  <!--                         | 1 = Readable                                                     -->
+  <!--                         | 2 = Writeable                                                    -->
+  <!--                         | 3 = Readable, Writeable                                          -->
+  <!--                         | By default the value is 3                                        -->
+  <!--                         | but becarefull we need all the time to have Write acces in the   -->
+  <!--                         | in the MOS program because we need write the value inside.       -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Info(0..1)            | define lots of informations about the element                    -->
+  <!--                         | (config/monitoring, public/protected/private  etc..              -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   ArraySize (0..1)      | By default:  not array size so scalar element                    -->
+  <!--                         | if defined, define a vector element                              -->
+  <!--                         | Used if the data point value needs to be represented with an array.-->
+  <!--                         | The given value defines the array size.                          -->
+  <!--                         | By default, the value is 0 meaning that the data is not an array.-->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Multiplicity (0..1)   | Used if the data point occurs many time. It will be created in   -->
+  <!--                         | the OPCUA name space as many data points as the value given for  -->
+  <!--                         | the "multiplicity" keyword                                       -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   StartNumberingMultiplicity (0..1)| used with the tag <Multiplicity> in order to define   -->
+  <!--                         | the beginning number in the multiplicity                         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   MonitoringRate (0..1) | Used to define the data point value refreshing frequency.        -->
+  <!--                         | See chapter: " AUTOMATIC DATA refreshing (Push/Pull)"            -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   DataFrameStructureRef (0..N)|Reference to the XML filename containing the data frame     -->
+  <!--                         | structure (if needed). This file will be then used to analyse the-->
+  <!--                         | data coming from the device.                                     -->
+  <!--                         | define in MOS_Structure.xsd                                      -->
+  <!--   DefaultValue(0..1)    | Allow to define the default value. Else '0' or                   -->
+  <!--                         | empty string for "string" datapoint                              -->
+  <!--                         | Possible if the AccesLevel=2 or 3                                -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Unit (0..1)           | Define the Unit of the datapoint                                 -->
+  <!--                         | define in MOS_Unit.xsd                                           -->
+  <!--   ElementArray (0..1)   | Like the <DefaultValue> tag, allow to define the initial value   -->
+  <!--                         | for a vector datapoint                                           -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Description (0..1)    | Used to provide to clients a short description of the data point -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Historizing (0..1)    | Used to set the data Historization of a data point. By default,  -->
+  <!--                         | the Historization is not enabled. Historization means that the   -->
+  <!--                         | OPCUA server can store a set of value for the data point for a   -->
+  <!--                         | certain period of time. The clients can then ask for this set of -->
+  <!--                         | time stamped values. (By default, the buffer size if about 1000 )-->
+  <!--                         |  0 = no historization                                            -->
+  <!--                         |  1 = Historization                                               -->
+  <!--                         |  By default Historizing=0                                        -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   WriteMask (0..1)      |                                                                  -->
+  <!--   EndDelimiter (0..1)   |                                                                  -->
+  <!--   Alarm (0..1)          | Used to set an alarm. Depending on the alarm description,        -->
+  <!--                         | the data point will emit an alarm when a value is over the       -->
+  <!--                         | predefined values. All the clients having subscribed to the alarm-->
+  <!--                         | will be notified. The threshold and messages are described with  -->
+  <!--                         | the Alarm keyword.                                               -->
+  <!--   AlarmMethod (0..1)    | Used to override the predefined alarm methods such as            -->
+  <!--                         | "clearAlarm" and "troubleShooting". This is associated to the    -->
+  <!--                         | "Alarm" keyword.                                                 -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Attribut (0..N)       | Define an attribut in the OPCUA server (pair name/value)         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Variable(0..N)        |                                                                  -->
+  <!--   Method(0..N)          |                                                                  -->
+  <!--   Frame_element(0..N)   |                                                                  -->
+  <!--   Frame_elementString(0..N)|                                                               -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="SimpleDatapoint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"                  />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"              />
+        <xs:element minOccurs="0"                       ref="Id"                    />
+        <xs:element minOccurs="0"                       ref="AccesLevel"            />
+        <xs:element                                     ref="Name"                  />
+        <xs:element minOccurs="0"                       ref="Mnemonic"              />
+        <xs:element                                     ref="Type"                  />
+        <xs:element minOccurs="0"                       ref="ArraySize"             />
+        <xs:element minOccurs="0"                       ref="Multiplicity"          />
+        <xs:element minOccurs="0"                       ref="StartNumberingMultiplicity" />
+        <xs:element minOccurs="0"                       ref="MonitoringRate"        />
+        <xs:element minOccurs="0"                       ref="DataFrameStructureRef" />
+        <xs:element minOccurs="0"                       ref="DefaultValue"          />
+        <xs:element minOccurs="0"                       ref="Unit"                  />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ElementArray"          />
+        <xs:element minOccurs="0"                       ref="Description"           />
+        <xs:element minOccurs="0"                       ref="Historizing"           />
+        <xs:element minOccurs="0"                       ref="WriteMask"             />
+        <xs:element minOccurs="0"                       ref="EndDelimiter"          />
+        <xs:element minOccurs="0"                       ref="Alarm"                 />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="AlarmMethod"           />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut"              />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Variable"              />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Method"                />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Frame_element"         />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Frame_elementString"   />
+        <xs:element minOccurs="0" maxOccurs="1"         ref="ResolutionDataChange"  />
+        <xs:element minOccurs="0" maxOccurs="1"         ref="ResolutionDataChangeMode"  />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : Variable                                                                          -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of the variabe inside the datapoint element in the OPCUA server -->
+  <!--                     | This name is used to identify the data point in the OPCUA name space.-->
+  <!--                     | This object will be created accordingly to the hierarchy of the XML  -->
+  <!--                     | description. Defined in MOS_SimpleDefinition.xsd                     -->
+  <!--   Type              | Type of the datapoint                                                -->
+  <!--                     | Used to define the data type of the data point (string, int, float)  -->
+  <!--                     | for the created object in the OPCUA name space.                      -->
+  <!--                     |  Possible types are:                                                 -->
+  <!--                     |  -       string                                                      -->
+  <!--                     |  -       float                                                       -->
+  <!--                     |  -       double                                                      -->
+  <!--                     |  -       int8                                                        -->
+  <!--                     |  -       int32                                                       -->
+  <!--                     |  -       int16                                                       -->
+  <!--                     |  -       int64                                                       -->
+  <!--                     |  -       boolean                                                     -->
+  <!--                     |  define in MOS_SimpleDefinition.xsd                                  -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program                                          -->
+  <!--                         | Just to integrate some informations                              -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--   Unit (0..1)           | Define the Unit of the datapoint                                 -->
+  <!--                         | define in MOS_Unit.xsd                                           -->
+  <!--   Multiplicity (0..1)   | Used if the data point occurs many time. It will be created in   -->
+  <!--                         | the OPCUA name space as many data points as the value given for  -->
+  <!--                         | the "multiplicity" keyword                                       -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   StartNumberingMultiplicity (0..1)| used with the tag <Multiplicity> in order to define   -->
+  <!--                         | the beginning number in the multiplicity                         -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Value(0..1)           | Allow to define the default value. Else '0' or                   -->
+  <!--                         | empty string for "string" datapoint                              -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   ArraySize (0..1)      | By default:  not array size so scalar element                    -->
+  <!--                         | if defined, define a vector element                              -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   ElementArray (0..1)   | Like the <DefaultValue> tag, allow to define the initial value   -->
+  <!--                         | for a vector datapoint                                           -->
+  <!--   Description (0..1)    | Used to provide to clients a short description of the data point -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Historizing (0..1)    | Used to set the data Historization of a data point. By default,  -->
+  <!--                         | the Historization is not enabled. Historization means that the   -->
+  <!--                         | OPCUA server can store a set of value for the data point for a   -->
+  <!--                         | certain period of time. The clients can then ask for this set of -->
+  <!--                         | time stamped values. (By default, the buffer size if about 1000 )-->
+  <!--                         |  0 = no historization                                            -->
+  <!--                         |  1 = Historization                                               -->
+  <!--                         |  By default Historizing=0                                        -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   AccesLevel (0..1)     | Define if the datapoint is in R/W acces.                         -->
+  <!--                         | but be careful we need all the time to have Write access         -->
+  <!--                         | in the MOS program because we need to write the value inside.    -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   WriteMask (0..1)      |                                                                  -->
+  <!-- __________________________________________________________________________________________ -->
+  <!-- avoir si encore besoin sonde jl 11/07 -->
+  <xs:element name="Variable">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"      />
+        <xs:element                                     ref="Name"          />
+        <xs:element                                     ref="Type"          />
+        <xs:element minOccurs="0"                       ref="Unit"          />
+        <xs:element minOccurs="0"                       ref="Multiplicity"  />
+        <xs:element minOccurs="0"                       ref="StartNumberingMultiplicity" />
+        <xs:element minOccurs="0"                       ref="Value"         />
+        <xs:element minOccurs="0"                       ref="ArraySize"     />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ElementArray"  />
+        <xs:element minOccurs="0"                       ref="Description"   />
+        <xs:element minOccurs="0"                       ref="Historizing"   />
+        <xs:element minOccurs="0"                       ref="AccesLevel"    />
+        <xs:element minOccurs="0"                       ref="WriteMask"     />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : Attribut                                                                          -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of attribut element in the OPCUA server                         -->
+  <!--                     | This name is used to identify the data point in the OPCUA name space.-->
+  <!--                     | This object will be created accordingly to the hierarchy of the XML  -->
+  <!--                     | description. Defined in MOS_simpleDefinition.xsd                     -->
+  <!--   Value             | Value of this attribut (string)                                      -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="Attribut">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Name"  />
+        <xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : Method                                                                            -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of method in the OPCUA server                                   -->
+  <!--                     | This name is used to identify the data point in the OPCUA name space.-->
+  <!--                     | This object will be created accordingly to the hierarchy of the XML  -->
+  <!--                     | description. Defined in MOS_simpleDefinition.xsd                     -->
+  <!--   Value             | Value of this attribut (string)                                      -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   UserInfo (0..N)       | Not used in MOS program  | Just to integrate some informations   -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--                         | defined in MOS_SimpleDefinition.xsd(pair Name/Value)             -->
+  <!--   Info(0..1)            | define lots of informations about the element                    -->
+  <!--                         | (config/monitoring, public/protected/private  etc..              -->
+  <!--                         | defined in MOS_SimpleDefinition.xsd                              -->
+  <!--   Sequence (0..N)       |                                                                  -->
+  <!--   Argument (0..N)       | Used to define the parameters (input and output) of a method.    -->
+  <!--   DeviceInstruction (0..N)| Used to define the device instruction to be sent to the device -->
+  <!--                         | during the method call. The name of the "DeviceInstruction" is a -->
+  <!--                         | mnemonic in the device instruction set defined at the device     -->
+  <!--                         | level.                                                           -->
+  <!--                         | define in MOS_HardwareInterface.xsd                              -->
+  <!--   EndDelimiter (0..1)   | In some case, a command sent to a device has to be end-ed by a   -->
+  <!--                         | delimiter to validate the command transmission. This special     -->
+  <!--                         | character cannot be inserted in the com-mand itself because of   -->
+  <!--                         | character interpretation.                                        -->
+  <!--                         | Ex.: "0D" pour un "Carriage Return"                              -->
+  <!--                         | Remark: It"s a hexadecimal format.                               -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Event (0..N)          | Used to specify that a method have to send an event when it is   -->
+  <!--                         | executed. This option can be used when a server has to warn all  -->
+  <!--                         | the connected clients a method execution. Only the clients having-->
+  <!--                         | subscribed to this event will be notified.                       -->
+  <!--                         | define in MOS_Alarm.xsd                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="Method">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"              />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"          />
+        <xs:element                                     ref="Name"              />
+        <xs:element minOccurs="0"                       ref="Mnemonic"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Sequence"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Argument"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="DeviceInstruction" />
+        <xs:element minOccurs="0"                       ref="EndDelimiter"      />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Event"             />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : Argument                                                                          -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of the argument in the method                                   -->
+  <!--   Type              | Type of the (string float etc...) define in MOS_SimpleDefinition.xsd -->
+  <!--   Access            | Define if the argument is input or output in the method              -->
+  <!--                     | defined in MOS_SimpleDefinition.xsd                                   -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   DefaultValue(0..1)    | Allow to define the default value. Else '0' or                   -->
+  <!--                         | empty string for "string" datapoint                              -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Range (0..1)          |                                                                  -->
+  <!--   Description (0..1)    | Used to provide to clients a short description of the data point -->
+  <!--                         | define in MOS_SimpleDefinition.xsd                               -->
+  <!--   Unit (0..1)           | Define the Unit of the datapoint                                 -->
+  <!--                         | define in MOS_Unit.xsd                                           -->
+  <!--   UserInfo (0..N)       | Not used in MOS program                                          -->
+  <!--                         | Just to integrate some informations                              -->
+  <!--                         | for other applications like "Vire" (for the SuperNEMO experiment)-->
+  <!--                         | defined in MOS_SimpleDefinition.xsd (Name/Value pair)            -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="Argument">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element                                     ref="Name"         />
+        <xs:element                                     ref="Type"         />
+        <xs:element                                     ref="Access"       />
+        <xs:element minOccurs="0"                       ref="DefaultValue" />
+        <xs:element minOccurs="0"                       ref="Range"        />
+        <xs:element minOccurs="0"                       ref="Description"  />
+        <xs:element minOccurs="0"                       ref="Unit"         />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"     />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+</xs:schema>

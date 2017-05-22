@@ -1,0 +1,12 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+import "google/protobuf/timestamp.proto";
+
+message ResourceExecError {
+
+  vire.utility.BaseError    _base = 1;
+  google.protobuf.Timestamp deadline = 100;
+
+}

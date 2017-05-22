@@ -1,0 +1,11 @@
+syntax = "proto3";
+package vire.message;
+
+message MessageIdentifier {
+
+  // reserved 1-99
+
+  string emitter = 100; // Name of the emitter
+  sint32 number  = 101; // Message unique number with respect from the emitter
+
+}

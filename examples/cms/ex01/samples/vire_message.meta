@@ -1,0 +1,2 @@
+resource_path=SuperNEMO://Demonstrator/CMS/Coil/Control/Voltage/__dp_read__
+routing_key=SuperNEMO.Demonstrator.CMS.Coil.Control.Voltage.__dp_read__

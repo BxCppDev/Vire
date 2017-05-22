@@ -1,0 +1,11 @@
+ syntax = "proto3";
+package vire.utility;
+
+message MetadataRecord {
+
+  // reserved 1-99
+
+  string key   = 100; // Unique key
+  string value = 101; // Value represention
+
+}

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+
+message ArgumentError {
+
+  vire.utility.BaseError _base = 1;
+  uint32 expected_nargs     = 100;
+  uint32 invalid_nargs      = 101;
+  string argument_name      = 102;
+  string invalid_value_repr = 103;
+
+}

@@ -1,0 +1,165 @@
+
+\subsection{Introduction}
+
+The \emph{resource} is a central concept  in the Vire API.  A resource
+is unique and identified with an unique \emph{path} in the Vire naming
+scheme.
+
+Each resource is associated to a  single operation that can be performed
+from  some  unique component  (a  \emph{device})  of the  experimental
+setup: it may consist in reading the current value of a datapoint (DP)
+for  monitoring  purpose,  write  a  configuration  value  in  another
+datapoint (control  operation), invoke  some transition method  from a
+device implementing a finite state machine (FSM, \texttt{DAQstart}, \texttt{DAQstop} \dots).
+
+Each      resource     can/must      be     classified      in     the
+\textcolor{green}{\emph{monitoring}}                                or
+\textcolor{red}{\emph{control}} category.
+
+\noindent\textbf{Examples:}
+\begin{itemize}
+\item The resource identified with path: \\
+  \verb|"SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__"|\\
+  is  conventionally  classified  in  the  \textcolor{green}{\emph{monitoring}}  category
+  because its role  is to fetch/read the current value  of a datapoint
+  accessible    through   a    specific   MOS    server.   Here    the
+  \texttt{.../Control/Current}  identifier  corresponds to  a  control
+  datapoint but  this resource only \textcolor{green}{reads}  the value
+  of the set point. It may be the cached last value recorded in a MOS server
+  or the actual current value stored in the device itself.
+
+  The \verb+__dp_read__+ name, as a  suffix of the full resource path,
+  is a reserved keyword in the Vire API.
+
+\item The resource identified with path: \\
+  \verb|"SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__"|\\
+  is conventionally classified in  the \textcolor{red}{\emph{control}} category because
+  its role is to set/write the value of a datapoint accessible through
+  a specific MOS server. Here again  the resource is associated to the
+  \texttt{.../Control/Current}  datapoint;  however   it  is  used  to
+  \textcolor{red}{write} the requested value of the set point. Such resource
+  generally implies the user has specific privilege.
+
+  The \verb+__dp_write__+ name, as a suffix of the full resource path,
+  is a reserved keyword in the Vire API.
+
+\item The resource identified with path: \\
+  \verb|"SuperNEMO:/Demonstrator/CMS/Acquisition/stop"|\\
+  is also  classified in the  \textcolor{red}{\emph{control}} category
+  because it corresponds to  a method which \textcolor{red}{performs a
+    transition} on a  specific finite state machine  (FSM) embedded in
+  the MOS DAQ device.
+\end{itemize}
+
+Depending of the  size and compounding of  the experimental apparatus,
+the  Vire  server  may  publish  a large  set  of  resources  for  its
+clients. Some  of these  resources (but not  all) are  implemented and
+accessible through  the CMS/LAPP server  because the devices  they are
+related to are driven by some  MOS servers.  We thus need an interface
+to make  these \emph{MOS embedded} resources  available and accessible
+in the Vire system.
+
+A  crucial point  is to  make  sure that  any resource  known by  Vire
+through its path can be identified properly in the OPCUA device naming
+scheme.   This has  been  evoked  in the  previous  section where  the
+\texttt{devices\_launch.conf}     file     was     introduced     (see
+Fig. \ref{fig:cmslapp_server:dev_launch_conf}).
+
+\subsubsection{Example : resources published by a FSM-like device}
+
+The SuperNEMO DAQ daemon/automaton (implemented  as a OPCUA device) is
+managed through a  dedicated MOS server.  The DAQ  device is typically addressed
+by the following set of parameters:
+
+\begin{itemize}
+\item MOS server: \texttt{192.168.1.15}
+\item MOS port: \texttt{48040}
+\item Device namespace: \texttt{CMS}
+\item Root device name: \texttt{DAQ} (from the \texttt{CMS} root in the OPCUA namespace)
+\end{itemize}
+
+\noindent We assume that two  methods are publicly available from this
+device.   These  methods   are   supposed  to   be   defined  in   the
+ICD\footnote{Interface  Control  Document}   and  the  associated  XML
+description of the device (for example: \\
+\verb|${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/1.0.2/cms/MOS/SNEMO/DAQ/DAQdevice_1.xml|):
+\begin{itemize}
+
+\item the \texttt{CMS.DAQ.start} method starts the data acquisition (FSM transition)
+
+\item the \texttt{CMS.DAQ.stop} method stops the data acquisition (FSM transition)
+
+\end{itemize}
+
+\noindent In this special case, Vire considers that each of these methods is a \emph{resource}
+which can be executed.
+Mapping the DAQ daemon object in the OPCUA space as the
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/| path in Vire's resource space, we can thus define
+two resources in Vire:
+\begin{itemize}
+\item     the    \verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start|
+  \textcolor{red}{control   resource}   is   associated  to   \\   the
+  \texttt{192.168.1.15:48040:CMS.DAQ.start} method,
+\item     the     \verb|SuperNEMO:/Demonstrator/CMS/Acquisition/stop|
+  \textcolor{red}{control   resource}   is   associated  to   \\   the
+  \texttt{192.168.1.15:48040:CMS.DAQ.stop} method.
+\end{itemize}
+
+\noindent Vire      behaves      like      a      filesystem      where      the
+\texttt{192.168.1.15:48040:CMS.DAQ}  OPCUA device  is \emph{mounted}
+at the Vire  \verb|SuperNEMO:/Demonstrator/CMS/Acquisition| mount point. From
+this mount point,  one may navigate and access to  various devices and
+datapoints.
+
+
+\subsubsection{Example : resources from datapoints hosted in a device}
+
+\noindent The  SuperNEMO coil power  supply  device  is managed  through  a dedicated  MOS
+server. This device is addressed by the following set of parameters:
+
+\begin{itemize}
+\item MOS server: \texttt{192.168.1.15}
+\item MOS port: \texttt{4841}
+\item Device namespace: \texttt{CMS}
+\item Root device name: \texttt{COIL\_PS}
+\end{itemize}
+
+\noindent According    to     the    description    of    the     device  \\
+  (the \verb|${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/1.0.2/cms/MOS/SNEMO/COIL/COIL_PS_1.xml|     file    defined     in    the
+\verb|${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/1.0.2/cms/devices_launch.conf|  file), the  following four  datapoints are
+published in the OPCUA space:
+
+\begin{itemize}
+\item      \texttt{Monitoring.Current}      with      read      access
+  (\textcolor{green}{\emph{monitoring}} only)
+\item      \texttt{Monitoring.Voltage}      with      read      access
+  (\textcolor{green}{\emph{monitoring}} only)
+\item   \texttt{Control.Current}   with    read   and   write   access
+  (\textcolor{green}{\emph{monitoring}}                            and
+  \textcolor{red}{\emph{control}})
+\item   \texttt{Control.Voltage}   with    read   and   write   access
+  (\textcolor{green}{\emph{monitoring}}                            and
+  \textcolor{red}{\emph{control}})
+\end{itemize}
+
+\noindent From the Vire point of view, this implies the existence of six resources with the following paths:
+\begin{itemize}
+\item \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Monitoring/Current/__dp_read__|
+\item \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Monitoring/Voltage/__dp_read__|
+\item \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__|
+\item \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_read__|
+\item \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__|
+\item \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_write__|
+\end{itemize}
+
+Here   the  \verb|__dp_read__|   and  \verb|__dp_write__|   names  are
+conventionally defined in the Vire API.  They corresponds respectively
+to \emph{read}  and \emph{write}  methods (accessors) associated  to a
+datapoint.   It  is  the  responsibility of  the  CMS/LAPP  server  to
+translate  them in  term of  MOS specific  actions, respectively  read
+(\texttt{get})  and   write  (\texttt{set})  the  value   of  a  given
+datapoint.
+
+Vire mounts  the \texttt{192.168.1.15:4841:CMS.COIL\_PS}  OPCUA device
+at  the  Vire   \\  \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS|  mount
+point.

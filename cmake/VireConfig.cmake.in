@@ -1,0 +1,115 @@
+# - Config file for the Vire package
+# It defines the following variables
+#  Vire_VERSION            - Vire version
+#  Vire_VERSION_REVISION   - Vire version revision
+#  Vire_WITH_QT_GUI        - Vire version revision
+#  Vire_WITH_PROTOBUF_JAVA - Vire version revision
+#  Vire_INCLUDE_DIRS       - include directories for Vire
+#
+
+#----------------------------------------------------------------------
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#----------------------------------------------------------------------
+
+message(STATUS "[info] VireConfig.cmake: Entering...")
+
+# - Core API version
+set(Vire_VERSION "@Vire_VERSION@")
+# - Development Tag
+set(Vire_VERSION_REVISION "@Vire_VERSION_REVISION@")
+set(Vire_WITH_QT_GUI "@VIRE_WITH_QT_GUI@")
+set(Vire_WITH_PLUGINS "@VIRE_WITH_PLUGINS@")
+set(Vire_PLUGINS "@_vire_PLUGINS@")
+set(Vire_WITH_JAVA "@VIRE_WITH_JAVA@")
+set(Vire_WITH_PROTOBUF_JAVA "@VIRE_WITH_PROTOBUF_JAVA@")
+# - Vire cmake-config path is stored to help explicit path resolution in client packages:
+set(Vire_CMAKE_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set(Vire_WITH_DEVELOPER_TOOLS "@VIRE_WITH_DEVELOPER_TOOLS@")
+set(Vire_DOCS_FOUND            "@VIRE_WITH_DOCS@")
+
+message(STATUS "[info] VireConfig.cmake: Vire_VERSION                      = '${Vire_VERSION}'")
+message(STATUS "[info] VireConfig.cmake: Vire_VERSION_REVISION             = '${Vire_VERSION_REVISION}'")
+message(STATUS "[info] VireConfig.cmake: Vire_WITH_QT_GUI                  = '${Vire_WITH_QT_GUI}'")
+message(STATUS "[info] VireConfig.cmake: Vire_WITH_PROTOBUF_JAVA           = '${Vire_WITH_PROTOBUF_JAVA}'")
+
+# Component Availability
+
+#-----------------------------------------------------------------------
+# Start of CMake Generated
+@PACKAGE_INIT@
+# END OF CMAKE GENERATED
+
+# - BxJsontools
+find_package(BxJsontools @BxJsontools_VERSION@ EXACT REQUIRED NO_MODULE)
+
+# # - Protobuf
+# find_package(Protobuf @PROTOBUF_VERSION_STRING@ EXACT REQUIRED)
+
+# - BxProtobuftools
+find_package(BxProtobuftools @BxProtobuftools_VERSION@ EXACT REQUIRED NO_MODULE)
+
+#-----------------------------------------------------------------------
+# Setup paths that clients may need
+#
+message(STATUS "[info] VireConfig.cmake: PACKAGE_CMAKE_INSTALL_BINDIR      = '@PACKAGE_CMAKE_INSTALL_BINDIR@'")
+message(STATUS "[info] VireConfig.cmake: PACKAGE_CMAKE_INSTALL_LIBDIR      = '@PACKAGE_CMAKE_INSTALL_LIBDIR@'")
+message(STATUS "[info] VireConfig.cmake: PACKAGE_CMAKE_INSTALL_INCLUDEDIR  = '@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@'")
+message(STATUS "[info] VireConfig.cmake: PACKAGE_CMAKE_INSTALL_DATAROOTDIR = '@PACKAGE_CMAKE_INSTALL_DATAROOTDIR@'")
+set_and_check(Vire_INCLUDE_DIR
+  "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@"
+  )
+set_and_check(Vire_PROTOBUF_INCLUDE_DIR
+  "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/cpp"
+  )
+set_and_check(Vire_JAVA_CLASSPATH "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/java")
+set(Vire_INCLUDE_DIRS
+  "${Vire_INCLUDE_DIR}"
+  "${BxJsontools_INCLUDE_DIRS}"
+  "${BxProtobuftools_INCLUDE_DIRS}"
+  )
+
+message(STATUS "[info] VireConfig.cmake: Vire_INCLUDE_DIR                  = '${Vire_INCLUDE_DIR}'")
+message(STATUS "[info] VireConfig.cmake: Vire_PROTOBUF_INCLUDE_DIR         = '${Vire_PROTOBUF_INCLUDE_DIR}'")
+message(STATUS "[info] VireConfig.cmake: Vire_JAVA_CLASSPATH               = '${Vire_JAVA_CLASSPATH}'")
+
+#set_and_check(Vire_RESOURCE_DIR "@PACKAGE_CMAKE_INSTALL_DATAROOTDIR@/resources")
+
+#-----------------------------------------------------------------------
+# Handle paths/targets for third party deps here...
+# Our main dependency is Bayeux, and this will supply the main third
+# party deps for Vire as well
+set(VIRE_BAYEUX_VERSION @Bayeux_VERSION@)
+set(Bayeux_DIR @Bayeux_CMAKE_CONFIG_DIR@)
+message(STATUS "[info] VireConfig.cmake: Searching Bayeux ${VIRE_BAYEUX_VERSION} from ${Bayeux_DIR}...")
+find_package(Bayeux ${VIRE_BAYEUX_VERSION} EXACT REQUIRED)
+
+#-----------------------------------------------------------------------
+# Include the file listing all the imported targets.
+# This is installed in the same location as us...
+#
+if(NOT Vire_TARGETS_LOADED)
+  include("${CMAKE_CURRENT_LIST_DIR}/VireTargets.cmake")
+  set(Vire_TARGETS_LOADED 1)
+endif()
+
+#-----------------------------------------------------------------------
+# Documentation - loaded optionally as it's only present if docs were
+# built
+#
+#include("${CMAKE_CURRENT_LIST_DIR}/VireDocs.cmake" OPTIONAL)
+check_required_components(Vire)
+
+message(STATUS "[info] VireConfig.cmake: Exiting.")
+
+# - end

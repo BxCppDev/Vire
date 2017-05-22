@@ -1,0 +1,180 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to tracker racks
+#@key_label  "name"
+#@meta_label "type"
+
+
+#####################################################################################
+[name="tracker_cb_fe_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the Calorimeter Control Board Frontend FPGAs
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "chip_pld"
+
+# Auxiliary properties:
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model        : string = "Cyclone III"
+
+#@description Version of the board
+aux.version      : string = ""
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10702"
+
+
+#######################################################################################
+[name="tracker_cb_ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
+
+#@config Parameters describing the Tracker Control Board Control FPGA
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "chip_pld"
+
+# Auxiliary properties:
+
+#@description Manufacturer the board
+aux.manufacturer : string = "Altera"
+
+#@description Model of the board
+aux.model        : string = "Cyclone III"
+
+#@description Version of the board
+aux.version      : string = ""
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10701"
+
+
+#####################################################################################
+[name="tracker_ctrl_board@device" type="vire::device::base_electronics_module_model"]
+
+#@config Parameters describing the Tracker Crate Control Board
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Format of the board
+format : string = "VME-6U-extended"
+
+#@description Slot width of the board
+slot_width : integer = 1
+
+# Auxiliary properties:
+
+#@description Manufacturer the board
+aux.manufacturer : string = "LAL Orsay"
+
+#@description Model of the board
+aux.model        : string = "SuperNEMO Control Board"
+
+#@description Version of the board
+aux.version      : string = "1.0"
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10700"
+
+#@description List of embedded chips
+embedded_devices.labels : string[2] = "FeFpga" "CtrlFpga"
+
+# Device model associated to the embedded frontend FPGAs:
+embedded_devices.model.FeFpga     : string = "tracker_cb_fe_fpga"
+embedded_devices.instance.FeFpga  : string = "vire::device::regular_1d_instance=[nslots=5;first_slot=(1:0);step=(1)]"
+
+# Device model associated to the embedded control FPGA:
+embedded_devices.model.CtrlFpga    : string = "tracker_cb_ctrl_fpga"
+### embedded_devices.instance.CtrlFpga : string = "vire::device::single_instance=[slot=(0)]"
+
+
+###############################################################################
+[name="tracker_crate@device" type="vire::device::base_electronics_crate_model"]
+
+#@config Parameters describing the tracker frontend electronics crate
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Maximum number of modules
+max_number_of_modules : integer = 21
+
+#@description List of embedded boards
+modules.slot_0.model  : string = "tracker_feb"
+modules.slot_0.label  : string = "Feb_0"
+modules.slot_1.model  : string = "tracker_feb"
+modules.slot_1.label  : string = "Feb_1"
+modules.slot_2.model  : string = "tracker_feb"
+modules.slot_2.label  : string = "Feb_2"
+modules.slot_3.model  : string = "tracker_feb"
+modules.slot_3.label  : string = "Feb_3"
+modules.slot_4.model  : string = "tracker_feb"
+modules.slot_4.label  : string = "Feb_4"
+modules.slot_5.model  : string = "tracker_feb"
+modules.slot_5.label  : string = "Feb_5"
+modules.slot_6.model  : string = "tracker_feb"
+modules.slot_6.label  : string = "Feb_6"
+modules.slot_7.model  : string = "tracker_feb"
+modules.slot_7.label  : string = "Feb_7"
+modules.slot_8.model  : string = "tracker_feb"
+modules.slot_8.label  : string = "Feb_8"
+modules.slot_9.model  : string = "tracker_feb"
+modules.slot_9.label  : string = "Feb_9"
+modules.slot_10.model : string = "tracker_ctrl_board"
+modules.slot_10.label : string = "CtrlBoard"
+modules.slot_11.model : string = "tracker_feb"
+modules.slot_11.label : string = "Feb_10"
+modules.slot_12.model : string = "tracker_feb"
+modules.slot_12.label : string = "Feb_11"
+modules.slot_13.model : string = "tracker_feb"
+modules.slot_13.label : string = "Feb_12"
+modules.slot_14.model : string = "tracker_feb"
+modules.slot_14.label : string = "Feb_13"
+modules.slot_15.model : string = "tracker_feb"
+modules.slot_15.label : string = "Feb_14"
+modules.slot_16.model : string = "tracker_feb"
+modules.slot_16.label : string = "Feb_15"
+modules.slot_17.model : string = "tracker_feb"
+modules.slot_17.label : string = "Feb_16"
+modules.slot_18.model : string = "tracker_feb"
+modules.slot_18.label : string = "Feb_17"
+modules.slot_19.model : string = "tracker_feb"
+modules.slot_19.label : string = "Feb_18"
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10800"
+
+
+#############################################################################
+[name="tracker_rack@device" type="vire::device::base_electronics_rack_model"]
+
+#@config Parameters describing the calorimeter frontend electronics rack
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Maximum number of crates
+max_number_of_crates : integer = 3
+
+#@description List of embedded crates
+crates.slot_0.model  : string = "tracker_crate"
+crates.slot_0.label  : string = "Crate_0"
+crates.slot_1.model  : string = "tracker_crate"
+crates.slot_1.label  : string = "Crate_1"
+crates.slot_2.model  : string = "tracker_crate"
+crates.slot_2.label  : string = "Crate_2"
+
+#@description Unique key for CMS
+aux.cms.id  : string = "10900"
+
+#

@@ -1,0 +1,26 @@
+
+1. A-t-on bien compris les mécanisme de lecture/écriture de datapoints
+en disant que, pour un datapoint(ressource) vous nous transmettez une
+chaine de caractères portant dans l'ordre, le nom complet de la
+ressource(logical path + nom) suivi d'une pseudo commande tq :
+DPRead/DPWrite.
+Ex : SN/Gaz_Factory/pressure/DP_Read(lecture) ou
+SN/Gaz_Factory/pressure/DP_Write/value (write) ?
+Ensuite, le CMS traduit le path en MOS accès + DataPoint + action.
+Avez-vous idée de la structure du message de retour ... (valeur lue,
+acknowlege, bit mask status, ...) ?
+
+Il faut egalement réfléchir a la façon de représenter un appel de
+méthode.  La méthode est une ressource (donc le path logique est
+nécessaire)  a laquelle il faudra ajouter (si besoin) les paramètres
+d'entrée (quel format ?) et en retour de cet appel, il faudra retourner
+les paramètres de sortie(si besoin) et le retour de méthode. (quel format ?)
+
+2. Concernant la configuration :
+     Sommes-nous toujours d'accord que , lorsque vous demandez au CMS
+d'appliquer une configuration, nous recevons un stream contenant une
+séquence ordonnée de devices et de valeurs a appliquer a ce device. On
+pourra peut-etre se baser sur le même format que au point #1 (a voir).
+Le MOS peut egalement etre configurer a travers une méthode "Configure"
+ou l'ensemble de la configuration lui est passée.(format XML, JSon,...)
+Concernant le format de cet échange, avez-vous déjà une idée ou un

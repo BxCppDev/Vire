@@ -1,0 +1,85 @@
+// vire/cms/no_pubsub_resource_error.cc
+//
+// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+//
+// This file is part of Vire.
+//
+// Vire is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Vire is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+
+// Ourselves:
+#include <vire/cms/no_pubsub_resource_error.h>
+
+// Third party
+// - Boost
+#include <boost/algorithm/string/replace.hpp>
+
+namespace vire {
+
+  namespace cms {
+
+    no_pubsub_resource_error::no_pubsub_resource_error()
+      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
+    {
+      return;
+    }
+
+    no_pubsub_resource_error::no_pubsub_resource_error(const std::string & path_)
+      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
+    {
+      set_path(path_);
+      return;
+    }
+
+    no_pubsub_resource_error::~no_pubsub_resource_error()
+    {
+      return;
+    }
+
+    bool no_pubsub_resource_error::has_path() const
+    {
+      return !_path_.empty();
+    }
+
+    void no_pubsub_resource_error::set_path(const std::string & path_)
+    {
+      if (!has_message_format()) {
+        set_message_format("Resource path='%p' has no pub.sub support!");
+      }
+      _path_ = path_;
+      return;
+    }
+
+    const std::string & no_pubsub_resource_error::get_path() const
+    {
+      return _path_;
+    }
+
+    void no_pubsub_resource_error::reset()
+    {
+      _path_.clear();
+      this->base_error::reset();
+      return;
+    }
+
+    // virtual
+    void no_pubsub_resource_error::_build_message(std::string & message_) const
+    {
+      if (has_path()) {
+        message_ = boost::replace_all_copy(get_message_format(), "%p", _path_);
+      }
+      return;
+    }
+
+  } // namespace cms
+
+} // namespace vire

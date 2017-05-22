@@ -1,0 +1,154 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models categories
+#@key_label  "category"
+#@meta_label "type"
+
+
+###########################
+[category="setup" type="0"]
+
+#@config The mandatory geometry category of the top-level world virtual device
+
+#@description The device category associated to the top-level world virtual device
+addresses : string[1] = "setup"
+
+# Mnemonic:
+#  - extension ".dc" stands for "Device Category"
+#  - extension ".pc" stands for "Port Category"
+#
+
+#######################################
+[category="demonstrator.dc" type="100"]
+
+#@description The module
+addresses : string[1] = "module"
+
+
+####################################
+[category="detector.dc" type="1000"]
+
+#@description Inherits the module number
+inherits : string = "demonstrator.dc"
+
+
+#######################################
+[category="electronics.dc" type="2000"]
+
+#@description Inherits the module number
+inherits : string = "demonstrator.dc"
+
+
+################################
+[category="rack.dc" type="2100"]
+
+#@description Extend the electronics ID
+extends : string = "electronics.dc"
+
+#@description By the rack number
+by : string[1] = "rack"
+
+
+#################################
+[category="crate.dc" type="2200"]
+
+#@description Extend the rack ID
+extends : string = "rack.dc"
+
+#@description By the crate number
+by : string[1] = "crate"
+
+
+############################################
+[category="crate_ctrl_board.dc" type="2210"]
+
+#@description Inherits the crate ID
+inherits : string = "crate.dc"
+
+
+####################################
+[category="calo_feb.dc" type="2220"]
+
+#@description Extend the crate ID
+extends : string = "crate.dc"
+
+#@description By the board number
+by : string[1] = "board"
+
+
+############################################
+[category="calo_feb_channel.pc" type="2010"]
+
+#@description Extend the calo FEB ID
+extends : string = "calo_feb.dc"
+
+#@description By the board number
+by : string[1] = "channel"
+
+
+############################################
+[category="calo_feb_fe_asic.dc" type="2020"]
+
+#@description Extend the board ID
+extends : string = "calo_feb.dc"
+
+#@description By the frontend ASIC number
+by : string[1] = "fe_asic"
+
+
+############################################
+[category="calo_feb_fe_fpga.dc" type="2030"]
+
+#@description Extend the board ID
+extends : string = "calo_feb.dc"
+
+#@description By the frontend FPGA number
+by : string[1] = "fe_fpga"
+
+
+##############################################
+[category="calo_feb_ctrl_fpga.dc" type="2040"]
+
+#@description Inherits the board ID
+inherits : string = "calo_feb.dc"
+
+
+##################################################
+[category="tracker_frontend_board.dc" type="2300"]
+
+#@description Extend the crate ID
+extends : string = "crate.dc"
+
+#@description By the board number
+by : string[1] = "board"
+
+
+#########################################
+[category="trigger_board.dc" type="2310"]
+
+#@description Inherits the crate number
+inherits : string = "crate.dc"
+
+
+#########################################
+[category="calo_detector.dc" type="1100"]
+
+#@description Extend the detector ID
+extends : string = "detector.dc"
+
+#@description By the side number
+by : string[1] = "side"
+
+
+###################################
+[category="calo_om.dc" type="1110"]
+
+#@description Inherits the crate ID
+extends : string = "calo_detector.dc"
+
+#@description By the row/column numbers
+by : string[2] = "row" "column"
+
+
+# end

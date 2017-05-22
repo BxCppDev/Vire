@@ -1,0 +1,114 @@
+\subsection{Communication domains accessible to the CMS/LAPP server}
+
+The CMS/LAPP server and the  Vire software services (Vire server, Vire
+clients) can communicate together through communication channels using
+the  AMQP   protocol.   A  RabbitMQ   server  is  used  as   the  core
+communication system.
+
+By   convention,   communication    channels   are   confined   within
+\emph{communication domains} (implemented through \emph{virtual hosts}
+in terms of the  AMQP system).  A domain lies in  one of the following
+categories:
+
+\begin{itemize}
+
+\item
+  Category    \textcolor{blue}{\texttt{"vire::com::domain::system"}}:
+  conventionally reserved for private communication at system/sysadmin
+  level,
+
+\item
+  Category \textcolor{green}{\texttt{"vire::com::domain::monitoring"}}
+  :  conventionally reserved  for  communications  at data  monitoring
+  level (data read polling, pub/sub events\dots),
+
+\item
+  Category   \textcolor{red}{\texttt{"vire::com::domain::control"}}  :
+  conventionally  reserved for  communications at  data control  level
+  (configuration, priviledged/write operations on hardware\dots).
+
+\end{itemize}
+
+For the Vire-CMS/LAPP interface, there are two available domains:
+
+\begin{itemize}
+
+\item   Domain/vhost    \texttt{"/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system"}   (of
+  category   \textcolor{blue}{\texttt{"vire::com::domain::system"}}):
+  used for system RPC transactions and asynchronous messaging (events,
+  alarms, signals)  between the Vire  server and the  CMS/LAPP server.
+  No Vire client are allowed to use this domain.
+
+\item    Domain/vhost   \texttt{"/supernemo/demonstrator/cms/vire/monitoring"}    (of
+  category\\
+  \textcolor{green}{\texttt{"vire::com::domain::monitoring"}})  : used
+  for data polling RPC transactions and asynchronous alarm, log and Pub/Sub event messages.
+  Vire  clients, the  Vire server  and the  CMS/LAPP server  are given
+  access to this domain.
+
+  %% \item       the       \texttt{vire\_cms\_control}       (category
+  %%   \textcolor{blue}{\texttt{vire::com::domain::monitoring})     is
+  %%   used for data polling RPC transactions and asynchronous Pub/Sub
+  %%   messages.   Vire  clients, the  Vire  server  and the  CMS/LAPP
+  %%   server may be given access to this domain.
+
+\end{itemize}
+
+Within  a given  thematic domain,  various communication  channels
+are implemented by default:
+
+\begin{itemize}
+
+\item for the \texttt{"/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system"} domain,
+  only private queues are used for RPC or event messenging. Their names are fixed by design.
+
+\item for the \texttt{"/supernemo/demonstrator/cms/vire/monitoring"} domain,
+  only public exchanges are used for RPC or event messenging. Their names are fixed by design.
+
+\end{itemize}
+
+%% synchronous RPC  point-to-point bindings, asynchronous event
+%% queues,      asynchronous      Pub/Sub     exchanges\dots\      Figure
+%% \ref{fig:cmslapp_domains:layout_0}   shows    the   layout    of   the
+%% communication domains accessible by the Vire and CMS/LAPP servers with
+%% possible associated communication channels.
+
+%% \begin{figure}[h]
+%% \begin{center}
+%% \scalebox{0.9}{\input{\pdftextimgpath/vire_cmslapp_domains-layout_0.pdftex_t}}
+%% \end{center}
+%% \caption{The communication  domains between  the CMS/LAPP  server, the
+%%   Vire            server            and            the            Vire
+%%   client(s).}\label{fig:cmslapp_domains:layout_0}
+%% \end{figure}
+
+To gain  access to  a given  domain, a software  component must  use a
+dedicated user  account (RabbitMQ  user) with proper  privileges.  The
+RabbitMQ  server   is  thus  conventionally  preconfigured   with  the
+following setup:
+
+\begin{itemize}
+
+%% \item   The    Vire   server   uses   the    RabbitMQ   user   account
+%%   \texttt{"viresvr"}         to         access        both         the\\
+%%   \texttt{"/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system"}
+%%   and \texttt{"/supernemo/demonstrator/cms/vire/monitoring"} virtual hosts.
+
+\item The CMS/LAPP server uses the RabbitMQ user \texttt{"cmslappsvr"}
+  to  access  both   \\
+  \texttt{"/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system"}  and
+  \texttt{"/supernemo/demonstrator/cms/vire/monitoring"} virtual hosts.
+
+\end{itemize}
+
+\noindent  \textbf{Note:}   There  is  no  official   predefined  user
+account(s) for SuperNEMO Vire clients.  The Vire server is responsible
+to create and then destroy on  the fly temporary RabbitMQ accounts for
+specific  client  sessions.  A  dedicated  \texttt{RabbitMQManager}
+service is embedded in the Vire server to perform such operations. The
+CMS/LAPP server is not involved in these administrative operations.
+
+
+\vfill
+\afterpage{\clearpage}
+\pagebreak

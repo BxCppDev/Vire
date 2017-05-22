@@ -1,0 +1,29 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Introduction}
+
+The CMS/LAPP  server is the main  service that allows the  Vire server
+(and  possibly its  Vire  clients) to  access  the hardware  resources
+managed     by     MOS     servers      in     the     OPCUA     space
+(Fig. \ref{fig:cms_server:layout_0a}).
+
+\begin{figure}[h]
+\begin{center}
+\scalebox{0.75}{\input{\pdftextimgpath/cms_server-layout_0a.pdftex_t}}
+\end{center}
+\caption{Overview of  the Vire server,  one Vire client,  the CMS/LAPP
+  server and  its connections  to the  hardware through  dedicated MOS
+  servers.}
+\label{fig:cms_server:layout_0a}
+\end{figure}
+
+\noindent From the Vire server point of view, the CMS/LAPP server is a
+subcontractor agent which behaves like  a \emph{proxy}, hidding the
+details  of  the  real  time   and  low  level  communication  systems
+implemented in  MOS servers  and their  embedded device  drivers.  Its
+role is to provide, in  terms of Vire \emph{resources}, a conventional
+access  to  the  datapoints   (DP)  and  dedicated  actions  (methods)
+associated to MOS devices.
+
+\vfill
+\afterpage{\clearpage}
+\pagebreak

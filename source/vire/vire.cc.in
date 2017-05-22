@@ -1,0 +1,130 @@
+// vire/vire.cc - Implementation of Vire init/fini function
+//
+// Copyright (c) 2015 by Francois Mauger <mauger@lpccaen.in2p3.fr>
+//
+// This file is part of Vire.
+//
+// Vire is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Vire is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Vire. If not, see <http://www.gnu.org/licenses/>.
+
+// Ourselves:
+#include <vire/vire.h>
+
+// Standard library
+#include <iostream>
+
+// Third party:
+// - Bayeux:
+#include <bayeux/bayeux.h>
+// - Bayeux/datatools
+#include <datatools/exception.h>
+
+// This project:
+#include <vire/version.h>
+#include <vire/resource_files.h>
+#include <vire/plugin.h>
+#include <vire/detail/vire_library.h>
+
+namespace {
+
+  static bool _vireInit = false;
+
+  void vire_initialize_impl()
+  {
+   ::datatools::logger::priority logging = ::vire::detail::vire_library::process_logging_env();
+    DT_LOG_TRACE_ENTERING(logging);
+    // vire::init_resources();
+
+    if (!::vire::detail::vire_library::is_instantiated()) {
+      DT_LOG_TRACE(logging, "Instantiating Vire system singleton...");
+      ::vire::detail::vire_library & vireLib = ::vire::detail::vire_library::instantiate();
+      DT_LOG_TRACE(logging, "Initializing Vire system singleton with specific internals...");
+      vireLib.initialize();
+    }
+
+    DT_LOG_TRACE_EXITING(logging);
+    return;
+  }
+
+  void vire_terminate_impl()
+  {
+   ::datatools::logger::priority logging = ::vire::detail::vire_library::process_logging_env();
+    DT_LOG_TRACE_ENTERING(logging);
+    if (::vire::detail::vire_library::is_instantiated()) {
+      DT_LOG_TRACE(logging, "Shutdown Vire system singleton specific internals...");
+      ::vire::detail::vire_library & vireLib = ::vire::detail::vire_library::instance();
+      if (vireLib.is_initialized()) {
+        vireLib.shutdown();
+      }
+      DT_LOG_TRACE(logging, "Vire system singleton have been terminated.");
+    }
+    DT_LOG_TRACE_EXITING(logging);
+    return;
+  }
+
+}
+
+namespace vire {
+
+  int initialize(int argc_, char * argv_[], uint32_t flags_)
+  {
+    int error_code = EXIT_SUCCESS;
+    try {
+      if (! ::_vireInit) {
+        // Wrap Bayeux initialization because we need resources from various Bayeux's modules:
+        ::bayeux::initialize(argc_,argv_, flags_);
+        // Initialization code from Vire itself:
+        vire_initialize_impl();
+        ::_vireInit = true;
+      } else {
+        DT_THROW_IF(true, std::logic_error,
+                    "Attempt to initialize the already initialized Vire library!");
+        error_code = EXIT_FAILURE; // unavailable
+      }
+    } catch (std::exception & error) {
+      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire initialization failed: " << error.what());
+      error_code = EXIT_FAILURE;
+    } catch (...) {
+      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire initialization failed: " << "Unexpected error!");
+      error_code = EXIT_FAILURE;
+    }
+    return error_code;
+  }
+
+  int terminate()
+  {
+    int error_code = EXIT_SUCCESS;
+    try {
+      if (::_vireInit) {
+        // Termination code for Vire:
+        vire_terminate_impl();
+
+        // Wrap Bayeux termination:
+        ::bayeux::terminate();
+        ::_vireInit = false;
+      } else {
+        DT_THROW(std::logic_error,
+                 "Attempt to terminate the already terminated Vire library!");
+        error_code = EXIT_FAILURE;
+      }
+    } catch (std::exception & error) {
+      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire termination failed: " << error.what());
+      error_code = EXIT_FAILURE;
+    } catch (...) {
+      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire termination failed: " << "Unexpected error!");
+      error_code = EXIT_FAILURE;
+    }
+    return error_code;
+  }
+
+} // namespace vire

@@ -1,0 +1,251 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Configuration parameters for the CMS/LAPP server}
+
+\subsubsection{Configuration file of the CMS/LAPP server}
+
+Specific setup  files are used  to store the  configuration parameters
+used  (and  possibly shared)  by  the  Vire  server and  the  CMS/LAPP
+subcontractor server.   These files must  be available from  a central
+configuration directory\footnote{In the example, we use an environment
+  variable to define this base directory.}  and passed to the Vire and
+CMS/LAPP servers at startup.
+
+These files, as well as other configuration files, will be distributed
+and shared through a VCS  \footnote{Version control system.  Note that
+  the  SuperNEMO experiment  uses a  Subversion server  hosted at  LPC
+  \url{https://nemo.lpc-caen.in2p3.fr/svn}}.  It  is ensured  that the
+configuration files  loaded at startup  by both the Vire  and CMS/LAPP
+servers  will be  synchronized through  the VCS,  even if  they run  on
+different  nodes.    Appendix  \ref{app:filesystem_conf}   proposes  a
+technique to identify the paths of all configuration files.
+As the files should contains some credential informations, the VCS should
+be private.
+
+
+\vskip 10pt
+\noindent \textbf{Example (the names of the executable are arbitrary)}:
+\begin{itemize}
+
+\item to run the CMS/LAPP server, we should typically use:
+  \vskip 10pt
+  \small
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{shell}]
+    shell$ cmslappserver \
+    --setup-config=${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/cms/1.0.2/subcontractors/cmslapp/setup.conf \
+    ...
+  \end{Verbatim}
+  \normalsize
+
+\item to run the Vire server, we should typically use:
+  \vskip 10pt
+  \small
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{shell}]
+    shell$ vireserver \
+    --setup-config=${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/cms/1.0.2/vireserver/setup.conf \
+    ...
+  \end{Verbatim}
+  \normalsize
+\end{itemize}
+
+\noindent      In      the      example      above,      the      file
+\verb|snemo/cms/1.0.2/subcontractors/cmslapp/setup.conf| is distributed  through a private VCS in
+a conventional  base directory  accessible by  both Vire  and CMS/LAPP
+servers. The  environment variable \verb|SNEMO_ONLINE_CONFIG_BASE_DIR|
+is  used  to  locate  this  base  directory.  It  is  defined  in  the
+environment from which the CMS/LAPP runs (i.e. a Bash shell). Example:
+\vskip 10pt
+\small
+\begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{shell}]
+shell$ export SNEMO_ONLINE_CONFIG_BASE_DIR="/home/snemo/config"
+\end{Verbatim}
+\normalsize
+
+\noindent\textbf{Note:} as credentials will be probably stored in some startup files
+(RabbitMQ \emph{user/password} pairs), extreme care should be taken while distributing the configuration
+files. This has to be discussed.
+
+
+\subsubsection{Configuration parameters}
+
+The CMS/LAPP server  must know a minimal set of  parameters that allow
+to identify the experimental setup and connect to the Vire system with
+a non ambiguous configuration.
+
+A private configuration  file is used to store fundamental parameters about
+the experimental setup.
+
+The configuration  file should  store the  following set  of mandatory
+parameters:
+
+\begin{itemize}
+
+\item  The   \texttt{setup\_name}  character  string  is   the  unique
+  identifier label of the experimental setup. \\
+  \noindent \textbf{Example:} \verb+"snemo"+.
+
+\item The \texttt{setup\_version} character string encodes the version
+  number  of  the  experimental  setup.  It  should  typically  use  a
+  conventional         sequence-based        identifier         format
+  (\emph{major.minor.revision} scheme).\\
+  \noindent \textbf{Example:} \verb+"1.0.2"+ or \verb+"test_42"+
+
+\item  The \texttt{setup\_description}  character string  contains the
+  short description of the experimental setup. \\
+  \noindent \textbf{Example:} \verb+"The SuperNEMO Demonstrator Experiment"+
+
+\item  The \texttt{amqp\_svr\_host}  character string  encodes the  IP
+  address  or   the  URL  of   the  main  RabbitMQ  server   used  for
+  communication between remote components involved in the system.\\
+  \noindent \textbf{Example:} \texttt{"sndemo.in2p3.fr"} or \texttt{192.10.0.23}
+
+\item The \texttt{amqp\_svr\_port} integer is  the port number used by
+  the main RabbitMQ server.\\
+  \noindent \textbf{Example:} \texttt{5672}
+
+\item   The  \texttt{amqp\_cmslapp\_user}   character  string
+  stores  the user login used by the CMS/LAPP server to enter
+  the RabbitMQ system. % (use the \textcolor{blue}{service} virtual host).
+  \noindent \textbf{Example:} \texttt{"cmslappserver"}
+
+\item   The  \texttt{amqp\_cmslapp\_password}   character  string
+  stores  the user credentials used by the CMS/LAPP server to enter
+  the RabbitMQ system.\\
+  \noindent \textbf{Example:} \texttt{"Sésame, ouvre-toi!"}\\
+  \noindent \textbf{Note:} for security reasons, this parameter could be stored or transmit to the server
+  by another mechanism (to be discussed).
+
+  %% CMS/LAPP-Vire server system domain:
+
+\item   The  \texttt{amqp\_cmslapp\_system\_vhost}   character  string
+  stores  the  identifier  of the  \textcolor{blue}{service}  RabbitMQ
+  virtual host used to confine  the system private communications with
+  the Vire server.\\
+  \noindent \textbf{Example:} \texttt{"/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system"}
+
+\item      The     \texttt{amqp\_cmslapp\_system\_service\_queue}
+  character string stores the name of  the RabbitMQ queue used to read
+  RPC request messages sent by the Vire server.\\
+  \noindent \textbf{Example:} \texttt{"subcontractor.service"}
+
+\item      The     \texttt{amqp\_cmslapp\_system\_event\_queue}
+  character string stores the name of  the RabbitMQ queue used to read
+  event messages sent by the Vire server.\\
+  \noindent \textbf{Example:} \texttt{"subcontractor.event"}
+
+\item      The     \texttt{amqp\_vireserver\_system\_event\_queue}
+  character string stores the name of  the RabbitMQ queue used to send
+  event/signal messages to the Vire server.\\
+  \noindent \textbf{Example:} \texttt{"vireserver.event"}
+
+\item      The     \texttt{amqp\_vireserver\_system\_service\_queue}
+  character string stores the name of  the RabbitMQ queue used to send
+  RPC request messages messages to the Vire server.\\
+  \noindent \textbf{Example:} \texttt{"vireserver.service"}
+
+  %% Monitoring domain:
+\item   The  \texttt{amqp\_cms\_monitoring\_vhost}   character  string
+  stores the identifier  of the \textcolor{green}{monitoring} RabbitMQ
+  virtual host  used to confine the  monitoring communications between
+  the Vire server, the Vire clients and the CMS/LAPP server.\\
+  \noindent \textbf{Example:} \texttt{"/supernemo/demonstrator/cms/vire/monitoring"}
+
+\item      The     \texttt{amqp\_cms\_monitoring\_resource\_service\_exchange}
+  character string stores the name of  the RabbitMQ exchange to be subscribed to read
+  RPC request messages sent by the Vire server or Vire clients.\\
+  \noindent \textbf{Example:} \texttt{"resource\_request.service"}
+
+\item      The     \texttt{amqp\_cms\_monitoring\_alarm\_event\_exchange}
+  character string stores the name of  the RabbitMQ exchange where to send
+  alarm event messages to be read by the Vire server or Vire clients.\\
+  \noindent \textbf{Example:} \texttt{"alarm.event"}
+
+\item      The     \texttt{amqp\_cms\_monitoring\_log\_event\_exchange}
+  character string stores the name of  the RabbitMQ exchange where to send
+  log event messages to be read by the Vire server or Vire clients.\\
+  \noindent \textbf{Example:} \texttt{"log.event"}
+
+\item      The     \texttt{amqp\_cms\_monitoring\_pubsub\_event\_exchange}
+  character string stores the name of  the RabbitMQ exchange where to send
+  Pub/Sub event messages to be read by the Vire server or Vire clients.\\
+  \noindent \textbf{Example:} \texttt{"log.event"}
+
+
+  %% Device naming/resolution:
+
+\item   The  \texttt{mos\_device\_launching\_path}   character  string
+  represents  the path  of  the configuration  file  which stores  the
+  informations  about  the devices  managed  by  MOS servers  and  the
+  mapping rules to address them in  the Vire server naming scheme. \\
+  \noindent \textbf{Example:} \texttt{"\${SNEMO\_ONLINE\_CONFIG\_BASE\_DIR}/snemo/cms/1.0.2/devices\_launch.conf"}
+
+  This  file stores  the informations  that describe  how OPCUA  based
+  device  handlers are  instantiated within  MOS servers  and how  the
+  OPCUA  devices  naming scheme  is  mapped  (mounted) into  the  Vire
+  devices/resources naming scheme. An example  of such a file is shown
+  on figure \ref{fig:cmslapp_server:dev_launch_conf}.
+
+\end{itemize}
+
+\vskip 10pt
+\noindent An example of configuration  file for the CMS/LAPP server is
+shown in Fig. \ref{fig:setup_conf}.
+
+\begin{figure}[h]
+\small
+\begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{Configuration}]
+# Setup identification and description:
+setup_name           = "snemo"
+setup_version        = "1.0.2"
+setup_description    = "The SuperNEMO Demonstrator Experiment"
+
+# Access to the AMQP/RabbitMQ system and dedicated resources:
+amqp_svr_host         = "cmssupernemo.in2p3.fr"
+amqp_svr_port         = 5672
+amqp_cmslapp_user     = "cmslappsvr"
+amqp_cmslapp_password = "Sésame, ouvre-toi!"
+
+# Vire server/CMSLAPP system virtual host;
+amqp_cmslapp_system_vhost = "/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system"
+amqp_cmslapp_system_service_queue    = "subcontractor.service"
+amqp_cmslapp_system_event_queue      = "subcontractor.event"
+amqp_vireserver_system_service_queue = "vireserver.service"
+amqp_vireserver_system_event_queue   = "vireserver.event"
+
+# Vire monitoring virtual host:
+amqp_cms_monitoring_vhost = "/supernemo/demonstrator/cms/vire/monitoring"
+amqp_cms_monitoring_resource_service_exchange = "resource_request.service"
+amqp_cms_monitoring_alarm_event_exchange      = "alarm.event"
+amqp_cms_monitoring_log_event_exchange        = "log.event"
+amqp_cms_monitoring_pubsub_event_exchange     = "pubsub.event"
+
+# Description of devices managed by MOS servers
+# and mounted by the Vire server through the CMS/LAPP proxy server:
+mos_device_launching_path   = \
+  "${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/cms/1.0.2/devices_launch.conf"
+...
+\end{Verbatim}
+\normalsize
+\caption{Example of configuration file for  the CMS/LAPP server with a
+  set      of      parameters      shared      with      the      Vire
+  server.}\label{fig:setup_conf}
+\end{figure}
+
+
+\begin{figure}[p]
+  \begin{center}
+    \rotatebox{90}{\framebox{\BVerbatimInput[
+          label=\fbox{\texttt{devices_launch.conf}},
+          fontsize=\tiny,
+          firstline=1,
+          lastline=58]
+        {cms_server/samples/devices_launch.conf}}}
+  \end{center}
+  \caption{Example of \texttt{devices\_launch.conf} file.}
+  \label{fig:cmslapp_server:dev_launch_conf}
+\end{figure}
+
+
+\vfill
+\afterpage{\clearpage}
+\pagebreak

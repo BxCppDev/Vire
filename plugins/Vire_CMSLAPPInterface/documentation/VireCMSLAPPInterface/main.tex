@@ -1,0 +1,106 @@
+\documentclass[a4paper,11pt,twoside]{article}
+
+%%% packages:
+\usepackage[T1]{fontenc}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+%\usepackage[frenchb]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{latexsym}
+\usepackage{verbatim}
+\usepackage{moreverb}
+\usepackage{fancyvrb}
+\usepackage{alltt}
+\usepackage{eurosym}
+\usepackage{hyperref}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{rotating}
+\usepackage{tikz}
+%\usepackage{tikz-qtree}
+
+%%% Geometry (https://en.wikibooks.org/wiki/LaTeX/Page_Layout)
+\usepackage{layout}
+%\usepackage[a4paper,top=1in, bottom=1.25in, left=1.25in, right=1.25in, inner=4cm,outer=2cm]{geometry}
+\usepackage[a4paper,inner=2cm,outer=2cm]{geometry}
+%% \setlength{\hoffset}{-1inch}
+%% \setlength{\voffset}{-1inch0pt}
+\setlength{\textheight}{23cm}
+%% \setlength{\textwidth}{18cm}
+
+%%% macros:
+\newcommand{\thepath}{.}
+\newcommand{\imgpath}{\thepath/images}
+\newcommand{\pdfteximgpath}{\thepath/pdftex}
+\newcommand{\pdftextimgpath}{\thepath/pdftex_t}
+
+%%%
+\title{The SuperNEMO Vire-CMS/LAPP interface\\version 0.7}
+\author{E.Chabanne, J.Hommet, T. Leflour, Y. Lemière,
+  S.Lieunard, F.Mauger, J.-L. Panazol, J.Poincheval}
+\date{\today}
+
+%%%
+\begin{document}
+
+\thispagestyle{empty}
+%\layout{}
+\maketitle
+\begin{abstract}
+This document aims  to describe the requirements of  the Vire CMS/LAPP
+interface,  i.e. the  software bridge  between the  Vire based  online
+software  (Vire server  and clients,  a.k.a the  Vire system)  and the
+CMS/LAPP server  that plays  the role  of the  unique gate  (subcontractor proxy) to
+communicate with  the OPCUA-based MOS  servers responsible of  the low
+level control and monitoring operations on some hardware devices.
+\end{abstract}
+\vfill
+\pagebreak
+
+\tableofcontents
+\vfill
+\pagebreak
+
+\listoffigures
+\vfill
+\pagebreak
+
+\listoftables
+\vfill
+\pagebreak
+\clearpage
+
+\input{cms_server/main.tex}
+\vfill
+\pagebreak
+\clearpage
+
+\input{vire_resources/main.tex}
+\vfill
+\pagebreak
+\clearpage
+
+% \input{cmslapp_vireclients/main.tex}
+\section{Interaction of the CMS/LAPP server with Vire clients}
+
+TODO
+\vfill
+\pagebreak
+\clearpage
+
+%%%%%%%%%
+\appendix
+
+\input{appendix/app_filesystem.tex}
+\input{appendix/app_new_device.tex}
+\input{appendix/app_vire_messages.tex}
+%\input{appendix/app_json_fmt.tex}
+\input{appendix/app_protobuf_format.tex}
+\input{appendix/app_payload_objects.tex}
+\input{appendix/app_rabbitmq_rpc.tex}
+
+\end{document}
+%%

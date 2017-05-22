@@ -1,0 +1,130 @@
+
+
+\subsection{Vire/CMS addressing scheme}
+
+The mapping of any Vire resource  in terms of MOS addressing scheme is
+resolved  by the  CMS/LAPP server  through  the rules  defined in  the
+\verb|devices_launch.conf|     file    (see     example    on     Fig.
+\ref{fig:cmslapp_server:dev_launch_conf}).   The  CMS/LAPP  server  is
+responsible to build a local resource map that associates any resource
+path  to  an effective  item  (datapoint  read/write action,  methods)
+accessible from a MOS.
+
+\subsubsection{Example : resources from a FSM-like device}
+
+The Vire server defines the  \verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start| resource.
+From this unique Vire path, the CMS server must extract the
+corresponding \emph{parent path} and \emph{base name}.
+
+\begin{itemize}
+\item Parent Vire path:  \verb|SuperNEMO:/Demonstrator/CMS/Acquisition/|
+\item Base name:  \verb|start|
+\end{itemize}
+
+Then the CMS/LAPP server resolves the MOS address of the parent path using the informations
+stored in the \verb|devices_launch.conf| file:
+\begin{itemize}
+\item MOS server: \texttt{192.168.1.15}
+\item MOS port: \texttt{48040}
+\item Device namespace: \texttt{CMS}
+\item Root device name: \texttt{DAQ}
+\end{itemize}
+
+Now the device is non ambiguously located in the OPCUA space.
+
+The resource  base name (here \verb|start|)  is thus identified/mapped
+as  the  \texttt{start} method  of  the  DAQ  device model.   This  is
+guaranted by  the XML to  Vire configuration files  convertion utility
+(available  from the  \texttt{Vire\_MOS} software  plugin).  The  same
+procedure         can         be        applied         to         the\\
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/stop| resource.
+
+\subsubsection{Example : resources from a datapoint hosted in a device}
+
+
+The            Vire            server           defines            the
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Monitoring/Voltage/__dp_read__|
+resource associated  to the \texttt{.../Voltage}  datapoint monitoring
+functionality.
+
+The CMS/LAPP server must extract the corresponding  \emph{parent path} and \emph{base name}.
+
+\begin{itemize}
+\item Parent Vire path:  \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Monitoring/Voltage/|
+\item Base name:  \verb|__dp_read__|
+\end{itemize}
+
+
+Then the CMS/LAPP server resolves the MOS address of the parent path using the informations
+stored in the \verb|devices_launch.conf| file:
+\begin{itemize}
+\item MOS server: \texttt{192.168.1.15}
+\item MOS port: \texttt{4841}
+\item Device namespace: \texttt{CMS}
+\item Root device name: \texttt{COIL\_PS.Monitoring.Voltage}
+\end{itemize}
+
+The  Vire  mount  point  is  extracted  from  the  Vire  parent  path:
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/|.  This allows to identify
+the top level device handled by the MOS server (\texttt{CMS.COIL\_PS})
+then find the sub-path  to the datapoint \texttt{Monitoring.Voltage}.
+Now the datapoint  is non ambiguously located in the  OPCUA space. The
+resource base name (here \verb|__dp_read__|)  is identified as the
+conventional  operation that  reads the  current cached  value of  the
+datapoint.
+
+\subsubsection{CMS/LAPP map of resources}
+
+As soon  as the CMS/LAPP server  has accepted the connection  with the Vire
+server,  and following  the rules  explained above,  it's possible  to
+build a map of all resources requested by the Vire server.  The map is
+built from  the list of  requested resources  and the contents  of the
+\texttt{devices\_launch.conf} file.
+
+Once the  connection with the  Vire server has been  established, each
+time the CMS/LAPP  server will receive a request message  about a resource,
+it will immediately know, thanks to this map, what device or datapoint
+is targeted and which operations are possible.
+Table \ref{tab:cms:resource_map}  displays an excerpt of
+such a map.
+
+\begin{sidewaystable}[p]
+\begin{center}%
+\footnotesize
+\begin{tabular}{|l|c|l|l|l|}
+\hline
+\textbf{Vire resource}  &  \textbf{M/C} & \textbf{OPCUA address \& name} & \textbf{Type of} & \textbf{Operation} \\
+ &   & \ & \textbf{ object} &  \\
+\hline
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start| & C &
+\texttt{192.168.1.15:48040:CMS.DAQ} & Device & \texttt{start} method \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/stop| & C &
+\texttt{192.168.1.15:48040:CMS.DAQ} & Device & \texttt{stop} method \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Monitoring/Voltage/__dp_read__| & M &
+\texttt{192.168.1.15:4841:CMS.COIL\_PS.Monitoring.Voltage} & Datapoint & read the value \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Monitoring/Current/__dp_read__| &M &
+\texttt{192.168.1.15:4841:CMS.COIL\_PS.Monitoring.Current} & Datapoint & read the value \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_read__| &M &
+\texttt{192.168.1.15:4841:CMS.COIL\_PS.Control.Voltage} & Datapoint & read the value \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_write__| & C &
+\texttt{192.168.1.15:4841:CMS.COIL\_PS.Control.Voltage} & Datapoint & write the value \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__| &M &
+\texttt{192.168.1.15:4841:CMS.COIL\_PS.Control.Current} & Datapoint & read the value \\
+\hline
+\verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__| & C &
+\texttt{192.168.1.15:4841:CMS.COIL\_PS.Control.Current} & Datapoint & write the value \\
+\hline
+\end{tabular}
+\normalsize
+\end{center}
+\caption{Example of a map of resources with their correspondances with OPCUA datapoints read/write access
+and devices methods.}
+\label{tab:cms:resource_map}
+\end{sidewaystable}

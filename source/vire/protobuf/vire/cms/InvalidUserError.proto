@@ -1,0 +1,14 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+
+message InvalidUserError {
+
+  vire.utility.BaseError _base = 1;
+  oneof case_oneof {
+    string invalid_user_name = 100; // Invalid user name
+    sint32 invalid_user_id   = 101; // Invalid UID
+  }
+
+}

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package vire.message;
+
+import "vire/message/MessageHeader.proto";
+import "vire/message/MessageBody.proto";
+
+message Message {
+
+  // reserved = 1-99
+
+  MessageHeader header = 100; // Message header
+  MessageBody   body   = 101; // Message body
+
+}

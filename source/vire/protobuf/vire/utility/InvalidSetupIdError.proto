@@ -1,0 +1,16 @@
+syntax = "proto3";
+package vire.utility;
+
+import "vire/utility/BaseError.proto";
+
+message InvalidSetupIdError {
+
+  BaseError _base = 1; // Inherits a BaseError record type
+
+  // Only one of the following attributes is documented:
+  oneof detail {
+    string invalid_setup_name    = 101; /// Invalid setup name
+    string invalid_setup_version = 102; /// Invalid setup version representation
+  }
+
+}

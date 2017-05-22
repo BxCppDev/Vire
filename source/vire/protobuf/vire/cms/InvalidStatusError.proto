@@ -1,0 +1,14 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+
+message InvalidStatusError {
+
+  vire.utility.BaseError _base = 1;
+
+  string path      = 100; // Resource path
+  string flag_repr = 101; // Status flag label that causes the error
+                          // Supported values are: "missing", "failed", "disabled" or "pending"
+
+}

@@ -1,0 +1,21 @@
+Vire message: 
+|-- Header : 
+|   |-- Message ID  : 'vire.server[42]'
+|   |-- Timestamp   : [20170130T154945.071163]
+|   |-- In reply to : <none>
+|   |-- Asynchronous : true
+|   |-- Async address : 'snemo.vire.client_0.Die0baxu.q'
+|   |-- Body layout ID : 'vire::message::body_format::typed_payload-1.0'
+|   |-- Metadata : [1]
+|   |   `-- Key: 'user_correlation_id' : Value='SuperNEMO.Demonstrator.CMS.Coil.Control.Voltage.__dp_read__'
+|   `-- Valid : true
+|-- Body : 
+|   |-- Payload type ID : 'vire::cms::resource_exec_request'
+|   |-- Payload : [@0x1ead910] (as 'N4vire3cms21resource_exec_requestE')
+|   |   |-- Payload category : 'request'
+|   |   |-- Payload type identifier : 'vire::cms::resource_exec_request'
+|   |   |-- Path : 'SuperNEMO://Demonstrator/CMS/Coil/Control/Voltage/__dp_read__'
+|   |   `-- Input arguments : [1]
+|   |       `-- Method argument #0 : name='refresh' value='false'
+|   `-- Valid : true
+`-- Valid : true

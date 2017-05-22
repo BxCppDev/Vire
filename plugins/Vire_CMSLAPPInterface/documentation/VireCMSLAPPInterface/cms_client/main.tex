@@ -1,0 +1,27 @@
+
+
+
+struct connection_request
+{
+  instance_identifier setup_id;
+  std::string         user_id;
+
+
+};
+
+struct use_case_info
+{
+  std::string _label_;       // Identifier of the use case
+  std::string _description_; // Terse description of the use case
+  std::string _start_time_;  // Start time of the use case
+  std::string _stop_time_;   // Stop time of the use case
+};
+
+struct connection_request_success_response
+{
+  std::string key;
+  /// service_info/channel/bindings...
+
+  std::list<use_case_info> _use_cases_; // List of possible use cases
+                                       // computed from the server Agenda
+};

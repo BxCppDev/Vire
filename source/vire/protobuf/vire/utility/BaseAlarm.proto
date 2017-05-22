@@ -1,0 +1,12 @@
+syntax = "proto3";
+package vire.utility;
+
+import "vire/utility/BaseEvent.proto";
+
+message BaseAlarm {
+
+  BaseEvent _base = 1;
+  string    severity = 100;
+  string    message  = 101;
+
+}

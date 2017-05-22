@@ -1,0 +1,2 @@
+list(APPEND _vire_Vire_CMSLAPPInterface_RESOURCES_FILES
+)

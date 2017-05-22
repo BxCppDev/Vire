@@ -1,0 +1,10 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/cms/ResourceBaseRequest.proto";
+
+message ResourceFetchStatusRequest {
+
+  vire.cms.ResourceBaseRequest _base = 1;
+
+}

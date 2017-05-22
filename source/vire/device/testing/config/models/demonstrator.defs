@@ -1,0 +1,44 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the top-level SuperNEMO demonstrator
+#@key_label  "name"
+#@meta_label "type"
+
+
+###################################################################
+[name="demonstrator@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator experiment
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "setup"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[2] = "Detector" "Electronics"
+
+#@description The device model associated to the Detector sub-device
+embedded_devices.model.Detector    : string = "detector"
+# embedded_devices.instance.Detector : string = "vire::device::single_instance=[slot=(1:0)]"
+
+#@description The device model associated to the Electronics sub-device
+embedded_devices.model.Electronics    : string = "electronics"
+# embedded_devices.instance.Electronics : string = "vire::device::single_instance=[slot=(1:0)]"
+
+# Auxiliary properties:
+
+#@description Manufacturer of the SuperNEMO demonstrator virtual model
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the setup
+aux.model        : string = "snemo::demonstrator"
+
+#@description Version of the setup
+aux.version      : string = "1.0"

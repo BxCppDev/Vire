@@ -1,0 +1,111 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to the calorimeter detector
+#@key_label  "name"
+#@meta_label "type"
+
+
+###############################################################################
+[name="optical_module_signal_output@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the signal input port of the optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type      : string  = "out"
+
+
+##########################################################################
+[name="optical_module_hv_input@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the HV input port of the optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type      : string  = "in"
+
+
+##########################################################################
+[name="optical_module_li_input@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the light injection (LI) input port of the optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type      : string  = "in"
+
+#####################################################################
+[name="optical_module@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the calorimeter Optical Module
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[3] = "SigOut" "HvIn" "LiIn"
+
+# Port model associated to the input signal ports:
+ports.model.SigOut : string = "optical_module_signal_output"
+
+# Port model associated to the input signal ports:
+ports.model.HvIn : string   = "optical_module_hv_input"
+
+# Port model associated to the input signal ports:
+ports.model.LiIn : string   = "optical_module_li_input"
+
+# Auxiliary properties:
+
+#@description Manufacturer of the SuperNEMO optical module virtual model
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the board
+aux.model        : string = "snemo::demonstrator::detector::calosubmodule"
+
+#@description Version of the board
+aux.version      : string = "1.0"
+
+
+####################################################################
+[name="calo_detector@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the calorimeter Detector
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+####################
+# Embedded devices #
+####################
+
+#@description List of embedded chips
+embedded_devices.labels : string[1] = "OM"
+
+# Device model associated to the embedded optical modules:
+embedded_devices.model.OM     : string = "optical_module"
+embedded_devices.instance.OM  : string = "vire::device::regular_2d_instance=[nslots0=20;nslots1=13;first_slot=(2:0,0);step0=(1,0);step1=(0,1)]"
+
+# Auxiliary properties:
+
+#@description Manufacturer of the SuperNEMO demonstrator detector virtual model
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the board
+aux.model        : string = "snemo::demonstrator::detector::calosubmodule"
+
+#@description Version of the board
+aux.version      : string = "1.0"
+
+
+# end

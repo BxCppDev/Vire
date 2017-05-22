@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+
+# Copyright 2015 François Mauger <mauger@lpccaen.in2p3.fr>
+#
+# This file is part of Vire.
+#
+# Vire is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Vire is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Vire.  If not, see <http://www.gnu.org/licenses/>.
+
+# Description: an utility  script to fetch informations about the
+# current Vire installation. This should be very useful when used
+# from some client scripts (i.e. wrapper/launcher scripts for a
+# batch system on a computin farm).
+# Note: this is a not relocatable version.
+
+prefix_dir="@CMAKE_INSTALL_PREFIX@"
+version_str="@Vire_VERSION@"
+lib_dir="${prefix_dir}/@CMAKE_INSTALL_LIBDIR@"
+bin_dir="${prefix_dir}/@CMAKE_INSTALL_BINDIR@"
+inc_dir="${prefix_dir}/@CMAKE_INSTALL_INCLUDEDIR@"
+data_dir="${prefix_dir}/@CMAKE_INSTALL_DATADIR@/Vire-@Vire_VERSION@"
+doc_dir="${data_dir}/Documentation"
+resource_dir="${data_dir}/resources"
+# plugin_dir="${lib_dir}/@Vire_PLUGINLIBDIR@"
+cmake_dir="${prefix_dir}/@CMAKE_INSTALL_LIBDIR@/cmake/Vire-@Vire_VERSION@"
+APPNAME="virequery"
+
+# Experimental:
+# plugins="$(find ${plugin_dir} -name lib*.* -exec basename \{\} \; | cut -d. -f1 | sed -e 's/lib//g')"
+
+function print_usage()
+{
+
+		cat<<EOF
+
+virequery - Utility script to fetch informations about Vire and
+            perform useful operations.
+
+Options:
+  -h [ --help ]          Print help.
+
+  --version              Print version.
+
+  --prefix               Print installation prefix directory.
+
+  --libdir               Print library directory.
+
+  --cmakedir             Print CMake config script directory.
+
+  --bindir               Print binary directory.
+
+  --incdir               Print include base directory.
+
+  --datadir              Print data base directory.
+
+  --docdir               Print documentation base directory.
+
+  --resourcedir          Print resource base directory.
+
+  --help-browse-api      Browse the Vire API (HTML format).
+
+  --help-ocd             Print help about OCD requests.
+
+EOF
+
+    return
+}
+
+
+###  --plugins              Print the list of shipped plugins/modules.
+###  --plugindir            Print the plugin directory.
+
+# ###  --skel-plugin [path]   Generate the skeleton directory of a Vire plugin.
+# function vrskel_plugin()
+# {
+#     echo "error: ${APPNAME}: vrskel_plugin: Not implemented yet !" >&2
+#     return 1
+# }
+
+function vrhelp_browse_api()
+{
+    browser=$(which xdg-open)
+    if [ -z "${browser}" ]; then
+				browser=$(which firefox)
+    fi
+    if [ -n "${browser}" ]; then
+				${browser} ${doc_dir}/API/html/index.html &
+    else
+				echo "error: ${APPNAME}: vrhelp_browse_api: Could not find a browser !" >&2
+				return 1
+    fi
+    return 0
+}
+
+function vrhelp_ocd()
+{
+    cat<<EOF
+OCD support within Vire
+==========================
+
+Some useful OCD operations:
+
+ * List the classes with OCD support from Vire::
+
+    bxocd_manual \\
+     --load-dll Vire@\$(virequery --libdir) \\
+     --action list | grep ^vire::
+
+
+ * Generate the OCD documentation for a specific class from Vire::
+
+    bxocd_manual \\
+     --load-dll Vire@\$(virequery --libdir) \\
+     --action show vire::foo > foo.rst
+    pandoc -w html foo.rst -o foo.html
+    xdg-open foo.html &
+
+ * Generate a skeleton configuration file for a specific class from Vire::
+
+    bxocd_manual \\
+     --load-dll Vire@\$(virequery --libdir) \\
+     --action skeleton vire::foo \\
+     --output-file foo.conf
+
+EOF
+
+#  * List the classes with OCD support from various Vire plugins::
+
+#     bxocd_manual \\
+#      --load-dll Vire@\$(virequery --libdir) \\
+#      --load-dll Vire_Foo@\$(virequery --plugindir) \\
+#      --action list | grep ^vire::
+
+
+#  * Generate the OCD documentation for a specific module from a Vire plugin::
+
+#     bxocd_manual \\
+#      --load-dll Vire@\$(virequery --libdir) \\
+#      --load-dll Vire_Foo@\$(virequery --plugindir) \\
+#      --action show vire::foo > foo.rst
+#     pandoc -w html foo.rst -o foo.html
+#     xdg-open foo.html &
+
+
+#  * Generate a skeleton configuration file for a specific module from a Vire plugin::
+
+#     bxocd_manual \\
+#      --load-dll Vire@\$(virequery --libdir) \\
+#      --load-dll Vire_Foo@\$(virequery --plugindir) \\
+#      --action skeleton vire::foo \\
+#      --output-file foo.conf
+
+# EOF
+   return 0
+}
+
+while [ -n "$?" ]; do
+    token="$1"
+    if [ "${token:0:1}" = "-" ]; then
+				option="${token}"
+				if [ "${option}" = "--help" -o "${option}" = "-h" ]; then
+						print_usage
+						exit 0
+				elif [ "${option}" = "--version" ]; then
+						echo ${version_str}
+						exit 0
+				elif [ "${option}" = "--prefix" ]; then
+						echo ${prefix_dir}
+						exit 0
+				elif [ "${option}" = "--libdir" ]; then
+						echo ${lib_dir}
+						exit 0
+				elif [ "${option}" = "--cmakedir" ]; then
+						echo ${cmake_dir}
+						exit 0
+				elif [ "${option}" = "--bindir" ]; then
+						echo ${bin_dir}
+						exit 0
+				elif [ "${option}" = "--incdir" ]; then
+						echo ${inc_dir}
+						exit 0
+				elif [ "${option}" = "--datadir" ]; then
+						echo ${data_dir}
+						exit 0
+				elif [ "${option}" = "--docdir" ]; then
+						echo ${doc_dir}
+						exit 0
+				elif [ "${option}" = "--resourcedir" ]; then
+						echo ${resource_dir}
+						exit 0
+				# elif [ "${option}" = "--plugindir" ]; then
+				# 		echo ${plugin_dir}
+				# 		exit 0
+				# elif [ "${option}" = "--plugins" ]; then
+				# 		for plugin in ${plugins} ; do
+				# 				echo ${plugin}
+				# 		done
+				# 		exit 0
+				elif [ "${option}" = "--help-ocd" ]; then
+						vrhelp_ocd
+						exit 0
+				elif [ "${option}" = "--help-browse-api" ]; then
+						vrhelp_browse_api
+						exit 0
+				else
+						echo "error: ${APPNAME}: Invalid option '${option}' !" >&2
+						print_usage
+						exit 1
+				fi
+    else
+				echo "error: ${APPNAME}: Invalid argument '${token}' !" >&2
+				print_usage
+				exit 1
+    fi
+    shift 1
+done
+
+exit 0
+
+## Local Variables: --
+## mode: shell-script --
+## c-file-style: "gnu" --
+## tab-width: 2 --
+## End: --

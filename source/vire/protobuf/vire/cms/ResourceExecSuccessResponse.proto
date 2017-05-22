@@ -1,0 +1,12 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/cms/ResourceBaseResponse.proto";
+import "vire/cms/MethodArgument.proto";
+
+message ResourceExecSuccessResponse {
+
+  vire.cms.ResourceBaseResponse _base = 1;
+  repeated vire.cms.MethodArgument output_arguments = 100;
+
+}

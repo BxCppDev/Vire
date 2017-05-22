@@ -1,0 +1,12 @@
+syntax = "proto3";
+package vire.cms;
+
+message MethodArgument {
+
+  // reserved 1-99
+
+  string name       = 100; // Name of the argument
+  string value_repr = 101; // Representation of the value
+  string meta       = 102; // Metadata character string
+
+}

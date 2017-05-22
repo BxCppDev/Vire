@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xs1="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_2"
+    elementFormDefault="qualified">
+
+  <xs:element name="Event">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Message" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Alarm_LimitHigh"/>
+        <xs:element minOccurs="0" ref="Error_LimitHigh"/>
+        <xs:element minOccurs="0" ref="Alarm_LimitLow" />
+        <xs:element minOccurs="0" ref="Error_LimitLow" />
+        <xs:element minOccurs="0" ref="Alarm_Equal"    />
+        <xs:element minOccurs="0" ref="Error_Equal"    />
+        <xs:element minOccurs="0" ref="Alarm_NotEqual" />
+        <xs:element minOccurs="0" ref="Error_NotEqual" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_LimitHigh">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element               ref="Value"       />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_LimitLow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element               ref="Value"       />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_Equal">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element               ref="Value"       />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_NotEqual">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element               ref="Value"       />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_LimitHigh">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element               ref="Value"       />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_LimitLow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Value"                      />
+        <xs:element minOccurs="0" ref="Message"      />
+        <xs:element minOccurs="0" ref="Severity"     />
+        <xs:element minOccurs="0" ref="Enable"       />
+        <xs:element minOccurs="0" ref="Acknowledge"  />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_Equal">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Value"                     />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_NotEqual">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Value" />
+        <xs:element minOccurs="0" ref="Message"     />
+        <xs:element minOccurs="0" ref="Severity"    />
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NameAlarm">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="clearAlarm"      />
+        <xs:enumeration value="troubleShooting" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="AlarmMethod">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element                                     ref="NameAlarm"         />
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="Argument"          />
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="DeviceInstruction" />
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="Sequence"          />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

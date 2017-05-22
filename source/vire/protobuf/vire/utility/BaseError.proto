@@ -1,0 +1,11 @@
+syntax = "proto3";
+package vire.utility;
+
+message BaseError {
+
+  // reserved 1-99
+
+  sint32 code           = 100; // Error code
+  string message_format = 101; // Error message format
+
+}

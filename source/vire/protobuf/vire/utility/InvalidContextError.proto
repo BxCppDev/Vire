@@ -1,0 +1,10 @@
+syntax = "proto3";
+package vire.utility;
+
+import "vire/utility/BaseError.proto";
+
+message InvalidContextError {
+
+  BaseError _base = 1;
+
+}

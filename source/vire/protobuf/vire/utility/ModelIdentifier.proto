@@ -1,0 +1,11 @@
+syntax = "proto3";
+package vire.utility;
+
+import "vire/utility/BaseIdentifier.proto";
+
+// Identifier for type/class :
+message ModelIdentifier {
+
+  BaseIdentifier _base = 1;
+
+}

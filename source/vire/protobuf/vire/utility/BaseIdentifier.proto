@@ -1,0 +1,11 @@
+syntax = "proto3";
+package vire.utility;
+
+message BaseIdentifier {
+
+  // reserved 1-99
+
+  string name    = 100; // Unique name (mandatory)
+  string version = 101; // Version (optional)
+
+}

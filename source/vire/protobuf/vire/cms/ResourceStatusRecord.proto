@@ -1,0 +1,17 @@
+syntax = "proto3";
+package vire.cms;
+
+import "google/protobuf/timestamp.proto";
+
+message ResourceStatusRecord {
+
+  // reserved 1-99
+
+  string                    path      = 100; // The path/identifier of the resource
+  google.protobuf.Timestamp timestamp = 101; // Timestamp of the updated status
+  bool 			    missing   = 102; // Missing resource bit
+  bool 			    disabled  = 103; // Disabled resource bit
+  bool 			    pending   = 104; // Pending resource bit
+  bool 			    failed    = 105; // Failed resource bit
+
+}

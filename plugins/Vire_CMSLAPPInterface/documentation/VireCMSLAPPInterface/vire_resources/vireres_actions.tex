@@ -1,0 +1,373 @@
+
+\subsection{Actions on resources}
+\label{sec:vire_resources:actions}
+
+THIS SECTION NEEDS REWRITING...
+
+We  consider now  the  typical case  where the  Vire  server (or  Vire
+clients connected to the CMS/LAPP server) access the devices and datapoints
+in polling mode.   Basically, the Vire server can  request two kinds
+of RPC action on any resource managed by the CMS/LAPP server:
+
+\begin{itemize}
+\item executing the resource (in \emph{blocking} mode or \emph{non blocking} mode),
+\item fetching the status of the resource.
+\end{itemize}
+
+\subsubsection{Execute a resource} %% in \emph{blocking} mode:}
+
+The execution  of a resource is  equivalent to the invocation  of some
+specific   device  method   or  datapoint   accessor  (get/set   OPCUA
+method).  The Vire  server  (or  client) is  expected  to request  the
+execution      of      a       resource      with      a      specific
+\texttt{vire::cms::resource\_exec\_request} payload object.
+
+The CMS/LAPP server is expected to send back its response using
+a \texttt{vire::cms::resource\_exec\_failure\_response} or a
+ \texttt{vire::cms::resource\_exec\_success\_response}.
+
+%% \begin{verbatim}
+
+%% struct resource_exec_request
+%% {
+%%   std::string path; // Identifier of the resource
+%%   std::vector<argument_type> input_arguments; // The list of input arguments.
+%%                                               // The exact definition of this list
+%%                                               // depends on the nature of the
+%%                                               // resource.
+%% }
+%% \end{verbatim}
+
+
+The Vire server waits for the response of the  CMS/LAPP server until the  operation has
+been completed or failed.
+
+Question: support for timeout.
+
+
+Typical JSON  formatted \emph{resource execution request}  objects are
+shown        on         figures        \ref{cms:json:resource_exec_0},
+\ref{cms:json:resource_exec_1} and \ref{cms:json:resource_exec_2}.
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+  "path" : "SuperNEMO://Demonstrator/CMS/Acquisition/start",
+  "input_args" : [ ]
+}
+\end{Verbatim}
+  \normalsize
+  \caption{Typical JSON formatted  \emph{resource  execution request}  object
+    sent by  the Vire server to  the CMS server. Here  the resource
+    corresponds    to   a    method    that    takes   no    input
+    arguments.}\label{cms:json:resource_exec_0}
+  \end{figure}
+
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+    "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__",
+    "input_args" : [
+      { "setpoint" : "0.341" }
+    ]
+}
+\end{Verbatim}
+  \normalsize
+  \caption{Typical JSON formatted   \emph{resource  execution request}  object
+    sent by  the Vire server to  the CMS server. Here  the resource
+    corresponds    to  a write    method    that    takes  only one    input
+    argument.}\label{cms:json:resource_exec_1}
+  \end{figure}
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+    "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__",
+    "input_args" : []
+}
+\end{Verbatim}
+  \normalsize
+  \caption{Typical  JSON formatted \emph{resource  execution request} object
+    sent by  the Vire server to  the CMS server. Here  the resource
+    corresponds    to a read    method    that    takes  no input
+    argument.}\label{cms:json:resource_exec_2}
+  \end{figure}
+
+The CMS/LAPP  server must decode a  message which wraps the  request object
+and,  if  it  makes  sense,  launch the  execution  of  the  requested
+operation in  the targeted MOS. When  it receives the answer  from the
+MOS,  it is  supposed to  build  and send  a response  message to  the
+caller.
+
+In case of successful execution, a
+ \texttt{resource\_exec\_success\_response} object is built by the CMS server and
+delivered back to the
+Vire server.
+
+
+%% \begin{verbatim}
+%% struct resource_exec_success_response
+%% {
+%%   // Nested type alias:
+%%   typedef vire::resource::resource_status_record resource_status_record;
+
+%%   resource_status_record status;
+%%   std::vector<argument> ouput_arguments;
+%% };
+%% \end{verbatim}
+
+A  typical JSON  formatted \emph{resource\_exec\_success\_response} object is
+shown    on    Fig.     \ref{cms:json:resource_exec_response_0}    and
+\ref{cms:json:resource_exec_response_1}.
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+  "status" : {
+    "path" : "SuperNEMO://Demonstrator/CMS/Acquisition/start",
+    "flags" : "0100"
+  },
+  "reception_timestamp" : "20160203T175203.031743801", // TO BE CHECKED
+  "completion_timestamp" : "20160203T175217.56143801", // TO BE CHECKED
+  "output_arguments" : []
+}
+\end{Verbatim}
+  \normalsize
+  \caption{A  JSON formatted \emph{resource  execution success  response}
+    object sent  by the  CMS server  to the  Vire server. Here
+    the response does not contain  any output arguments. Note that the
+    CMS  server  also informs  the  Vire  server about  the updated
+    resource status.
+    %the  reception
+    %timestamp  of  the  resource  execution message  as  well  as  the
+    %timestamp                       at                       execution
+    %completion/failure.
+  }
+  \label{cms:json:resource_exec_success_response_0}
+  \end{figure}
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+  "status" : {
+    "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__",
+    "flags" : "0000",
+  }
+  "reception_timestamp" : "20160203T175203.031743801",
+  "completion_timestamp" : "20160203T175217.56143801",
+  "output_arguments" : [
+    "value" : "1.23"
+  ]
+}
+\end{Verbatim}
+  \normalsize
+  \caption{JSON formatted \texttt{resource\_exec\_success\_response} object.}
+  \label{cms:json:resource_exec_success_response_1}
+  \end{figure}
+
+%\vskip10pt
+
+
+In case of failure, the CMS server builds a failure response object which
+describes the error (figure  \ref{cms:json:resource_exec_response_2}).
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+   "error_type_id" : {
+      "name" : "invalid_status_error",
+      "version" : "1.0"
+   },
+   "error" : {
+      "code" : "101"
+      "message" : "Operation failed because the DAQ device is already running."
+      "path" : "SuperNEMO://Demonstrator/CMS/DAQ/start",
+      "flag" : "disabled"
+    }
+  }
+}
+\end{Verbatim}
+  \normalsize
+  \caption{Example of  JSON formatted \emph{resource  execution failure response} object
+    emitted by  the CMS server to  the Vire server. This is typical case where
+    the execution of the resource has failed because the resource was not available
+    when invoked.
+  }
+  \label{cms:json:resource_exec_response_2}
+  \end{figure}
+
+List of error object types embedded in the  \texttt{resource\_exec\_failure\_response}:
+
+\begin{itemize}
+
+\item  \texttt{invalid\_context\_error} :  the general context does
+  not allow to operate the execution of a resource.
+
+\item \texttt{invalid\_resource\_error} : the resource path is not valid.
+
+\item \texttt{invalid\_status\_error} : the resource status is bad.
+
+\item  \texttt{resource\_exec\_error}  :  the  execution  of  the
+  resource met an error: invalid context, invalid input argument name,
+  invalid input argument value, timeout\dots
+
+\end{itemize}
+
+\vskip 5mm
+  \par\textcolor{red}{NOTE (FM): Management of timeout:
+    Should the Vire server add a timeout info in the resource\_exec message
+    to set a limit to the response waiting time ?  if the cms is not able to answer
+    within the timeout, an error response message is sent back to the Vire server.
+  }
+
+\clearpage
+\pagebreak
+% XxX
+\subsubsection{Execute a resource in \emph{non blocking/asynchronous} mode:}
+
+A resource  can be  executed in \emph{non  blocking/asynchronous} mode  still using
+a \texttt{resource\_exec\_request} payload  object and a synchronous RPC
+communication system.
+The content of the payload request object is the same than in \emph{blocking} mode.
+The only difference is in the header of the message where a specific
+\texttt{asynchronous} flag is set, with additional dedicated metadata
+to specify some message queue where to sent the response message.
+
+At reception of the request payload object, the  CMS/LAPP server checks
+the \texttt{asynchronous} flag and fetch the metadata from the message header
+which informs of the message queue where the response will be later transmitted as an event
+payload. The CMS/LAPP server then immediately sents back a conventionnal response object
+to the \texttt{"reply\_to"} RPC queue.
+
+TODO: DESCRIPTION OF THE RESPONSE :
+\texttt{resource\_exec\_async\_success\_response}
+\texttt{resource\_exec\_async\_failure\_response}
+
+The \texttt{"pending"} flag associated to the resource
+is set until the  operation has been completed or failed.
+
+%% \begin{itemize}
+
+%% \item \texttt{resource\_exec\_non\_blocking\_success\_response} object:
+
+%%   \begin{figure}[h]
+%%   \footnotesize
+%%   \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+%% {
+%%   "status" : {
+%%     "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__",
+%%     "flags" : "0010",
+%%   }
+%% }
+%% \end{Verbatim}
+%%   \normalsize
+%%   \caption{JSON formatted \texttt{resource\_exec\_non\_blocking\_success\_response} object.}
+%%   \label{cms:json:resource_exec_non_blocking_success_response}
+%%   \end{figure}
+
+%% \item \texttt{resource\_exec\_non\_blocking\_failure\_response} object:
+
+%%  TO BE DONE.
+
+%% \end{itemize}
+
+The pending flag is set until the  operation has been completed or failed.
+
+\clearpage
+\pagebreak
+
+\subsubsection{Fetch the status bitset of a resource:}
+
+At  any time,  the Vire  server can  ask the  CMS server  to send  the
+current status  of a resource.  Typical  JSON formatted \emph{resource
+  fetch    status}    request    messages   are    shown    on    Fig.
+\ref{cms:json:resource_fetch_status_0}                             and
+\ref{cms:json:resource_fetch_status_1} (for the response message).
+
+RPC payload types:
+\begin{itemize}
+\item request: \texttt{"vire::cms::resource\_fetch\_status\_request"}
+\item success response: \texttt{"vire::cms::resource\_fetch\_status\_success\_response"}
+\item failure response: \texttt{"vire::cms::resource\_fetch\_status\_failure\_response"}
+\end{itemize}
+
+Attributes types embedded in response payload:
+\begin{itemize}
+\item \texttt{"vire::cms::resource\_status\_record"}
+\item \texttt{"vire::utility::invalid\_context\_error"}
+\item \texttt{"vire::cms::invalid\_resource\_error"}
+\end{itemize}
+
+%% TODO: consider errors...
+%%This action never fails for it is always possible for the CMS server to build such an answer.
+
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+  "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__"
+}
+\end{Verbatim}
+  \normalsize
+  \caption{JSON formatted  \emph{resource  fetch status}  object
+    sent by  the Vire server to  the CMS server.}\label{cms:json:resource_fetch_status_0}
+  \end{figure}
+
+  \begin{figure}[h]
+  \footnotesize
+  \begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{\texttt{JSON}}]
+{
+  "status" : {
+    "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__",
+    "timestamp" : "2016-02-03 17:52:03.031743801+01:00",
+    "flags" : "0010"
+  }
+}
+\end{Verbatim}
+%    "timestamp" : "2016-02-03 17:52:03.031743801+01:00",
+  \normalsize
+  \caption{JSON formatted \emph{resource  fetch status}  success response message
+    sent back by  the CMS server to  the Vire server.}\label{cms:json:resource_fetch_status_1}
+  \end{figure}
+
+\clearpage
+\pagebreak
+
+\subsubsection{Activate pub/sub of a resource:}
+
+The Vire server is able to request the dynamic activation/deactivation
+of the Pub/Sub  service associated to a given  resource. Three payload
+objects are thus  defined to address this kind  of transaction between
+the Vire and CS servers:
+
+\begin{itemize}
+
+\item \texttt{vire::resource::resource\_pubsub\_request}  wraps a Vire
+  server  request to  activate/deactivate  the Pub/Sub  service for  a
+  given resource managed through the CMS server.
+
+\item     \texttt{vire::resource::resource\_pubsub\_success\_response}
+  wraps a successful response of the CMS server.
+
+\item     \texttt{vire::resource::resource\_pubsub\_failure\_response}
+  wraps a failure response of the CMS server.
+
+\end{itemize}
+
+Specific utility objects are also defined:
+\begin{itemize}
+
+\item \texttt{vire::resource::amqp\_pubsub\_access} : describes the access to the Pub/Sub service
+for a given resource.
+
+\end{itemize}
+
+These objects are described in appendix \ref{app:payload}.

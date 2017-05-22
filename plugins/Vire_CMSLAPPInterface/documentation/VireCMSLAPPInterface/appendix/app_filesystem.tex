@@ -1,0 +1,141 @@
+
+\section{Filesystem and configuration files management}\label{app:filesystem_conf}
+
+Let's consider  a simple  situation where  one runs  the Vire  and CMS
+software  tools (servers)  on a  single Linux  machine (the  CMS host)
+under            the            \texttt{"nemoprod"}            generic
+account\footnote{\texttt{"nemoprod"}  is  the   login  of  th  generic
+  account used at the CCIN2P3  cluster to perform automated management
+  operations on experimental and  Monte-Carlo data file: data transfer
+  from LSM or LSC labs to CCIN2P3, calibration and reconstruction data
+  processing, storage on HPPS.}.
+
+\begin{itemize}
+\item Hostname login : \verb|192.168.1.10| (private IP) %\texttt{snemocms.lsm.in2p3.fr} (public address)
+\item User login : \texttt{nemoprod}
+\item Main group : \texttt{supernemo}
+\item Home directory : \verb|/home/nemoprod| (a.k.a. \verb|~nemoprod|)
+\end{itemize}
+
+\noindent  We  assume that  the  SuperNEMO  online software  has  been
+installed   and  setup   in  the   home  directory,   for  example in
+\verb|/home/nemoprod/Private/Software/| :
+\vskip 20pt
+\small
+\begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{Filesystem}]
+/home/nemoprod/Private/Software
+|-- Cadfael/ # base directory of the Cadfael software framework
+|-- Bayeux/  # base directory of the Bayeux software framework
+|-- Vire/    # base directory of the Vire software framework
+|-- OPCUA/   # base directory of the OPCUA+MOS software framework
+`-- Falaise/ # base directory of the Falaise software framework
+\end{Verbatim}
+\normalsize
+
+\noindent  We consider  here  that the  Falaise  library package  will
+contain  the mandatory  configuration files  that describe  the online
+software, both for the Vire and CMS/MOS parts:
+\vskip 20pt
+\small
+\begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{Filesystem}]
+/home/nemoprod/Private/Software
+:
+`-- Falaise/
+    :
+    `-- Install/
+        `-- Falaise-3.0.0/
+            |-- bin/
+            |   :
+            |   |-- flquery
+            |   |-- flreconstruct
+            |   `-- flsimulate
+            |-- include/
+            :   :
+            |-- lib/
+            |   `-- x86_64-linux-gnu/
+            |       :
+            |       |-- libFalaise.so
+            |       :
+            `-- share/
+                `-- Falaise-3.0.0/
+                    `-- resources/
+                        `-- config/
+                            `-- online/
+                                :
+                                :
+\end{Verbatim}
+\normalsize
+
+\noindent Where:
+\begin{itemize}
+\item                                                              the
+  \verb|/home/nemoprod/Private/Software/Falaise/Install/Falaise-3.0.0|
+  is  the  installation  prefix  of  the  Falaise  library  (binaries,
+  includes) and associated resource files.
+\item      the     \verb|share/Falaise-3.0.0/resources/config/online/|
+  subdirectory  is the  tree  of configuration  files  that should  be
+  accessible  by  any online  software  component  (Vire server,  Vire
+  clients, CMS and MOS servers).
+\end{itemize}
+
+
+\noindent  Let's consider  the \verb|.../config/online/|  directory as
+the base directory for all online configuration files for the Vire and
+CMS  servers.   All  configuration  files  should  thus  be  addressed
+relatively to this place.
+
+\noindent  We  propose to  use  one  of  the following  techniques  to
+represent this base directory:
+
+\begin{itemize}
+\item         a         dedicated         environment         variable
+  \verb|SNEMO_ONLINE_CONFIG_BASE_DIR| recognized by  both Vire and CMS
+  servers. It could be setup within the environment with:
+\vskip 20pt
+\small
+\begin{Verbatim}[frame=single,xleftmargin=0.cm,label=\fbox{shell}]
+export FALAISE_INSTALL_DIR=\
+  ${HOME}/Private/Software/Falaise/Install/Falaise-3.0.0
+export SNEMO_ONLINE_CONFIG_BASE_DIR=\
+  ${FALAISE_INSTALL_DIR}/share/Falaise-3.0.0/resources/config/online
+\end{Verbatim}
+\normalsize
+
+\item a  path registration label as  implemented in the kernel  of the
+  Bayeux library:\\
+  \noindent The \verb|@snonlinecfg:| label \\
+  is associated to\\
+  \noindent \hskip 50pt\verb|${FALAISE_INSTALL_DIR}/share/Falaise-3.0.0/resources/config/online|
+
+\end{itemize}
+
+\noindent Thus a specific  configuration file \verb|dummy.conf| could be
+addressed with one of the following syntaxes:
+
+\begin{itemize}
+
+\item[(a)]
+  \verb|${SNEMO_ONLINE_CONFIG_BASE_DIR}/snemo/1.0.2/dummy.conf|       :
+  supported  by  Vire  and  CMS  using  word  expansion  utility  like
+  \texttt{wordexp} (for C/C++ languages),
+
+\item[(b)]  \verb|@snonlinecfg:snemo/1.0.2/dummy.conf|  : supported  by
+  Vire  only  for  now,  thanks to  the  path  registration  mechanism
+  implemented in the Bayeux API,
+
+\item[(c)] \verb|snemo/1.0.2/dummy.conf| : can be supported by Vire and
+  CMS  but  is  ambiguous  because  such a relative  path  can  be  also
+  interpreted as a path relatively  to the current directory (\verb|./|)
+  and not to the online configuration directory.
+
+\end{itemize}
+
+We suggests  the use  of an  explicit environment  variable as  in (a)
+because it  is simple to  implement in various languages  and software
+frameworks and should not imply any ambiguous file path resolution.
+
+\vfill
+\pagebreak
+\clearpage
+
+% end

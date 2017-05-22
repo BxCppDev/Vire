@@ -1,0 +1,47 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the top-level SuperNEMO detector
+#@key_label  "name"
+#@meta_label "type"
+
+
+###############################################################
+[name="detector@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator detector
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of device
+type      : string  = "setup"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[2] = "CalorimeterSubmodule0" "CalorimeterSubmodule1"
+
+#@description The device model associated to the calorimeter rack
+embedded_devices.model.CalorimeterSubmodule0    : string = "calo_detector"
+embedded_devices.instance.CalorimeterSubmodule0 : string = "vire::device::single_instance=[slot=(1:0)]"
+
+#@description The device model associated to the tracker rack
+embedded_devices.model.CalorimeterSubmodule1    : string = "calo_detector"
+embedded_devices.instance.CalorimeterSubmodule1 : string = "vire::device::single_instance=[slot=(1:1)]"
+
+# Auxiliary properties:
+
+#@description Manufacturer of the SuperNEMO demonstrator virtual detector model
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the board
+aux.model        : string = "snemo::demonstrator::detector"
+
+#@description Version of the board
+aux.version      : string = "1.0"
+
+
+# end

@@ -1,0 +1,131 @@
+
+\subsection{Dynamic informations associated to the resources}
+\label{sec:vire_resources:dynamic_infos}
+
+Due to  the realtime and hardware  nature of the devices  that publish
+them to  the Vire system,  each resource  is assigned some  flags that
+reflect  its current  status.  Four \emph{resource  status flags}  are
+defined for each resource:
+
+\begin{itemize}
+
+\item the \emph{missing} flag is set  when the resource is not present
+  or is not accessible from the CMS/LAPP server.
+
+  Typically, this occurs  when the device that  publishes the resource
+  is not  accessible because of  a temporary disconnection of  the MOS
+  server  or a  communication error  between  the MOS  server and  the
+  device.   It  is   obvious  that  the  disconnection   of  a  device
+  automatically sets the missing flag  for all resources associated to
+  this deviced.  It is  the responsibility of  the CMS/LAPP  server to
+  detect such  event and  update the missing  flags associated  to the
+  relevant resources. Additional event/alarm will also be sent through
+  dedicated communication channels.
+
+\noindent\textbf{Example:}     Assume    the     MOS    running     at
+\texttt{192.168.1.15:4841}   and  hosting   the  \texttt{CMS.COIL\_PS}
+device is disconnected  because our colleague Naughty  Zoot teared off
+the cable  connecting the coil  power supply device to  the computer
+hosting the  MOS server.   Then all resources  identified with  a path
+starting  with \verb|"SuperNEMO:/Demonstrator/CMS/Coil/PS/"|  will be
+automatically tagged as \emph{missing} by the CMS/LAPP server.
+
+\item the \emph{disabled}  flag is set when the  resource is temporary
+  not \emph{executable}  because of the current  context.  This occurs
+  for example when a finite state machine is in some specific internal
+  state, preventing some of the transitions of its transition table to
+  be invoked.
+
+\noindent\textbf{Example:} Assume the DAQ  device, which implements an
+internal finite state machine, is  in the \emph{running} state.  It is
+expected in this case that the \texttt{start} transition method cannot
+be used, whereas the \texttt{stop} transition method can be invoked at
+any  time.   From the  point  of  view  of  Vire resources:\\  --  the
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start| resource is thus
+\emph{disabled}           \\            --           and           the
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/stop|    resource    is
+\emph{enabled}.  As  soon as the internal  state of the DAQ  daemon is
+changed  to  \emph{stopped} thanks  to  a  call to  the  \texttt{stop}
+transition,  the \verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start|
+resource       is      \emph{enabled}       again      while       the
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/stop|    resource    is
+tagged with the \emph{disabled} flag.
+
+\item the  \emph{pending} flag  is set  when the  resource \textbf{is}
+  executing.  This occurs when the execution of the resource cannot be
+  considered  as  instantaneous and  implies  some  operations with  a
+  significant latency  time.  The  CMS/LAPP server determines  that it
+  will have  to wait  for a  while before the  full completion  of the
+  resource   execution   and  the   making   of   a  proper   response
+  (success+output parameters/failure+error record)  to the caller.  It
+  thus sets the \emph{pending} flag associated to the resource as long
+  as the processing is not terminated.
+
+\noindent\textbf{Example:}  Assume   the  Vire  server   requests  the
+execution                            of                            the
+\\  \verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start| resource  at
+time $t_0$.  The  CMS server invokes the \texttt{start}  method of the
+\texttt{192.168.1.15:48040:CMS.DAQ}  OPCUA  device.   Given  that  the
+execution    of    this    method   lasts    several    seconds,    no
+acknowledge/response  from  the  MOS  server  is  expected  before  an
+arbitrary  time   $t_1>t_0$.   Thus  the  CMS/LAPP   server  sets  the
+\emph{pending}                flag               on                the
+\verb|SuperNEMO:/Demonstrator/CMS/Acquisition/start|  resource during
+the time interval  $[t_0;t_1]$.  As soon as  the \texttt{start} method
+is  proven terminated  (at  time $t_1$),  the  \emph{pending} flag  is
+unset.
+
+\item the  \emph{failed} flag is set  when a the device  associated to
+  resource or a single resource itself met some internal error/failure
+  state. Such an  error is detected at the discretion  of the CMS/LAPP
+  server.
+
+\noindent\textbf{Example:} none provided.
+
+
+%% \noindent\textbf{Bad bad bad Example:}
+
+%% The     Vire    server     requests    the     execution    of     the\\
+%% \verb|SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_write__|
+%% control resource with a value of the voltage which is out of the valid
+%% range for this model of power supply device: $V$=5000 Volts > $V_{max}$=20
+%% Volts.  Of  course, the MOS  server will reject  this request and  the CMS
+%% server will  set the \emph{error} flag  and maintain it as  long as no
+%% other  successful  execution  of  the resource  is  done.   This  flag
+%% indicates that the last control operation on the resource has failed.
+
+\end{itemize}
+
+
+\noindent  Given these  four boolean  flags,  it is  possible for  the
+CMS/LAPP  server to  build  a  4-bits status  word  that reflects  the
+current  status of  any resource  at any  time. Accessing  this status
+bitset for each resource, any client  of the CMS/LAPP server (the Vire
+server application  or some Vire  client applications) can  figure out
+the real time  conditions to access resources and build its own local
+representation of the resources.
+
+\begin{figure}[h]
+\begin{center}
+\scalebox{0.75}{\input{\pdftextimgpath/vire_resource-status_flags_0.pdftex_t}}
+\end{center}
+\caption{An example of a toy GUI  component which displays the status bits
+  associated  to  a  resource,  informing the  user  of  the  realtime
+  conditions. Here  the \textbf{M}issing  flag is not  set, reflecting
+  that the resource  is available to the system  typically because the
+  associated device is recognized by  the MOS and is currently running
+  with all its functionalities.  The \textbf{D}isabled flag is not set
+  which  means the  \texttt{\_\_dp\_write\_\_} resource  associated to
+  this  datapoint can  be  used to  set the  voltage  set point.   The
+  \textbf{P}ending  flag  is  set (\textcolor{red}{red}  light)  which
+  means that a write operation,  previously initiated by some user, is
+  currently   processing    and   not   terminated.     Finally,   the
+  \textbf{F}ailed flag is not set, reflecting that no specific problem
+  has been detected so far by  the CMS/LAPP server with this datapoint
+  resource.}
+\label{fig:vire_resource:status_flags_0}
+\end{figure}
+
+\vfill
+\clearpage
+\pagebreak

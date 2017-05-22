@@ -1,0 +1,19 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/InvalidContextError.proto";
+import "vire/utility/ModelIdentifier.proto";
+import "vire/cms/ResourceBaseResponse.proto";
+import "vire/cms/InvalidResourceError.proto";
+
+message ResourceFetchStatusFailureResponse {
+
+  vire.cms.ResourceBaseResponse _base = 1;
+
+  vire.utility.ModelIdentifier error_type_id = 100;
+  oneof error_oneof {
+    vire.utility.InvalidContextError invalid_context  = 101;
+    vire.cms.InvalidResourceError    invalid_resource = 102;
+  }
+
+}

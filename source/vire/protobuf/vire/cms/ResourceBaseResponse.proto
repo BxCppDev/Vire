@@ -1,0 +1,12 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/BaseResponse.proto";
+import "vire/cms/ResourceStatusRecord.proto";
+
+message ResourceBaseResponse {
+
+  vire.utility.BaseResponse     _base  = 1;
+  vire.cms.ResourceStatusRecord status = 100; // Resource status record
+
+}

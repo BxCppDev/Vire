@@ -1,0 +1,3 @@
+resource_path=SuperNEMO://Demonstrator/CMS/Coil/Control/Voltage/__dp_read__
+routing_key=SuperNEMO.Demonstrator.CMS.Coil.Control.Voltage.__dp_read__
+async_address=snemo.vire.client_0.Die0baxu.q

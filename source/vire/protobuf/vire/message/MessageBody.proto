@@ -1,0 +1,14 @@
+syntax = "proto3";
+package vire.message;
+
+import "vire/utility/ModelIdentifier.proto";
+import "google/protobuf/any.proto";
+
+message MessageBody {
+
+  // reserved = 1-99
+
+  vire.utility.ModelIdentifier payload_type_id = 100; // Identifier of the type of payload object
+  google.protobuf.Any          payload         = 101; // Handle to the payload object
+
+}

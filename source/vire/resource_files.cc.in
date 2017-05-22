@@ -1,0 +1,158 @@
+// vire/resource_files.cc - Implementation of Vire resource files
+//
+// Copyright (c) 2015 by Ben Morgan
+// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+//
+// This file is part of Vire.
+//
+// Vire is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Vire is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Vire. If not, see <http://www.gnu.org/licenses/>.
+
+// Ourselves
+#include <vire/resource_files.h>
+
+// Standard Library
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+
+// Third Party
+// Boost
+#if defined (__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#endif
+#if defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+// 2016-03-15 XG: from http://stackoverflow.com/questions/1814548/boostsystem-category-defined-but-not-used
+#define BOOST_SYSTEM_NO_DEPRECATED 1
+#endif
+#include <boost/filesystem.hpp>
+#if defined (__GNUC__)
+#pragma GCC diagnostic pop
+#undef BOOST_SYSTEM_NO_DEPRECATED
+#endif
+#if defined (__clang__)
+#pragma clang diagnostic pop
+#endif
+// - datatools
+#include <datatools/exception.h>
+#include <datatools/logger.h>
+
+// This Project
+#include <vire/version.h>
+#include "vire_binreloc.h"
+
+namespace {
+
+  //! Return relative path from application directory to root of resource dir
+  std::string relative_path_to_resource_dir() {
+    return "@VIRE_LIBDIR_TO_RESOURCEDIR@";
+  }
+
+  //! Return relative path from application directory to root of plugin/module DLL dir
+  std::string relative_path_to_plugin_lib_dir() {
+    return "@VIRE_LIBDIR_TO_PLUGINDIR@";
+  }
+
+  std::string get_library_dir() {
+    char* exePath(0);
+    exePath = br_find_exe_dir("");
+    boost::filesystem::path sExePath(exePath);
+    free(exePath);
+    boost::filesystem::path cExePath = boost::filesystem::canonical(sExePath);
+    return cExePath.string();
+  }
+
+} // namespace
+
+namespace vire {
+
+  std::string get_resource_files_dir(bool /* overriden_env_ */)
+  {
+    boost::filesystem::path tmpPath(get_library_dir());
+    tmpPath /= relative_path_to_resource_dir();
+    boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);
+    return absPath.string();
+  }
+
+  std::string get_resource_file(const std::string & rname_, bool overriden_env_)
+  {
+    boost::filesystem::path rnamePath(rname_);
+    DT_THROW_IF(rnamePath.is_absolute(),
+                std::logic_error,
+                "resource name cannot be absolute");
+    boost::filesystem::path expectedResource = get_resource_files_dir() / rnamePath;
+    DT_THROW_IF(!boost::filesystem::exists(expectedResource),
+                std::runtime_error,
+                "Requested resource '"
+                << rname_
+                << "' does not exists at resolved path '"
+                << expectedResource << "'");
+    std::string fullpath = expectedResource.string();
+    {
+      std::ifstream check(fullpath.c_str());
+      DT_THROW_IF(!check.good(),
+                  std::runtime_error,
+                  "Unreadable resource file '" << fullpath << "'");
+    }
+    return fullpath;
+  }
+
+  std::string get_plugin_resource_files_base_dir(bool overriden_env_)
+  {
+    boost::filesystem::path tmpPath(get_library_dir());
+    tmpPath /= relative_path_to_plugin_lib_dir();
+    boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);
+    return absPath.string();
+  }
+
+  std::string get_plugin_resource_files_dir(const std::string & plugin_name_,
+                                            bool overriden_env_)
+  {
+    boost::filesystem::path tmpPath(get_plugin_resource_files_base_dir(overriden_env_));
+    tmpPath /= "plugins";
+    tmpPath /= plugin_name_;
+    boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);
+    return absPath.string();
+  }
+
+  std::string get_plugin_resource_file(const std::string & plugin_name_,
+                                       const std::string & rname_,
+                                       bool overriden_env_)
+  {
+    boost::filesystem::path rnamePath(rname_);
+    DT_THROW_IF(rnamePath.is_absolute(),
+                std::logic_error,
+                "resource name cannot be absolute");
+    boost::filesystem::path expectedResource
+      = get_plugin_resource_files_dir(plugin_name_, overriden_env_);
+    expectedResource /= rnamePath;
+    DT_THROW_IF(!boost::filesystem::exists(expectedResource),
+                std::runtime_error,
+                "Requested resource '"
+                << rname_
+                << "' from plugin '" << plugin_name_ << "' does not exists at resolved path '"
+                << expectedResource << "'");
+    std::string fullpath = expectedResource.string();
+    {
+      std::ifstream check(fullpath.c_str());
+      DT_THROW_IF(!check.good(),
+                  std::runtime_error,
+                  "Unreadable resource file '" << fullpath << "'");
+    }
+    return fullpath;
+  }
+
+} // namespace vire

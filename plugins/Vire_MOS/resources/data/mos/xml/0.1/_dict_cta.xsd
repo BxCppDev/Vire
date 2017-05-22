@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	   elementFormDefault="qualified">
+
+  <xs:element name="DataFrameStructure">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" name="Header" />
+	<xs:element minOccurs="0" name="Id1" />
+	<xs:element minOccurs="0" name="Id2" />
+	<xs:element minOccurs="0" name="Data" />
+	<xs:element minOccurs="0" name="Footer" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Footer">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="Name" />
+	<xs:element name="Type" />
+	<xs:element minOccurs="0" name="Size" />
+	<xs:element minOccurs="0" ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Header">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="Name" />
+	<xs:element name="Type" />
+	<xs:element minOccurs="0" name="Size" />
+	<xs:element minOccurs="0" ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Id1">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="Name" />
+	<xs:element name="Type" />
+	<xs:element minOccurs="0" name="Size" />
+	<xs:element minOccurs="0" ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Id2">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="Name" />
+	<xs:element name="Type" />
+	<xs:element minOccurs="0" name="Size" />
+	<xs:element minOccurs="0" ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Data">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="Name" />
+	<xs:element name="Type" />
+	<xs:element minOccurs="0" name="Size" />
+	<xs:element minOccurs="0" ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Size" type="HexaValue" />
+  <xs:element name="IpAdress" type="xs:string" />
+  <xs:element name="IdNum" type="HexaValue" />
+
+  <xs:element name="Frames_description">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="CompoundDatapoint" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDatapoint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Frame_definition">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:choice minOccurs="0" maxOccurs="unbounded">
+	  <xs:element maxOccurs="unbounded" minOccurs="0"
+		      ref="Frame_elementString" />
+	  <xs:element minOccurs="1" maxOccurs="unbounded" ref="Frame_element" />
+	</xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="FileName" type="xs:string" />
+
+  <xs:element name="OPCUA">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element minOccurs="0" ref="ServerPort" />
+	<xs:element minOccurs="0" ref="Multiplicity" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="FileName" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="CompoundDevice" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="SimpleDevice" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CompoundDevice">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element minOccurs="0" ref="Multiplicity" />
+	<xs:element minOccurs="0" ref="Interface" />
+	<xs:element minOccurs="0" ref="DataFrameStructureRef" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="HardwareConfig" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="SimpleDevice" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="CompoundDevice" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="CompoundDatapoint" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="SimpleDatapoint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Event">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Message" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Instruction_set">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element maxOccurs="unbounded" ref="Instruction" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Instruction">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" maxOccurs="1" />
+	<xs:element ref="Cmd" minOccurs="0" maxOccurs="1" />
+	<xs:element ref="Acknowledge" minOccurs="0" maxOccurs="1" />
+	<xs:element ref="Asynchronous" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Cmd" type="xs:string" />
+
+  <xs:element name="SimpleDevice">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element minOccurs="0" ref="Multiplicity" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut" />
+	<xs:element minOccurs="0" ref="DataFrameStructureRef" />
+	<xs:element minOccurs="0" ref="DataIdDescriptorRef" />
+	<xs:element minOccurs="0" ref="Interface" />
+	<xs:element minOccurs="0" ref="Plugins" />
+	<xs:element minOccurs="0" ref="Instruction_set" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="HardwareConfig" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="FSM" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Method" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="CompoundDatapoint" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="SimpleDatapoint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Alarm">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" ref="Alarm_LimitHigh" />
+	<xs:element minOccurs="0" ref="Error_LimitHigh" />
+	<xs:element minOccurs="0" ref="Alarm_LimitLow" />
+	<xs:element minOccurs="0" ref="Error_LimitLow" />
+	<xs:element minOccurs="0" ref="Alarm_Equal" />
+	<xs:element minOccurs="0" ref="Error_Equal" />
+	<xs:element minOccurs="0" ref="Alarm_NotEqual" />
+	<xs:element minOccurs="0" ref="Error_NotEqual" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_LimitHigh">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_LimitLow">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_Equal">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error_NotEqual">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Alarm_LimitHigh">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_LimitLow">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_Equal">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Alarm_NotEqual">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+	<xs:element minOccurs="0" ref="Message" />
+	<xs:element minOccurs="0" ref="Severity" />
+	<xs:element minOccurs="0" ref="Enable" />
+	<xs:element minOccurs="0" ref="Acknowledge" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+
+  <xs:element name="CompoundDatapoint">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element minOccurs="0" ref="Multiplicity" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="CompoundDatapoint" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="SimpleDatapoint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SimpleDatapoint">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element minOccurs="0" ref="Id" />
+	<!-- <xs:element minOccurs="0" ref="ReadIdCollector" /> -->
+	<xs:element minOccurs="0" ref="AccesLevel" />
+	<xs:element ref="Name" />
+	<xs:element ref="Type" />
+	<xs:element minOccurs="0" ref="ImplicitUnitSymbol" />
+	<xs:element minOccurs="0" ref="ExplicitUnitDimension" />
+	<xs:element minOccurs="0" ref="ArraySize" />
+	<xs:element minOccurs="0" ref="Multiplicity" />
+	<xs:element minOccurs="0" ref="MonitoringRate" />
+	<xs:element minOccurs="0" ref="DataFrameStructureRef" />
+	<xs:element minOccurs="0" ref="DefaultValue" />
+	<xs:element minOccurs="0" ref="Range" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="ElementArray" />
+	<xs:element minOccurs="0" ref="Description" />
+	<xs:element minOccurs="0" ref="Historizing" />
+	<xs:element minOccurs="0" ref="WriteMask" />
+	<xs:element minOccurs="0" ref="EndDelimiter" />
+	<xs:element minOccurs="0" ref="Alarm" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="AlarmMethod" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Attribut" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Variable" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Method" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Frame_element" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="Frame_elementString" />
+        <xs:element minOccurs="0" ref="Info" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+
+  <xs:element name="Id" type="xs:string" />
+  <xs:element name="ReadIdCollector" type="xs:string" />
+
+  <xs:element name="Description" type="xs:string" />
+  <xs:element name="Historizing" type="xs:boolean" />
+  <xs:element name="AccesLevel" type="xs:integer" />
+  <xs:element name="WriteMask" type="xs:integer" />
+
+
+  <xs:element name="EndDelimiter" type="HexaValue" />
+
+  <xs:element name="ElementArray">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Pos" />
+	<xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="DefaultValue" type="xs:string" />
+  <xs:element name="Value" type="xs:string" />
+  <xs:element name="Message" type="xs:string" />
+  <!-- changement 25/08 par false/true string <xs:element name="Enable" type="xs:boolean" /> -->
+
+  <xs:element name="Enable">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="false" />
+        <xs:enumeration value="true" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+
+  <xs:element name="Severity" type="xs:integer" />
+  <xs:element name="Name" type="xs:string" />
+
+  <xs:element name="Type">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="int32" />
+	<xs:enumeration value="string" />
+	<xs:enumeration value="float" />
+	<xs:enumeration value="double" />
+	<xs:enumeration value="int8" />
+	<xs:enumeration value="int16" />
+	<xs:enumeration value="int64" />
+	<xs:enumeration value="bool" />
+	<xs:enumeration value="xml" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Multiplicity" type="xs:integer" />
+
+  <!-- pas besoin
+       <xs:element name="Mode">
+       <xs:simpleType>
+       <xs:restriction base="xs:string">
+       <xs:enumeration value="push" />
+       <xs:enumeration value="pull" />
+       </xs:restriction>
+       </xs:simpleType>
+       </xs:element>
+  -->
+
+  <xs:element name="DataFrameStructureRef" type="xs:string" />
+  <xs:element name="Pos" type="xs:integer" />
+  <xs:element name="Nb" type="xs:integer" />
+  <xs:element name="Index" type="xs:integer" />
+
+  <xs:element name="Attribut">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- avoir si encore besoin sonde jl 11/07 -->
+  <xs:element name="Variable">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element ref="Type" />
+	<xs:element minOccurs="0" ref="ImplicitUnitSymbol" />
+	<xs:element minOccurs="0" ref="ExplicitUnitDimension" />
+	<xs:element ref="Multiplicity" />
+	<xs:element minOccurs="0" ref="Value" />
+	<xs:element minOccurs="0" ref="ArraySize" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="ElementArray" />
+	<xs:element minOccurs="0" ref="Description" />
+	<xs:element minOccurs="0" ref="Historizing" />
+	<xs:element minOccurs="0" ref="AccesLevel" />
+	<xs:element minOccurs="0" ref="WriteMask" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ArraySize" type="xs:integer" />
+
+  <xs:element name="StateFSM">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="0" /> <!-- NOT_READY -->
+	<xs:enumeration value="1" /> <!-- READY -->
+	<xs:enumeration value="2" /> <!-- RUNNING -->
+	<xs:enumeration value="3" /> <!-- PAUSING -->
+	<xs:enumeration value="4" /> <!-- SAFE -->
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="NameFSM">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="Configure" />
+	<xs:enumeration value="Start" />
+	<xs:enumeration value="Stop" />
+	<xs:enumeration value="Pause" />
+	<xs:enumeration value="Resume" />
+	<xs:enumeration value="Reset" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+
+  <xs:element name="FSM">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="NameFSM" />
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="Argument" />
+        <xs:element maxOccurs="unbounded" minOccurs="0"
+                    ref="DeviceInstruction" />
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="Sequence" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- <xs:element name="FSM">
+       <xs:complexType>
+       <xs:sequence>
+       <xs:element value="Configure" />
+       <xs:element value="Start" />
+       <xs:element value="Stop" />
+       <xs:element value="Pause" />
+       <xs:element value="Resume" />
+       <xs:element value="Reset" />
+       </xs:sequence>
+       </xs:complexType>
+       </xs:element> -->
+
+
+  <xs:element name="Start">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Argument" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="DeviceInstruction" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Sequence" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NameHardwareConfig">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="Init" />
+        <xs:enumeration value="Close" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="HardwareConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="NameHardwareConfig" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Argument" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="DeviceInstruction" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Sequence" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NameAlarm">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="clearAlarm" />
+        <xs:enumeration value="troubleShooting" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="AlarmMethod">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="NameAlarm" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Argument" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="DeviceInstruction" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Sequence" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Method">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Sequence" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Argument" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="DeviceInstruction" />
+	<xs:element maxOccurs="unbounded" minOccurs="0"
+		    ref="EndDelimiter" />
+	<xs:element maxOccurs="unbounded" minOccurs="0" ref="Event" />
+	<xs:element minOccurs="0" ref="Info" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Range">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Min" />
+        <xs:element minOccurs="0" ref="Max" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Min" type="xs:string" />
+  <xs:element name="Max" type="xs:string" />
+
+  <xs:element name="Info">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Config" />
+        <xs:element minOccurs="0" ref="ICD" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Config" type="xs:boolean" />
+  <xs:element name="ICD" type="xs:boolean" />
+
+
+  <xs:element name="Sequence">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="NodeId" />
+	<xs:element ref="MethodId" />
+	<xs:element minOccurs="0" ref="ServerId" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+
+
+  <xs:element name="DeviceInstruction">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Argument">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element ref="Type" />
+	<xs:element minOccurs="0" ref="Access" />
+	<xs:element minOccurs="0" ref="DefaultValue" />
+	<xs:element minOccurs="0" ref="Description" />
+	<xs:element minOccurs="0" ref="ImplicitUnitSymbol" />
+	<xs:element minOccurs="0" ref="ExplicitUnitDimension" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ImplicitUnitSymbol" type="xs:string" />
+  <xs:element name="ExplicitUnitDimension" type="xs:string" />
+  <xs:element name="NodeId" type="xs:string" />
+  <xs:element name="MethodId" type="xs:string" />
+  <xs:element name="ServerId" type="xs:string" />
+
+  <xs:element name="Access">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="Input" />
+	<xs:enumeration value="Output" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Frame_elementString">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element ref="Type" />
+	<xs:element ref="EndDelimiter" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Frame_element">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="Name" />
+	<xs:element ref="Type" />
+	<xs:element ref="Index" />
+	<xs:element minOccurs="0" ref="Pos" />
+	<xs:element minOccurs="0" ref="Nb" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DataIdDescriptorRef" type="xs:string" />
+
+  <xs:element name="Plugins">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="Location" type="xs:string" />
+	<xs:element name="Name" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Asynchronous">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="false" />
+	<xs:enumeration value="true" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Acknowledge">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="false" />
+	<xs:enumeration value="true" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Interface">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="gpib" />
+	<xs:enumeration value="udp" />
+	<xs:enumeration value="tcp" />
+	<xs:enumeration value="com" />
+	<xs:enumeration value="pci" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <!-- <xs:enumeration value="serial" /> -->
+  <!-- <xs:enumeration value="usb" /> -->
+
+  <xs:element name="FileMapping" type="xs:string" />
+
+  <xs:element name="Validity">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="permanent" />
+	<xs:enumeration value="temporary" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="MonitoringRate">
+    <xs:simpleType>
+      <xs:restriction base="xs:integer">
+	<xs:enumeration value="1" />
+	<xs:enumeration value="2" />
+	<xs:enumeration value="5" />
+	<xs:enumeration value="10" />
+	<xs:enumeration value="30" />
+	<xs:enumeration value="60" />
+	<xs:enumeration value="900" />
+	<xs:enumeration value="1800" />
+	<xs:enumeration value="3600" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Address" type="xs:string" />
+  <xs:element name="Port" type="xs:integer" />
+
+
+
+  <xs:element name="Connection">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+	<xs:enumeration value="client" />
+	<xs:enumeration value="server" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="ServerPort" type="xs:integer" />
+
+  <xs:simpleType name="HexaValue">
+    <xs:restriction base="xs:hexBinary">
+      <xs:maxLength value="8" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

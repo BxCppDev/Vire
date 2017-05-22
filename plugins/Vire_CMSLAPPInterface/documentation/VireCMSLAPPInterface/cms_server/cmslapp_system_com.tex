@@ -1,0 +1,262 @@
+
+\subsection{System communication between the Vire server and the CMS/LAPP server}
+
+%% \Large
+%% \textcolor{red}{2017-05-03 FM: This section is obsolete and must be rewritten.}
+%% \normalsize
+
+This section  describes the  specific \emph{channels}  implemented for
+\textcolor{blue}{service} messaging  between the  Vire server  and the
+CMS/LAPP server.
+
+\subsubsection{Vire server to CMS/LAPP server service channel (RPC)}
+
+The architecture  of the CMS  system implies  that the Vire  server is
+basically a client with respect to the CMS/LAPP server.
+
+The  Vire API  defines  the concept  of  \emph{communication plug}  to
+represent a kind of network  operation. There are four different types
+of  \emph{communication plug}.   To  implement  the RPC  (\emph{Remote
+  Procedure Call})  layer with  the CMS/LAPP  server, the  Vire server
+uses a \emph{service} (or \emph{RPC}) client plug.
+A RPC client plug is conventionnaly
+configured to send some service RPC request message from the Vire server to a
+dedicated  private queue  named  \texttt{"subcontractor.service"}.   The
+CMS/LAPP server then extracts and  decodes the  request message  from this
+queue, performs some actions then sends a response message back to the
+Vire server through a dedicated private queue where the \emph{RPC client plug}
+reads      the      response.       The name of this      queue
+is  arbitrary, it is transmitted via the \texttt{reply\_to} AMQP message property
+associated to the original request message.  Practically,  the Vire server
+will decide to create such \emph{response} queues depending on the needs.
+Technically, the  CMS/LAPP server  does not  need to  know the  name of
+this queue because  each request  message contains  this identifier, through the
+RabbitMQ \texttt{"reply\_to"} AMQP message property.
+
+The service  RPC is  always used synchronously.   The Vire  server RPC
+client plug operates in blocking mode.  When it receives a RPC request
+message, the  CMS/LAPP server must  send back the  associated response
+message and it is not allowed  to use the \emph{"reply\_to"} queue to send
+some other arbitrary  messages.  To ensure some limited  control of the
+RPC  process,  the request  message  sent  by  the RPC client  plug  is
+conventionnaly  given  a   \texttt{"correlation\_id"}  property.   The
+CMS/LAPP  server must  set  the  same \texttt{"correlation\_id"}  AMQP
+property in  the response  message.  It is  the responsability  of the
+Vire server to choose the  value of this \emph{correlation identifier}
+(a character string) using an arbitrary internal policy.
+
+\begin{figure}[h]
+\begin{center}
+\scalebox{0.9}{\input{\pdftextimgpath/vire_cmslapp_rpc_arch_0.pdftex_t}}
+\end{center}
+\caption{The RPC  channel for  service communication between  the Vire
+  server (request  emitter/response receiver) and the  CMS/LAPP server
+  (request receiver/response emitter).}\label{fig:cmslapp_rpc:arch_0}
+\end{figure}
+
+
+\vfill
+\afterpage{\clearpage}
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{General description of RPC messaging between the Vire server and the CMS/LAPP server}
+
+Let's now  consider the following use  case: the Vire server  sends an
+RPC request to  the CMS/LAPP server through the RPC  channel. How does
+it works  practically?  In the  following, we illustrate  the detailed
+sequence  of   operations  needed  to  fulfill   the  synchronous  RPC
+transaction:
+
+\begin{enumerate}
+
+\item The Vire  server instantiates a payload object  which represents a
+  specific action to be performed by the CMS/LAPP server (execute a method, set a value,
+  activate some functionality\dots):
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.5}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_1.pdftex_t}}
+  \end{center}
+
+  \noindent Within the  Vire system, only three  categories of payload
+  exist:
+
+  \begin{itemize}
+
+  \item \emph{request} :  corresponds to RPC request sent  by the Vire
+    server to the CSM/LAPP server.  They are always sent synchronously
+    using the RPC mechanism using a mailbox of type \emph{service}.
+
+  \item \emph{response} : corresponds to RPC response sent back by the
+    CSM/LAPP  server  to  the  Vire   server.  They  are  always  sent
+    synchronously using the  RPC mechanism and are  correlated to an
+    unique RPC request. The original emitter of the RPC request must setup a private
+    queue to receive a RPC response.
+
+  \item  \emph{event}  :  corresponds  to  some  data  set/information
+    (alarm/signal/log entry, asynchronous RPC response event)  which is  sent asynchronously
+    from one software component to another (or more) using a mailbox of type \emph{event}..
+
+  \end{itemize}
+
+  \noindent In the present case, the  payload object built by the Vire
+  server belongs to the \emph{request} category.
+
+\item  The Vire  server submits  the  payload object  to the  \emph{RPC
+  client       plug}      which       is      binded       to      the
+  \texttt{"subcontractor.service"}       queue      in       the\\
+  \textcolor{blue}{\texttt{/supernemo/demonstrator/cms/vire/subcontractors/cmslapp/system}}     virtual
+  host.
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.5}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_2.pdftex_t}}
+  \end{center}
+
+
+\item The \emph{RPC client plug} builds a message object which contains:
+
+  \begin{itemize}
+
+  \item a header with mandatory attributes and possibly some arbitrary
+    metadata than will be used by the recipient, i.e. the CMS/LAPP
+    server.   The layout  of  the message  header  is  described
+    elsewhere  in this  document. It  is  expected that parts  of
+    metadata stored in the header will  be used by the CMS/LAPP server
+    to accomplish the RPC transaction.
+
+  \item  a body  which contains  the  type identifier  of the  request
+    payload object and the payload object itself.
+
+  \end{itemize}
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.7}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_3.pdftex_t}}
+  \end{center}
+
+
+\item The  \emph{RPC client plug} encode/serialize  the message object
+  in a buffer using some encoding technique (Protobuf\dots):
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.7}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_4.pdftex_t}}
+  \end{center}
+
+\item The \emph{RPC  client plug} wraps the buffer  in a AMQP/RabbitMQ
+  message  (the   envelope)  and   associates to it a set of special   AMQP  message
+  properties:
+
+  \begin{itemize}
+
+  \item    \texttt{"content\_type"}    property:   the encoding format used for message.\\
+    Example:  \texttt{"application/x-protobuf"} (for    Protobuf
+    serialization).
+
+  \item \texttt{"correlation\_id"} property:  the \emph{RPC client plug}
+    generates an unique character string for this request payload. \\
+    Example:
+    \texttt{"correlation\_id" = "snemo.demonstrator.cms.calo.hv.56327"}.
+
+  \item \texttt{"reply\_to"} property:  the \emph{RPC client plug}
+    indicated the name of the queue where to CMS/LAPP server must publish
+    the response message. \\
+    Example:
+    \texttt{"reply\_to" = "vireserver.service.response.uFaezae2"}.
+
+  \end{itemize}
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.7}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_5.pdftex_t}}
+  \end{center}
+
+\item  The \emph{RPC  client  plug}  publishes the RabbitMQ
+  message to the \texttt{"subcontractor.service"} queue:
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.6}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_6.pdftex_t}}
+  \end{center}
+  and blocks until it receives the response message from the CMS/LAPP server.
+
+\item  The CMS/LAPP server receives the AMQP request message from the
+  \texttt{"subcontractor.service"} queue:
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.6}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_7.pdftex_t}}
+  \end{center}
+
+\item  The CMS/LAPP server decodes/deserializes the AMQP request message
+  using the  \texttt{"content\_type"} message   property.
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.6}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_8.pdftex_t}}
+  \end{center}
+
+\item  The CMS/LAPP server analyzes the type of payload request object
+  and perform a first check to determine if it is possible to accomplish
+  the action. If some error is detected at this stage,
+  a special failure \emph{response} payload object is built. It the RPC request payload seems to be
+  possible to fulfill/execute, the CMS/LAPP server performs the necessary task(s) to
+  accomplish the request. If an error is detected during this step, a special failure \emph{response} payload
+  object  is built. Else, a specific success \emph{response} payload object is built.
+  Whatever type of payload (success/failure) is built, it is embedded in a response message.
+  The message is then serialized using the Protobuf  coding and wrapped in an AMQP response message:
+
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.6}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_9.pdftex_t}}
+  \end{center}
+
+  The AMQP response message is given the proper \texttt{"correlation\_id"} and \texttt{"content\_type"}
+  properties which are associated to the serialized buffer.
+
+\item  The CMS/LAPP server sends the AMQP response message to the \texttt{"reply\_to"} queue,
+  as requested by the Vire server.
+
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.5}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_10.pdftex_t}}
+  \end{center}
+
+\item The  RPC client plug of  the Vire server reads  the AMQP response
+  message from the \\
+  \texttt{"vireserver.service.response.uFaezae2"} queue.
+
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.5}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_11.pdftex_t}}
+  \end{center}
+
+\item The  RPC client plug decodes/deserializes the AMQP response
+  message using the \texttt{"content\_type"} message property.
+
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.5}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_12.pdftex_t}}
+  \end{center}
+
+\item  RPC client plug checks the type of payload response  object
+  and transmits it to the Vire server.
+
+  \vskip 10pt
+  \begin{center}
+    \scalebox{0.5}{\input{\pdftextimgpath/vire_cmslapp_rpc_payload_13.pdftex_t}}
+  \end{center}
+
+\end{enumerate}
+
+
+
+
+
+
+\vfill
+\afterpage{\clearpage}
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{System event queues between the Vire server and the CMS/LAPP server}
+
+THIS SECTION IS EMPTY. IT WILL BE DETAILED LATER.
+
+\vfill
+\afterpage{\clearpage}
+\pagebreak

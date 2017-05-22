@@ -1,0 +1,9 @@
+syntax = "proto3";
+package vire.utility;
+
+// The top-level mother class for all payload classes:
+message BasePayload {
+
+  // reserved 1-99
+
+}

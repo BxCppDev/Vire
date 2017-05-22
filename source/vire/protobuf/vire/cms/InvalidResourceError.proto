@@ -1,0 +1,13 @@
+syntax = "proto3";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+
+message InvalidResourceError {
+
+  vire.utility.BaseError _base = 1;
+
+  string invalid_resource_path = 100;
+  sint32  invalid_resource_id  = 101;
+
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+package vire.message;
+
+import "vire/message/MessageIdentifier.proto";
+import "vire/utility/ModelIdentifier.proto";
+import "vire/utility/MetadataRecord.proto";
+import "google/protobuf/timestamp.proto";
+
+message MessageHeader {
+
+  // reserved 1-99
+
+  vire.message.MessageIdentifier message_id     = 100; // Message identifier
+  google.protobuf.Timestamp      timestamp      = 101; // Message timestamp
+  vire.message.MessageIdentifier in_reply_to    = 102; // Reference to an original request message (optional)
+  bool                           asynchronous   = 103; // Asynchronous flag
+  string                         async_address  = 104; // Asynchronous address
+  vire.utility.ModelIdentifier   body_layout_id = 105; // Body layout identifier
+  repeated vire.utility.MetadataRecord metadata = 106; // List of key/value metadata pairs
+
+}

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xs1 = "http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0"
+    elementFormDefault="qualified">
+
+  <xs:element name="DeviceInstruction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Instruction_set">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Instruction" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Instruction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element                             ref="Name"         />
+        <xs:element minOccurs="0" maxOccurs="1" ref="Cmd"          />
+        <xs:element minOccurs="0" maxOccurs="1" ref="Acknowledge"  />
+        <xs:element minOccurs="0" maxOccurs="1" ref="Asynchronous" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Watchdog">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Enable"      />
+        <xs:element minOccurs="0" ref="Acknowledge" />
+        <xs:element minOccurs="0" ref="Cmd"         />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Cmd" type="xs:string" />
+
+  <xs:element name="Plugins">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Location" type="xs:string" />
+        <xs:element name="Name"     type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NameHardwareConfig">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="Init"  />
+        <xs:enumeration value="Close" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="HardwareConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element                                     ref="NameHardwareConfig" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Argument"           />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="DeviceInstruction"  />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Sequence"           />
+        <xs:element minOccurs="0"                       ref="EndDelimiter"       />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Interface">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="gpib" />
+        <xs:enumeration value="udp"  />
+        <xs:enumeration value="tcp"  />
+        <xs:enumeration value="com"  />
+        <xs:enumeration value="pci"  />
+        <xs:enumeration value="OPCUA_PLC_Emulation" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+</xs:schema>

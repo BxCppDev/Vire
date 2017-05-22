@@ -1,0 +1,145 @@
+# -*- mode: conf-unix; -*-
+# List of multi-properties (datatools::multi_properties):
+
+#@description The mapping rules associated to device models
+
+#@key_label  "model"
+#@meta_label "policy"
+
+
+##################################
+[model="setup" policy="supersede"]
+
+#@description The mapping directives for the "Demonstrator" daughter volume
+mapping.device.Demonstrator  : string = "[demonstrator.dc:module=0]"
+
+
+#########################################
+[model="demonstrator" policy="supersede"]
+
+#@description The mapping directives for the "Electronics" daughter volume
+mapping.device.Electronics : string = "[electronics.dc]"
+#@description The mapping directives for the "Detector" daughter volume
+mapping.device.Detector    : string = "[detector.dc]"
+
+
+########################################
+[model="electronics" policy="supersede"]
+
+#@description The mapping directives for the "CaloRack" daughter volume
+mapping.device.CaloRack    : string = "[rack.dc:rack=3]"
+#@description The mapping directives for the "TrackerRack" daughter volume
+mapping.device.TrackerRack : string = "[rack.dc:rack=5]"
+
+
+#########################################
+[model="tracker_rack" policy="supersede"]
+
+#@description The mapping directives for the "Crate_0" daughter volume
+mapping.device.Crate_0 : string = "[crate.dc:crate=0]"
+
+#@description The mapping directives for the "Crate_1" daughter volume
+mapping.device.Crate_1 : string = "[crate.dc:crate=1]"
+
+#@description The mapping directives for the "Crate_2" daughter volume
+mapping.device.Crate_2 : string = "[crate.dc:crate=2]"
+
+
+######################################
+[model="calo_rack" policy="supersede"]
+
+#@description The mapping directives for the "Crate0" daughter volume
+mapping.device.Crate_0 : string = "[crate.dc:crate=0]"
+
+#@description The mapping directives for the "Crate1" daughter volume
+mapping.device.Crate_1 : string = "[crate.dc:crate=1]"
+
+#@description The mapping directives for the "Crate2" daughter volume
+mapping.device.Crate_2 : string = "[crate.dc:crate=2]"
+
+
+############################################
+[model="main_calo_crate" policy="supersede"]
+
+mapping.device.Feb_0      : string = "[calo_feb.dc:board=0]"
+mapping.device.Feb_1      : string = "[calo_feb.dc:board=1]"
+mapping.device.Feb_2      : string = "[calo_feb.dc:board=2]"
+mapping.device.Feb_3      : string = "[calo_feb.dc:board=3]"
+mapping.device.Feb_4      : string = "[calo_feb.dc:board=4]"
+mapping.device.Feb_5      : string = "[calo_feb.dc:board=5]"
+mapping.device.Feb_6      : string = "[calo_feb.dc:board=6]"
+mapping.device.Feb_7      : string = "[calo_feb.dc:board=7]"
+mapping.device.Feb_8      : string = "[calo_feb.dc:board=8]"
+mapping.device.Feb_9      : string = "[calo_feb.dc:board=9]"
+mapping.device.CtrlBoard  : string = "[crate_ctrl_board.dc]"
+mapping.device.Feb_10     : string = "[calo_feb.dc:board=11]"
+mapping.device.Feb_11     : string = "[calo_feb.dc:board=12]"
+mapping.device.Feb_12     : string = "[calo_feb.dc:board=13]"
+mapping.device.Feb_13     : string = "[calo_feb.dc:board=14]"
+mapping.device.Feb_14     : string = "[calo_feb.dc:board=15]"
+mapping.device.Feb_15     : string = "[calo_feb.dc:board=16]"
+mapping.device.Feb_16     : string = "[calo_feb.dc:board=17]"
+mapping.device.Feb_17     : string = "[calo_feb.dc:board=18]"
+mapping.device.Feb_18     : string = "[calo_feb.dc:board=19]"
+mapping.device.Feb_19     : string = "[calo_feb.dc:board=20]"
+
+
+##############################################
+[model="xgveto_calo_crate" policy="supersede"]
+
+mapping.device.Feb_4        : string = "[calo_feb.dc:board=4]"
+mapping.device.Feb_5        : string = "[calo_feb.dc:board=5]"
+mapping.device.Feb_6        : string = "[calo_feb.dc:board=6]"
+mapping.device.Feb_7        : string = "[calo_feb.dc:board=7]"
+mapping.device.Feb_8        : string = "[calo_feb.dc:board=8]"
+mapping.device.Feb_9        : string = "[calo_feb.dc:board=9]"
+mapping.device.CtrlBoard    : string = "[crate_ctrl_board.dc]"
+mapping.device.Feb_10       : string = "[calo_feb.dc:board=11]"
+mapping.device.Feb_11       : string = "[calo_feb.dc:board=12]"
+mapping.device.Feb_12       : string = "[calo_feb.dc:board=13]"
+mapping.device.Feb_13       : string = "[calo_feb.dc:board=14]"
+mapping.device.Feb_14       : string = "[calo_feb.dc:board=15]"
+mapping.device.Feb_15       : string = "[calo_feb.dc:board=16]"
+mapping.device.TriggerBoard : string = "[trigger_board.dc]"
+
+
+#####################################
+[model="calo_feb" policy="supersede"]
+
+mapping.device.Samlong      : string = "[calo_feb_fe_asic.dc:fe_asic+0]"
+mapping.device.FeFpga       : string = "[calo_feb_fe_fpga.dc:fe_fpga+0]"
+mapping.device.CtrlFpga     : string = "[calo_feb_ctrl_fpga.dc]"
+mapping.port.Input          : string = "[calo_feb_channel.pc:channel+0]"
+
+
+##########################################
+[model="tracker_crate" policy="supersede"]
+
+mapping.device.Feb_0      : string = "[tracker_frontend_board.dc:board=0]"
+mapping.device.Feb_1      : string = "[tracker_frontend_board.dc:board=1]"
+mapping.device.Feb_2      : string = "[tracker_frontend_board.dc:board=2]"
+mapping.device.Feb_3      : string = "[tracker_frontend_board.dc:board=3]"
+mapping.device.Feb_4      : string = "[tracker_frontend_board.dc:board=4]"
+mapping.device.Feb_5      : string = "[tracker_frontend_board.dc:board=5]"
+mapping.device.Feb_6      : string = "[tracker_frontend_board.dc:board=6]"
+mapping.device.Feb_7      : string = "[tracker_frontend_board.dc:board=7]"
+mapping.device.Feb_8      : string = "[tracker_frontend_board.dc:board=8]"
+mapping.device.Feb_9      : string = "[tracker_frontend_board.dc:board=9]"
+mapping.device.CtrlBoard  : string = "[crate_ctrl_board.dc]"
+mapping.device.Feb_10     : string = "[tracker_frontend_board.dc:board=11]"
+mapping.device.Feb_11     : string = "[tracker_frontend_board.dc:board=12]"
+mapping.device.Feb_12     : string = "[tracker_frontend_board.dc:board=13]"
+mapping.device.Feb_13     : string = "[tracker_frontend_board.dc:board=14]"
+mapping.device.Feb_14     : string = "[tracker_frontend_board.dc:board=15]"
+mapping.device.Feb_15     : string = "[tracker_frontend_board.dc:board=16]"
+mapping.device.Feb_16     : string = "[tracker_frontend_board.dc:board=17]"
+mapping.device.Feb_17     : string = "[tracker_frontend_board.dc:board=18]"
+mapping.device.Feb_18     : string = "[tracker_frontend_board.dc:board=19]"
+
+
+##########################################
+[model="calo_detector" policy="supersede"]
+
+mapping.device.OM  : string = "[calo_om.dc:row+0,column+0]"
+
+# end

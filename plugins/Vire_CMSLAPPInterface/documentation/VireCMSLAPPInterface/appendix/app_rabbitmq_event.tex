@@ -1,0 +1,61 @@
+
+\section{The RabbitMQ based event communication}\label{app:rabbitmq_event}
+
+The client is given a new unique random identifier (managed by the Vire server):
+CUID
+
+The client is given a new RabbitMQ user
+(randomized login and randomized password)
+by the Vire Server (RabbitMQ controller)
+
+The Vire client is given access to one or more virtual
+3 authorization for a given user for each given vhost:
+
+Some specific rights are set for this user:
+
+\begin{itemize}
+\item configuration (string+regex): allowed to declare and/or destroy an exchange or a queue in the virtual host
+
+The server regex : "snemo" "CUID" "some structural/conventional  key words"
+
+\item read (string+regex): allowed to extract messages from some queues
+
+
+\item write (string+regex): allowed to publish messages in some exchange
+
+
+
+\end{itemize}
+
+Un client peut créer des queues avec des noms (partie aléatoires?)
+
+
+\subsection{Logging}\label{app:rabbitmq_event:logging}
+
+
+
+
+\subsection{Alarm}\label{app:rabbitmq_event:alarm}
+
+
+
+\subsection{Pub/sub}\label{app:rabbitmq_event:pubsub}
+
+In domain \emph{monitoring}.
+
+Two kinds of Pub/Sub access:
+
+\begin{itemize}
+\item Pub/Sub public: open access resources
+
+  Producer:  Published in public structural exchange with
+
+  Consumer: bind to this exchange with binding key = "resource name"
+
+\item Pub/Sub private: confidential resource
+
+  - Vire server create the new private exchange named
+  with random name
+  - Vire server gives access to
+
+\end{itemize}

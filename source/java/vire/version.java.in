@@ -1,0 +1,17 @@
+package vire;
+
+// \code
+// $ java -cp VireJava.jar vire.version
+// \endcode
+
+public final class version
+{
+    public static final String VIRE_LIB_VERSION = "@Vire_VERSION@";
+
+    public static void main(String[] args)
+    {
+	System.err.println("Vire version : " + VIRE_LIB_VERSION);
+	System.exit(0);
+    }
+
+}

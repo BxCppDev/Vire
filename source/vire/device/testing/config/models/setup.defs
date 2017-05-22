@@ -1,0 +1,50 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the top-level SuperNEMO setup
+#@key_label  "name"
+#@meta_label "type"
+
+
+############################################################
+[name="setup@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO setup
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Unique identifier of the device model
+model_key : integer = 0
+
+#@description Type of device
+type      : string  = "setup"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[3] = "CaloRack" "TrackerRack" "Calo"
+
+#@description The device model associated to the calorimeter rack
+embedded_devices.model.CaloRack    : string = "calo_rack"
+# embedded_devices.instance.CaloRack : string = "vire::device::single_instance=[slot=(1:0)]"
+
+#@description The device model associated to the tracker rack
+embedded_devices.model.TrackerRack    : string = "tracker_rack"
+# embedded_devices.instance.TrackerRack : string = "vire::device::single_instance=[slot=(1:1)]"
+
+#@description The device model associated to the calorimeter rack
+embedded_devices.model.Calo    : string = "calo_detector"
+
+# Auxiliary properties:
+
+#@description Manufacturer of the setup virtual model
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+#@description Model of the setup
+aux.model        : string = "snemo::setup"
+
+#@description Version of the setup
+aux.version      : string = "1.0"
