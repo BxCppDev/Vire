@@ -97,7 +97,7 @@ More, Vire depends on other third party software packages:
    for C++ classes (depends on protobuf_).
  * BxJsontools_ : A C++ library which eases the serialization of C++ classes using JSON.
  * BxRabbitMQ_ : A C++ library which wraps parts of the librabbitmq C library (depends on librabbitmq-c_ and BxJsontools_).
- * Java : OpenJDK Runtime Environment (version 1.8.0) (Ubuntu 16.04: ``sudo apt-get install openjdk-8-jdk``)
+ * Java : OpenJDK Runtime Environment (version 1.8.0)
  * Bayeux_ : The Bayeux library (version >= 3.0.0)
 
 .. _Linuxbrew:   http://linuxbrew.sh/
@@ -154,6 +154,7 @@ List of required libraries and tools:
 
   - curlpp >= 0.8.1 (automatically installed from Linuxbrew)
   - rabbitmq-c >= 3.3.0 (automatically installed from Linuxbrew)
+  - Java JDK (installed from the system)
 
 * BxCppDev software (installed from the https://github.col/BxCppDev/homebrew-bxtap Linuxbrew tap):
 
@@ -167,6 +168,7 @@ Example of dependency installation for Ubuntu Linux 16.04:
 
 .. code::sh
 
+   $ sudo apt-get install openjdk-8-jdk
    $ brew tap bxcppdev/homebrew-bxtap
    $ brew install bxcppdev/bxtap/bxrabbitmq --with-manager
    $ brew install bxcppdev/bxtap/bxprotobuftools
