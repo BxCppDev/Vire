@@ -251,7 +251,7 @@ Installation
 
       $ cmake \
 	     -DCMAKE_BUILD_TYPE:STRING=Release \
-	     -DCMAKE_INSTALL_PREFIX:PATH=${HOME}/Vire/install \
+	     -DCMAKE_INSTALL_PREFIX:PATH=${HOME}/Vire/install-$(uname -s)-$(uname -m)-develop \
 	     -DCMAKE_FIND_ROOT_PATH:PATH="$(clhep-config --prefix | tr -d '"')" \
 	     -DBayeux_DIR:PATH="$(bxquery --prefix)" \
 	     -DVIRE_COMPILER_ERROR_ON_WARNING=ON \
@@ -263,7 +263,6 @@ Installation
 	     -DVIRE_WITH_SANDBOX=OFF \
 	     -DVIRE_WITH_JAVA=ON \
 	     -DVIRE_WITH_PROTOBUF_JAVA=ON \
-	     -DPROTOBUF_ROOT:PATH="/opt/sw/GoogleProtocolBuffers/install-3.0.0" \
 	     -DBxRabbitMQ_DIR:PATH="$(bxrabbitmq-query --cmakedir)" \
 	     -DBxProtobuftools_DIR:PATH="$(bxprotobuftools-query --cmakedir)" \
 	     ${HOME}/Vire/Vire.git
