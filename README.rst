@@ -184,8 +184,34 @@ No brew formula is provided for Vire yet.
 Installation
 ------------
 
+1. Setup Linuxbrew (visit https://github.com/BxCppDev/homebrew-bxtap/blob/master/README.md)
 
-1. Create a build directory for Vire
+.. code:: sh
+
+   $ linuxbrew_setup
+..
+
+   Your system PATH should be prefixed with the brew binary path, example:
+
+.. code:: sh
+
+   $ echo $PATH
+   /path/to/Linuxbrew/installation/directory/bin:/some/other/directories/in/your/path...
+..
+
+   You should also be able to guess the Linuxbrew installation directory through:
+
+.. code:: sh
+
+   $ which clhep-config                # check the clhep-config is now in your PATH
+   ...
+   $ clhep-config --prefix | tr -d '"' # check the CLHEP library installation path,
+                                       # it should be the Linuxbrew prefix.
+   ...
+..
+
+
+2. Create a build directory for Vire and cd in it:
 
 .. code:: sh
 
@@ -193,15 +219,7 @@ Installation
    $ cd ${HOME}/Vire/_build.d
 ..
 
-3. Setup Linuxbrew or enter a brew shell (assuming the ``brew`` command is in your ``PATH``):
-
-.. code:: sh
-
-   $ linuxbrew_setup
-..
-
-
-4. Setup the Bayeux library with dedicated scripts:
+3. Setup the Bayeux library with dedicated scripts:
 
 .. code:: sh
 
@@ -212,22 +230,10 @@ Installation
    ...
 ..
 
-   You should also be able to guess the Linuxbrew installation directory through:
+4. Setup third party software:
 
 .. code:: sh
 
-      $ which clhep-config     # check the clhep-config is now in your PATH
-      ...
-      $ clhep-config --prefix | tr -d '"'  # check the CLHEP library installation path (should be brew!)
-      ...
-..
-
-5. Setup third party software:
-
-.. code:: sh
-
-      $ protobuf_setup                 # your own setup function to 'activate' protobuf
-      $ which protoc                   # check installation path
       $ bxprotobuftools_setup          # your own setup function to 'activate' bxprotobuftools
       $ bxprotobuftools-query --prefix # check installation path
       ...
@@ -237,7 +243,7 @@ Installation
 ..
 
 
-6. Configure:
+5. Configure:
 
 .. code:: sh
 
@@ -261,21 +267,21 @@ Installation
 	     ${HOME}/Vire/Vire.git
 ..
 
-7. Build:
+6. Build:
 
 .. code:: sh
 
       $ make -j4
 ..
 
-8. Run tests:
+7. Run tests:
 
 .. code:: sh
 
       $ make test
 ..
 
-9. Install:
+8. Install:
 
 .. code:: sh
 
