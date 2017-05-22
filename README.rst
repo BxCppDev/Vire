@@ -8,8 +8,8 @@ C++ library for the description and management of an experimental setup
 
 
 *Warning*: Do not even  dare to dream to hope to use  Vire now!  It is
-still in intensive development phase  and not ready for production and
-even testing for fun.
+still in intensive development phase  and not ready for production or
+testing, even  for fun!
 
 Introduction
 ------------
@@ -80,29 +80,34 @@ Vire supports  Ubuntu Linux 16.04  system (x86_64), which is  our main
 development system.  Support for more flavors of Linux will come later
 (i.e. Scientific Linux 7.X).
 
-Vire  is built  on top  of the  Bayeux_ library  which assumes  itself
-you'll build and run the software from a Linuxbrew_ system.
+Vire  is built  on top  of the  Bayeux_ library. We will assume
+you use the Linuxbrew_ management system to build and install
+dependee software. Some dependee may also be provided by the
+system (``apt-get``).
 
- * Linuxbrew_  is  a  package  manager  for  Linux  and  macosX  (visit
+ * Linuxbrew_  is  a  package  manager for  Linux  and  macosX  (visit
    https://github.com/BxCppDev/homebrew-bxtap for more informations).
- * Bayeux_ provides  its Bayeux/datatools and  Bayeux/geomtools modules
-   which are used to build core parts of Vire.
-
+ * Bayeux_:  The  Bayeux  library  (version  >=  3.0.0)  provides  the
+   Bayeux/datatools  and Bayeux/geomtools  modules which  are used  to
+   build core parts of Vire.
 
 More, Vire depends on other third party software packages:
 
  * protobuf_ : Google Protocol Buffers (3.0)
- * librabbitmq-c_ : RabbitMQ C AMQP client library (version 0.8.0 with support for the AMQP protocol version 0.9.1)
- * BxProtobuftools_ : A C++ library which eases the use of the Google Protobuf Buffers serialization system
-   for C++ classes (depends on protobuf_).
- * BxJsontools_ : A C++ library which eases the serialization of C++ classes using JSON.
- * BxRabbitMQ_ : A C++ library which wraps parts of the librabbitmq C library (depends on librabbitmq-c_ and BxJsontools_).
+ * librabbitmq-c_ : RabbitMQ C AMQP client library (version 0.8.0 with
+   support for the AMQP protocol version 0.9.1)
+ * BxProtobuftools_ : A C++ library which  eases the use of the Google
+   Protobuf Buffers  serialization system for C++  classes (depends on
+   protobuf_).
+ * BxJsontools_ : A  C++ library which eases the  serialization of C++
+   classes using JSON.
+ * BxRabbitMQ_ : A C++ library which  wraps parts of the librabbitmq C
+   library (depends on librabbitmq-c_ and BxJsontools_).
  * Java : OpenJDK Runtime Environment (version 1.8.0)
- * Bayeux_ : The Bayeux library (version >= 3.0.0)
 
-.. _Linuxbrew:   http://linuxbrew.sh/
-.. _protobuf: https://github.com/google/protobuf
-.. _librabbitmq-c:    https://github.com/alanxz/rabbitmq-c
+.. _Linuxbrew:       http://linuxbrew.sh/
+.. _protobuf:        https://github.com/google/protobuf
+.. _librabbitmq-c:   https://github.com/alanxz/rabbitmq-c
 .. _BxProtobuftools: https://github.com/BxCppDev/bxprotobuftools
 .. _BxJsontools:     https://github.com/BxCppDev/bxjsontools
 .. _BxRabbitMQ:      https://github.com/BxCppDev/bxrabbitmq
@@ -166,7 +171,7 @@ List of required libraries and tools:
 
 Example of dependency installation for Ubuntu Linux 16.04:
 
-.. code::sh
+.. code:: sh
 
    $ sudo apt-get install openjdk-8-jdk
    $ brew tap bxcppdev/homebrew-bxtap
@@ -180,7 +185,7 @@ Vire on Linuxbrew
 
 WIP
 
-No brew formula is provided for Vire yet.
+No brew formula is provided yet for Vire from the ``bxcppdev/homebrew-bxtap``.
 
 
 Installation
@@ -205,7 +210,7 @@ Installation
 
 .. code:: sh
 
-   $ which clhep-config                # check the clhep-config is now in your PATH
+   $ which clhep-config # check the brewed clhep-config is in your path.
    ...
    $ clhep-config --prefix | tr -d '"' # check the CLHEP library installation path,
                                        # it should be the Linuxbrew prefix.
@@ -225,23 +230,26 @@ Installation
 
 .. code:: sh
 
-   $ bayeux_pro_setup  # your own setup function to 'activate' Bayeux (export PATH=...)
-   $ which bxquery     # check the bxquery is now in your PATH
+   $ [bayeux_setup] # your own setup function to activate a non-brewed Bayeux
+   $ which bxquery # check that bxquery is in your PATH
    ...
-   $ bxquery --prefix  # check the Bayeux's installation path
+   $ bxquery --prefix # check the Bayeux's installation path
    ...
 ..
+
+   Command between brackets is run only if Bayeux is not managed by Linuxbrew
+   nor in your system path.
 
 4. Setup third party software:
 
 .. code:: sh
 
-      $ bxprotobuftools_setup          # your own setup function to 'activate' bxprotobuftools
-      $ bxprotobuftools-query --prefix # check installation path
-      ...
-      $ bxrabbitmq_setup               # your own setup function to 'activate' bxrabbitmq
-      $ bxrabbitmq-query --prefix      # check installation path
-      ...
+   $ [bxprotobuftools_setup] # your own setup function to activate a non-brewed bxprotobuftools.
+   $ [bxrabbitmq_setup] # your own setup function to activate a non-brewed bxrabbitmq.
+   $ bxprotobuftools-query --prefix # check BxProtobuftools installation path.
+   ...
+   $ bxrabbitmq-query --prefix # check BxRabbitmq installation path.
+   ...
 ..
 
 
@@ -249,44 +257,44 @@ Installation
 
 .. code:: sh
 
-      $ cmake \
-	     -DCMAKE_BUILD_TYPE:STRING=Release \
-	     -DCMAKE_INSTALL_PREFIX:PATH=${HOME}/Vire/install-$(uname -s)-$(uname -m)-develop \
-	     -DCMAKE_FIND_ROOT_PATH:PATH="$(clhep-config --prefix | tr -d '"')" \
-	     -DBayeux_DIR:PATH="$(bxquery --prefix)" \
-	     -DVIRE_COMPILER_ERROR_ON_WARNING=ON \
-	     -DVIRE_CXX_STANDARD="11" \
-	     -DVIRE_ENABLE_TESTING=ON \
-	     -DVIRE_WITH_DOCS=ON \
-	     -DVIRE_WITH_DEVELOPER_TOOLS=ON \
-	     -DVIRE_WITH_PLUGINS=ON \
-	     -DVIRE_WITH_SANDBOX=OFF \
-	     -DVIRE_WITH_JAVA=ON \
-	     -DVIRE_WITH_PROTOBUF_JAVA=ON \
-	     -DBxRabbitMQ_DIR:PATH="$(bxrabbitmq-query --cmakedir)" \
-	     -DBxProtobuftools_DIR:PATH="$(bxprotobuftools-query --cmakedir)" \
-	     ${HOME}/Vire/Vire.git
+   $ cmake \
+	  -DCMAKE_BUILD_TYPE:STRING=Release \
+	  -DCMAKE_INSTALL_PREFIX:PATH=${HOME}/Vire/install-$(uname -s)-$(uname -m)-develop \
+	  -DCMAKE_FIND_ROOT_PATH:PATH="$(clhep-config --prefix | tr -d '"')" \
+	  -DVIRE_COMPILER_ERROR_ON_WARNING=ON \
+	  -DVIRE_CXX_STANDARD="11" \
+	  -DVIRE_ENABLE_TESTING=ON \
+	  -DVIRE_WITH_DOCS=ON \
+	  -DVIRE_WITH_DEVELOPER_TOOLS=ON \
+	  -DVIRE_WITH_PLUGINS=ON \
+	  -DVIRE_WITH_SANDBOX=OFF \
+	  -DVIRE_WITH_JAVA=ON \
+	  -DVIRE_WITH_PROTOBUF_JAVA=ON \
+	  -DBayeux_DIR:PATH="$(bxquery --cmakedir)" \
+	  -DBxRabbitMQ_DIR:PATH="$(bxrabbitmq-query --cmakedir)" \
+	  -DBxProtobuftools_DIR:PATH="$(bxprotobuftools-query --cmakedir)" \
+	  ${HOME}/Vire/Vire.git
 ..
 
 6. Build:
 
 .. code:: sh
 
-      $ make -j4
+   $ make -j4
 ..
 
 7. Run tests:
 
 .. code:: sh
 
-      $ make test
+   $ make test
 ..
 
 8. Install:
 
 .. code:: sh
 
-      $ make install
+   $ make install
 ..
 
 
@@ -298,31 +306,35 @@ your startup file ``~/.bashrc`` :
 
 .. code:: sh
 
-     function do_vire_develop_setup()
-     {
-       protobuf_setup
-       bxprotobuftools_setup
-       bxrabbitmq_setup
-       bayeux_setup
-       if [ -n "${VIRE_INSTALL_DIR}" ]; then
-         echo "ERROR: Vire/develop is already setup ! Ignore!" >&2
-         return 1
-       fi
-       export VIRE_INSTALL_DIR={Vire installation directory}
-       export PATH=${VIRE_INSTALL_DIR}/bin:${PATH}
-       echo "NOTICE: Vire/develop is now setup !" >&2
-       return;
-     }
-     export -f do_vire_develop_setup
-     alias vire_dev_setup="do_vire_develop_setup"
+   function do_vire_develop_setup()
+   {
+      # Some setup functions to activate dependees:
+      # [linuxbrew_setup]
+      # ...
+      # [bxprotobuftools_setup]
+      # [bxrabbitmq_setup]
+      # [bayeux_setup]
+      if [ -n "${VIRE_INSTALL_DIR}" ]; then
+	  echo "ERROR: Vire/develop is already setup ! Ignore!" >&2
+	  return 1
+      fi
+      export VIRE_INSTALL_DIR={Vire installation directory}
+      export PATH=${VIRE_INSTALL_DIR}/bin:${PATH}
+      echo "NOTICE: Vire/develop is now setup !" >&2
+      return;
+   }
+   export -f do_vire_develop_setup
+   alias vire_dev_setup="do_vire_develop_setup"
 ..
 
-   where ``protobuf_setup``, ``bxprotobuftools_setup``, ``bxrabbitmq_setup`` and ``bayeux_setup``
-   are shell function/aliases which setup the third party software not managed through brew.
+   where    ``bxprotobuftools_setup``,     ``bxrabbitmq_setup``    and
+   ``bayeux_setup`` are  shell functions  which setup the  third party
+   software packages not managed through Linuxbrew.
 
-   Then each time you want to use this version of Vire from a shell, type:
+   Then each time you  want to use this version of  Vire from a shell,
+   type:
 
 .. code:: sh
 
-   shell$ vire_dev_setup
+   $ vire_dev_setup
 ..
