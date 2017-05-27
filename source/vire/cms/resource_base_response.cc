@@ -88,7 +88,7 @@ namespace vire {
     void resource_base_response::jsonize(jsontools::node & node_,
                                               const unsigned long int version_)
     {
-      this->base_response::jsonize(node_, version_);
+      this->base_payload::jsonize(node_, version_);
       node_["status"] % _status_;
       return;
     }
@@ -96,7 +96,7 @@ namespace vire {
     void resource_base_response::protobufize(protobuftools::message_node & node_,
                                                   const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_response, node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
       node_["status"] % _status_;
       return;
     }

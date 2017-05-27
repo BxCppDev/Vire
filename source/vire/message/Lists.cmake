@@ -1,5 +1,6 @@
 list(APPEND VireLibrary_HEADERS
   message/body_layout.h
+  message/protocol_utils.h
   message/message_identifier.h
   message/message_identifier-serial.ipp
   message/message_header.h
@@ -13,6 +14,7 @@ list(APPEND VireLibrary_HEADERS
 
 list(APPEND VireLibrary_SOURCES
   message/body_layout.cc
+  message/protocol_utils.cc
   message/message_identifier.cc
   message/message_header.cc
   message/message_body.cc

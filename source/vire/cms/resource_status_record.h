@@ -1,7 +1,7 @@
 //! \file  vire/cms/resource_status_record.h
 //! \brief A device/resource (dynamic) status record
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -177,12 +177,6 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      /// Macro to declare basic support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(resource_status_record);
-
-      /// Macro to declare basic support for serialization
-      DATATOOLS_SERIALIZATION_DECLARATION();
-
     private:
 
       std::string              _path_;      ///< Resource/device path
@@ -191,6 +185,8 @@ namespace vire {
       bool                     _failed_;    ///< Failed bit
       bool                     _pending_;   ///< Pending bit
       bool                     _disabled_;  ///< Disabled bit
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_status_record)
 
       //! Reflection interface
       DR_CLASS_RTTI();

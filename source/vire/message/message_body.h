@@ -33,6 +33,7 @@
 #include <protobuftools/core.h>
 // #include <bayeux/protobuftools/i_protobufable.h>
 
+
 // This project:
 #include <vire/utility/model_identifier.h>
 #include <vire/utility/base_payload.h>
@@ -49,10 +50,10 @@ namespace vire {
     //! The payload object is handled through a plain pointer on a
     //! 'const vire::utility::base_payload' object. In that way, it is not possible to
     //! modify a payload object published through a message.
-    class message_body :
-      public ::datatools::i_serializable,
-      public ::protobuftools::i_protobufable,
-      public ::datatools::i_tree_dumpable
+    class message_body
+      : public ::datatools::i_serializable
+      , public ::protobuftools::i_protobufable
+      , public ::datatools::i_tree_dumpable
     {
     public:
 

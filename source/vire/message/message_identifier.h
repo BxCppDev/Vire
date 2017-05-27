@@ -26,25 +26,18 @@
 
 // Third party:
 // - Boost:
-#include <boost/cstdint.hpp>
-// - Bayeux/datatools:
-#include <bayeux/datatools/i_tree_dump.h>
-#include <bayeux/datatools/i_serializable.h>
-// - BxJsontools:
-#include <jsontools/i_jsonizable.h>
-// - Bxprotobuftools:
-#include <bayeux/protobuftools/i_protobufable.h>
+#include <boost/stdint.hpp>
+
+// This project:
+#include <vire/utility/base_payload.h>
 
 namespace vire {
 
   namespace message {
 
     //! \brief Message identifier
-    class message_identifier :
-      public ::datatools::i_serializable,
-      public ::jsontools::i_jsonizable,
-      public ::protobuftools::i_protobufable,
-      public ::datatools::i_tree_dumpable
+    class message_identifier
+      : public ::vire::utility::base_payload
     {
     public:
 
@@ -105,8 +98,8 @@ namespace vire {
       std::string _emitter_; //!< Name of the emitter
       int32_t     _number_;  //!< Message unique number with respect from the emitter
 
-      //! Support for Boost-based serialization
-      DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(message_identifier)
+      //! Payload interface
+      VIRE_UTILITY_PAYLOAD_INTERFACE(message_header)
 
     };
 

@@ -41,6 +41,7 @@
 
 // This project:
 #include <vire/message/message_identifier.h>
+// #include <vire/message/protocol_utils.h>
 #include <vire/utility/model_identifier.h>
 #include <vire/utility/metadata_record.h>
 
@@ -49,11 +50,11 @@ namespace vire {
   namespace message {
 
     //! \brief Message header
-    class message_header :
-      public ::datatools::i_serializable,
-      public ::jsontools::i_jsonizable,
-      public ::protobuftools::i_protobufable,
-      public ::datatools::i_tree_dumpable
+    class message_header
+      : public ::datatools::i_serializable
+      , public ::jsontools::i_jsonizable
+      , public ::protobuftools::i_protobufable
+      , public ::datatools::i_tree_dumpable
     {
     public:
 
@@ -86,6 +87,21 @@ namespace vire {
 
       //! Return the timestamp
       const boost::posix_time::ptime & get_timestamp() const;
+
+      /// Set the category of the message
+      void set_category(const message_category);
+
+      /// Return the category of the message
+      message_category get_category() const;
+
+      /// Check if the message is a request
+      bool is_request() const;
+
+      /// Check if the message is a response
+      bool is_response() const;
+
+      /// Check if the message is an event
+      bool is_event() const;
 
       //! Check if 'in-reply-to' message ID is set
       bool has_in_reply_to() const;
@@ -149,18 +165,19 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_);
 
-      //! Support for Boost-based serialization
-      DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(message_header)
-
     private:
 
       message_identifier                  _message_id_;       //!< Message identifier
       boost::posix_time::ptime            _timestamp_;        //!< Message timestamp
+      message_category                    _category_;         //!< Message category
       boost::optional<message_identifier> _in_reply_to_;      //!< Reference to an original request message (for a message which wraps a 'response' or 'event' payload)
       bool                                _asynchronous_;     //!< Asynchronous flag
       std::string                         _async_address_;    //!< Asynchronous address
       vire::utility::model_identifier     _body_layout_id_;   //!< Body layout identifier
       std::vector<vire::utility::metadata_record> _metadata_; //!< List of key/value metadata pairs
+
+      //! Support for Boost-based serialization
+      DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(message_header)
 
     };
 

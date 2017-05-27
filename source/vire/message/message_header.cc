@@ -37,7 +37,6 @@
 
 // Declare a protobuf registrar instance for the MessageHeader class:
 #include "vire/message/MessageHeader.pb.h"
-#include "vire/message/MessageHeader.pb.h"
 BXPROTOBUFTOOLS_REGISTER_CLASS("vire::message::message_header", vire::message::MessageHeader)
 
 namespace vire {
@@ -50,6 +49,7 @@ namespace vire {
     {
       _message_id_ = message_identifier::invalid_id();
       _timestamp_ = vire::time::invalid_time();
+      _category_ = MESSAGE_INVALID;
       _in_reply_to_ = boost::none;
       _asynchronous_ = false;
       return;
@@ -64,6 +64,7 @@ namespace vire {
     {
       _message_id_.reset();
       _timestamp_ = vire::time::invalid_time();
+      _category_ = MESSAGE_INVALID;
       _in_reply_to_ = boost::none;
       _asynchronous_ = false;
       _async_address_.clear();
@@ -75,6 +76,7 @@ namespace vire {
     bool message_header::is_valid() const
     {
       if (! _message_id_.is_valid()) return false;
+      if (_category_ == MESSAGE_INVALID) return false;
       if (! _body_layout_id_.is_valid()) return false;
       if (! ::vire::time::is_valid(_timestamp_)) return false;
       if (_in_reply_to_) {
@@ -115,6 +117,32 @@ namespace vire {
     const boost::posix_time::ptime & message_header::get_timestamp() const
     {
       return _timestamp_;
+    }
+
+    void message_header::set_category(const message_category cat_)
+    {
+      _category_ = cat_;
+      return;
+    }
+
+    message_category message_header::get_category() const
+    {
+      return _category_;
+    }
+
+    bool message_header::is_request() const
+    {
+      return _category_ == MESSAGE_REQUEST;
+    }
+
+    bool message_header::is_response() const
+    {
+      return _category_ == MESSAGE_RESPONSE;
+    }
+
+    bool message_header::is_event() const
+    {
+      return _category_ == MESSAGE_EVENT;
     }
 
     bool message_header::has_in_reply_to() const
@@ -238,6 +266,9 @@ namespace vire {
            << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
+           << "Category    : '" << message_category_label(_category_) << "'" << std::endl;
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "In reply to : ";
       if (!has_in_reply_to()) {
         out_ << "<none>";
@@ -275,16 +306,17 @@ namespace vire {
       }
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
-           << "Valid : " << is_valid() << std::endl;
+           << "Valid : " << std::boolalpha << is_valid() << std::endl;
 
       return;
     }
 
     void message_header::jsonize(jsontools::node & node_,
-                                   unsigned long int /* version_ */)
+                                   unsigned long int version_)
     {
       node_["message_id"] % _message_id_;
       node_["timestamp"] % _timestamp_;
+      node_["category"] % _category_;
       node_["in_reply_to"] % _in_reply_to_;
       node_["asynchronous"] % _asynchronous_;
       if (_asynchronous_) {
@@ -300,6 +332,7 @@ namespace vire {
     {
       node_["message_id"] % _message_id_;
       node_["timestamp"] % _timestamp_;
+      node_["category"] % _category_;
       if (node_.is_serializing()) {
         if (has_in_reply_to()) {
           node_["in_reply_to"] % _in_reply_to_.get();

@@ -209,7 +209,6 @@ namespace vire {
     void message_body::protobufize(protobuftools::message_node & node_,
                                    const unsigned long int /* version_ */)
     {
-      // node_.set_logging(protobuftools::logger::PRIO_DEBUG);
       static const std::string payload_type_id_field_name = "payload_type_id";
       static const std::string payload_field_name = "payload";
       if (node_.is_serializing()) {
@@ -222,17 +221,11 @@ namespace vire {
             const google::protobuf::FieldDescriptor * payload_field_desc
               = node_.get_message().GetDescriptor()->FindFieldByName(payload_field_name);
             std::string payload_type_id = get_payload_type_id().get_name();
-            // std::cerr << "DEVEL: " << "payload_type_id = '" << payload_type_id << "'" << std::endl;
-            // protobuftools::protobuf_factory::system_factory().set_logging(protobuftools::logger::PRIO_DEBUG);
-            // protobuftools::protobuf_factory::system_factory().print(std::cerr, "Protobuf factory: ");
             std::shared_ptr<google::protobuf::Message> payloadMsg
               = protobuftools::protobuf_factory::system_factory()
               .create_message_instance(payload_type_id);
-            // std::cerr << "DEVEL: " << "payloadMsg: @" << payloadMsg.get() << std::endl;
             if (payloadMsg) {
-              // std::cerr << "DEVEL: " << "payloadMsg: '" << typeid(*payloadMsg.get()).name() << "'" << std::endl;
               const google::protobuf::Message & msg = *payloadMsg.get();
-              // std::cerr << "DEVEL: " << "payloadMsg: " << msg.ShortDebugString() << std::endl;
               protobuftools::message_node_value payload_item_node(*payloadMsg.get(),
                                                                   payload_field_desc,
                                                                   node_.is_serializing(),
@@ -245,8 +238,6 @@ namespace vire {
                 = reflection->MutableMessage(&node_.grab_message(), payload_field_desc);
               google::protobuf::Any * any = dynamic_cast<google::protobuf::Any*>(anyMsg);
               any->PackFrom(*payloadMsg.get());
-            } else {
-              // std::cerr << "DEVEL: " << "NO payloadMsg!" << std::endl;
             }
           } // has_payload()
         } // has_payload_type_id()

@@ -50,10 +50,8 @@ namespace vire {
 
   namespace cms {
 
-    DATATOOLS_CLONEABLE_IMPLEMENTATION(resource_status_record)
-
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(resource_status_record,
-                                           "vire::cms::resource_status_record");
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_status_record,
+                                        "vire::cms::resource_status_record");
 
     resource_status_record::resource_status_record()
       : resource_status_record("", vire::time::invalid_time(), false, false, false, false)

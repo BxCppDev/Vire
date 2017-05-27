@@ -40,7 +40,7 @@
 #include <vire/message/body_layout.h>
 #include <vire/utility/base_error.h>
 #include <vire/utility/base_event.h>
-#include "error_event.h"
+/// #include "error_event.h"
 
 void test_message_1();
 
@@ -73,8 +73,7 @@ void test_message_1()
   {
     // Create an error event payload:
     vire::utility::base_error my_error(3, "A basic error");
-    vire::message::testing::error_event ee(my_error);
-    ee.tree_dump(std::clog, "Error event: ");
+    my_error.tree_dump(std::clog, "Error event: ");
     std::clog << std::endl;
 
     // Create a message:
@@ -87,6 +86,7 @@ void test_message_1()
     body_layout_id.set_version(vire::message::body_layout::current_version());
     h.set_message_id(msg_id);
     h.set_timestamp(vire::time::now());
+    h.set_category(vire::message::MESSAGE_EVENT);
     h.set_in_reply_to(vire::message::message_identifier("vire.client.0", 23));
     h.set_asynchronous(false);
     h.set_body_layout_id(body_layout_id);
@@ -95,7 +95,7 @@ void test_message_1()
     h.add_metadata("key3", 3.14159);
     h.add_metadata("key4", true);
     vire::message::message_body & b = msg.grab_body();
-    b.set_payload(ee);
+    b.set_payload(my_error);
 
     msg.tree_dump(std::clog, "Message: ");
 

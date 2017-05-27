@@ -30,11 +30,12 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 namespace vire {
+
   namespace message {
 
     template<class Archive>
-    void message_body::serialize (Archive & archive_,
-                                  const unsigned int /* version_*/)
+    void message_body::serialize(Archive & archive_,
+                                 const unsigned int /* version_*/)
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
       archive_ & boost::serialization::make_nvp("payload_type_id", _payload_type_id_);

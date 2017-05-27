@@ -25,7 +25,7 @@
 #include <string>
 
 // This project:
-#include <vire/utility/base_response.h>
+#include <vire/utility/base_payload.h>
 #include <vire/cms/resource_status_record.h>
 
 namespace vire {
@@ -34,7 +34,7 @@ namespace vire {
 
     /// \brief Resource base response
     class resource_base_response
-      : public vire::utility::base_response
+      : public vire::utility::base_payload
     {
     public:
 

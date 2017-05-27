@@ -1,7 +1,7 @@
 //! \file  vire/cms/argument_error.h
 //! \brief Argument error object
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -30,6 +30,11 @@ namespace vire {
   namespace cms {
 
     /// \brief Error occuring in case of argument error
+    ///
+    /// Three cases are considered:
+    /// - invalid number of arguments
+    /// - invalid argument identifier/name
+    /// - invalid argument value
     class argument_error
       : public ::vire::utility::base_error
     {
@@ -97,12 +102,6 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      /// Macro to declare basic support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(argument_error);
-
-      /// Macro to declare basic support for serialization
-      DATATOOLS_SERIALIZATION_DECLARATION();
-
     protected:
 
       virtual void _build_message(std::string & message_) const final;
@@ -113,6 +112,8 @@ namespace vire {
       std::size_t _invalid_nargs_;      ///< Invalid number of arguments
       std::string _argument_name_;      ///< Invalid argument name
       std::string _invalid_value_repr_; ///< Invalid argument value representation
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(base_alarm)
 
     };
 

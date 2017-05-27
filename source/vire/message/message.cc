@@ -126,10 +126,10 @@ namespace vire {
     }
 
     void message::jsonize(jsontools::node & node_,
-                          const unsigned long int /* version_ */)
+                          const unsigned long int version_)
     {
       node_["header"] % _header_;
-      node_["body"] % _body_;
+      node_["body"]   % _body_;
       return;
     }
 
@@ -137,7 +137,7 @@ namespace vire {
                               const unsigned long int /* version_ */)
     {
       node_["header"] % _header_;
-      node_["body"] % _body_;
+      node_["body"]   % _body_;
       return;
     }
 

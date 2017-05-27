@@ -43,7 +43,7 @@ namespace vire {
 
   namespace message {
 
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION_ADVANCED(message_identifier,"vire::message::message_identifier")
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(message_identifier,"vire::message::message_identifier")
 
     // static
     const int32_t message_identifier::INVALID_NUMBER;
@@ -133,7 +133,7 @@ namespace vire {
                                        const std::string & indent_,
                                        bool inherit_) const
     {
-      if (! title_.empty()) out_ << indent_ << title_ << std::endl;
+      base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Emitter : '" << _emitter_ << "'" << std::endl;
@@ -148,8 +148,9 @@ namespace vire {
     }
 
     void message_identifier::jsonize(jsontools::node & node_,
-                                       unsigned long int /* version_ */)
+                                       unsigned long int version_)
     {
+      this->base_payload::jsonize(node_, version_);
       node_["emitter"] % _emitter_;
       node_["number"] % _number_;
       return;
@@ -158,6 +159,7 @@ namespace vire {
     void message_identifier::protobufize(protobuftools::message_node & node_,
                                          const unsigned long int /* version_ */)
     {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
       node_["emitter"] % _emitter_;
       node_["number"] % _number_;
       return;

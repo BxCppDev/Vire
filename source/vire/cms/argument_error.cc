@@ -1,6 +1,6 @@
 // vire/cms/argument_error.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -42,9 +42,7 @@ namespace vire {
 
   namespace cms {
 
-    DATATOOLS_CLONEABLE_IMPLEMENTATION(argument_error)
-
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(argument_error, "vire::cms::argument_error");
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(argument_error,"vire::cms::argument_error")
 
     // static
     const int32_t argument_error::EC_INVALID_NARGS;
@@ -116,7 +114,7 @@ namespace vire {
 
     void argument_error::make_invalid_argument_value(const std::string & argname_,
                                                      const std::string & value_repr_)
-      {
+    {
       reset();
       set_code(EC_INVALID_ARG_VALUE);
       _argument_name_ = argname_;
@@ -165,7 +163,7 @@ namespace vire {
     }
 
     void argument_error::jsonize(jsontools::node & node_,
-                                       const unsigned long int version_)
+                                 const unsigned long int version_)
     {
       this->vire::utility::base_error::jsonize(node_, version_);
       if (is_invalid_number_of_arguments()) {
@@ -199,9 +197,9 @@ namespace vire {
     }
 
     void argument_error::tree_dump(std::ostream & out_,
-                                           const std::string & title_,
-                                           const std::string & indent_,
-                                           bool inherit_) const
+                                   const std::string & title_,
+                                   const std::string & indent_,
+                                   bool inherit_) const
     {
       this->vire::utility::base_error::tree_dump(out_, title_, indent_, true);
 

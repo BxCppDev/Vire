@@ -31,6 +31,7 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 
 namespace vire {
+
   namespace message {
 
     template<class Archive>
@@ -40,6 +41,7 @@ namespace vire {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
       archive_ & boost::serialization::make_nvp("message_id",     _message_id_);
       archive_ & boost::serialization::make_nvp("timestamp",      _timestamp_);
+      archive_ & boost::serialization::make_nvp("category",       _category_);
       archive_ & boost::serialization::make_nvp("in_reply_to",    _in_reply_to_);
       archive_ & boost::serialization::make_nvp("asynchronous",   _asynchronous_);
       archive_ & boost::serialization::make_nvp("async_address",  _async_address_);

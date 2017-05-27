@@ -39,11 +39,11 @@ namespace vire {
   namespace message {
 
     //! \brief Message
-    class message :
-      public ::datatools::i_serializable,
-      public ::jsontools::i_jsonizable,
-      public ::protobuftools::i_protobufable,
-      public ::datatools::i_tree_dumpable
+    class message
+      : public ::datatools::i_serializable
+      , public ::jsontools::i_jsonizable
+      , public ::protobuftools::i_protobufable
+      , public ::datatools::i_tree_dumpable
     {
     public:
 
@@ -91,13 +91,13 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_);
 
-      //! Support for Boost-based serialization
-      DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(message);
-
     private:
 
-      message_header _header_; //! Message header
-      message_body   _body_;   //! Message body
+      message_header _header_; //!< Message header
+      message_body   _body_;   //!< Message body
+
+      //! Support for Boost-based serialization
+      DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(message);
 
     };
 
@@ -108,10 +108,6 @@ namespace vire {
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
 BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::message::message, "vire::message::message")
-
-// // Explicit class version:
-// #include <boost/serialization/version.hpp>
-// BOOST_CLASS_VERSION(vire::message::message, 1)
 
 #endif // VIRE_MESSAGE_MESSAGE_H
 
