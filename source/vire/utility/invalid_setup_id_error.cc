@@ -31,7 +31,7 @@
 #include <bayeux/protobuftools/protobuf_factory.h>
 
 // Declare a protobuf registrar instance for the message class:
-#include <vire/base_object_protobuf.h>
+// #include <vire/base_object_protobuf.h>
 #include "vire/utility/InvalidSetupIdError.pb.h"
 BXPROTOBUFTOOLS_REGISTER_CLASS("vire::utility::invalid_setup_id_error",
                                vire::utility::InvalidSetupIdError)
@@ -40,7 +40,8 @@ namespace vire {
 
   namespace utility {
 
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(invalid_setup_id_error,"vire::utility::invalid_setup_id_error")
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(invalid_setup_id_error,
+                                        "vire::utility::invalid_setup_id_error")
 
     invalid_setup_id_error::invalid_setup_id_error()
       : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")

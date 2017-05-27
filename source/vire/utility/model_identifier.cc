@@ -44,6 +44,8 @@ namespace vire {
 
   namespace utility {
 
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(model_identifier,"vire::utility::model_identifier")
+
     model_identifier::model_identifier()
     {
       return;

@@ -48,7 +48,9 @@ namespace vire {
 
   namespace utility {
 
-    // DATATOOLS_SERIALIZATION_IMPLEMENTATION_ADVANCED(base_identifier,"vire::utility::base_identifier")
+    DATATOOLS_SERIALIZATION_IMPLEMENTATION(base_identifier, "vire::utility::base_identifier")
+
+    // VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(base_identifier, "vire::utility::base_identifier")
 
     base_identifier::base_identifier()
     {

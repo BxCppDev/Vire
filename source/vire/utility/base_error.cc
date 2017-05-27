@@ -1,6 +1,6 @@
 // vire/utility/base_error.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -38,9 +38,7 @@ namespace vire {
 
   namespace utility {
 
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(base_error,"vire::utility::base_error")
-
-    DATATOOLS_CLONEABLE_IMPLEMENTATION(base_error)
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(base_error, "vire::utility::base_error")
 
     // static
     const int32_t base_error::EC_SUCCESS;
@@ -48,7 +46,9 @@ namespace vire {
     const int32_t base_error::EC_MAXIMUM_SYSTEM;
 
     base_error::base_error(const int32_t code_, const std::string & message_format_)
-      : _code_(code_), _message_format_(message_format_)
+      : base_payload()
+      , _code_(code_)
+      , _message_format_(message_format_)
     {
       return;
     }
@@ -59,7 +59,8 @@ namespace vire {
       return;
     }
 
-    base_error::base_error(const int32_t code_) : base_error(code_, "")
+    base_error::base_error(const int32_t code_)
+      : base_error(code_, "")
     {
       return;
     }
@@ -190,8 +191,9 @@ namespace vire {
     }
 
     void base_error::jsonize(jsontools::node & node_,
-                             const unsigned long int /* version_ */)
+                             const unsigned long int version_)
     {
+      this->base_payload::jsonize(node_, version_);
       node_["code"] % _code_;
       node_["message"] % _message_format_;
       return;
@@ -200,6 +202,7 @@ namespace vire {
     void base_error::protobufize(protobuftools::message_node & node_,
                                  const unsigned long int /* version_ */)
     {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
       node_["code"] % _code_;
       node_["message"] % _message_format_;
       return;

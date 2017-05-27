@@ -95,11 +95,11 @@ namespace vire {
 
     private:
 
-      std::string _invalid_setup_name_; ///< Invalid setup name
+      std::string _invalid_setup_name_;    ///< Invalid setup name
       std::string _invalid_setup_version_; ///< Invalid setup version representation
 
-      //! Support for Boost-based serialization
-      DATATOOLS_SERIALIZATION_DECLARATION()
+      //! Payload interface
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_setup_id_error)
 
     };
 

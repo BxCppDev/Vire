@@ -44,40 +44,12 @@ namespace vire {
       return;
     }
 
-    std::string base_payload::get_category_label() const
-    {
-      payload_category cat = get_category();
-      switch (cat) {
-      case CATEGORY_REQUEST  : return std::string("request");
-      case CATEGORY_RESPONSE : return std::string("response");
-      case CATEGORY_EVENT    : return std::string("event");
-      }
-    }
-
-    bool base_payload::is_request() const
-    {
-      return get_category() == CATEGORY_REQUEST;
-    }
-
-    bool base_payload::is_response() const
-    {
-      return get_category() == CATEGORY_RESPONSE;
-    }
-
-    bool base_payload::is_event() const
-    {
-      return get_category() == CATEGORY_EVENT;
-    }
-
     void base_payload::tree_dump(std::ostream & out_,
                                  const std::string & title_,
                                  const std::string & indent_,
                                  bool inherit_) const
     {
       if (! title_.empty()) out_ << indent_ << title_ << std::endl;
-
-      out_ << indent_ << ::datatools::i_tree_dumpable::tag
-           << "Payload category : '" << get_category_label() << "'" << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Payload type identifier : '" << get_serial_tag() << "'" << std::endl;

@@ -1,6 +1,6 @@
 //! \file utility/testing/test-utility-base_payload.cxx
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -31,64 +31,104 @@
 #include <bayeux/datatools/exception.h>
 #include <bayeux/datatools/io_factory.h>
 #include <bayeux/datatools/archives_instantiation.h>
+// - BxJsontools:
+#include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+// #include <bayeux/jsontools/boost_type_converters.h>
+// - BxProtobuftools:
+#include <bayeux/protobuftools/base_type_converters.h>
+#include <bayeux/protobuftools/std_type_converters.h>
+// #include <bayeux/protobuftools/boost_datetime_converters.h>
+#include <bayeux/protobuftools/protobuf_factory.h>
 
 // This project:
 #include <vire/utility/base_payload.h>
-#include <vire/utility/base_event.h>
 #include <vire/utility/base_alarm.h>
 #include <vire/time/utils.h>
 
 namespace vire {
+
   namespace utility {
+
     namespace testing {
-      // Declare a new concrete event class inherited from the base_event abstract class:
-      struct dummy_event : public vire::utility::base_event
+
+      // Declare a new concrete data class inherited from the base_payload abstract class:
+      struct dummy_data
+        : public vire::utility::base_payload
       {
       public:
-        dummy_event() {}
-        explicit dummy_event(int foo_) : vire::utility::base_event(vire::time::now()) { set_foo(foo_); }
-        dummy_event(const boost::posix_time::ptime & timestamp_, int foo_) : vire::utility::base_event(timestamp_) { set_foo(foo_); }
-        virtual ~dummy_event() {}
+
+        dummy_data() {}
+
+        explicit dummy_data(int foo_)
+        {
+          set_foo(foo_);
+          return;
+        }
+
+        virtual ~dummy_data() {}
+
         void set_foo(int foo_) { _foo_ = foo_;}
+
         int get_foo() const { return _foo_; }
+
+        void jsonize(jsontools::node & node_,
+                             const unsigned long int version_)
+        {
+          this->base_payload::jsonize(node_, version_);
+          node_["foo"] % _foo_;
+          return;
+        }
+
+        void protobufize(protobuftools::message_node & node_,
+                         const unsigned long int /* version_ */)
+        {
+          VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
+          node_["foo"] % _foo_;
+          return;
+        }
+
         //! Smart print
         virtual void tree_dump(std::ostream & out_ = std::clog,
                                const std::string & title_  = "",
                                const std::string & indent_ = "",
-                               bool inherit_ = false) const {
-          this->base_event::tree_dump(out_, title_, indent_, true);
+                               bool inherit_ = false) const
+        {
+          this->base_payload::tree_dump(out_, title_, indent_, true);
+
           out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
                << "Foo : [" << _foo_ << "]" << std::endl;
+
           return;
         }
+
       private:
+
         int32_t _foo_;
 
-        //! Support for Boost-based serialization
-        DATATOOLS_SERIALIZATION_DECLARATION()
+        VIRE_UTILITY_PAYLOAD_INTERFACE(dummy_data)
 
-        //! Support for cloneable interface
-        DATATOOLS_CLONEABLE_DECLARATION(dummy_event)
+
       };
 
-      DATATOOLS_SERIALIZATION_IMPLEMENTATION(dummy_event,"vire::utility::testing::dummy_event")
-      DATATOOLS_CLONEABLE_IMPLEMENTATION(vire::utility::testing::dummy_event)
+      VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(dummy_data,"vire::utility::testing::dummy_data")
 
       template<class Archive>
-      void dummy_event::serialize (Archive & archive_, const unsigned int /* version_*/)
+      void dummy_data::serialize(Archive & archive_, const unsigned int /* version_*/)
       {
-        archive_ & boost::serialization::make_nvp("vire__utility__base_event",
-                                                  boost::serialization::base_object<vire::utility::base_event>(*this));
+        archive_ & boost::serialization::make_nvp("__base__",
+                                                  boost::serialization::base_object<vire::utility::base_payload>(*this));
         archive_ & boost::serialization::make_nvp("foo", _foo_);
         return;
       }
+
     }
   }
 }
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT_KEY2(vire::utility::testing::dummy_event,"vire::utility::testing::dummy_event")
-DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::testing::dummy_event)
-BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::testing::dummy_event)
+BOOST_CLASS_EXPORT_KEY2(vire::utility::testing::dummy_data, "vire::utility::testing::dummy_data")
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::testing::dummy_data)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::testing::dummy_data)
 
 void test_base_payload_1();
 void test_base_payload_2();
@@ -120,12 +160,9 @@ void test_base_payload_1()
 
   {
     // Dummy event:
-    vire::utility::testing::dummy_event bar;
-    bar.set_timestamp(vire::time::now());
+    vire::utility::testing::dummy_data bar;
     bar.set_foo(42);
     std::clog << "Event 'bar': foo=" << bar.get_foo() << std::endl;
-    std::clog << "Category = " << bar.get_category() << std::endl;
-    std::clog << "Category = '" << bar.get_category_label() << "'" << std::endl;
     bar.tree_dump(std::clog, "Bar: ");
     std::clog << std::endl;
     {
@@ -136,7 +173,7 @@ void test_base_payload_1()
   }
 
   {
-    vire::utility::testing::dummy_event bar;
+    vire::utility::testing::dummy_data bar;
     {
       std::clog << "test_base_payload_1: Deserializing the payload..." << std::endl;
       datatools::data_reader reader("test-utility-base_payload.xml");
@@ -156,10 +193,10 @@ void test_base_payload_2()
   typedef std::shared_ptr<vire::utility::base_payload> payload_ptr;
   {
     std::vector<payload_ptr> payloads;
-    payloads.push_back(std::make_shared<vire::utility::testing::dummy_event>(12));
-    payloads.push_back(std::make_shared<vire::utility::testing::dummy_event>(42));
+    payloads.push_back(std::make_shared<vire::utility::testing::dummy_data>(12));
+    payloads.push_back(std::make_shared<vire::utility::testing::dummy_data>(42));
     payloads.push_back(std::make_shared<vire::utility::base_alarm>("warning", "A generic alarm"));
-    payloads.push_back(std::make_shared<vire::utility::testing::dummy_event>(666));
+    payloads.push_back(std::make_shared<vire::utility::testing::dummy_data>(666));
     payloads.push_back(std::make_shared<vire::utility::base_alarm>("error", "Another generic alarm"));
 
     for (const auto pl : payloads) {

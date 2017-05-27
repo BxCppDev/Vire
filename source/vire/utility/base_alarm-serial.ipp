@@ -29,18 +29,20 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
 
 namespace vire {
   namespace utility {
 
     template<class Archive>
-    void base_alarm::serialize (Archive & archive_,
-                                const unsigned int /* version_*/)
+    void base_alarm::serialize(Archive & archive_,
+                               const unsigned int /* version_*/)
     {
-      archive_ & boost::serialization::make_nvp("vire__utility__base_event",
-                                                boost::serialization::base_object<vire::utility::base_event>(*this));
-      archive_ & boost::serialization::make_nvp("severity", _severity_);
-      archive_ & boost::serialization::make_nvp("message",  _message_);
+      archive_ & boost::serialization::make_nvp("__base__",
+                                                boost::serialization::base_object<vire::utility::base_payload>(*this));
+      archive_ & boost::serialization::make_nvp("timestamp", _timestamp_);
+      archive_ & boost::serialization::make_nvp("severity",  _severity_);
+      archive_ & boost::serialization::make_nvp("message",   _message_);
       return;
     }
 

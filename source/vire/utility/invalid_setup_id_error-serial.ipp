@@ -36,7 +36,7 @@ namespace vire {
     template<class Archive>
     void invalid_setup_id_error::serialize(Archive & archive_, const unsigned int /* version_*/)
     {
-      archive_ & boost::serialization::make_nvp("vire__utility__base_error",
+      archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_error>(*this));
       archive_ & boost::serialization::make_nvp("invalid_setup_name",    _invalid_setup_name_);
       archive_ & boost::serialization::make_nvp("invalid_setup_version", _invalid_setup_version_);

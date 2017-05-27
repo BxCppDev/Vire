@@ -1,7 +1,7 @@
 //! \file  vire/utility/base_alarm.h
 //! \brief Simple base alarm object
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -21,23 +21,26 @@
 #ifndef VIRE_UTILITY_BASE_ALARM_H
 #define VIRE_UTILITY_BASE_ALARM_H
 
-// Standard library
+// Standard library:
 #include <string>
 #include <iostream>
 
-// Third party
-// - Boost
+// Third party:
+// - Boost:
 #include <boost/cstdint.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
-// This project
-#include <vire/utility/base_event.h>
+// This project:
+#include <vire/utility/base_payload.h>
+#include <vire/time/utils.h>
 
 namespace vire {
 
   namespace utility {
 
     /// \brief Simple base alarm object
-    class base_alarm : public base_event
+    class base_alarm
+      : public base_payload
     {
     public:
 
@@ -46,13 +49,27 @@ namespace vire {
 
       /// Constructor
       base_alarm(const boost::posix_time::ptime & t_,
-                 const std::string & severity_, const std::string & message_);
+                 const std::string & severity_,
+                 const std::string & message_);
 
       /// Constructor
-      base_alarm(const std::string & severity_, const std::string & message_);
+      base_alarm(const std::string & severity_,
+                 const std::string & message_);
 
       /// Destructor
       virtual ~base_alarm();
+
+      /// Check if timestamp is set
+      bool has_timestamp() const;
+
+      //! Set the timestamp
+      void set_timestamp(const boost::posix_time::ptime &);
+
+      //! Reset the timestamp
+      void reset_timestamp();
+
+      //! Return the timestamp
+      const boost::posix_time::ptime & get_timestamp() const;
 
       /// Check if severity is set
       bool has_severity() const;
@@ -88,6 +105,7 @@ namespace vire {
 
     private:
 
+      boost::posix_time::ptime _timestamp_; //!< Event timestamp
       std::string _severity_; //!< Alarm severity
       std::string _message_;  //!< Alarm message
 

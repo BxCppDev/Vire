@@ -39,7 +39,8 @@ namespace vire {
     void base_identifier::serialize (Archive & archive_,
                                   const unsigned int /* version_*/)
     {
-      // archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
+      archive_ & boost::serialization::make_nvp("__base__",
+                                                boost::serialization::base_object<vire::utility::base_payload>(*this));
       archive_ & boost::serialization::make_nvp("name",    _name_);
       archive_ & boost::serialization::make_nvp("version", _version_);
       return;
@@ -50,3 +51,9 @@ namespace vire {
 } // end of namespace vire
 
 #endif // VIRE_UTILITY_BASE_IDENTIFIER_SERIAL_IPP
+
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

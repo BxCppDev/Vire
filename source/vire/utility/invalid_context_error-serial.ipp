@@ -36,7 +36,7 @@ namespace vire {
     template<class Archive>
     void invalid_context_error::serialize(Archive & archive_, const unsigned int /* version_*/)
     {
-      archive_ & boost::serialization::make_nvp("vire__utility__base_error",
+      archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_error>(*this));
       return;
     }

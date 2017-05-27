@@ -1,7 +1,7 @@
 //! \file  vire/utility/base_error.h
 //! \brief Simple base error object
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -29,14 +29,18 @@
 // - Boost
 #include <boost/cstdint.hpp>
 // - Bayeux:
-#include <bayeux/datatools/i_serializable.h>
-#include <bayeux/datatools/i_cloneable.h>
-#include <bayeux/datatools/i_tree_dump.h>
-#include <bayeux/datatools/serialization_macros.h>
-// - BxJsontools:
-#include <bayeux/jsontools/i_jsonizable.h>
-// - BxProtobuftools:
-#include <bayeux/protobuftools/i_protobufable.h>
+// #include <bayeux/datatools/i_serializable.h>
+// #include <bayeux/datatools/i_cloneable.h>
+// #include <bayeux/datatools/i_tree_dump.h>
+// #include <bayeux/datatools/serialization_macros.h>
+// // - BxJsontools:
+// #include <bayeux/jsontools/i_jsonizable.h>
+// // - BxProtobuftools:
+// #include <bayeux/protobuftools/i_protobufable.h>
+
+// This project
+#include <vire/utility/base_payload.h>
+// #include "vire/utility/payload_macros.h"
 
 namespace vire {
 
@@ -52,12 +56,8 @@ namespace vire {
     ///   "message" : "Generic error"
     /// }
     /// @encode
-    class base_error :
-      public ::datatools::i_serializable,
-      public ::datatools::i_cloneable,
-      public ::jsontools::i_jsonizable,
-      public ::protobuftools::i_protobufable,
-      public ::datatools::i_tree_dumpable
+    class base_error
+      : public base_payload
     {
     public:
 
@@ -158,11 +158,8 @@ namespace vire {
       // Working data:
       std::string _cached_message_; ///< Cached error message
 
-      //! Support for Boost-based serialization
-      DATATOOLS_SERIALIZATION_DECLARATION()
-
-      //! Support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(base_error)
+      //! Payload interface
+      VIRE_UTILITY_PAYLOAD_INTERFACE(base_error)
 
     };
 

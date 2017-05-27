@@ -28,17 +28,19 @@
 // #include <memory>
 
 // Third party
-// // - Boost
-// #include <boost/cstdint.hpp>
 // - Bayeux/datatools:
 #include <bayeux/datatools/i_serializable.h>
-#include <bayeux/datatools/i_tree_dump.h>
 #include <bayeux/datatools/i_cloneable.h>
+#include <bayeux/datatools/i_tree_dump.h>
 #include <bayeux/datatools/factory_macros.h>
 // - BxJsontools:
 #include <bayeux/jsontools/i_jsonizable.h>
 // - BxProtobuftools:
 #include <bayeux/protobuftools/i_protobufable.h>
+
+// This project:
+#include "vire/base_object_protobuf.h"
+#include "vire/utility/payload_macros.h"
 
 namespace vire {
 
@@ -54,33 +56,11 @@ namespace vire {
      {
     public:
 
-      /// \brief Category of protocol object
-      enum payload_category {
-        CATEGORY_REQUEST  = 1, ///< Request RPC object
-        CATEGORY_RESPONSE = 2, ///< Response RPC object
-        CATEGORY_EVENT    = 3  ///< Event object
-      };
-
       /// Default constructor
       base_payload();
 
       /// Destructor
       virtual ~base_payload();
-
-      /// Return the category of payload object
-      virtual payload_category get_category() const = 0;
-
-      /// Return the label of the category
-      std::string get_category_label() const;
-
-      /// Check if the payload object is a request
-      bool is_request() const;
-
-      /// Check if the payload object is a response
-      bool is_response() const;
-
-      /// Check if the payload object is an event
-      bool is_event() const;
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,

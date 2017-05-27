@@ -38,7 +38,8 @@ namespace vire {
     ///   "message" : "Server is not accepting connection now"
     /// }
     /// @encode
-    class invalid_context_error : public base_error
+    class invalid_context_error
+      : public base_error
     {
     public:
 
@@ -62,8 +63,8 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      //! Support for Boost-based serialization
-      DATATOOLS_SERIALIZATION_DECLARATION()
+      //! Payload interface
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_context_error)
 
     };
 

@@ -35,15 +35,17 @@
 // - BxProtobuftools:
 #include <bayeux/protobuftools/i_protobufable.h>
 
+// This project
+#include <vire/utility/base_payload.h>
+
 namespace vire {
 
   namespace utility {
 
     /// \brief Identifier of some hardware, middleware or software component
     class base_identifier
-      : public ::jsontools::i_jsonizable
-      , public ::protobuftools::i_protobufable
-    {
+      : public base_payload
+     {
     public:
 
       /// Default constructor
@@ -104,10 +106,6 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      //! Support for Boost-based serialization
-      BOOST_SERIALIZATION_BASIC_DECLARATION()
-      // DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(base_identifier)
-
     protected:
 
       std::string & _grab_name();
@@ -118,6 +116,10 @@ namespace vire {
 
       std::string _name_; ///< Name of the object (mandatory)
       boost::optional<datatools::version_id> _version_ = boost::none; ///< Version identifier of the object (optional)
+
+      //! Payload interface
+      DATATOOLS_SERIALIZATION_DECLARATION()
+      // VIRE_UTILITY_PAYLOAD_INTERFACE(base_identifier)
 
     };
 

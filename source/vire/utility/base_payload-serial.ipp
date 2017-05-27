@@ -1,7 +1,7 @@
 //! \file  vire/utility/base_payload-serial.ipp
-//! \brief Base payload body serialization
+//! \brief Base payload serialization
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -27,14 +27,13 @@
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
-// - Bayeux/datatools:
 
 namespace vire {
   namespace utility {
 
     template<class Archive>
-    void base_payload::serialize (Archive & archive_,
-                                  const unsigned int /* version_*/)
+    void base_payload::serialize(Archive & archive_,
+                                 const unsigned int /* version_*/)
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
       return;
@@ -45,3 +44,9 @@ namespace vire {
 } // end of namespace vire
 
 #endif // VIRE_UTILITY_BASE_PAYLOAD_SERIAL_IPP
+
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

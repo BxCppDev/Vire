@@ -1,6 +1,6 @@
 // vire/utility/base_alarm.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -21,13 +21,14 @@
 
 // Third party:
 // - BxJsontools:
-#include <jsontools/std_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+#include <bayeux/jsontools/boost_type_converters.h>
 // - BxProtobuftools:
 #include <bayeux/protobuftools/std_type_converters.h>
+#include <bayeux/protobuftools/boost_datetime_converters.h>
 #include <bayeux/protobuftools/protobuf_factory.h>
 
 // Declare a protobuf registrar instance for the message class:
-#include <vire/base_object_protobuf.h>
 #include "vire/utility/BaseAlarm.pb.h"
 BXPROTOBUFTOOLS_REGISTER_CLASS("vire::utility::base_alarm",
                                vire::utility::BaseAlarm)
@@ -44,9 +45,10 @@ namespace vire {
     }
 
     base_alarm::base_alarm(const boost::posix_time::ptime & t_,
-                           const std::string & severity_, const std::string & message_)
-      : base_event(t_)
+                           const std::string & severity_,
+                           const std::string & message_)
     {
+      set_timestamp(t_);
       set_severity(severity_);
       set_message(message_);
       return;
@@ -62,6 +64,28 @@ namespace vire {
     base_alarm::~base_alarm()
     {
       return;
+    }
+
+    bool base_alarm::has_timestamp() const
+    {
+      return vire::time::is_valid(_timestamp_);
+    }
+
+    void base_alarm::set_timestamp(const boost::posix_time::ptime & t_)
+    {
+      _timestamp_ = t_;
+      return;
+    }
+
+    void base_alarm::reset_timestamp()
+    {
+      vire::time::invalidate_time(_timestamp_);
+      return;
+    }
+
+    const boost::posix_time::ptime & base_alarm::get_timestamp() const
+    {
+      return _timestamp_;
     }
 
     bool base_alarm::has_severity() const
@@ -97,9 +121,10 @@ namespace vire {
     }
 
     void base_alarm::jsonize(jsontools::node & node_,
-                             const unsigned long int /* version_ */)
+                             const unsigned long int version_)
     {
-      this->base_event::jsonize(node_);
+      this->base_payload::jsonize(node_, version_);
+      node_["timestamp"] % _timestamp_;
       node_["severity"] % _severity_;
       node_["message"] % _message_;
       return;
@@ -108,7 +133,8 @@ namespace vire {
     void base_alarm::protobufize(protobuftools::message_node & node_,
                                  const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_event,node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
+      node_["timestamp"] % _timestamp_;
       node_["severity"] % _severity_;
       node_["message"] % _message_;
       return;
@@ -119,7 +145,16 @@ namespace vire {
                                  const std::string & indent_,
                                  bool inherit_) const
     {
-      this->base_event::tree_dump(out_, title_, indent_, true);
+      this->base_payload::tree_dump(out_, title_, indent_, true);
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
+           << "Timestamp : ";
+      if (has_timestamp()) {
+        out_ << '[' << vire::time::to_string(_timestamp_) << ']';
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Severity : ";

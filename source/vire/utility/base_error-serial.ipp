@@ -1,7 +1,7 @@
 //! \file  vire/utility/base_error-serial.ipp
-//! \brief Base error body serialization
+//! \brief Base error serialization
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -35,7 +35,8 @@ namespace vire {
     template<class Archive>
     void base_error::serialize (Archive & archive_, const unsigned int /* version_*/)
     {
-      archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
+      archive_ & boost::serialization::make_nvp("__base__",
+                                                boost::serialization::base_object<vire::utility::base_payload>(*this));
       archive_ & boost::serialization::make_nvp("code",           _code_);
       archive_ & boost::serialization::make_nvp("message_format", _message_format_);
       return;

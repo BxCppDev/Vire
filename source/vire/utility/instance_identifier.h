@@ -67,9 +67,12 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      //! Support for Boost-based serialization
-      BOOST_SERIALIZATION_BASIC_DECLARATION()
-      // DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(instance_identifier)
+      //! Payload interface
+      VIRE_UTILITY_PAYLOAD_INTERFACE(instance_identifier)
+
+      // //! Support for Boost-based serialization
+      // BOOST_SERIALIZATION_BASIC_DECLARATION()
+      // // DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(instance_identifier)
 
     };
 

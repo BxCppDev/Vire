@@ -216,7 +216,7 @@ namespace vire {
 
     private:
 
-      std::string              _setup_;  //!< Setup identifier (as URI/URN scheme)
+      std::string              _setup_;    //!< Setup identifier (as URI/URN scheme)
       std::vector<std::string> _segments_; //!< Ordered list of path segments (as URI path)
 
     };
