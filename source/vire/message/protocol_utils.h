@@ -24,6 +24,13 @@
 // Standard library:
 #include <string>
 
+// Third party:
+// - BxJsontools:
+#include <json/json.h>
+#include <jsontools/exception.h>
+#include <jsontools/core.h>
+#include <jsontools/node.h>
+
 namespace vire {
 
   namespace message {
@@ -41,6 +48,39 @@ namespace vire {
   } // namespace message
 
 } // namespace vire
+
+namespace jsontools {
+
+  /// \brief Converter class
+  template<>
+  class converter<vire::message::message_category>
+  {
+  public:
+
+    // Generic serialization method for enumeration value
+    static void jsonize(node & node_,
+                        vire::message::message_category & enum_value_)
+    {
+      int32_t val = static_cast<int32_t>(enum_value_);
+      node_.grab_value() = val;
+      return;
+    }
+
+    // Generic deserialization method for enumeration value
+    static void dejsonize(node & node_,
+                          vire::message::message_category & enum_value_)
+    {
+      if (not node_.get_value().isInt()) {
+        throw wrong_type(node_.get_value(), "expected int32_t");
+      }
+      int32_t val = node_.get_value().asInt();
+      enum_value_ = static_cast<vire::message::message_category>(val);
+      return;
+    }
+
+  };
+
+} // namespace jsontools
 
 #endif // VIRE_MESSAGE_PROTOCOL_UTILS_H
 

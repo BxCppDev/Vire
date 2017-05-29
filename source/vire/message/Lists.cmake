@@ -22,6 +22,7 @@ list(APPEND VireLibrary_SOURCES
 )
 
 list(APPEND VireLibrary_TESTS
+  message/testing/test-message-message_header.cxx
   message/testing/test-message-message_body.cxx
   message/testing/test-message-message.cxx
 )

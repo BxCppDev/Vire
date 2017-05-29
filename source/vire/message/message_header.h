@@ -41,7 +41,7 @@
 
 // This project:
 #include <vire/message/message_identifier.h>
-// #include <vire/message/protocol_utils.h>
+#include <vire/message/protocol_utils.h>
 #include <vire/utility/model_identifier.h>
 #include <vire/utility/metadata_record.h>
 

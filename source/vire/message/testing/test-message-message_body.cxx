@@ -35,14 +35,11 @@
 #include <bayeux/jsontools/iofile.h>
 // - BxProtobuftools
 #include <bayeux/protobuftools/iofile.h>
-#include <bayeux/protobuftools/iofile.h>
 
 // This project:
 #include <vire/vire.h>
 #include <vire/time/utils.h>
 #include <vire/utility/base_error.h>
-#include <vire/utility/base_event.h>
-#include "error_event.h"
 
 void test_message_body_1();
 
@@ -73,23 +70,18 @@ void test_message_body_1()
   std::clog << "\ntest_message_body_1: basics" << std::endl;
 
   {
-    // Create an error object:
+    // Create an error object payload:
     vire::utility::base_error my_error(3, "A basic error");
-
-    // Create an error event payload:
-    vire::message::testing::error_event ee(my_error);
-    ee.tree_dump(std::clog, "Error event: ");
-    std::clog << std::endl;
 
     // Create a message body with embeded error event payload:
     vire::message::message_body msgbody;
-    msgbody.set_payload(ee);
+    msgbody.set_payload(my_error);
     msgbody.tree_dump(std::clog, "Created message body: ");
     std::clog << std::endl;
 
-    const vire::message::testing::error_event & ee_cref =
-      msgbody.get_payload_as<vire::message::testing::error_event>();
-    ee_cref.tree_dump(std::clog, "The error event: ");
+    const vire::utility::base_error & be_cref =
+      msgbody.get_payload_as<vire::utility::base_error>();
+    be_cref.tree_dump(std::clog, "The base error: ");
 
     {
       std::clog << "test_message_body_1: Boost-serializing the message body..." << std::endl;
@@ -107,27 +99,8 @@ void test_message_body_1()
       protobuftools::store("test-message-message_body.protobuf", msgbody, protobuftools::IO_DEBUG);
     }
 
-    std::clog << std::endl;
-  }
-
-  {
-    vire::message::message_body msgbody;
-    {
-      std::clog << "test_message_body_1: Boost-deserializing the message body..." << std::endl;
-      datatools::data_reader reader("test-message-message_body.xml");
-      reader.load(msgbody);
-    }
-    msgbody.tree_dump(std::clog, "Loaded message body: ");
-    std::clog << std::endl;
-
-    const vire::message::testing::error_event & ee_cref =
-      msgbody.get_payload_as<vire::message::testing::error_event>();
-    ee_cref.tree_dump(std::clog, "The loaded payload error event: ");
-    std::clog << std::endl;
-  }
-
-  {
-    vire::message::message_body msgbody;
+    // vire::message::message_body msgbody;
+    msgbody.reset();
     {
       std::clog << "test_message_body_1: JSON-deserializing the message body..." << std::endl;
       jsontools::load("test-message-message_body.json", msgbody);

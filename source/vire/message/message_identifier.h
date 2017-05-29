@@ -26,7 +26,7 @@
 
 // Third party:
 // - Boost:
-#include <boost/stdint.hpp>
+#include <boost/cstdint.hpp>
 
 // This project:
 #include <vire/utility/base_payload.h>
@@ -99,7 +99,7 @@ namespace vire {
       int32_t     _number_;  //!< Message unique number with respect from the emitter
 
       //! Payload interface
-      VIRE_UTILITY_PAYLOAD_INTERFACE(message_header)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(message_identifier)
 
     };
 

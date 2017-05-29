@@ -38,7 +38,7 @@ namespace vire {
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
       archive_ & boost::serialization::make_nvp("header", _header_);
-      archive_ & boost::serialization::make_nvp("body", _body_);
+      archive_ & boost::serialization::make_nvp("body",   _body_);
       return;
     }
 

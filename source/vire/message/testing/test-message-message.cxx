@@ -39,7 +39,6 @@
 #include <vire/time/utils.h>
 #include <vire/message/body_layout.h>
 #include <vire/utility/base_error.h>
-#include <vire/utility/base_event.h>
 /// #include "error_event.h"
 
 void test_message_1();

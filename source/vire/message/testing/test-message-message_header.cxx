@@ -33,6 +33,8 @@
 #include <bayeux/datatools/archives_instantiation.h>
 // - BxJsontools
 #include <jsontools/iofile.h>
+// - BxProtobuftools
+#include <bayeux/protobuftools/iofile.h>
 
 // This project:
 #include <vire/vire.h>

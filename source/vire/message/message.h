@@ -105,6 +105,8 @@ namespace vire {
 
 } // namespace vire
 
+BOOST_CLASS_EXPORT_KEY2(vire::message::message, "vire::message::message")
+
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
 BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::message::message, "vire::message::message")
