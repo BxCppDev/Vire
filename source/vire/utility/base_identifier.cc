@@ -133,6 +133,19 @@ namespace vire {
       return;
     }
 
+    bool base_identifier::match(const std::string & name_,
+                                const std::string & version_repr_) const
+    {
+      if (name_ != _name_) return false;
+      if (!version_repr_.empty()) {
+        if (!has_version()) return false;
+        std::string ver_repr;
+        _version_.get().to_string(ver_repr);
+        if (ver_repr != version_repr_) return false;
+      }
+      return true;
+    }
+
     void base_identifier::reset()
     {
       reset_version();

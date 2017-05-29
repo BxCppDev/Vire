@@ -29,6 +29,7 @@
 #include <boost/serialization/nvp.hpp>
 
 namespace vire {
+
   namespace utility {
 
     template<class Archive>

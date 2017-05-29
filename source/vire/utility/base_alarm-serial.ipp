@@ -32,6 +32,7 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 
 namespace vire {
+
   namespace utility {
 
     template<class Archive>

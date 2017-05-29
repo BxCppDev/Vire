@@ -194,8 +194,8 @@ namespace vire {
                              const unsigned long int version_)
     {
       this->base_payload::jsonize(node_, version_);
-      node_["code"] % _code_;
-      node_["message"] % _message_format_;
+      node_["code"]    % _code_;
+      node_["message_format"] % _message_format_;
       return;
     }
 
@@ -203,8 +203,8 @@ namespace vire {
                                  const unsigned long int /* version_ */)
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
-      node_["code"] % _code_;
-      node_["message"] % _message_format_;
+      node_["code"]    % _code_;
+      node_["message_format"] % _message_format_;
       return;
     }
 
@@ -213,7 +213,7 @@ namespace vire {
                                const std::string & indent_,
                                bool inherit_) const
     {
-      if (! title_.empty()) out_ << indent_ << title_ << std::endl;
+      base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Code : [" << _code_ << "]" << std::endl;
@@ -223,7 +223,6 @@ namespace vire {
 
       return;
     }
-
 
   } // namespace utility
 

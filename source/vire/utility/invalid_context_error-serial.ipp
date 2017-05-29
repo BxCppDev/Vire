@@ -27,7 +27,6 @@
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
-// - Bayeux/datatools:
 
 namespace vire {
 

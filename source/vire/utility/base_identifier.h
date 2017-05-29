@@ -45,7 +45,7 @@ namespace vire {
     /// \brief Identifier of some hardware, middleware or software component
     class base_identifier
       : public base_payload
-     {
+    {
     public:
 
       /// Default constructor
@@ -77,6 +77,9 @@ namespace vire {
 
       /// Return the version
       const datatools::version_id & get_version() const;
+
+      /// Check if the identifier matches a name
+      bool match(const std::string & name_, const std::string & version_repr_ = "") const;
 
       /// Set the name and version identifier
       void set(const std::string & name_,

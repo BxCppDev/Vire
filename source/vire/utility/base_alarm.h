@@ -117,15 +117,7 @@ namespace vire {
 
 } // namespace vire
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-local-typedef"
-#endif
-#include <boost/serialization/export.hpp>
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-BOOST_CLASS_EXPORT_KEY2(vire::utility::base_alarm,"vire::utility::base_alarm")
+BOOST_CLASS_EXPORT_KEY2(vire::utility::base_alarm, "vire::utility::base_alarm")
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>

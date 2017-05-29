@@ -147,7 +147,7 @@ namespace vire {
     {
       this->base_payload::tree_dump(out_, title_, indent_, true);
 
-      out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Timestamp : ";
       if (has_timestamp()) {
         out_ << '[' << vire::time::to_string(_timestamp_) << ']';

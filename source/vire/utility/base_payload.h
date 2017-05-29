@@ -23,11 +23,20 @@
 #ifndef VIRE_UTILITY_BASE_PAYLOAD_H
 #define VIRE_UTILITY_BASE_PAYLOAD_H
 
-// Standard library
+// Standard library:
 #include <string>
 // #include <memory>
 
-// Third party
+// Third party:
+// - Boost:
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-local-typedef"
+#endif
+#include <boost/serialization/export.hpp>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 // - Bayeux/datatools:
 #include <bayeux/datatools/i_serializable.h>
 #include <bayeux/datatools/i_cloneable.h>
@@ -89,8 +98,6 @@ namespace vire {
   } // namespace utility
 
 } // namespace vire
-
-#include <vire/utility/payload_macros.h>
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
