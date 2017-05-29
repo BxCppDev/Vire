@@ -1,9 +1,13 @@
 syntax = "proto3";
 package vire.message;
 
+import "vire/utility/BasePayload.proto";
+
 message MessageIdentifier {
 
   // reserved 1-99
+
+  vire.utility.BasePayload _base = 1; // Base class
 
   string emitter = 100; // Name of the emitter
   sint32 number  = 101; // Message unique number with respect from the emitter

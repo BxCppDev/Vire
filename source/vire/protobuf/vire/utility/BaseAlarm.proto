@@ -1,12 +1,15 @@
 syntax = "proto3";
 package vire.utility;
 
-import "vire/utility/BaseEvent.proto";
+import "vire/utility/BasePayload.proto";
+import "google/protobuf/timestamp.proto";
 
 message BaseAlarm {
 
-  BaseEvent _base = 1;
-  string    severity = 100;
-  string    message  = 101;
+  BasePayload _base = 1; // Base class
+
+  google.protobuf.Timestamp timestamp = 100; // Event timestamp
+  string                    severity  = 101; // Alarm severity
+  string                    message   = 102; // Alarm message
 
 }

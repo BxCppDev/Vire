@@ -6,16 +6,24 @@ import "vire/utility/ModelIdentifier.proto";
 import "vire/utility/MetadataRecord.proto";
 import "google/protobuf/timestamp.proto";
 
+enum MessageCategory {
+  PB_MESSAGE_INVALID  = 0; // Invalid message category
+  PB_MESSAGE_REQUEST  = 1; // Request RPC/Service message
+  PB_MESSAGE_RESPONSE = 2; // Response RPC/Service message
+  PB_MESSAGE_EVENT    = 3; // Event message
+}
+
 message MessageHeader {
 
   // reserved 1-99
 
   vire.message.MessageIdentifier message_id     = 100; // Message identifier
   google.protobuf.Timestamp      timestamp      = 101; // Message timestamp
-  vire.message.MessageIdentifier in_reply_to    = 102; // Reference to an original request message (optional)
-  bool                           asynchronous   = 103; // Asynchronous flag
-  string                         async_address  = 104; // Asynchronous address
-  vire.utility.ModelIdentifier   body_layout_id = 105; // Body layout identifier
-  repeated vire.utility.MetadataRecord metadata = 106; // List of key/value metadata pairs
+  MessageCategory                category       = 102; // Message category
+  vire.message.MessageIdentifier in_reply_to    = 103; // Reference to an original request message (optional)
+  bool                           asynchronous   = 104; // Asynchronous flag
+  string                         async_address  = 105; // Asynchronous address
+  vire.utility.ModelIdentifier   body_layout_id = 106; // Body layout identifier
+  repeated vire.utility.MetadataRecord metadata = 107; // List of key/value metadata pairs
 
 }

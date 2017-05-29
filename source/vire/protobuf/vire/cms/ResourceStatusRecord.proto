@@ -1,9 +1,12 @@
 syntax = "proto3";
 package vire.cms;
 
+import "vire/utility/BasePayload.proto";
 import "google/protobuf/timestamp.proto";
 
 message ResourceStatusRecord {
+
+  BasePayload _base = 1; // Base class
 
   // reserved 1-99
 

@@ -9,8 +9,8 @@ message InvalidSetupIdError {
 
   // Only one of the following attributes is documented:
   oneof detail {
-    string invalid_setup_name    = 101; /// Invalid setup name
-    string invalid_setup_version = 102; /// Invalid setup version representation
+    string invalid_setup_name    = 101; // Invalid setup name
+    string invalid_setup_version = 102; // Invalid setup version representation
   }
 
 }

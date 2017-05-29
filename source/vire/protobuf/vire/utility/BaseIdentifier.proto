@@ -1,9 +1,12 @@
 syntax = "proto3";
 package vire.utility;
 
+import "vire/utility/BasePayload.proto";
+
 message BaseIdentifier {
 
   // reserved 1-99
+  BasePayload _base = 1; // Base class
 
   string name    = 100; // Unique name (mandatory)
   string version = 101; // Version (optional)

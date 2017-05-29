@@ -1,7 +1,11 @@
 syntax = "proto3";
 package vire.utility;
 
+import "vire/utility/BasePayload.proto";
+
 message BaseError {
+
+  BasePayload _base = 1; // Base class
 
   // reserved 1-99
 

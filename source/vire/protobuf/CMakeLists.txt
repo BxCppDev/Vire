@@ -20,51 +20,42 @@ endif()
 
 set(protobufList
 
-  vire/utility/MetadataRecord.proto
-
+  # vire/utility:
+  vire/utility/BasePayload.proto
   vire/utility/BaseIdentifier.proto
   vire/utility/InstanceIdentifier.proto
   vire/utility/ModelIdentifier.proto
-
-  vire/utility/BaseError.proto
-  vire/utility/InvalidSetupIdError.proto
-  vire/utility/InvalidContextError.proto
-
-  vire/utility/BasePayload.proto
-  vire/utility/BaseRequest.proto
-  vire/utility/BaseResponse.proto
-  vire/utility/BaseEvent.proto
   vire/utility/BaseAlarm.proto
+  vire/utility/BaseError.proto
+  vire/utility/InvalidContextError.proto
+  vire/utility/InvalidSetupIdError.proto
+  vire/utility/MetadataRecord.proto
 
+  # vire/message:
   vire/message/MessageIdentifier.proto
   vire/message/MessageHeader.proto
   vire/message/MessageBody.proto
   vire/message/Message.proto
 
-  vire/cms/MethodArgument.proto
-  vire/cms/ResourceStatusRecord.proto
-
-  vire/cms/InvalidCredentialsError.proto
-  vire/cms/InvalidUserError.proto
-  vire/cms/ArgumentError.proto
-  vire/cms/InvalidResourceError.proto
-  vire/cms/InvalidStatusError.proto
-  vire/cms/ResourceExecError.proto
-
-  vire/cms/ResourceBaseRequest.proto
-  vire/cms/ResourceBaseResponse.proto
-
-  vire/cms/ResourceFetchStatusRequest.proto
-  vire/cms/ResourceFetchStatusSuccessResponse.proto
-  vire/cms/ResourceFetchStatusFailureResponse.proto
-
-  vire/cms/ResourceExecRequest.proto
-  vire/cms/ResourceExecSuccessResponse.proto
-  vire/cms/ResourceExecFailureResponse.proto
-
-  vire/cms/ResourceStatusChangeEvent.proto
-  vire/cms/DeviceStatusChangeEvent.proto
-
+  # vire/cms:
+  # vire/cms/MethodArgument.proto
+  # vire/cms/ResourceStatusRecord.proto
+  # vire/cms/InvalidCredentialsError.proto
+  # vire/cms/InvalidUserError.proto
+  # vire/cms/ArgumentError.proto
+  # vire/cms/InvalidResourceError.proto
+  # vire/cms/InvalidStatusError.proto
+  # vire/cms/ResourceExecError.proto
+  # vire/cms/ResourceBaseRequest.proto
+  # vire/cms/ResourceBaseResponse.proto
+  # vire/cms/ResourceFetchStatusRequest.proto
+  # vire/cms/ResourceFetchStatusSuccessResponse.proto
+  # vire/cms/ResourceFetchStatusFailureResponse.proto
+  # vire/cms/ResourceExecRequest.proto
+  # vire/cms/ResourceExecSuccessResponse.proto
+  # vire/cms/ResourceExecFailureResponse.proto
+  # vire/cms/ResourceStatusChangeEvent.proto
+  # vire/cms/DeviceStatusChangeEvent.proto
   )
 message( STATUS "[info] protobufList = '${protobufList}'")
 
@@ -95,7 +86,8 @@ string(REGEX REPLACE "\n" ";" _proto_stubs "${_gen_pb_out}")
 message( STATUS "[info] Stubs = '${_proto_stubs}'")
 
 if(${_gen_pb_error_code})
-  message( FATAL "[fatal] Google Protocol Buffer source code generation failed!")
+  message( STATUS "[error] _gen_pb_err='\n${_gen_pb_err}'")
+  message( FATAL  "[fatal] Google Protocol Buffer source code generation failed!")
 else()
   message( STATUS "[info] Google Protocol Buffer source code generation was successful!")
 endif()
