@@ -366,10 +366,8 @@ DR_CLASS_INIT(vire::resource::resource);
 
 #endif // VIRE_RESOURCE_RESOURCE_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --
