@@ -65,7 +65,8 @@ namespace vire {
     //!              |                          |
     //!              +--------------------------+
     //! @endcode
-    class physical_port : public base_physical
+    class physical_port
+      : public base_physical
     {
     public:
 
@@ -143,10 +144,8 @@ namespace vire {
 
 #endif // VIRE_DEVICE_PHYSICAL_PORT_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

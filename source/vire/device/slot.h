@@ -79,9 +79,9 @@ namespace vire {
     //! (2:0.0)   (2:0.1)   (2:0.2)   (2:0.3)   (2:0.4)
     //! @endcode
     //!
-    class slot :
-      public datatools::i_serializable,
-      public datatools::i_tree_dumpable
+    class slot
+      : public datatools::i_serializable
+      , public datatools::i_tree_dumpable
     {
 
     public:

@@ -84,10 +84,6 @@ namespace vire {
 
 } // namespace vire
 
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT_KEY2(vire::device::base_integrated_circuit_model,
-                        "vire::device::base_integrated_circuit_model");
-
 #ifndef Q_MOC_RUN
 // Activate reflection layer for the 'vire::device::base_integrated_circuit_model' class:
 DR_CLASS_INIT(vire::device::base_integrated_circuit_model);
@@ -95,10 +91,8 @@ DR_CLASS_INIT(vire::device::base_integrated_circuit_model);
 
 #endif // VIRE_DEVICE_BASE_INTEGRATED_CIRCUIT_MODEL_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

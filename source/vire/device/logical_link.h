@@ -41,7 +41,8 @@ namespace vire {
     class base_link_model;
 
     //! \brief The logical link
-    class logical_link : public datatools::enriched_base
+    class logical_link
+      : public datatools::enriched_base
     {
     public:
 
@@ -88,10 +89,8 @@ namespace vire {
 
 #endif // VIRE_DEVICE_LOGICAL_LINK_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

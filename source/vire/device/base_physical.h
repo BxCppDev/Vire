@@ -117,10 +117,8 @@ namespace vire {
 
 #endif // VIRE_DEVICE_BASE_PHYSICAL_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --
