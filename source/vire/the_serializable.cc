@@ -1,8 +1,8 @@
 // vire/the_serializable.cc
 // Class serialization support for the Vire core library
 //
-// Copyright (c) 2015 by Francois Mauger <mauger@lpccaen.in2p3.fr>
-// Copyright (c) 2015 by Université de Caen
+// Copyright (c) 2015-2017 by Francois Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by Université de Caen Normandie
 //
 // This file is part of Vire.
 //
@@ -30,41 +30,47 @@
 // - Bayeux/datatools:
 #include <bayeux/datatools/archives_instantiation.h>
 
-// Ourselves:
-
+// --------------------------------------------------------------------------------------------
 // Vire/utility:
 #include <vire/utility/base_identifier-serial.ipp>
 #include <vire/utility/instance_identifier-serial.ipp>
 #include <vire/utility/model_identifier-serial.ipp>
 #include <vire/utility/base_payload-serial.ipp>
-#include <vire/utility/base_request-serial.ipp>
-#include <vire/utility/base_response-serial.ipp>
-#include <vire/utility/base_event-serial.ipp>
 #include <vire/utility/base_alarm-serial.ipp>
 #include <vire/utility/base_error-serial.ipp>
 #include <vire/utility/invalid_context_error-serial.ipp>
 #include <vire/utility/invalid_setup_id_error-serial.ipp>
 #include <vire/utility/metadata_record-serial.ipp>
 
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_payload)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_identifier)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::instance_identifier)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::model_identifier)
-DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_payload)
-DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_request)
-DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_response)
-DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_event)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_alarm)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_error)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::invalid_context_error)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::invalid_setup_id_error)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::metadata_record)
 
-// Export payload classes:
+// Export classes:
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::base_alarm)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::base_error)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::instance_identifier)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::model_identifier)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::invalid_context_error)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::invalid_setup_id_error)
 
+// --------------------------------------------------------------------------------------------
+// Vire/cms:
+// #include <vire/cms/resource_status_record-serial.ipp>
+// #include <vire/cms/method_argument-serial.ipp>
+// #include <vire/cms/invalid_resource_error-serial.ipp>
+
+// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::resource_status_record)
+// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::method_argument)
+// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::invalid_resource_error)
+
+// --------------------------------------------------------------------------------------------
 // Vire/message:
 #include <vire/message/message_identifier-serial.ipp>
 #include <vire/message/message_header-serial.ipp>
@@ -76,21 +82,28 @@ DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::message::message_h
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::message::message_body)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::message::message)
 
-// Vire/user:
-// #include <vire/user/user-serial.ipp>
-// #include <vire/user/group-serial.ipp>
+// Export classes:
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::message::message)
 
+// --------------------------------------------------------------------------------------------
+// Vire/user:
+#include <vire/user/user-serial.ipp>
+#include <vire/user/group-serial.ipp>
+
+// Class vire::user::user :
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::user::user)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::user::user)
+
+// Class vire::user::group:
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::user::group)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::user::group)
+
+// --------------------------------------------------------------------------------------------
 // Vire/device:
 #include <vire/device/slot-serial.ipp>
-
-// // Class vire::user::user :
-// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::user::user)
-// BOOST_CLASS_EXPORT_IMPLEMENT(vire::user::user)
-
-// // Class vire::user::group:
-// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::user::group)
-// BOOST_CLASS_EXPORT_IMPLEMENT(vire::user::group)
 
 // Class vire::device::slot:
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::device::slot)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::device::slot)
+
+//

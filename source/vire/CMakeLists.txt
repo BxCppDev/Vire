@@ -105,21 +105,6 @@ if (VIRE_WITH_QT_GUI)
 endif()
 
 #-----------------------------------------------------------------------
-# BxJsontools support
-#
-# message (STATUS "[info] Searching for BxJsontools...")
-# find_package(BxJsontools 0.1 REQUIRED CONFIG)
-# if (BxJsontools_FOUND)
-#   message( STATUS "[info] Found the BxJsontools library:")
-#   message( STATUS "[info]   BxJsontools_VERSION      = '${BxJsontools_VERSION}'")
-#   message( STATUS "[info]   BxJsontools_DEFINITIONS  = '${BxJsontools_DEFINITIONS}'")
-#   message( STATUS "[info]   BxJsontools_INCLUDE_DIR  = '${BxJsontools_INCLUDE_DIR}'")
-#   message( STATUS "[info]   BxJsontools_INCLUDE_DIRS = '${BxJsontools_INCLUDE_DIRS}'")
-#   message( STATUS "[info]   BxJsontools_LIBRARY      = '${BxJsontools_LIBRARY}'")
-#   message( STATUS "[info]   BxJsontools_LIBRARIES    = '${BxJsontools_LIBRARIES}'")
-# endif()
-
-#-----------------------------------------------------------------------
 # BxRabbitMQ support
 #
 message (STATUS "[info] Searching for BxRabbitMQ...")
@@ -159,11 +144,11 @@ list(APPEND VireLibrary_TESTS
   ${VireProtobufLibrary_TESTS}
   )
 
-# General utilities:
-include(utility/Lists.cmake)
-
 # Time utilities:
 include(time/Lists.cmake)
+
+# General utilities:
+include(utility/Lists.cmake)
 
 # Logging service:
 include(logging/Lists.cmake)
@@ -186,8 +171,8 @@ include(message/Lists.cmake)
 # CMS payload objects:
 include(cms/Lists.cmake)
 
-# Communication service
-include(com/Lists.cmake)
+# # Communication service
+# include(com/Lists.cmake)
 
 # # CMS server kernel and utilities:
 # include(cmsserver/Lists.cmake)
@@ -308,8 +293,9 @@ target_include_directories(Vire
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/protobuf/cpp>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/protobuf/cpp/vire>
   )
-target_link_libraries(Vire PUBLIC Bayeux::Bayeux)
+# target_link_libraries(Vire PUBLIC Bayeux::Bayeux)
 target_link_libraries(Vire PUBLIC
+  Bayeux::Bayeux
   ${Vire_Boost_LIBRARIES}
   ${BxJsontools_LIBRARY}
   ${BxProtobuftools_LIBRARY}
