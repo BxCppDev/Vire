@@ -38,7 +38,7 @@ set(protobufList
   vire/message/Message.proto
 
   # vire/cms:
-  # vire/cms/MethodArgument.proto
+  vire/cms/MethodArgument.proto
   # vire/cms/ResourceStatusRecord.proto
   # vire/cms/InvalidCredentialsError.proto
   # vire/cms/InvalidUserError.proto
