@@ -36,11 +36,7 @@
 
 // This project
 #include <vire/time/utils.h>
-
-// - BxJsontools:
-#include <bayeux/jsontools/i_jsonizable.h>
-// - BxProtobuftools:
-#include <bayeux/protobuftools/i_protobufable.h>
+#include <vire/utility/base_payload.h>
 
 namespace vire {
 
@@ -59,11 +55,7 @@ namespace vire {
 
     /// @encode
     class resource_status_record
-      : public ::datatools::i_serializable
-      , public ::datatools::i_cloneable
-      , public ::jsontools::i_jsonizable
-      , public ::protobuftools::i_protobufable
-      , public ::datatools::i_tree_dumpable
+      : public ::vire::utility::base_payload
     {
     public:
 
@@ -196,6 +188,10 @@ namespace vire {
   } // namespace cms
 
 } // namespace vire
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_status_record, "vire::cms::resource_status_record")
 
 #ifndef Q_MOC_RUN
 // Activate reflection layer:

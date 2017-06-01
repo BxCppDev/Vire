@@ -1,5 +1,5 @@
-//! \file  vire/cms/resource_base_request.h
-//! \brief Resource base request
+//! \file  vire/cms/resource_fetch_status.h
+//! \brief Resource fetch status
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,33 +18,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_BASE_REQUEST_H
-#define VIRE_CMS_RESOURCE_BASE_REQUEST_H
+#ifndef VIRE_CMS_RESOURCE_FETCH_STATUS_H
+#define VIRE_CMS_RESOURCE_FETCH_STATUS_H
 
 // Standard Library:
 #include <string>
 
+// Third party:
+#include <boost/variant.hpp>
+
 // This project:
-#include <vire/utility/base_request.h>
+#include <vire/utility/base_payload.h>
 
 namespace vire {
 
   namespace cms {
 
-    /// \brief Request for a resource baseution
-    class resource_base_request
-      : public ::vire::utility::base_request
+    /// \brief Resource fetch status command
+    class resource_fetch_status
+      : public ::vire::utility::payload
     {
     public:
 
-      /// Constructor
-      resource_base_request();
+      // Default constructor
+      resource_fetch_status();
 
       /// Constructor
-      resource_base_request(const std::string & path_);
+      resource_fetch_status(const std::string & path_);
 
       /// Destructor
-      virtual ~resource_base_request();
+      virtual ~resource_fetch_status();
 
       /// Check if path is set
       bool has_path() const;
@@ -58,12 +61,6 @@ namespace vire {
       /// Reset the path
       void reset_path();
 
-      /// Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
-
       /// Main JSON (de-)serialization method
       virtual void jsonize(jsontools::node & node_,
                            const unsigned long int version_ = 0);
@@ -72,11 +69,17 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_base_request)
+      //! Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
 
     private:
 
       std::string _path_; ///< Resource path
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_request)
 
     };
 
@@ -86,10 +89,10 @@ namespace vire {
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
-BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_base_request,
-                                                  "vire::cms::resource_base_request")
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_fetch_status,
+                                                  "vire::cms::resource_fetch_status")
 
-#endif // VIRE_CMS_RESOURCE_BASE_REQUEST_H
+#endif // VIRE_CMS_RESOURCE_FETCH_STATUS_H
 
 // Local Variables: --
 // mode: c++ --

@@ -23,9 +23,19 @@
 // - Boost
 #include <boost/algorithm/string/replace.hpp>
 
+// This project:
+#include <vire/base_object_protobuf.h>
+#include "vire/cms/NoPubsubResourceError.pb.h"
+
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::no_pubsub_resource_error",
+                               vire::cms::NoPubsubResourceError)
+
 namespace vire {
 
   namespace cms {
+
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(no_pubsub_resource_errord,
+                                        "vire::cms::no_pubsub_resource_errord");
 
     no_pubsub_resource_error::no_pubsub_resource_error()
       : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
@@ -53,7 +63,7 @@ namespace vire {
     void no_pubsub_resource_error::set_path(const std::string & path_)
     {
       if (!has_message_format()) {
-        set_message_format("Resource path='%p' has no pub.sub support!");
+        set_message_format("Resource path='%p' has no pub/sub support!");
       }
       _path_ = path_;
       return;
@@ -77,6 +87,22 @@ namespace vire {
       if (has_path()) {
         message_ = boost::replace_all_copy(get_message_format(), "%p", _path_);
       }
+      return;
+    }
+
+    void no_pubsub_resource_error::jsonize(jsontools::node & node_,
+                                     const unsigned long int /* version_ */)
+    {
+      this->::vire::utility::base_error::jsonize(node_);
+      node_["path"] % _path_;
+      return;
+    }
+
+    void no_pubsub_resource_error::protobufize(protobuftools::message_node & node_,
+                                         const unsigned long int /* version_ */)
+    {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error,node_);
+      node_["path"] % _path_;
       return;
     }
 

@@ -33,6 +33,13 @@ namespace vire {
 
   namespace cms {
 
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(invalid_credentials_error,
+                                        "vire::cms::invalid_credentials_error");
+
+    // static
+    const int32_t invalid_credentials_error::EC_INVALID_LOGIN;
+    const int32_t invalid_credentials_error::EC_INVALID_PASSWORD;
+
     invalid_credentials_error::invalid_credentials_error()
       : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "Invalid credentials")
     {
@@ -46,7 +53,73 @@ namespace vire {
 
     void invalid_credentials_error::reset()
     {
+      _invalid_login_.clear();
+      _invalid_password_.clear();
       this->::vire::utility::base_error::reset();
+      return;
+    }
+
+    bool invalid_credentials_error::is_invalid_login() const
+    {
+      return get_code() == EC_INVALID_LOGIN;
+    }
+
+    bool invalid_credentials_error::has_invalid_login() const
+    {
+      return !_invalid_login_.empty();
+    }
+
+    void invalid_credentials_error::set_invalid_login(const std::string & bad_login_)
+    {
+      if (!has_message_format()) {
+        set_message_format("Invalid login='%l'");
+      }
+      set_code(EC_INVALID_LOGIN);
+      _invalid_login_ = bad_login_;
+      _invalid_password_.clear();
+      return;
+    }
+
+    const std::string & invalid_credentials_error::get_invalid_login() const
+    {
+      return _invalid_login_;
+    }
+
+    bool invalid_credentials_error::is_invalid_password() const
+    {
+      return get_code() == EC_INVALID_PASSWORD;
+    }
+
+    bool invalid_credentials_error::has_invalid_password() const
+    {
+      return !_invalid_password_.empty();
+    }
+
+    void invalid_credentials_error::set_invalid_password(const std::string & bad_password_)
+    {
+      if (!has_message_format()) {
+        set_message_format("Invalid password='%p' for user '%l'");
+      }
+      set_code(EC_INVALID_PASSWORD);
+      _invalid_password_ = bad_password_;
+      _invalid_password_.clear();
+      return;
+    }
+
+    const std::string & invalid_credentials_error::get_invalid_password() const
+    {
+      return _invalid_password_;
+    }
+
+    // virtual
+    void invalid_credentials_error::_build_message(std::string & message_) const
+    {
+      if (has_invalid_login()) {
+        message_ = boost::replace_all_copy(get_message_format(), "%l", _invalid_login_);
+      } else if (has_invalid_password()) {
+        message_ = boost::replace_all_copy(get_message_format(), "%l", _invalid_login_);
+        message_ = boost::replace_all_copy(get_message_format(), "%p", _invalid_password_);
+      }
       return;
     }
 
@@ -54,13 +127,25 @@ namespace vire {
                                             const unsigned long int /* version_ */)
     {
       this->::vire::utility::base_error::jsonize(node_);
+      if (is_invalid_login()) {
+        node_["invalid_login"] % _invalid_login_;
+      }
+      if (is_invalid_password()) {
+        node_["invalid_password"] % _invalid_password_;
+      }
       return;
     }
 
     void invalid_credentials_error::protobufize(protobuftools::message_node & node_,
                                                 const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error,node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_error, node_);
+      if (is_invalid_login()) {
+        node_["invalid_login"] % _invalid_login_;
+      }
+      if (is_invalid_password()) {
+        node_["invalid_password"] % _invalid_password_;
+      }
       return;
     }
 

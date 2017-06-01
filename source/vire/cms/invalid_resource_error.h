@@ -61,6 +61,9 @@ namespace vire {
       virtual ~invalid_resource_error();
 
       /// Check invalid resource path
+      bool is_invalid_resource_path() const;
+
+      /// Check invalid resource path
       bool has_invalid_resource_path() const;
 
       /// Set the invalid resource path
@@ -89,12 +92,6 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      /// Macro to declare basic support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(invalid_resource_error);
-
-      /// Macro to declare basic support for serialization
-      DATATOOLS_SERIALIZATION_DECLARATION();
-
     protected:
 
       virtual void _build_message(std::string & message_) const final;
@@ -103,6 +100,8 @@ namespace vire {
 
       std::string _invalid_resource_path_;    ///< Invalid resource path
       int32_t     _invalid_resource_id_ = -1; ///< Invalid UID
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
 
     };
 

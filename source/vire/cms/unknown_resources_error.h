@@ -46,7 +46,8 @@ namespace vire {
     ///   ]
     /// }
     /// @encode
-    class unknown_resources_error : public vire::utility::base_error
+    class unknown_resources_error
+      : public vire::utility::base_error
     {
     public:
 
@@ -71,6 +72,8 @@ namespace vire {
     private:
 
       std::set<std::string> _unknown_paths_; ///< List of unknown resource paths
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(unknown_resources_error)
 
     };
 

@@ -1,7 +1,7 @@
-//! \file  vire/cms/resource_pubsub_request.h
-//! \brief Resource Pub/Sub (un)subscribe request
+//! \file  vire/cms/resource_pubsub_failure.h
+//! \brief Resource Pub/Sub (un)subscribe failure
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,18 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_PUBSUB_REQUEST_H
-#define VIRE_CMS_RESOURCE_PUBSUB_REQUEST_H
-
-// Standard Library:
-#include <string>
-
-// Third party:
-#include <boost/variant.hpp>
+#ifndef VIRE_CMS_RESOURCE_PUBSUB_FAILURE_H
+#define VIRE_CMS_RESOURCE_PUBSUB_failure_H
 
 // This project
-#include <vire/utility/base_request.h>
-#include <vire/utility/base_response.h>
+#include <vire/utility/base_payload.h>
 #include <vire/utility/model_identifier.h>
 #include <vire/utility/invalid_context_error.h>
 #include <vire/cms/invalid_resource_error.h>
@@ -40,86 +33,17 @@ namespace vire {
 
   namespace cms {
 
-    /// \brief Resource Pub/Sub action request
-    class resource_pubsub_request : public ::vire::utility::base_request
-    {
-    public:
-
-      /// \brief
-      enum pubsub_action {
-        ACTION_INVALID     = 0, ///< Invalid action
-        ACTION_CHECK       = 1, ///< Check the Pub/sub status of the resource
-        ACTION_SUBSCRIBE   = 2, ///< Ask for the Pub/sub subscription of the resource
-        ACTION_UNSUBSCRIBE = 3  ///< Ask for the Pub/sub unsubscription of the resource
-      };
-
-      /// Default constructor
-      resource_pubsub_request();
-
-      /// Constructor
-      resource_pubsub_request(const std::string & path_, pubsub_action action_);
-
-      /// Destructor
-      virtual ~resource_pubsub_request();
-
-      /// Set the path
-      void set_path(const std::string &);
-
-      /// Return the path
-      const std::string & get_path() const;
-
-      /// Set the subscribe flag
-      void set_action(pubsub_action action_);
-
-      /// Return the subscribe flag
-      bool get_action() const;
-
-    private:
-
-      // Attributes:
-      std::string   _path_;   ///< Resource path
-      pubsub_action _action_ = ACTION_INVALID; ///< Pub/sub action
-
-    };
-
-
-    /// \brief Resource Pub/Sub success response
-    class resource_pubsub_success_response
-      : public ::vire::utility::base_response
+    /// \brief Resource Pub/Sub failure
+    class resource_pubsub_failure
+      : public ::vire::utility::base_payload
     {
     public:
 
       /// Default constructor
-      resource_pubsub_success_response();
+      resource_pubsub_failure();
 
       /// Destructor
-      virtual ~resource_pubsub_success_response();
-
-      /// Set the subscription flag
-      void set_subscribed(bool);
-
-      /// Return the subscription flag
-      bool is_subscribed() const;
-
-    private:
-
-      // vire::cms::resource_status_record  _status_;
-      bool _subscribed_; ///< Subscribe flag
-
-    };
-
-
-    /// \brief Resource Pub/Sub failure response
-    class resource_pubsub_failure_response
-      : public ::vire::utility::base_response
-    {
-    public:
-
-      /// Default constructor
-      resource_pubsub_failure_response();
-
-      /// Destructor
-      virtual ~resource_pubsub_failure_response();
+      virtual ~resource_pubsub_failure();
 
       // /// \brief Local error codes
       // enum local_error_code_type {
@@ -158,13 +82,15 @@ namespace vire {
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
 
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure)
+
     };
 
   } // namespace cms
 
 } // namespace vire
 
-#endif // VIRE_CMS_RESOURCE_PUBSUB_REQUEST_H
+#endif // VIRE_CMS_RESOURCE_PUBSUB_FAILURE_H
 
 // Local Variables: --
 // mode: c++ --

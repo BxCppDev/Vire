@@ -1,4 +1,4 @@
-// vire/cms/resource_fetch_status_failure_response.cc
+// vire/cms/resource_fetch_status_failure.cc
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cms/resource_fetch_status_failure_response.h>
+#include <vire/cms/resource_fetch_status_failure.h>
 
 // BxJsontools:
 #include <bayeux/jsontools/std_type_converters.h>
@@ -29,35 +29,35 @@
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/ResourceFetchStatusFailureResponse.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_fetch_status_failure_response",
-                               vire::cms::ResourceFetchStatusFailureResponse)
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_fetch_status_failure",
+                               vire::cms::ResourceFetchStatusFailure)
 
 namespace vire {
 
   namespace cms {
 
-    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_fetch_status_failure_response,
-                                        "vire::cms::resource_fetch_status_failure_response")
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_fetch_status_failure,
+                                        "vire::cms::resource_fetch_status_failure")
 
-    resource_fetch_status_failure_response::resource_fetch_status_failure_response()
+    resource_fetch_status_failure::resource_fetch_status_failure()
     {
       _error_type_id_.set_name("vire::utility::invalid_context_error");
       return;
     }
 
-    resource_fetch_status_failure_response::~resource_fetch_status_failure_response()
+    resource_fetch_status_failure::~resource_fetch_status_failure()
     {
       return;
     }
 
-    void resource_fetch_status_failure_response::set_error(const vire::utility::invalid_context_error & e_)
+    void resource_fetch_status_failure::set_error(const vire::utility::invalid_context_error & e_)
     {
       _error_type_id_.set_name("vire::utility::invalid_context_error");
       _error_ = e_;
       return;
     }
 
-    void resource_fetch_status_failure_response::set_error(const vire::cms::invalid_resource_error & e_)
+    void resource_fetch_status_failure::set_error(const vire::cms::invalid_resource_error & e_)
     {
       _error_type_id_.set_name("vire::cms::invalid_resource_error");
       _error_ = e_;
@@ -65,24 +65,23 @@ namespace vire {
     }
 
     const vire::utility::model_identifier &
-    resource_fetch_status_failure_response::get_error_type_id() const
+    resource_fetch_status_failure::get_error_type_id() const
     {
       return _error_type_id_;
     }
 
-    resource_fetch_status_failure_response::error_type
-    resource_fetch_status_failure_response::get_error() const
+    resource_fetch_status_failure::error_type
+    resource_fetch_status_failure::get_error() const
     {
       return _error_;
     }
 
-    void resource_fetch_status_failure_response::tree_dump(std::ostream & out_,
+    void resource_fetch_status_failure::tree_dump(std::ostream & out_,
                                                            const std::string & title_,
                                                            const std::string & indent_,
                                                            bool inherit_) const
     {
-      this->resource_base_response::tree_dump(out_, title_, indent_, true);
-
+      this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Error type id : '" << _error_type_id_.to_string() << "'" << std::endl;
@@ -106,7 +105,7 @@ namespace vire {
       return;
     }
 
-    void resource_fetch_status_failure_response::jsonize(jsontools::node & node_,
+    void resource_fetch_status_failure::jsonize(jsontools::node & node_,
                                                          const unsigned long int /* version_ */)
     {
       this->resource_base_response::jsonize(node_);
@@ -120,7 +119,7 @@ namespace vire {
       return;
     }
 
-    void resource_fetch_status_failure_response::protobufize(protobuftools::message_node & node_,
+    void resource_fetch_status_failure::protobufize(protobuftools::message_node & node_,
                                                              const unsigned long int /* version_ */)
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(resource_base_response, node_);

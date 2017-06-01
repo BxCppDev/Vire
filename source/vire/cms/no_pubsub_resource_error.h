@@ -39,7 +39,8 @@ namespace vire {
     ///   "path" : "foo"
     /// }
     /// @encode
-    class no_pubsub_resource_error : public ::vire::utility::base_error
+    class no_pubsub_resource_error
+      : public ::vire::utility::base_error
     {
     public:
 
@@ -67,6 +68,13 @@ namespace vire {
       /// Clear all internal informations
       virtual void reset();
 
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+
     protected:
 
       virtual void _build_message(std::string & message_) const final;
@@ -74,6 +82,8 @@ namespace vire {
     private:
 
       std::string _path_; ///< Resource path
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
 
     };
 

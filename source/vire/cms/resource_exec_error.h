@@ -76,6 +76,8 @@ namespace vire {
 
       boost::posix_time::ptime _deadline_; ///< Deadline
 
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
+
     };
 
   } // namespace cms

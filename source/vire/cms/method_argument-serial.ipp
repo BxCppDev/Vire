@@ -1,4 +1,4 @@
-//! \file  vire/cms/resource_status_record-serial.ipp
+//! \file  vire/cms/method_argument-serial.ipp
 //! \brief Resource status record serialization
 //
 // Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_STATUS_RECORD_SERIAL_IPP
-#define VIRE_CMS_RESOURCE_STATUS_RECORD_SERIAL_IPP
+#ifndef VIRE_CMS_METHOD_ARGUMENT_SERIAL_IPP
+#define VIRE_CMS_METHOD_ARGUMENT_SERIAL_IPP
 
 // Ourselves:
-#include <vire/cms/resource_status_record.h>
+#include <vire/cms/method_argument.h>
 
 // Third Party:
 // - Boost:
@@ -33,16 +33,13 @@ namespace vire {
   namespace cms {
 
     template<class Archive>
-    void resource_status_record::serialize(Archive & archive_, const unsigned int /* version_*/)
+    void method_argument::serialize(Archive & archive_, const unsigned int /* version_*/)
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_payload>(*this));
-      archive_ & boost::serialization::make_nvp("path",      _path_);
-      archive_ & boost::serialization::make_nvp("timestamp", _timestamp_);
-      archive_ & boost::serialization::make_nvp("missing",   _missing_);
-      archive_ & boost::serialization::make_nvp("failed",    _failed_);
-      archive_ & boost::serialization::make_nvp("pending",   _pending_);
-      archive_ & boost::serialization::make_nvp("disabled" , _disabled_);
+      archive_ & boost::serialization::make_nvp("name",       _name_);
+      archive_ & boost::serialization::make_nvp("value_repr", _value_repr_);
+      archive_ & boost::serialization::make_nvp("meta",       _meta_);
       return;
     }
 
@@ -50,7 +47,7 @@ namespace vire {
 
 } // end of namespace vire
 
-#endif // VIRE_CMS_RESOURCE_STATUS_RECORD_SERIAL_IPP
+#endif // VIRE_CMS_METHOD_ARGUMENT_SERIAL_IPP
 
 // Local Variables: --
 // mode: c++ --

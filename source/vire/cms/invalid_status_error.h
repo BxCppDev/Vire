@@ -41,7 +41,8 @@ namespace vire {
     ///   "flag_repr" : "disabled"
     /// }
     /// @encode
-    class invalid_status_error : public ::vire::utility::base_error
+    class invalid_status_error
+      : public ::vire::utility::base_error
     {
     public:
 
@@ -112,12 +113,6 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      /// Macro to declare basic support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(invalid_status_error);
-
-      /// Macro to declare basic support for serialization
-      DATATOOLS_SERIALIZATION_DECLARATION();
-
     protected:
 
       virtual void _build_message(std::string & message_) const final;
@@ -126,6 +121,8 @@ namespace vire {
 
       std::string _path_;      ///< Resource path
       std::string _flag_repr_; ///< Status flag that causes the error
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
 
     };
 

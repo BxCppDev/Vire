@@ -1,7 +1,7 @@
-//! \file  vire/cms/resource_fetch_status_success_response.h
-//! \brief Resource fetch status success response
+//! \file  vire/cms/device_status_change.h
+//! \brief Device status change
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_FETCH_STATUS_SUCCESS_RESPONSE_H
-#define VIRE_CMS_RESOURCE_FETCH_STATUS_SUCCESS_RESPONSE_H
+#ifndef VIRE_CMS_DEVICE_STATUS_CHANGE_H
+#define VIRE_CMS_DEVICE_STATUS_CHANGE_H
 
 // Standard Library:
 #include <string>
@@ -28,27 +28,45 @@
 #include <boost/variant.hpp>
 
 // This project:
-#include <vire/cms/resource_base_response.h>
+#include <vire/utility/base_payload.h>
 #include <vire/cms/resource_status_record.h>
 
 namespace vire {
 
   namespace cms {
 
-    /// \brief Resource fetch status success response
-    class resource_fetch_status_success_response
-      : public resource_base_response
+    /// \brief Device status change
+    class device_status_change
+      : public vire::utility::base_payload
     {
     public:
 
       // Default constructor
-      resource_fetch_status_success_response();
+      device_status_change();
 
       /// Constructor
-      resource_fetch_status_success_response(const resource_status_record & status_);
+      device_status_change(const resource_status_record & status_);
 
       /// Destructor
-      virtual ~resource_fetch_status_success_response();
+      virtual ~device_status_change();
+
+      /// Check is status is set
+      bool has_status() const;
+
+      /// Set the device status
+      void set_status(const resource_status_record & record_);
+
+      /// Reset the device status
+      void reset_status();
+
+      /// Return the device status
+      const resource_status_record & get_status() const;
+
+      //! Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
 
       /// Main JSON (de-)serialization method
       virtual void jsonize(jsontools::node & node_,
@@ -58,7 +76,11 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_success_response)
+    private:
+
+      resource_status_record _status_; ///< Resource status
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(device_status_change)
 
     };
 
@@ -68,10 +90,10 @@ namespace vire {
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
-BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_fetch_status_success_response,
-                                                  "vire::cms::resource_fetch_status_success_response")
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::device_status_change,
+                                                  "vire::cms::device_status_change")
 
-#endif // VIRE_CMS_RESOURCE_FETCH_STATUS_SUCCESS_RESPONSE_H
+#endif // VIRE_CMS_DEVICE_STATUS_CHANGE_H
 
 // Local Variables: --
 // mode: c++ --

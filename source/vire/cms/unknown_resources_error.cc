@@ -19,9 +19,25 @@
 // Ourselves:
 #include <vire/cms/unknown_resources_error.h>
 
+// Third party
+// - BxJsontools:
+#include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+// BxProtobuftools:
+#include <bayeux/protobuftools/protobuf_factory.h>
+#include <bayeux/protobuftools/base_type_converters.h>
+#include <bayeux/protobuftools/std_type_converters.h>
+
+// This project:
+#include <vire/base_object_protobuf.h>
+#include "vire/cms/UnknownResourcesError.pb.h"
+
 namespace vire {
 
   namespace cms {
+
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(unknown_resources_error,
+                                        "vire::cms::unknown_resources_error");
 
     unknown_resources_error::unknown_resources_error()
       : ::vire::utility::base_error(::vire::utility::base_error::EC_GENERIC_FAILURE, "")
@@ -58,6 +74,22 @@ namespace vire {
     unknown_resources_error::get_unknown_paths() const
     {
       return _unknown_paths_;
+    }
+
+    void unknown_resources_error::jsonize(jsontools::node & node_,
+                                     const unsigned long int /* version_ */)
+    {
+      this->::vire::utility::base_error::jsonize(node_);
+      node_["unknown_paths"] % _unknown_paths_;
+      return;
+    }
+
+    void invalid_user_error::protobufize(protobuftools::message_node & node_,
+                                         const unsigned long int /* version_ */)
+    {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error,node_);
+      node_["unknown_paths"] % _unknown_paths_;
+      return;
     }
 
   } // namespace cms

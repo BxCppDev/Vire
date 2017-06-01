@@ -34,22 +34,58 @@ namespace vire {
     {
     public:
 
+      static const int32_t EC_INVALID_LOGIN    = ::vire::utility::base_error::EC_MAXIMUM_SYSTEM + 1;
+      static const int32_t EC_INVALID_PASSWORD = EC_INVALID_USER + 1;
+
       /// Default constructor
       invalid_credentials_error();
 
       /// Destructor
       virtual ~invalid_credentials_error();
 
+      /// Check invalid login
+      bool is_invalid_login() const;
+
+      /// Check invalid login
+      bool has_invalid_login() const;
+
+      /// Set the invalid login
+      void set_invalid_login(const std::string &);
+
+      /// Return the invalid login
+      const std::string & get_invalid_login() const;
+
+      /// Check invalid password
+      bool is_invalid_password() const;
+
+      /// Check invalid password
+      bool has_invalid_password() const;
+
+      /// Set the invalid password
+      void set_invalid_password(const std::string &);
+
+      /// Return the invalid password
+      const std::string & get_invalid_password() const;
+
       /// Clear all internal informations
       virtual void reset();
 
       /// Main JSON (de-)serialization method
       virtual void jsonize(jsontools::node & node_,
-                             unsigned long int version_ = 0);
+                           unsigned long int version_ = 0);
 
       /// Main Protobuf (de-)serialization method
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_);
+
+    protected:
+
+      virtual void _build_message(std::string & message_) const final;
+
+    private:
+
+      std::string _invalid_login_;         ///< Invalid login
+      int32_t     _invalid_password_ = -1; ///< Invalid password
 
     };
 

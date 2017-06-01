@@ -38,9 +38,8 @@ namespace vire {
 
   namespace cms {
 
-    DATATOOLS_CLONEABLE_IMPLEMENTATION(method_argument)
-
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(method_argument, "vire::cms::method_argument");
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(method_argument,
+                                        "vire::cms::method_argument");
 
     method_argument::method_argument()
     {
@@ -160,8 +159,9 @@ namespace vire {
     }
 
     void method_argument::jsonize(jsontools::node & node_,
-                                        const unsigned long int version_)
+                                  const unsigned long int version_)
     {
+      this->base_payload::jsonize(node_, version_);
       node_["name"] % _name_;
       node_["value_repr"] % _value_repr_;
       node_["meta"] % _meta_;
@@ -171,6 +171,7 @@ namespace vire {
     void method_argument::protobufize(protobuftools::message_node & node_,
                                             const unsigned long int /* version_ */)
     {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
       node_["name"] % _name_;
       node_["value_repr"] % _value_repr_;
       node_["meta"] % _meta_;
@@ -182,7 +183,7 @@ namespace vire {
                                     const std::string & indent_,
                                     bool inherit_) const
     {
-      if (! title_.empty()) out_ << indent_ << title_ << std::endl;
+      base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Name : ";

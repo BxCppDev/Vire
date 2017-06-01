@@ -1,6 +1,6 @@
 // vire/cms/invalid_resource_error.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -42,10 +42,9 @@ namespace vire {
 
   namespace cms {
 
-    DATATOOLS_CLONEABLE_IMPLEMENTATION(invalid_resource_error)
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(invalid_resource_error,
+                                        "vire::cms::invalid_resource_error");
 
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(invalid_resource_error,
-                                           "vire::cms::invalid_resource_error");
 
     // static
     const int32_t invalid_resource_error::EC_INVALID_PATH;
@@ -76,6 +75,11 @@ namespace vire {
       return;
     }
 
+    bool invalid_resource_error::is_invalid_resource_path() const
+    {
+      return get_code() == EC_INVALID_PATH;
+    }
+
     bool invalid_resource_error::has_invalid_resource_path() const
     {
       return !_invalid_resource_path_.empty();
@@ -95,6 +99,11 @@ namespace vire {
     const std::string & invalid_resource_error::get_invalid_resource_path() const
     {
       return _invalid_resource_path_;
+    }
+
+    bool invalid_resource_error::is_invalid_resource_id() const
+    {
+      return get_code() == EC_INVALID_ID;
     }
 
     bool invalid_resource_error::has_invalid_resource_id() const
@@ -121,15 +130,6 @@ namespace vire {
     // virtual
     void invalid_resource_error::_build_message(std::string & message_) const
     {
-      // if (!has_message_format()) {
-      //   std::string msg_format = "Invalid resource";
-      //   if (has_invalid_resource_path()) {
-      //     msg_format += " path='%p'";
-      //   } else if (has_invalid_resource_id()) {
-      //     msg_format += " ID=[%i]";
-      //   }
-      //   set_message_format(msg_format);
-      // }
       if (has_invalid_resource_path()) {
         message_ = boost::replace_all_copy(get_message_format(), "%p", _invalid_resource_path_);
       } else if (has_invalid_resource_id()) {
@@ -150,10 +150,10 @@ namespace vire {
                                          const unsigned long int version_)
     {
       this->vire::utility::base_error::jsonize(node_, version_);
-      if (get_code() == EC_INVALID_PATH) {
+      if (is_invalid_resource_path()) {
         node_["invalid_resource_path"] % _invalid_resource_path_;
       }
-      if (get_code() == EC_INVALID_ID) {
+      if (is_invalid_resource_id()) {
         node_["invalid_resource_id"] % _invalid_resource_id_;
       }
      return;
@@ -163,10 +163,10 @@ namespace vire {
                                              const unsigned long int /* version_ */)
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_error, node_);
-      if (get_code() == EC_INVALID_PATH) {
+      if (is_invalid_resource_path()) {
         node_["invalid_resource_path"] % _invalid_resource_path_;
       }
-      if (get_code() == EC_INVALID_ID) {
+      if (is_invalid_resource_id()) {
         node_["invalid_resource_id"] % _invalid_resource_id_;
       }
       return;

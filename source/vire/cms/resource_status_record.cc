@@ -65,7 +65,8 @@ namespace vire {
                                                    bool failed_,
                                                    bool pending_,
                                                    bool disabled_)
-      : _path_(path_)
+      : base_payload()
+      , _path_(path_)
       , _timestamp_(t_)
       , _missing_(missing_)
       , _failed_(failed_)
@@ -257,7 +258,7 @@ namespace vire {
                                            const std::string & indent_,
                                            bool inherit_) const
     {
-      if (! title_.empty()) out_ << indent_ << title_ << std::endl;
+      base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Path : ";
@@ -299,8 +300,9 @@ namespace vire {
     }
 
     void resource_status_record::jsonize(jsontools::node & node_,
-                                         const unsigned long int /* version_ */)
+                                         const unsigned long int version_)
     {
+      this->base_payload::jsonize(node_, version_);
       node_["path"] % _path_;
       node_["timestamp"] % _timestamp_;
       node_["missing"] % _missing_;
@@ -313,6 +315,7 @@ namespace vire {
     void resource_status_record::protobufize(protobuftools::message_node & node_,
                                              const unsigned long int /* version_ */)
     {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
       node_["path"] % _path_;
       node_["timestamp"] % _timestamp_;
       node_["missing"] % _missing_;

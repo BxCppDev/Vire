@@ -25,14 +25,11 @@
 #include <string>
 
 // Third party
-// - Bayeux/datatools:
-#include <bayeux/datatools/i_serializable.h>
-#include <bayeux/datatools/i_tree_dump.h>
-#include <bayeux/datatools/i_cloneable.h>
-// - BxJsontools:
-#include <bayeux/jsontools/i_jsonizable.h>
-// - BxProtobuftools:
-#include <bayeux/protobuftools/i_protobufable.h>
+// - Boost
+#include <boost/cstdint.hpp>
+
+// This project
+#include <vire/utility/base_payload.h>
 
 namespace vire {
 
@@ -40,11 +37,7 @@ namespace vire {
 
     /// \brief Scalar argument
     class method_argument
-      : public ::datatools::i_serializable
-      , public ::datatools::i_cloneable
-      , public ::datatools::i_tree_dumpable
-      , public ::jsontools::i_jsonizable
-      , public ::protobuftools::i_protobufable
+      : public ::vire::utility::base_payload
     {
     public:
 
@@ -119,17 +112,13 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      /// Macro to declare basic support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(method_argument);
-
-      /// Macro to declare basic support for serialization
-      DATATOOLS_SERIALIZATION_DECLARATION();
-
     private:
 
       std::string _name_;       ///< Name of the argument
       std::string _value_repr_; ///< String representation of the argument's value
       std::string _meta_;       ///< Auxiliary metadata
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(method_argument)
 
     };
 

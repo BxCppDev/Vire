@@ -42,10 +42,8 @@ namespace vire {
 
   namespace cms {
 
-    DATATOOLS_CLONEABLE_IMPLEMENTATION(invalid_status_error)
-
-    DATATOOLS_SERIALIZATION_IMPLEMENTATION(invalid_status_error,
-                                           "vire::cms::invalid_status_error");
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(invalid_status_error,
+                                        "vire::cms::invalid_status_error");
 
     // static
     const int32_t invalid_status_error::EC_MISSING;

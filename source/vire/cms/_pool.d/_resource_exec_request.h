@@ -1,7 +1,7 @@
 //! \file  vire/cms/resource_exec_request.h
 //! \brief Resource execution request
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //

@@ -42,6 +42,9 @@ namespace vire {
 
   namespace cms {
 
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(invalid_user_error,
+                                        "vire::cms::invalid_user_error");
+
     // static
     const int32_t invalid_user_error::EC_INVALID_NAME;
     const int32_t invalid_user_error::EC_INVALID_UID;

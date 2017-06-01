@@ -1,5 +1,5 @@
-//! \file  vire/cms/resource_fetch_status_success_response.h
-//! \brief Resource fetch status success response
+//! \file  vire/cms/resource_fetch_status_failure.h
+//! \brief Resource fetch status failure response
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_RESPONSE_H
-#define VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_RESPONSE_H
+#ifndef VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_H
+#define VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_H
 
 // Standard Library:
 #include <string>
@@ -30,7 +30,7 @@
 // This project:
 #include <vire/utility/invalid_context_error.h>
 #include <vire/utility/model_identifier.h>
-#include <vire/cms/resource_base_response.h>
+#include <vire/utility/base_payload.h>
 #include <vire/cms/resource_status_record.h>
 #include <vire/cms/invalid_resource_error.h>
 
@@ -38,9 +38,9 @@ namespace vire {
 
   namespace cms {
 
-    /// \brief Resource fetch status failure response
-    class resource_fetch_status_failure_response
-      : public resource_base_response
+    /// \brief Resource fetch status failure
+    class resource_fetch_status_failure
+      : public ::vire::utility::payload
     {
     public:
 
@@ -49,10 +49,10 @@ namespace vire {
                              vire::cms::invalid_resource_error> error_type;
 
       /// Default constructor
-      resource_fetch_status_failure_response();
+      resource_fetch_status_failure();
 
       /// Destructor
-      virtual ~resource_fetch_status_failure_response();
+      virtual ~resource_fetch_status_failure();
 
       /// Set an invalid context error
       void set_error(const vire::utility::invalid_context_error &);
@@ -80,12 +80,12 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure_response)
-
     private:
 
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure)
 
     };
 
@@ -95,10 +95,10 @@ namespace vire {
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
-BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_fetch_status_failure_response,
-                                                  "vire::cms::resource_fetch_status_failure_response")
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_fetch_status_failure,
+                                                  "vire::cms::resource_fetch_status_failure")
 
-#endif // VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_RESPONSE_H
+#endif // VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_H
 
 // Local Variables: --
 // mode: c++ --
