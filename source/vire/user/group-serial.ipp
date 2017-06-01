@@ -28,7 +28,7 @@
 // - Boost:
 // #include <boost/serialization/set.hpp>
 // - Bayeux/datatools:
-#include <datatools/enriched_base.h>
+#include <datatools/enriched_base.ipp>
 
 namespace vire {
 

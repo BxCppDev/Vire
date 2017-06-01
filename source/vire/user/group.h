@@ -187,10 +187,8 @@ DR_CLASS_INIT(vire::user::group_dict_type);
 
 #endif // VIRE_USER_GROUP_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --
