@@ -3,12 +3,12 @@
 // Standard Library:
 #include <string>
 #include <iostream>
+#include <memory>
 
 // Third Party:
 // - Boost++:
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <boost/scoped_ptr.hpp>
 // - Xerces-C++:
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -174,7 +174,7 @@ int main(int argc_, char * argv_[])
 
     // --------------------------------------------------
     // Xerces-C++ XML parse:
-    boost::scoped_ptr<xercesc::XercesDOMParser> parser;
+    std::unique_ptr<xercesc::XercesDOMParser> parser;
     parser.reset(new xercesc::XercesDOMParser);
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
     // Optional:
@@ -183,7 +183,7 @@ int main(int argc_, char * argv_[])
     // parser->setCreateEntityReferenceNodes(true);
     // parser->setValidationSchemaFullChecking(true);
     parser->setExternalNoNamespaceSchemaLocation(cfg.no_namespace_schema_loc.c_str());
-    boost::scoped_ptr<xercesc::ErrorHandler> errHandler;
+    std::unique_ptr<xercesc::ErrorHandler> errHandler;
     errHandler.reset(dynamic_cast<xercesc::ErrorHandler*>(new xercesc::HandlerBase()));
     parser->setErrorHandler(errHandler.get());
 
@@ -246,7 +246,10 @@ void app_version(std::ostream & out_)
 void app_usage(std::ostream & out_,
                const boost::program_options::options_description & opts_)
 {
-  out_ << "Usage : " << std::endl;
+  out_ << "viremos_xml2viredev - Convert MOS XML device file to Vire device definition file" << std::endl;
+  out_ << std::endl;
+  out_ << "Usage : viremos_xml2viredev [options...]" << std::endl;
+  out_ << std::endl;
   out_ << opts_ << std::endl;
   return;
 }

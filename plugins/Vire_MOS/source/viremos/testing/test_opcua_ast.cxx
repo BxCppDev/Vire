@@ -37,25 +37,21 @@ void test0();
 
 int main( int argc_, char * argv_[])
 {
-  // VIRE_INIT_MAIN(argc_, argv_);
   int error_code = EXIT_SUCCESS;
 
   try {
 
     test0();
 
-  }
-  catch (std::exception& error) {
+  } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL,
                  error.what());
     error_code = EXIT_FAILURE;
-  }
-  catch (...) {
+  } catch (...) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL,
                  "Unexpected error!");
     error_code = EXIT_FAILURE;
   }
-  // VIRE_FINI();
   return error_code;
 }
 

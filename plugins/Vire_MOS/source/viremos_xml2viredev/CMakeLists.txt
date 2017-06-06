@@ -16,6 +16,7 @@ add_executable(viremos_xml2viredev
 target_link_libraries(viremos_xml2viredev
   Vire_MOS
   Vire
+  Bayeux::Bayeux
   #XercesC::XercesC
   #Boost::log
   )
