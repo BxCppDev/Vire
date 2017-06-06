@@ -38,10 +38,17 @@ message(STATUS "_VireCmsLappProtobufLibrary_cpp_SOURCES='${_VireCmsLappProtobufL
 set(Vire_CMSLAPPInterface_Plugin_HEADERS
   vire/cmslapp/version.h.in
   vire/cmslapp/connection_request.h
-  # vire/cmslapp/connection_success_response.h
-  # vire/cmslapp/connection_failure_response.h
-  # vire/cmslapp/disconnection_request.h
-  # vire/cmslapp/disconnection_success_response.h
+  vire/cmslapp/connection_request-serial.ipp
+  vire/cmslapp/connection_success.h
+  vire/cmslapp/connection_success-serial.ipp
+  vire/cmslapp/connection_failure.h
+  vire/cmslapp/connection_failure-serial.ipp
+  vire/cmslapp/disconnection_request.h
+  vire/cmslapp/disconnection_request-serial.ipp
+  vire/cmslapp/disconnection_success.h
+  vire/cmslapp/disconnection_success-serial.ipp
+  vire/cmslapp/disconnection_failure.h
+  vire/cmslapp/disconnection_failure-serial.ipp
   ${_VireCmsLappProtobufLibrary_cpp_HEADERS}
 )
 
@@ -55,15 +62,16 @@ set(Vire_CMSLAPPInterface_Plugin_PRIVATE_HEADERS
 # configure_file(vire/cmslapp/vire_xxx.cc.in
 #   vire/cmslapp/vire_xxx.cc @ONLY)
 
-
 set(Vire_CMSLAPPInterface_Plugin_SOURCES
-  # ${CMAKE_CURRENT_BINARY_DIR}/vire/cmslapp/vire_xxx.cc
   vire/cmslapp/version.cc
   vire/cmslapp/connection_request.cc
-  # vire/cmslapp/connection_success_response.cc
-  # vire/cmslapp/connection_failure_response.cc
-  # vire/cmslapp/disconnection_request.cc
-  # vire/cmslapp/disconnection_success_response.cc
+  vire/cmslapp/connection_success.cc
+  vire/cmslapp/connection_failure.cc
+  vire/cmslapp/disconnection_request.cc
+  vire/cmslapp/disconnection_success.cc
+  vire/cmslapp/disconnection_failure.cc
+  vire/cmslapp/the_serializable.cc
+  # vire/cmslapp/disconnection_success.cc
   ${_VireCmsLappProtobufLibrary_cpp_SOURCES}
 )
 
