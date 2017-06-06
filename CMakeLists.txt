@@ -93,7 +93,7 @@ option(VIRE_WITH_DOCS "Build documentation for Vire" ON)
 #-----------------------------------------------------------------------
 # Option for enabling Java component
 #
-option(VIRE_WITH_JAVA "Build Vire Java component" ON)
+option(VIRE_WITH_JAVA "Build Vire Java component" OFF)
 mark_as_advanced(VIRE_WITH_JAVA)
 
 #-----------------------------------------------------------------------
@@ -112,7 +112,7 @@ endif()
 #-----------------------------------------------------------------------
 # Configure Google Protocol Buffer support
 #
-option(VIRE_WITH_PROTOBUF_JAVA "Build Vire with Google Protocol Buffer Java support" ON)
+option(VIRE_WITH_PROTOBUF_JAVA "Build Vire with Google Protocol Buffer Java support" OFF)
 
 #-----------------------------------------------------------------------
 # Vire plugins support
@@ -237,9 +237,9 @@ install(DIRECTORY ${PROJECT_BUILD_DATAROOTDIR}/
 
 #-----------------------------------------------------------------------
 # - Plugins installation - Must come last because they must find Vire
-if (VIRE_WITH_PLUGINS)
-  add_subdirectory(plugins)
-endif()
+# if (VIRE_WITH_PLUGINS)
+#   add_subdirectory(plugins)
+# endif()
 
 message (STATUS "[info] End of 'CMakeLists.txt'.")
 

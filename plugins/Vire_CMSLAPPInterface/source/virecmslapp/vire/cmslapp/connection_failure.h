@@ -1,7 +1,7 @@
-//! \file  vire/cmslapp/connection_failure_response.h
+//! \file  vire/cmslapp/connection_failure.h
 //! \brief Connection failure response from to the CMS server to the Vire server
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSLAPP_CONNECTION_FAILURE_RESPONSE_H
-#define VIRE_CMSLAPP_CONNECTION_FAILURE_RESPONSE_H
+#ifndef VIRE_CMSLAPP_CONNECTION_FAILURE_H
+#define VIRE_CMSLAPP_CONNECTION_FAILURE_H
 
 // Standard library:
 #include <string>
@@ -32,9 +32,7 @@
 
 // This project:
 #include <vire/utility/instance_identifier.h>
-#include <vire/utility/base_request.h>
-#include <vire/utility/base_response.h>
-#include <vire/utility/base_error.h>
+#include <vire/utility/base_payload.h>
 #include <vire/utility/invalid_context_error.h>
 #include <vire/utility/invalid_setup_id_error.h>
 #include <vire/utility/model_identifier.h>
@@ -47,7 +45,7 @@ namespace vire {
 
     /// \brief Connection failure response from the CMS server to the Vire server
     ///
-    /// Type id: "vire::cmslapp::connection_failure_response", version "1.0"
+    /// Type id: "vire::cmslapp::connection_failure", version "1.0"
     ///
     /// @code JSON
     /// {
@@ -65,8 +63,8 @@ namespace vire {
     ///   }
     /// }
     /// @encode
-    class connection_failure_response
-      : public ::vire::utility::base_response
+    class connection_failure
+      : public ::vire::utility::base_payload
     {
     public:
 
@@ -83,10 +81,10 @@ namespace vire {
                              vire::cms::unknown_resources_error> error_type;
 
       /// Default constructor
-      connection_failure_response();
+      connection_failure();
 
       /// Destructor
-      virtual ~connection_failure_response();
+      virtual ~connection_failure();
 
       /// Set an invalid context error
       void set_error(const vire::utility::invalid_context_error &);
@@ -104,8 +102,12 @@ namespace vire {
       error_type get_error() const;
 
       /// Main JSON (de-)serialization method
-      virtual void serialize(jsontools::node & node_,
-                             unsigned long int version_ = 0);
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
@@ -118,7 +120,7 @@ namespace vire {
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(connection_failure_response)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(connection_failure)
 
     };
 
@@ -126,7 +128,13 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_CMSLAPP_CONNECTION_FAILURE_RESPONSE_H
+BOOST_CLASS_EXPORT_KEY2(vire::cmslapp::connection_failure,"vire::cmslapp::connection_failure")
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cmslapp::connection_failure, "vire::cmslapp::connection_failure")
+
+#endif // VIRE_CMSLAPP_CONNECTION_FAILURE_H
 
 // Local Variables: --
 // mode: c++ --

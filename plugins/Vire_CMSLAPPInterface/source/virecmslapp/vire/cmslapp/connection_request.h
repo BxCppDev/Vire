@@ -31,15 +31,8 @@
 #include <boost/variant.hpp>
 
 // This project:
+#include <vire/utility/base_payload.h>
 #include <vire/utility/instance_identifier.h>
-#include <vire/utility/base_request.h>
-#include <vire/utility/base_response.h>
-#include <vire/utility/base_error.h>
-#include <vire/utility/invalid_context_error.h>
-#include <vire/utility/invalid_setup_id_error.h>
-#include <vire/utility/model_identifier.h>
-#include <vire/utility/instance_identifier.h>
-#include <vire/cms/resource_status_record.h>
 
 namespace vire {
 
@@ -66,7 +59,7 @@ namespace vire {
     /// }
     /// @encode
     class connection_request
-      : public ::vire::utility::base_request
+      : public ::vire::utility::base_payload
     {
     public:
 

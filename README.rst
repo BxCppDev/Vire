@@ -191,6 +191,8 @@ No brew formula is provided yet for Vire from the ``bxcppdev/homebrew-bxtap``.
 Installation
 ------------
 
+Installation steps from the Vire *develop* source code:
+
 1. Setup Linuxbrew (visit https://github.com/BxCppDev/homebrew-bxtap/blob/master/README.md)
 
 .. code:: sh

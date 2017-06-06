@@ -1,0 +1,10 @@
+syntax = "proto3";
+package vire.cmslapp;
+
+import "vire/utility/BasePayload.proto";
+
+message ConnectionSuccess {
+
+  vire.utility.BasePayload _base = 1; // Base class
+
+}

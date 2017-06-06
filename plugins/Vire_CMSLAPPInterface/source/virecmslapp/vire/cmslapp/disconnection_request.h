@@ -25,9 +25,12 @@
 #include <string>
 #include <vector>
 
+// This project:
+#include <vire/utility/base_payload.h>
+#include <vire/utility/instance_identifier.h>
+
 // Ourselves:
-#include <vire/utility/base_request.h>
-#include <vire/utility/base_response.h>
+#include <vire/utility/base_payload.h>
 
 namespace vire {
 
@@ -41,7 +44,8 @@ namespace vire {
     /// {
     /// }
     /// @encode
-    class disconnection_request : public vire::utility::base_request
+    class disconnection_request
+      : public vire::utility::base_payload
     {
     public:
       /// Default constructor
@@ -50,11 +54,29 @@ namespace vire {
       /// Destructor
       virtual ~disconnection_request();
 
+      /// Set the setup identifier
+      void set_setup_id(const vire::utility::instance_identifier & setup_id_);
+
+      /// Return the setup identifier
+      const vire::utility::instance_identifier & get_setup_id() const;
+
+    private:
+
+      // Attributes:
+      vire::utility::instance_identifier _setup_id_;  ///< The setup identifier
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(deconnection_request)
+
     };
 
   } // namespace cmslapp
 
 } // namespace vire
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cmslapp::disconnection_request,
+                                                  "vire::cmslapp::disconnection_request")
 
 #endif // VIRE_CMSLAPP_DISCONNECTION_REQUEST_H
 

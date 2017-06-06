@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 message ResourceStatusRecord {
 
-  BasePayload _base = 1; // Base class
+  vire.utility.BasePayload _base = 1; // Base class
 
   // reserved 1-99
 

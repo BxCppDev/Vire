@@ -1,4 +1,4 @@
-//! \file  vire/cmslapp/connection_success_response.h
+//! \file  vire/cmslapp/connection_success.h
 //! \brief Connection success response emitted by the CMS server to the Vire server
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,15 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSLAPP_CONNECTION_SUCCESS_RESPONSE_H
-#define VIRE_CMSLAPP_CONNECTION_SUCCESS_RESPONSE_H
+#ifndef VIRE_CMSLAPP_CONNECTION_SUCCESS_H
+#define VIRE_CMSLAPP_CONNECTION_SUCCESS_H
 
 // Standard library:
-#include <string>
 #include <vector>
 
 // This project:
-#include <vire/utility/base_response.h>
 #include <vire/cms/resource_status_record.h>
 
 namespace vire {
@@ -35,7 +33,7 @@ namespace vire {
 
     /// \brief Connection success response from the CMS server to the Vire server
     ///
-    /// Type id: "vire::cmslapp::connection_success_response", version "1.0"
+    /// Type id: "vire::cmslapp::connection_success", version "1.0"
     ///
     /// @code JSON
     /// {
@@ -69,7 +67,7 @@ namespace vire {
     ///   ]
     /// }
     /// @encode
-    class connection_success_response : public ::vire::utility::base_response
+    class connection_success : public ::vire::utility::base_response
     {
     public:
 
@@ -86,20 +84,22 @@ namespace vire {
       /// @encode
 
       /// Default constructor
-      connection_success_response();
+      connection_success();
 
       /// Destructor
-      virtual ~connection_success_response();
+      virtual ~connection_success();
 
       /// Add a resource status record
       void add_resource_status_record(const vire::cms::resource_status_record & record_);
 
       /// Return the set of resource status records
-      const std::vector<vire::cms::resource_status_record> & get_resources_snapshot() const;
+      const std::vector<vire::cms::resource_status_record> & get_resource_snapshots() const;
 
     private:
 
-      std::vector<vire::cms::resource_status_record> _resources_snapshot_; ///< List of resource status snapshots
+      std::vector<vire::cms::resource_status_record> _resource_snapshots_; ///< List of resource status snapshots
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(connection_success)
 
     };
 
@@ -107,7 +107,13 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_CMSLAPP_CONNECTION_SUCCESS_RESPONSE_H
+BOOST_CLASS_EXPORT_KEY2(vire::cmslapp::connection_success,"vire::cmslapp::connection_success")
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cmslapp::connection_success, "vire::cmslapp::connection_success")
+
+#endif // VIRE_CMSLAPP_CONNECTION_SUCCESS_H
 
 // Local Variables: --
 // mode: c++ --

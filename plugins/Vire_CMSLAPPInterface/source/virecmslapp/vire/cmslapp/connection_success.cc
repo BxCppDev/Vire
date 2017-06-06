@@ -17,32 +17,35 @@
 // You should have received a copy of the GNU General Public License
 
 // Ourselves:
-#include <vire/cmslapp/connection_success_response.h>
+#include <vire/cmslapp/connection_success.h>
 
 namespace vire {
 
   namespace cmslapp {
 
-    connection_success_response::connection_success_response()
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_success,
+                                        "vire::cmslapp::connection_success")
+
+    connection_success::connection_success()
     {
       return;
     }
 
-    connection_success_response::~connection_success_response()
+    connection_success::~connection_success()
     {
       return;
     }
 
-    void connection_success_response::add_resource_status_record(const vire::cms::resource_status_record & record_)
+    void connection_success::add_resource_status_record(const vire::cms::resource_status_record & record_)
     {
-      _resources_snapshot_.push_back(record_);
+      _resource_snapshots_.push_back(record_);
       return;
     }
 
     const std::vector<vire::cms::resource_status_record> &
-    connection_success_response::get_resources_snapshot() const
+    connection_success::get_resource_snapshots() const
     {
-      return _resources_snapshot_;
+      return _resource_snapshots_;
     }
 
   } // namespace cmslapp

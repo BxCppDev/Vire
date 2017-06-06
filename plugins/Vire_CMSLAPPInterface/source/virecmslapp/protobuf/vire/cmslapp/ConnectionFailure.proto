@@ -1,13 +1,13 @@
 syntax = "proto3";
 package vire.cmslapp;
 
-import "vire/utility/BaseResponse.proto";
+import "vire/utility/BasePayload.proto";
 import "vire/utility/ModelIdentifier.proto";
 import "google/protobuf/Any.proto";
 
-message ConnectionFailureResponse {
+message ConnectionFailure {
 
-  vire.utility.BaseResponse _base = 1; // Base class
+  vire.utility.BasePayload _base = 1; // Base class
 
   vire.utility.ModelIdentifier error_type_id = 100; // The error type identifier
   google.protobuf.Any          error         = 101; // The error object

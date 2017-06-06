@@ -18,7 +18,9 @@ else()
 endif()
 
 set(protobufList
-  # vire/cmslapp/ConnectionRequest.proto
+  vire/cmslapp/ConnectionRequest.proto
+  vire/cmslapp/ConnectionSuccess.proto
+  vire/cmslapp/ConnectionFailure.proto
   )
 
 message( STATUS "protobufList             = '${protobufList}'")

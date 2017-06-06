@@ -1,4 +1,4 @@
-// vire/cmslapp/connection_failure_response.cc
+// vire/cmslapp/connection_failure.cc
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 
 // Ourselves:
-#include <vire/cmslapp/connection_failure_response.h>
+#include <vire/cmslapp/connection_failure.h>
 
 // Third party:
 // - BxJsontools:
@@ -27,34 +27,34 @@ namespace vire {
 
   namespace cmslapp {
 
-    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_failure_response,
-                                        "vire::cmslapp::connection_failure_response")
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_failure,
+                                        "vire::cmslapp::connection_failure")
 
-    connection_failure_response::connection_failure_response()
+    connection_failure::connection_failure()
     {
       return;
     }
 
-    connection_failure_response::~connection_failure_response()
+    connection_failure::~connection_failure()
     {
       return;
     }
 
-    void connection_failure_response::set_error(const vire::utility::invalid_context_error & ice_)
+    void connection_failure::set_error(const vire::utility::invalid_context_error & ice_)
     {
       _error_type_id_.set_name("vire::utility::invalid_context_error");
       _error_ = ice_;
       return;
     }
 
-    void connection_failure_response::set_error(const vire::utility::invalid_setup_id_error & iside_)
+    void connection_failure::set_error(const vire::utility::invalid_setup_id_error & iside_)
     {
       _error_type_id_.set_name("vire::utility::invalid_setup_id_error");
       _error_ = iside_;
       return;
     }
 
-    void connection_failure_response::set_error(const vire::cms::unknown_resources_error & ure_)
+    void connection_failure::set_error(const vire::cms::unknown_resources_error & ure_)
     {
       _error_type_id_.set_name("vire::cms::unknown_resources_error");
       _error_ = ure_;
@@ -62,18 +62,18 @@ namespace vire {
     }
 
     const vire::utility::model_identifier &
-    connection_failure_response::get_error_type_id() const
+    connection_failure::get_error_type_id() const
     {
       return  _error_type_id_;
     }
 
-    connection_failure_response::error_type
-    connection_failure_response::get_error() const
+    connection_failure::error_type
+    connection_failure::get_error() const
     {
       return _error_;
     }
 
-    void connection_failure_response::serialize(jsontools::node & node_,
+    void connection_failure::serialize(jsontools::node & node_,
                                                 unsigned long int /* version_ */)
     {
       this->::vire::utility::base_response::serialize(node_);
@@ -88,10 +88,10 @@ namespace vire {
       return;
     }
 
-    void connection_failure_response::tree_dump(std::ostream & out_,
-                                                const std::string & title_,
-                                                const std::string & indent_,
-                                                bool inherit_) const
+    void connection_failure::tree_dump(std::ostream & out_,
+                                       const std::string & title_,
+                                       const std::string & indent_,
+                                       bool inherit_) const
     {
       this->vire::utility::base_response::tree_dump(out_, title_, indent_, true);
 
