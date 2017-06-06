@@ -62,13 +62,16 @@ BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::invalid_setup_id_error)
 
 // --------------------------------------------------------------------------------------------
 // Vire/cms:
-// #include <vire/cms/resource_status_record-serial.ipp>
+#include <vire/cms/resource_status_record-serial.ipp>
 // #include <vire/cms/method_argument-serial.ipp>
 // #include <vire/cms/invalid_resource_error-serial.ipp>
 
-// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::resource_status_record)
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::resource_status_record)
 // DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::method_argument)
 // DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cms::invalid_resource_error)
+
+// Export classes:
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::cms::resource_status_record)
 
 // --------------------------------------------------------------------------------------------
 // Vire/message:

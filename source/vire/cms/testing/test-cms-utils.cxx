@@ -18,7 +18,6 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Standard library:
-#include <string>
 #include <iostream>
 
 // Third party:
@@ -35,7 +34,16 @@ int main( int argc_, char * argv_[])
   try {
 
     {
-      // Nothing
+      boost::tribool flag;
+
+      std::clog << "Flag = " << vire::cms::repr(flag) << std::endl;
+
+      flag = true;
+      std::clog << "Flag = " << vire::cms::repr(flag) << std::endl;
+      flag = false;
+      std::clog << "Flag = " << vire::cms::repr(flag) << std::endl;
+
+
     }
 
   } catch (std::exception& error) {

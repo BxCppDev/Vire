@@ -6,6 +6,9 @@
 #include <string>
 #include <exception>
 
+// Third party:
+#include <bayeux/datatools/io_factory.h>
+
 // This project:
 #include <vire/vire.h>
 #include <vire/cms/resource_status_record.h>
@@ -23,12 +26,10 @@ int main(int /* argc_ */, char ** /* argv_ */)
     test_resource_status_record_1();
 
     std::clog << "The end." << std::endl;
-  }
-  catch (std::exception & x) {
+  }  catch (std::exception & x) {
     std::cerr << "error: " << x.what() << std::endl;
     error_code = EXIT_FAILURE;
-  }
-  catch (...) {
+  } catch (...) {
     std::cerr << "error: " << "unexpected error !" << std::endl;
     error_code = EXIT_FAILURE;
   }
@@ -64,6 +65,11 @@ void test_resource_status_record_1()
 
   rsr.tree_dump(std::clog, "Resource status record: ");
   std::clog << std::endl;
+
+  {
+    datatools::data_writer dw("test-resource-resource_status_record.xml");
+    dw.store(rsr);
+  }
 
   return;
 }
