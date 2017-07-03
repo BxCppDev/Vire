@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "ResourceExecStub";
+package vire.cms;
+
+import "vire/utility/BasePayload.proto";
+import "vire/cms/MethodArgument.proto";
+
+message ResourceExec {
+
+  vire.utility.BasePayload _base = 1;
+
+  string                           path            = 100; // Resource path
+  repeated vire.cms.MethodArgument input_arguments = 101; // List of input arguments
+
+}

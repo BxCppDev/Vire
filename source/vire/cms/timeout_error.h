@@ -23,7 +23,6 @@
 
 // This project:
 #include <vire/utility/base_error.h>
-#include <vire/cms/status.h>
 
 namespace vire {
 
@@ -46,7 +45,6 @@ namespace vire {
     public:
 
       static const int32_t EC_DEADLINE  = ::vire::utility::base_error::EC_MAXIMUM_SYSTEM + 1;
-      static const int32_t EC_ELAPSED   = EC_DEADLINE + 1;
 
       /// Default constructor
       timeout_error();
@@ -58,19 +56,10 @@ namespace vire {
       bool is_deadline() const;
 
       /// Make a deadline timeout error
-      void make_deadline(const boost::posix_time::ptime & deadline_);
+      void set_deadline(const boost::posix_time::ptime & deadline_);
 
       /// Return the expected number of timeouts
       const boost::posix_time::ptime & get_deadline() const;
-
-      /// Check
-      bool is_elapsed() const;
-
-      /// Make a elapsed timeout error
-      void make_elapsed(const boost::posix_time::time_duration & elapsed_);
-
-      /// Return the expected number of timeouts
-      const boost::posix_time::time_duration & get_elapsed() const;
 
       /// Reset
       virtual void reset();
@@ -89,26 +78,25 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      /// Macro to declare basic support for cloning
-      DATATOOLS_CLONEABLE_DECLARATION(timeout_error);
-
-      /// Macro to declare basic support for serialization
-      DATATOOLS_SERIALIZATION_DECLARATION();
-
     protected:
 
       virtual void _build_message(std::string & message_) const final;
 
     private:
 
-      boost::posix_time::ptime _deadline_; ///< Deadline timestamp
-      boost::posix_time::time_duration _elapsed_; ///< Elapsed time
+      boost::posix_time::ptime _deadline_;        ///< Deadline timestamp
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(timeout_error)
 
     };
 
   } // namespace cms
 
 } // namespace vire
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::timeout_error, "vire::cms::timeout_error")
 
 #endif // VIRE_CMS_TIMEOUT_ERROR_H
 

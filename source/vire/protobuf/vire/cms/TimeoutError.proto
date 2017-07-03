@@ -1,15 +1,15 @@
 syntax = "proto3";
 option java_package = "VireProtobuf.vire.cms";
-option java_outer_classname = "ResourceExecErrorStub";
+option java_outer_classname = "TimeoutErrorStub";
 package vire.cms;
 
 import "vire/utility/BaseError.proto";
 import "google/protobuf/timestamp.proto";
 
-message ResourceExecError {
+message TimeoutError {
 
   vire.utility.BaseError _base = 1;
 
-  google.protobuf.Timestamp deadline = 100; // Deadline
+  google.protobuf.Timestamp deadline = 100; // Deadline timestamp
 
 }

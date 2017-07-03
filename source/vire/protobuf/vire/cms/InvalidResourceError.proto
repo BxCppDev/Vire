@@ -1,4 +1,6 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "InvalidResourceErrorStub";
 package vire.cms;
 
 import "vire/utility/BaseError.proto";
@@ -7,7 +9,7 @@ message InvalidResourceError {
 
   vire.utility.BaseError _base = 1;
 
-  string invalid_resource_path = 100;
-  sint32  invalid_resource_id  = 101;
+  string invalid_resource_path = 100; // Invalid resource path
+  sint32 invalid_resource_id   = 101; // Invalid resource identifier
 
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "UnknownResourcesErrorStub";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+
+message UnknownResourcesError {
+
+  vire.utility.BaseError _base = 1;
+
+  repeated string unknown_paths = 100; // List of unknown resource paths
+
+}

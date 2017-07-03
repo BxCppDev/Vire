@@ -93,6 +93,7 @@ namespace vire {
 
     private:
 
+      resource_status_record       _status_; ///< Resource status
       std::vector<method_argument> _output_arguments_; ///< List of output arguments
 
     };

@@ -38,24 +38,33 @@ set(protobufList
   vire/message/Message.proto
 
   # vire/cms:
+  vire/cms/ArgumentError.proto
+  vire/cms/InvalidCredentialsError.proto
+  vire/cms/InvalidResourceError.proto
+  vire/cms/InvalidStatusError.proto
+  vire/cms/InvalidUserError.proto
+  vire/cms/MethodArgument.proto
+  vire/cms/NoPubsubResourceError.proto
+  vire/cms/ResourceExecError.proto
+  vire/cms/UnknownResourcesError.proto
+  vire/cms/TimeoutError.proto
+
+  vire/cms/ResourceExec.proto
+  vire/cms/ResourceExecFailure.proto
+  vire/cms/ResourceExecSuccess.proto
+
+  vire/cms/ResourceFetchStatus.proto
+  vire/cms/ResourceFetchStatusFailure.proto
+  vire/cms/ResourceFetchStatusSuccess.proto
+
+  vire/cms/ResourcePubsub.proto
+  vire/cms/ResourcePubsubFailure.proto
+  vire/cms/ResourcePubsubSuccess.proto
+
   vire/cms/ResourceStatusRecord.proto
-  # vire/cms/MethodArgument.proto
-  # vire/cms/InvalidCredentialsError.proto
-  # vire/cms/InvalidUserError.proto
-  # vire/cms/ArgumentError.proto
-  # vire/cms/InvalidResourceError.proto
-  # vire/cms/InvalidStatusError.proto
-  # vire/cms/ResourceExecError.proto
-  # vire/cms/ResourceBaseRequest.proto
-  # vire/cms/ResourceBaseResponse.proto
-  # vire/cms/ResourceFetchStatusRequest.proto
-  # vire/cms/ResourceFetchStatusSuccessResponse.proto
-  # vire/cms/ResourceFetchStatusFailureResponse.proto
-  # vire/cms/ResourceExecRequest.proto
-  # vire/cms/ResourceExecSuccessResponse.proto
-  # vire/cms/ResourceExecFailureResponse.proto
-  # vire/cms/ResourceStatusChangeEvent.proto
-  # vire/cms/DeviceStatusChangeEvent.proto
+
+  # vire/cms/ResourceStatusChange.proto
+  # vire/cms/DeviceStatusChange.proto
   )
 message( STATUS "[info] protobufList = '${protobufList}'")
 

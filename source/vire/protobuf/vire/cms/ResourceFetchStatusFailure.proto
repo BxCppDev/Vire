@@ -1,14 +1,16 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "ResourceFetchStatusFailureStub";
 package vire.cms;
 
-import "vire/utility/InvalidContextError.proto";
+import "vire/utility/BasePayload.proto";
 import "vire/utility/ModelIdentifier.proto";
-import "vire/cms/ResourceBaseResponse.proto";
+import "vire/utility/InvalidContextError.proto";
 import "vire/cms/InvalidResourceError.proto";
 
-message ResourceFetchStatusFailureResponse {
+message ResourceFetchStatusFailure {
 
-  vire.cms.ResourceBaseResponse _base = 1;
+  vire.utility.BasePayload _base = 1;
 
   vire.utility.ModelIdentifier error_type_id = 100;
   oneof error_oneof {

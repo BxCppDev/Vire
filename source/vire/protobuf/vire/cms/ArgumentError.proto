@@ -6,9 +6,10 @@ import "vire/utility/BaseError.proto";
 message ArgumentError {
 
   vire.utility.BaseError _base = 1;
-  uint32 expected_nargs     = 100;
-  uint32 invalid_nargs      = 101;
-  string argument_name      = 102;
-  string invalid_value_repr = 103;
+
+  uint32 expected_nargs     = 100; // Expected number of arguments
+  uint32 invalid_nargs      = 101; // Invalid number of arguments
+  string argument_name      = 102; // Invalid argument name
+  string invalid_value_repr = 103; // Invalid argument value representation
 
 }

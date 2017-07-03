@@ -1,6 +1,6 @@
-// vire/cms/resource_exec_failure_response.cc
+// vire/cms/resource_exec_failure.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves
-#include <vire/cms/resource_exec_failure_response.h>
+#include <vire/cms/resource_exec_failure.h>
 
 // Third Party:
 // - datatools:
@@ -34,50 +34,50 @@
 
 // This project:
 #include <vire/base_object_protobuf.h>
-#include "vire/cms/ResourceExecFailureResponse.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_exec_failure_response",
-                               vire::cms::ResourceExecFailureResponse)
+#include "vire/cms/ResourceExecFailure.pb.h"
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_exec_failure",
+                               vire::cms::ResourceExecFailure)
 
 namespace vire {
 
   namespace cms {
 
-    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_exec_failure_response,
-                                        "vire::cms::resource_exec_failure_response")
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_exec_failure,
+                                        "vire::cms::resource_exec_failure")
 
-    resource_exec_failure_response::resource_exec_failure_response()
+    resource_exec_failure::resource_exec_failure()
     {
       _error_type_id_.set_name("vire::utility::invalid_context_error");
       return;
     }
 
-    resource_exec_failure_response::~resource_exec_failure_response()
+    resource_exec_failure::~resource_exec_failure()
     {
       return;
     }
 
-    void resource_exec_failure_response::set_error(const vire::utility::invalid_context_error & e_)
+    void resource_exec_failure::set_error(const vire::utility::invalid_context_error & e_)
     {
       _error_type_id_.set_name("vire::utility::invalid_context_error");
       _error_ = e_;
       return;
     }
 
-    void resource_exec_failure_response::set_error(const vire::cms::invalid_resource_error & e_)
+    void resource_exec_failure::set_error(const vire::cms::invalid_resource_error & e_)
     {
       _error_type_id_.set_name("vire::cms::invalid_resource_error");
       _error_ = e_;
       return;
     }
 
-    void resource_exec_failure_response::set_error(const vire::cms::invalid_status_error & e_)
+    void resource_exec_failure::set_error(const vire::cms::invalid_status_error & e_)
     {
       _error_type_id_.set_name("vire::cms::invalid_status_error");
       _error_ = e_;
       return;
     }
 
-    void resource_exec_failure_response::set_error(const vire::cms::argument_error & e_)
+    void resource_exec_failure::set_error(const vire::cms::argument_error & e_)
     {
       _error_type_id_.set_name("vire::cms::argument_error");
       _error_ = e_;
@@ -85,24 +85,24 @@ namespace vire {
     }
 
     const vire::utility::model_identifier &
-    resource_exec_failure_response::get_error_type_id() const
+    resource_exec_failure::get_error_type_id() const
     {
       return _error_type_id_;
     }
 
-    resource_exec_failure_response::error_type
-    resource_exec_failure_response::get_error() const
+    resource_exec_failure::error_type
+    resource_exec_failure::get_error() const
     {
       return _error_;
     }
 
-    void resource_exec_failure_response::reset()
+    void resource_exec_failure::reset()
     {
       set_error(vire::utility::invalid_context_error());
       return;
     }
 
-    void resource_exec_failure_response::jsonize(jsontools::node & node_,
+    void resource_exec_failure::jsonize(jsontools::node & node_,
                                                  const unsigned long int version_)
     {
       this->resource_base_response::jsonize(node_, version_);
@@ -125,7 +125,7 @@ namespace vire {
       return;
     }
 
-    void resource_exec_failure_response::protobufize(protobuftools::message_node & node_,
+    void resource_exec_failure::protobufize(protobuftools::message_node & node_,
                                                      const unsigned long int /* version_ */)
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(resource_base_response, node_);
@@ -148,7 +148,7 @@ namespace vire {
       return;
     }
 
-    void resource_exec_failure_response::tree_dump(std::ostream & out_,
+    void resource_exec_failure::tree_dump(std::ostream & out_,
                                                    const std::string & title_,
                                                    const std::string & indent_,
                                                    bool inherit_) const

@@ -1,0 +1,14 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "ResourcePubsubSuccessStub";
+package vire.cms;
+
+import "vire/utility/BasePayload.proto";
+
+message ResourcePubsubSuccess {
+
+  vire.utility.BasePayload _base = 1;
+
+  bool subscribed = 100; // Subscription flag
+
+}

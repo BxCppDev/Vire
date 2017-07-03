@@ -48,7 +48,7 @@ namespace vire {
 
     private:
 
-      bool _subscribed_; ///< Subscribe flag
+      bool _subscribed_; ///< Subscription flag
 
       VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure)
 

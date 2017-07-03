@@ -1,0 +1,14 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "NoPubsubResourceErrorStub";
+package vire.cms;
+
+import "vire/utility/BaseError.proto";
+
+message NoPubsubResourceError {
+
+  vire.utility.BaseError _base = 1;
+
+  string path = 100; // Resource path
+
+}

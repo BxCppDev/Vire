@@ -6,11 +6,11 @@ list(APPEND VireLibrary_HEADERS
   cms/image.h
   cms/resource_status_record.h
   cms/resource_status_record-serial.ipp
-  # cms/method_argument.h
-  # cms/method_argument-serial.ipp
+  cms/method_argument.h
+  cms/method_argument-serial.ipp
   # cms/image.h
   # #cms/experiment_image_registry.h
-  # # error types:
+  # error types:
   # cms/invalid_resource_error.h
   # cms/invalid_resource_error-serial.ipp
   # cms/no_pubsub_resource_error.h
@@ -57,7 +57,7 @@ list(APPEND VireLibrary_SOURCES
   cms/status.cc
   cms/image.cc
   cms/resource_status_record.cc
-  # cms/method_argument.cc
+  cms/method_argument.cc
   #cms/experiment_image_registry.cc
   # error types:
   # cms/invalid_resource_error.cc

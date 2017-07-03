@@ -1,9 +1,15 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "MethodArgumentStub";
 package vire.cms;
+
+import "vire/utility/BasePayload.proto";
 
 message MethodArgument {
 
   // reserved 1-99
+
+  vire.utility.BasePayload _base = 1; // Base class
 
   string name       = 100; // Name of the argument
   string value_repr = 101; // Representation of the value

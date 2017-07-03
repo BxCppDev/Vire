@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "ResourceExecSuccessResponseStub";
+package vire.cms;
+
+import "vire/utility/BasePayload.proto";
+import "vire/cms/MethodArgument.proto";
+
+message ResourceExecSuccessResponse {
+
+  vire.utility.BasePayload _base = 1;
+
+  repeated vire.cms.MethodArgument output_arguments = 100;
+
+}

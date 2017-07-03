@@ -1,7 +1,7 @@
-//! \file  vire/cms/resource_exec_failure_response.h
-//! \brief Failure response to a resource execution request
+//! \file  vire/cms/resource_exec_failure.h
+//! \brief Failure of a resource execution request
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_EXEC_FAILURE_RESPONSE_H
-#define VIRE_CMS_RESOURCE_EXEC_FAILURE_RESPONSE_H
+#ifndef VIRE_CMS_RESOURCE_EXEC_FAILURE_H
+#define VIRE_CMS_RESOURCE_EXEC_FAILURE_H
 
 // Standard library:
 #include <string>
@@ -28,10 +28,9 @@
 #include <boost/variant.hpp>
 
 // This project:
-#include <vire/utility/invalid_context_error.h>
+#include <vire/utility/base_payload.h>
 #include <vire/utility/model_identifier.h>
-#include <vire/cms/resource_base_response.h>
-#include <vire/cms/method_argument.h>
+#include <vire/utility/invalid_context_error.h>
 #include <vire/cms/invalid_resource_error.h>
 #include <vire/cms/invalid_status_error.h>
 #include <vire/cms/argument_error.h>
@@ -41,24 +40,21 @@ namespace vire {
 
   namespace cms {
 
-    /// \brief Resource execution failure response
-    class resource_exec_failure_response
-      : public resource_base_response
+    /// \brief Resource execution failure
+    class resource_exec_failure
+      : public vire::utility::base_payload
     {
     public:
 
       /// \brief Error variant
-      typedef boost::variant<vire::utility::invalid_context_error,
-                             vire::cms::invalid_resource_error,
-                             vire::cms::invalid_status_error,
-                             vire::cms::argument_error,
+      typedef boost::variant<vire::cms::argument_error,
                              vire::cms::resource_exec_error> error_type;
 
       /// Default constructor
-      resource_exec_failure_response();
+      resource_exec_failure();
 
       /// Destructor
-      virtual ~resource_exec_failure_response();
+      virtual ~resource_exec_failure();
 
       /// Set an invalid context error
       void set_error(const vire::utility::invalid_context_error &);
@@ -102,6 +98,7 @@ namespace vire {
 
     private:
 
+      resource_status_record          _status_; ///< Resource status
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
 
