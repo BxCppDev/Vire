@@ -249,6 +249,9 @@ namespace vire {
       void store_tables(uint32_t store_flags_ = 0) const;
 
       //! Build a universe role (root/system role that contains all resources)
+      //!
+      //! The cached functional, distributable and scope set of resources
+      //! are automatically built.
       void build_universe_role(role & ur_);
 
       //! Fetch the identifier of a valid resource from a textual representation

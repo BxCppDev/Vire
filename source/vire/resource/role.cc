@@ -16,7 +16,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
-
 // Ourselves:
 #include <vire/resource/role.h>
 
@@ -231,6 +230,14 @@ namespace vire {
     bool role::has_cached_distributable_resource_ids() const
     {
       return _cached_distributable_resource_ids_.get() != nullptr;
+    }
+
+    void role::build_cached()
+    {
+      build_cached_functional_resource_ids();
+      build_cached_distributable_resource_ids();
+      build_cached_scope_resource_ids();
+      return;
     }
 
     void role::build_cached_scope_resource_ids()
@@ -743,9 +750,9 @@ namespace vire {
       _build_scope_selector();
 
       if (build_cache) {
-        build_cached_functional_resource_ids();
-        build_cached_distributable_resource_ids();
-        build_cached_scope_resource_ids();
+        build_cached();
+        build_cached();
+        build_cached();
       }
 
       _initialized_ = true;

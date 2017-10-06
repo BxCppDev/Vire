@@ -49,7 +49,8 @@ namespace vire {
     class manager;
 
     //! \brief Role description
-    class role : public ::datatools::enriched_base
+    class role
+      : public ::datatools::enriched_base
     {
     public:
 
@@ -229,6 +230,9 @@ namespace vire {
 
       //! Build the cached set of distributable resource identifiers (RID)
       void build_cached_distributable_resource_ids();
+
+      //! Build all the cached set of resource identifiers (RID)
+      void build_cached();
 
       //! Return the set of scope resource IDs in the role with respect of a set of reference (universe) in the manager
       const std::set<int32_t> & get_set_of_scope_resource_ids() const;

@@ -621,7 +621,7 @@ namespace vire {
                     std::logic_error,
                     "No device manager found in the service manager!");
         const vire::device::manager & device_mgr
-          = dynamic_cast<const vire::device::manager &>(found->second.get_service_handle().get());
+          = dynamic_cast<const vire::device::manager &>(found->second->get_service_handle().get());
         uint32_t dev_flags = 0;
         build_resources_from_devices(device_mgr, dev_flags);
       }
