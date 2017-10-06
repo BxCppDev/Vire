@@ -1,7 +1,7 @@
 //! \file  vire/time/utils.h
 //! \brief Time utilities
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -29,6 +29,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 // - Bayeux/datatools:
 #include <datatools/properties.h>
+
+// This project:
+#include <vire/utility/comparison.h>
 
 namespace vire {
 
@@ -59,6 +62,13 @@ namespace vire {
 
     //!  Return a time point at current local time (now)
     boost::posix_time::ptime now();
+
+    //!  Return a time point at epoch
+    boost::posix_time::ptime epoch();
+
+    //! Compare time points
+    vire::utility::comparison_result compare(const boost::posix_time::ptime & t1_,
+                                             const boost::posix_time::ptime & t2_);
 
     // ----------- time duration operations -----------
 

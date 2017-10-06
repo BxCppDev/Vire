@@ -1,6 +1,6 @@
 // vire/time/utils.cc - Implementation of Vire time utilities
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -112,6 +112,60 @@ namespace vire {
       boost::posix_time::ptime t;
       now(t);
       return t;
+    }
+
+    boost::posix_time::ptime epoch()
+    {
+      return boost::posix_time::ptime(boost::gregorian::date(1970, 1, 1));
+    }
+
+    /** Comparison table:
+     *  \code
+     *  +-------+----+------+-------+------+
+     *  |   \ t1| not| -inf |normal |+inf  |
+     *  | t2 \  |    |      |       |      |
+     *  +-------+----+------+-------+------+
+     *  |   not | NA |  NA  | NA    | NA   |
+     *  +-------+----+------+-------+------+
+     *  |  -inf | NA |  EQ  | GREAT | GREAT|
+     *  +-------+----+------+-------+------+
+     *  |normal | NA |  LESS| L/E/G | GREAT|
+     *  +-------+----+------+-------+------+
+     *  |  +inf | NA |  LESS| LESS  | EQ   |
+     *  +-------+----+------+-------+------+
+     *  \endcode
+     */
+    vire::utility::comparison_result compare(const boost::posix_time::ptime & t1_,
+                                             const boost::posix_time::ptime & t2_)
+    {
+      if (t1_.is_not_a_date_time() || t2_.is_not_a_date_time()) {
+        return vire::utility::COMPARISON_NOT_APPLICABLE;
+      }
+      if (t1_.is_neg_infinity() && t2_.is_neg_infinity()) {
+        return vire::utility::COMPARISON_EQUAL;
+      }
+      if (t1_.is_pos_infinity() && t2_.is_pos_infinity()) {
+        return vire::utility::COMPARISON_EQUAL;
+      }
+      if (t1_.is_neg_infinity()) {
+        return vire::utility::COMPARISON_LESS;
+      }
+      if (t2_.is_neg_infinity()) {
+        return vire::utility::COMPARISON_GREATER;
+      }
+      if (t1_.is_pos_infinity()) {
+        return vire::utility::COMPARISON_GREATER;
+      }
+      if (t2_.is_pos_infinity()) {
+        return vire::utility::COMPARISON_LESS;
+      }
+      // Both times are 'normal' :
+      if (t1_ < t2_) {
+        return vire::utility::COMPARISON_LESS;
+      } else if (t1_ > t2_) {
+        return vire::utility::COMPARISON_GREATER;
+      }
+      return vire::utility::COMPARISON_EQUAL;
     }
 
     // Time duration:
@@ -349,6 +403,17 @@ namespace vire {
       DT_THROW_IF(!is_valid(ti_), std::logic_error, "Invalid time period!");
       return;
     }
+
+    // vire::utility::comparison_result
+    // compare(const boost::posix_time::time_period & i1_,
+    //      const boost::posix_time::time_period & i2_)
+    // {
+    //   int comp = vire::utility::COMPARISON_NO_APPLICABLE;
+    //   if (!is_valid(i1_) || !is_valid(i2)) {
+    //  return vire::utility::COMPARISON_NO_APPLICABLE;
+    //   }
+    //   return comp;
+    // }
 
   } // namespace time
 
