@@ -23,7 +23,6 @@
 
 // - Bayeux/BxProtobuftools:
 #include <bayeux/protobuftools/node.h>
-#include <bayeux/protobuftools/protobufable_converter.h>
 
 #define VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(BaseType,Node)        \
   {                                                                     \
@@ -32,7 +31,7 @@
   }                                                                     \
   /**/
 
-#endif //VIRE_BASE_OBJECT_PROTOBUF_H
+#endif // VIRE_BASE_OBJECT_PROTOBUF_H
 
 // Local Variables: --
 // mode: c++ --
