@@ -30,7 +30,6 @@
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/base_type_converters.h>
 #include <bayeux/protobuftools/std_type_converters.h>
-#include <bayeux/protobuftools/protobufable_converter.h>
 
 // Declare a protobuf registrar instance for the message class:
 #include <bayeux/protobuftools/protobuf_factory.h>

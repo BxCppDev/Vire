@@ -31,7 +31,6 @@
 #include <jsontools/core.h>
 // - Bxprotobuftools:
 #include <protobuftools/core.h>
-// #include <bayeux/protobuftools/i_protobufable.h>
 
 
 // This project:
