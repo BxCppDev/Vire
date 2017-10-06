@@ -41,15 +41,18 @@ endif()
 #
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
-# - Versioning
-set(Vire_VERSION_MAJOR 0)
-set(Vire_VERSION_MINOR 1)
-set(Vire_VERSION_PATCH 0)
-set(Vire_VERSION "${Vire_VERSION_MAJOR}.${Vire_VERSION_MINOR}.${Vire_VERSION_PATCH}")
-project(Vire VERSION ${Vire_VERSION})
+project(Vire)
 
 # - Load custom modules
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
+
+# - Version number management utilities:
+include(BxVersionManager)
+
+# - Versioning only giving major and minor. Patch number is
+#   automatically deduced from an external file.
+bx_version_set(Vire 1 0)
+message(STATUS "[info] Project version = '${PROJECT_VERSION}'")
 
 #-----------------------------------------------------------------------
 # Common LPC utilities

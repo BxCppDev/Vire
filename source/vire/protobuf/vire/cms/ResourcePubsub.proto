@@ -10,13 +10,13 @@ message ResourcePubsub {
   vire.utility.BasePayload _base = 1;
 
   enum PubsubAction {
-    PB_ACTION_INVALID = 0;
-    PB_ACTION_CHECK = 1;
-    PB_ACTION_SUBSCRIBE = 2;
+    PB_ACTION_INVALID     = 0;
+    PB_ACTION_CHECK       = 1;
+    PB_ACTION_SUBSCRIBE   = 2;
     PB_ACTION_UNSUBSCRIBE = 3;
   }
 
-  string path         = 100; // Resource path
+  string       path   = 100; // Resource path
   PubsubAction action = 101; // Pub/sub action
 
 }

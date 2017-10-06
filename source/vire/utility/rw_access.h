@@ -78,10 +78,8 @@ DR_TYPE_INIT(::vire::utility::rw_access_type);
 
 #endif // VIRE_UTILITY_RW_ACCESS_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

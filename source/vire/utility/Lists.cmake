@@ -1,4 +1,5 @@
 list(APPEND VireLibrary_HEADERS
+  utility/comparison.h
   utility/rw_access.h
   utility/rw_access-reflect.h
   utility/base_payload.h
@@ -23,6 +24,7 @@ list(APPEND VireLibrary_HEADERS
   utility/metadata_record.h
   utility/metadata_record-serial.ipp
   utility/path.h
+  utility/backup_file.h
 )
 
 list(APPEND VireLibrary_SOURCES
@@ -38,6 +40,7 @@ list(APPEND VireLibrary_SOURCES
   utility/json_converters.cc
   utility/metadata_record.cc
   utility/path.cc
+  utility/backup_file.cc
 )
 
 list(APPEND VireLibrary_TESTS
@@ -48,4 +51,5 @@ list(APPEND VireLibrary_TESTS
   utility/testing/test-utility-invalid_setup_id_error.cxx
   utility/testing/test-utility-identifiers.cxx
   utility/testing/test-utility-path.cxx
+  utility/testing/test-utility-backup_file.cxx
 )

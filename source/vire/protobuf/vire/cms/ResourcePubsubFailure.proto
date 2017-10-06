@@ -14,13 +14,6 @@ message ResourcePubsubFailure {
 
   vire.utility.BasePayload _base = 1;
 
-  Enum PubsubAction {
-    PB_ACTION_INVALID = 0;
-    PB_ACTION_CHECK = 1;
-    PB_ACTION_SUBSCRIBE = 2;
-    PB_ACTION_UNSUBSCRIBE = 3;
-  }
-
   vire.utility.ModelIdentifier error_type_id = 100; // Error type identifier
   oneof error_oneof {
     vire.utility.InvalidContextError invalid_context    = 101;
