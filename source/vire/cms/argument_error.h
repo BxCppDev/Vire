@@ -113,7 +113,7 @@ namespace vire {
       std::string _argument_name_;      ///< Invalid argument name
       std::string _invalid_value_repr_; ///< Invalid argument value representation
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(base_alarm)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(argument_error)
 
     };
 

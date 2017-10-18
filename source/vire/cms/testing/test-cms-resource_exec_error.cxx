@@ -37,7 +37,7 @@ int main( int argc_, char * argv_[])
     {
       // Error:
       vire::cms::resource_exec_error err;
-      err.make_invalid_context_error("Thread failed!");
+      err.make_invalid_context_error("Thread failed");
       err.print(std::clog);
       std::clog << std::endl;
     }

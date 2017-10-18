@@ -87,7 +87,7 @@ namespace vire {
       std::string _invalid_user_name_;    ///< Invalid user name
       int32_t     _invalid_user_id_ = -1; ///< Invalid UID
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_user_error)
 
     };
 

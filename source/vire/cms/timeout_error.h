@@ -23,6 +23,7 @@
 
 // This project:
 #include <vire/utility/base_error.h>
+#include <vire/time/utils.h>
 
 namespace vire {
 
@@ -72,11 +73,11 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
+      // //! Smart print
+      // virtual void tree_dump(std::ostream & out_ = std::clog,
+      //                        const std::string & title_  = "",
+      //                        const std::string & indent_ = "",
+      //                        bool inherit_ = false) const;
 
     protected:
 

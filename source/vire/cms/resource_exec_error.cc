@@ -24,10 +24,10 @@
 // - Boost:
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
-// BxJsontools:
+// - BxJsontools:
 #include <bayeux/jsontools/std_type_converters.h>
 #include <bayeux/jsontools/boost_type_converters.h>
-// BxProtobuftools:
+// - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/std_string_converter.h>
 #include <bayeux/protobuftools/boost_datetime_converters.h>
@@ -42,6 +42,9 @@ BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_exec_error",
 namespace vire {
 
   namespace cms {
+
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_exec_error,
+                                        "vire::cms::resource_exec_error");
 
     // static
     const int32_t resource_exec_error::EC_INVALID_EXEC_CONTEXT;

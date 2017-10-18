@@ -26,7 +26,7 @@
 // - BxJsontools:
 #include <bayeux/jsontools/base_type_converters.h>
 #include <bayeux/jsontools/std_type_converters.h>
-// BxProtobuftools:
+// - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/base_type_converters.h>
 #include <bayeux/protobuftools/std_type_converters.h>

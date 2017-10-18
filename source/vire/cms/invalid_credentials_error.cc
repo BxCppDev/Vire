@@ -20,8 +20,15 @@
 #include <vire/cms/invalid_credentials_error.h>
 
 // Third party:
-// Declare a protobuf registrar instance for the message class:
+// - Boost
+#include <boost/algorithm/string/replace.hpp>
+// - BxJsontools:
+#include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+// - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
+#include <bayeux/protobuftools/base_type_converters.h>
+#include <bayeux/protobuftools/std_type_converters.h>
 
 // This project:
 #include <vire/base_object_protobuf.h>
@@ -41,7 +48,7 @@ namespace vire {
     const int32_t invalid_credentials_error::EC_INVALID_PASSWORD;
 
     invalid_credentials_error::invalid_credentials_error()
-      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "Invalid credentials")
+      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
     {
       return;
     }

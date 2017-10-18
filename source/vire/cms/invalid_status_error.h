@@ -122,7 +122,7 @@ namespace vire {
       std::string _path_;      ///< Resource path
       std::string _flag_repr_; ///< Status flag that causes the error
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_status_error)
 
     };
 

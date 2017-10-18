@@ -30,7 +30,6 @@
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/base_type_converters.h>
 #include <bayeux/protobuftools/std_string_converter.h>
-#include <bayeux/protobuftools/protobufable_converter.h>
 
 // This project:
 #include <vire/base_object_protobuf.h>

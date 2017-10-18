@@ -35,7 +35,7 @@ namespace vire {
     public:
 
       static const int32_t EC_INVALID_LOGIN    = ::vire::utility::base_error::EC_MAXIMUM_SYSTEM + 1;
-      static const int32_t EC_INVALID_PASSWORD = EC_INVALID_USER + 1;
+      static const int32_t EC_INVALID_PASSWORD = EC_INVALID_LOGIN + 1;
 
       /// Default constructor
       invalid_credentials_error();
@@ -84,8 +84,10 @@ namespace vire {
 
     private:
 
-      std::string _invalid_login_;         ///< Invalid login
-      int32_t     _invalid_password_ = -1; ///< Invalid password
+      std::string _invalid_login_;    ///< Invalid login
+      std::string _invalid_password_; ///< Invalid password
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_credentials_error)
 
     };
 

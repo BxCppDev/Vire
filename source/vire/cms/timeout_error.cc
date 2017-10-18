@@ -26,10 +26,12 @@
 // BxJsontools:
 #include <bayeux/jsontools/base_type_converters.h>
 #include <bayeux/jsontools/std_type_converters.h>
+#include <bayeux/jsontools/boost_type_converters.h>
 // BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/base_type_converters.h>
 #include <bayeux/protobuftools/std_string_converter.h>
+#include <bayeux/protobuftools/boost_datetime_converters.h>
 
 // This project:
 #include <vire/base_object_protobuf.h>
@@ -49,12 +51,12 @@ namespace vire {
     const int32_t timeout_error::EC_DEADLINE;
 
     timeout_error::timeout_error()
-      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
+      : ::vire::utility::base_error(EC_DEADLINE, "")
     {
       return;
     }
 
-    timeout_resource_error::~timeout_error()
+    timeout_error::~timeout_error()
     {
       return;
     }
@@ -70,9 +72,43 @@ namespace vire {
       return;
     }
 
-    const boost::posix_time::ptime & get_deadline() const
+    const boost::posix_time::ptime & timeout_error::get_deadline() const
     {
       return _deadline_;
+    }
+
+    void timeout_error::reset()
+    {
+      ::vire::time::invalidate(_deadline_);
+      this->base_error::reset();
+      return;
+    }
+
+    void timeout_error::jsonize(jsontools::node & node_,
+                                           const unsigned long int /* version_ */)
+    {
+      this->::vire::utility::base_error::jsonize(node_);
+      node_["deadline"] % _deadline_;
+      return;
+    }
+
+    void timeout_error::protobufize(protobuftools::message_node & node_,
+                                               const unsigned long int /* version_ */)
+    {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error, node_);
+      node_["deadline"] % _deadline_;
+      return;
+    }
+
+    // virtual
+    void timeout_error::_build_message(std::string & message_) const
+    {
+      if (is_deadline()) {
+        message_ = boost::replace_all_copy(get_message_format(),
+                                           "%d",
+                                           ::vire::time::to_string(_deadline_));
+      }
+      return;
     }
 
   } // namespace cms

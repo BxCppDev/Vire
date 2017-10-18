@@ -1,6 +1,6 @@
-//! \file cms/testing/test-cms-invalid_credentials_error.cxx
+//! \file cms/testing/test-cms-timeout_error.cxx
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -26,7 +26,7 @@
 #include <datatools/exception.h>
 
 // This project:
-#include <vire/cms/invalid_credentials_error.h>
+#include <vire/cms/timeout_error.h>
 
 int main( int argc_, char * argv_[])
 {
@@ -35,9 +35,9 @@ int main( int argc_, char * argv_[])
   try {
 
     {
-      vire::cms::invalid_credentials_error err;
-      err.set_invalid_login("badguy");
-      // err.set_invalid_password("Welcome!");
+      // Error:
+      vire::cms::timeout_error err;
+      err.set_deadline(vire::time::now());
       err.print(std::clog);
       std::clog << std::endl;
     }

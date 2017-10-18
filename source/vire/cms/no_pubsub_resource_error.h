@@ -91,6 +91,10 @@ namespace vire {
 
 } // namespace vire
 
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::no_pubsub_resource_error, "vire::cms::no_pubsub_resource_error")
+
 #endif // VIRE_CMS_NO_PUBSUB_RESOURCE_ERROR_H
 
 // Local Variables: --
