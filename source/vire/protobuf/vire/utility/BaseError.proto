@@ -1,4 +1,6 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.utility";
+option java_outer_classname = "BaseErrorStub";
 package vire.utility;
 
 import "vire/utility/BasePayload.proto";

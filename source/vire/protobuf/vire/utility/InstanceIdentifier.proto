@@ -1,4 +1,6 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.utility";
+option java_outer_classname = "InstanceIdentifierStub";
 package vire.utility;
 
 import "vire/utility/BaseIdentifier.proto";

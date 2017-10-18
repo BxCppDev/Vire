@@ -3,12 +3,13 @@ option java_package = "VireProtobuf.vire.cms";
 option java_outer_classname = "ResourceStatusChangeStub";
 package vire.cms;
 
-import "vire/utility/BaseEvent.proto";
+import "vire/utility/BasePayload.proto";
 import "vire/cms/ResourceStatusRecord.proto";
 
 message ResourceStatusChange {
 
-  vire.utility.BaseEvent        _base  = 1;
+  vire.utility.BasePayload _base  = 1;// Base class
+
   vire.cms.ResourceStatusRecord status = 100; // Resource status record
 
 }

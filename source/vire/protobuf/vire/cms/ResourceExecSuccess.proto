@@ -1,12 +1,12 @@
 syntax = "proto3";
 option java_package = "VireProtobuf.vire.cms";
-option java_outer_classname = "ResourceExecSuccessResponseStub";
+option java_outer_classname = "ResourceExecSuccessStub";
 package vire.cms;
 
 import "vire/utility/BasePayload.proto";
 import "vire/cms/MethodArgument.proto";
 
-message ResourceExecSuccessResponse {
+message ResourceExecSuccess {
 
   vire.utility.BasePayload _base = 1;
 

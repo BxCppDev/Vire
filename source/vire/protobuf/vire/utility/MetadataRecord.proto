@@ -1,4 +1,6 @@
- syntax = "proto3";
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.utility";
+option java_outer_classname = "MetadataRecordStub";
 package vire.utility;
 
 message MetadataRecord {
