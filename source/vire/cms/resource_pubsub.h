@@ -48,14 +48,27 @@ namespace vire {
         ACTION_UNSUBSCRIBE = 3  ///< Ask for the Pub/sub unsubscription of the resource
       };
 
+      /// Return the label associated to a Pub/Sub action
+      static std::string action_to_label(const pubsub_action);
+
+      /// Return the Pub/Sub action associated to a label
+      static pubsub_action action_from_label(const std::string & label_,
+                                             pubsub_action & action_);
+
       /// Default constructor
       resource_pubsub();
 
       /// Constructor
-      resource_pubsub(const std::string & path_, pubsub_action action_);
+      resource_pubsub(const std::string & path_, const pubsub_action action_);
 
       /// Destructor
       virtual ~resource_pubsub();
+
+      /// Reset
+      void reset();
+
+      /// Check if path is set
+      bool has_path() const;
 
       /// Set the path
       void set_path(const std::string &);
@@ -63,11 +76,34 @@ namespace vire {
       /// Return the path
       const std::string & get_path() const;
 
+      /// Reset the path
+      void reset_path();
+
+      /// Check if path is set
+      bool has_action() const;
+
       /// Set the subscribe flag
-      void set_action(pubsub_action action_);
+      void set_action(const pubsub_action action_);
 
       /// Return the subscribe flag
-      bool get_action() const;
+      pubsub_action get_action() const;
+
+      /// Reset the path
+      void reset_action();
+
+      //! Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
+
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
 
     private:
 
@@ -75,14 +111,18 @@ namespace vire {
       std::string   _path_;   ///< Resource path
       pubsub_action _action_ = ACTION_INVALID; ///< Pub/sub action
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_pubsub)
 
     };
-
 
   } // namespace cms
 
 } // namespace vire
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_pubsub,
+                                                  "vire::cms::resource_pubsub")
 
 #endif // VIRE_CMS_RESOURCE_PUBSUB_H
 

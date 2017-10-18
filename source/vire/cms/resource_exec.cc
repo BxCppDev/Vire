@@ -21,13 +21,13 @@
 #include <vire/cms/resource_exec.h>
 
 // Third Party:
-// - datatools:
+// - Bayeux/datatools:
 #include <bayeux/datatools/exception.h>
 #include <bayeux/datatools/logger.h>
 #include <bayeux/datatools/utils.h>
-// BxJsontools:
+// - BxJsontools:
 #include <bayeux/jsontools/std_type_converters.h>
-// BxProtobuftools:
+// - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/base_type_converters.h>
 #include <bayeux/protobuftools/std_type_converters.h>

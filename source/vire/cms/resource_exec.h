@@ -48,6 +48,9 @@ namespace vire {
       /// Destructor
       virtual ~resource_exec();
 
+      /// Reset
+      void reset();
+
       /// Check if path is set
       bool has_path() const;
 
@@ -59,9 +62,6 @@ namespace vire {
 
       /// Reset the path
       void reset_path();
-
-      /// Reset
-      void reset();
 
       /// Check if input arguments are set
       bool has_input_arguments() const;

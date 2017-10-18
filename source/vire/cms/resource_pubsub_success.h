@@ -19,7 +19,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef VIRE_CMS_RESOURCE_PUBSUB_SUCCESS_H
-#define VIRE_CMS_RESOURCE_PUBSUB_success_H
+#define VIRE_CMS_RESOURCE_PUBSUB_SUCCESS_H
 
 // This project
 #include <vire/utility/base_payload.h>
@@ -41,22 +41,41 @@ namespace vire {
       virtual ~resource_pubsub_success();
 
       /// Set the subscription flag
-      void set_subscribed(bool);
+      void set_subscribed(const bool);
 
       /// Return the subscription flag
       bool is_subscribed() const;
+
+      //! Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
+
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
 
     private:
 
       bool _subscribed_; ///< Subscription flag
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_pubsub_success)
 
     };
 
   } // namespace cms
 
 } // namespace vire
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_pubsub_success,
+                                                  "vire::cms::resource_pubsub_success")
 
 #endif // VIRE_CMS_RESOURCE_PUBSUB_SUCCESS_H
 
