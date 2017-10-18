@@ -37,6 +37,7 @@ namespace vire {
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_payload>(*this));
+      archive_ & boost::serialization::make_nvp("status", _status_);
       archive_ & boost::serialization::make_nvp("output_arguments", _output_arguments_);
       return;
     }

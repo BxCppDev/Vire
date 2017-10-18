@@ -29,7 +29,6 @@
 #include <bayeux/jsontools/std_type_converters.h>
 // BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
-#include <bayeux/protobuftools/protobufable_converter.h>
 #include <bayeux/protobuftools/std_vector_converter.h>
 
 // This project:
@@ -53,6 +52,28 @@ namespace vire {
 
     resource_exec_failure::~resource_exec_failure()
     {
+      return;
+    }
+
+    bool resource_exec_failure::has_status() const
+    {
+      return _status_.is_valid();
+    }
+
+    void resource_exec_failure::set_status(const resource_status_record & s_)
+    {
+      _status_ = s_;
+      return;
+    }
+
+    const resource_status_record & resource_exec_failure::get_status() const
+    {
+      return _status_;
+    }
+
+    void resource_exec_failure::reset_status()
+    {
+      _status_.reset();
       return;
     }
 
@@ -84,6 +105,13 @@ namespace vire {
       return;
     }
 
+    void resource_exec_failure::set_error(const vire::cms::resource_exec_error & e_)
+    {
+      _error_type_id_.set_name("vire::cms::resource_exec_error");
+      _error_ = e_;
+      return;
+    }
+
     const vire::utility::model_identifier &
     resource_exec_failure::get_error_type_id() const
     {
@@ -98,6 +126,7 @@ namespace vire {
 
     void resource_exec_failure::reset()
     {
+      reset_status();
       set_error(vire::utility::invalid_context_error());
       return;
     }
@@ -105,7 +134,8 @@ namespace vire {
     void resource_exec_failure::jsonize(jsontools::node & node_,
                                                  const unsigned long int version_)
     {
-      this->resource_base_response::jsonize(node_, version_);
+      this->base_payload::jsonize(node_, version_);
+      node_["status"] % _status_;
       node_["error_type_id"] % _error_type_id_;
       if (_error_type_id_.get_name() == "vire::utility::invalid_context_error") {
         node_["invalid_context_err"] % boost::get<vire::utility::invalid_context_error>(_error_);
@@ -128,7 +158,8 @@ namespace vire {
     void resource_exec_failure::protobufize(protobuftools::message_node & node_,
                                                      const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(resource_base_response, node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
+      node_["status"] % _status_;
       node_["error_type_id"] % _error_type_id_;
       if (_error_type_id_.get_name() == "vire::utility::invalid_context_error") {
         node_["invalid_context_err"] % boost::get<vire::utility::invalid_context_error>(_error_);
@@ -153,7 +184,15 @@ namespace vire {
                                                    const std::string & indent_,
                                                    bool inherit_) const
     {
-      this->resource_base_response::tree_dump(out_, title_, indent_, true);
+      this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
+           << "Status : " << std::endl;
+      {
+        std::ostringstream indent2_oss;
+        indent2_oss << indent_ << ::datatools::i_tree_dumpable::skip_tag;
+        _status_.tree_dump(out_, "", indent2_oss.str());
+      }
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Error type id : '" << _error_type_id_.to_string() << "'" << std::endl;

@@ -40,7 +40,7 @@ namespace vire {
 
     /// \brief Resource fetch status failure
     class resource_fetch_status_failure
-      : public ::vire::utility::payload
+      : public ::vire::utility::base_payload
     {
     public:
 
@@ -53,6 +53,21 @@ namespace vire {
 
       /// Destructor
       virtual ~resource_fetch_status_failure();
+
+      /// Reset
+      void reset();
+
+      /// Check if status is set
+      bool has_status() const;
+
+      /// Set the status
+      void set_status(const resource_status_record &);
+
+      /// Return the status
+      const resource_status_record & get_status() const;
+
+      /// Reset the status
+      void reset_status();
 
       /// Set an invalid context error
       void set_error(const vire::utility::invalid_context_error &);
@@ -82,6 +97,7 @@ namespace vire {
 
     private:
 
+      resource_status_record          _status_;        ///< Resource status
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
 

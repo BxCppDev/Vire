@@ -1,4 +1,4 @@
-//! \file cms/testing/test-cms-resource_fetch_status_failure_response.cxx
+//! \file cms/testing/test-cms-resource_fetch_status_success.cxx
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -26,7 +26,7 @@
 #include <datatools/exception.h>
 
 // This project:
-#include <vire/cms/resource_fetch_status_failure_response.h>
+#include <vire/cms/resource_fetch_status_success.h>
 #include <vire/time/utils.h>
 
 int main( int argc_, char * argv_[])
@@ -39,14 +39,11 @@ int main( int argc_, char * argv_[])
       vire::cms::resource_status_record rsr;
       rsr.set_path("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_read__");
       rsr.set_timestamp(vire::time::now());
+      rsr.set_pending();
 
-      vire::utility::invalid_context_error maintenance_error;
-      maintenance_error.set_message_format("System is under maintenance");
-
-      vire::cms::resource_fetch_status_failure_response r;
+      vire::cms::resource_fetch_status_success r;
       r.set_status(rsr);
-      r.set_error(maintenance_error);
-      r.tree_dump(std::clog, "Resource fetch status failure response: ");
+      r.tree_dump(std::clog, "Resource fetch status success: ");
       std::clog << std::endl;
     }
 

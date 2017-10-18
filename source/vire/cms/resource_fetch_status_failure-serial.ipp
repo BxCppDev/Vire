@@ -38,6 +38,7 @@ namespace vire {
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_payload>(*this));
+      archive_ & boost::serialization::make_nvp("status", _status_);
       archive_ & boost::serialization::make_nvp("error_type_id", _error_type_id_);
 
       if (_error_type_id_.match("vire::cms::invalid_resource_error")) {

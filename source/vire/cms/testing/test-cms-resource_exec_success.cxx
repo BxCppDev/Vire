@@ -1,6 +1,6 @@
-//! \file cms/testing/test-cms-resource_exec_error.cxx
+//! \file cms/testing/test-cms-resource_exec_success.cxx
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -26,7 +26,7 @@
 #include <datatools/exception.h>
 
 // This project:
-#include <vire/cms/resource_exec_base_response.h>
+#include <vire/cms/resource_exec_success.h>
 #include <vire/time/utils.h>
 
 int main( int argc_, char * argv_[])
@@ -37,13 +37,15 @@ int main( int argc_, char * argv_[])
 
     {
       vire::cms::resource_status_record rsr;
-      rsr.set_path("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_read__");
+      rsr.set_path("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_write__");
       rsr.set_timestamp(vire::time::now());
       rsr.set_pending();
 
-      vire::cms::resource_exec_base_response rebr;
-      rebr.set_status(rsr);
-      rebr.tree_dump(std::clog, "Resource execution base response: ");
+      vire::cms::resource_exec_success resr;
+      resr.set_status(rsr);
+      resr.add_output_argument("voltage", "234.5", "unit=V");
+      resr.add_output_argument("test", "bar", "dummy");
+      resr.tree_dump(std::clog, "Resource execution success: ");
       std::clog << std::endl;
     }
 

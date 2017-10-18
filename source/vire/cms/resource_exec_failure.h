@@ -35,6 +35,7 @@
 #include <vire/cms/invalid_status_error.h>
 #include <vire/cms/argument_error.h>
 #include <vire/cms/resource_exec_error.h>
+#include <vire/cms/resource_status_record.h>
 
 namespace vire {
 
@@ -47,7 +48,10 @@ namespace vire {
     public:
 
       /// \brief Error variant
-      typedef boost::variant<vire::cms::argument_error,
+      typedef boost::variant<vire::utility::invalid_context_error,
+                             vire::cms::invalid_resource_error,
+                             vire::cms::invalid_status_error,
+                             vire::cms::argument_error,
                              vire::cms::resource_exec_error> error_type;
 
       /// Default constructor
@@ -55,6 +59,18 @@ namespace vire {
 
       /// Destructor
       virtual ~resource_exec_failure();
+
+      /// Check if status is set
+      bool has_status() const;
+
+      /// Set the status
+      void set_status(const resource_status_record &);
+
+      /// Return the status
+      const resource_status_record & get_status() const;
+
+      /// Reset the status
+      void reset_status();
 
       /// Set an invalid context error
       void set_error(const vire::utility::invalid_context_error &);
@@ -94,7 +110,7 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_exec_failure_response)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_exec_failure)
 
     private:
 
@@ -110,10 +126,10 @@ namespace vire {
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
-BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_exec_failure_response,
-                                                  "vire::cms::resource_exec_failure_response")
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_exec_failure,
+                                                  "vire::cms::resource_exec_failure")
 
-#endif // VIRE_CMS_RESOURCE_EXEC_FAILURE_RESPONSE_H
+#endif // VIRE_CMS_RESOURCE_EXEC_FAILURE_H
 
 // Local Variables: --
 // mode: c++ --

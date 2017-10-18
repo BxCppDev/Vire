@@ -1,4 +1,4 @@
-//! \file cms/testing/test-cms-resource_exec_error.cxx
+//! \file cms/testing/test-cms-resource_exec_failure.cxx
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -26,7 +26,7 @@
 #include <datatools/exception.h>
 
 // This project:
-#include <vire/cms/resource_exec_success_response.h>
+#include <vire/cms/resource_exec_failure.h>
 #include <vire/time/utils.h>
 
 int main( int argc_, char * argv_[])
@@ -37,15 +37,17 @@ int main( int argc_, char * argv_[])
 
     {
       vire::cms::resource_status_record rsr;
-      rsr.set_path("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_write__");
+      rsr.set_path("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_read__");
       rsr.set_timestamp(vire::time::now());
-      rsr.set_pending();
+      rsr.set_disabled();
 
-      vire::cms::resource_exec_success_response resr;
-      resr.set_status(rsr);
-      resr.add_output_argument("voltage", "234.5", "unit=V");
-      resr.add_output_argument("test", "bar", "dummy");
-      resr.tree_dump(std::clog, "Resource execution success response: ");
+      vire::utility::invalid_context_error maintenance_error;
+      maintenance_error.set_message_format("System is under maintenance");
+
+      vire::cms::resource_exec_failure r;
+      r.set_status(rsr);
+      r.set_error(maintenance_error);
+      r.tree_dump(std::clog, "Resource exec failure response: ");
       std::clog << std::endl;
     }
 

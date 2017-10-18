@@ -1,6 +1,6 @@
-// vire/cms/resource_exec_success_response.cc
+// vire/cms/resource_exec_success.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,45 +18,78 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves
-#include <vire/cms/resource_exec_success_response.h>
+#include <vire/cms/resource_exec_success.h>
 
 // Third Party:
 // - datatools:
 #include <datatools/exception.h>
 #include <datatools/logger.h>
 #include <datatools/utils.h>
-// BxJsontools:
+// - BxJsontools:
 #include <bayeux/jsontools/std_type_converters.h>
-// BxProtobuftools:
+// - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
-#include <bayeux/protobuftools/protobufable_converter.h>
 #include <bayeux/protobuftools/std_vector_converter.h>
 
 // This project:
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
-#include "vire/cms/ResourceExecSuccessResponse.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_exec_success_response",
-                               vire::cms::ResourceExecSuccessResponse)
+#include "vire/cms/ResourceExecSuccess.pb.h"
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_exec_success",
+                               vire::cms::ResourceExecSuccess)
 
 namespace vire {
 
   namespace cms {
 
-    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_exec_success_response,
-                                        "vire::cms::resource_exec_success_response")
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(resource_exec_success,
+                                        "vire::cms::resource_exec_success")
 
-    resource_exec_success_response::resource_exec_success_response()
+    resource_exec_success::resource_exec_success()
     {
       return;
     }
 
-    resource_exec_success_response::~resource_exec_success_response()
+    resource_exec_success::~resource_exec_success()
     {
       return;
     }
 
-    bool resource_exec_success_response::has_output_argument(const std::string & name_) const
+    bool resource_exec_success::is_valid() const
+    {
+      return has_status();
+    }
+
+    bool resource_exec_success::has_status() const
+    {
+      return _status_.is_valid();
+    }
+
+    void resource_exec_success::set_status(const resource_status_record & s_)
+    {
+      _status_ = s_;
+      return;
+    }
+
+    const resource_status_record & resource_exec_success::get_status() const
+    {
+      return _status_;
+    }
+
+    void resource_exec_success::reset_status()
+    {
+      _status_.reset();
+      return;
+    }
+
+    void resource_exec_success::reset()
+    {
+      clear_output_arguments();
+      reset_status();
+      return;
+    }
+
+    bool resource_exec_success::has_output_argument(const std::string & name_) const
     {
       for (const auto & arg : _output_arguments_) {
         if (arg.get_name() == name_) return true;
@@ -64,13 +97,13 @@ namespace vire {
       return false;
     }
 
-    bool resource_exec_success_response::has_output_arguments() const
+    bool resource_exec_success::has_output_arguments() const
     {
       return _output_arguments_.size() > 0;
     }
 
-    void resource_exec_success_response::add_output_argument(const std::string & name_,
-                                                             const std::string & value_repr_)
+    void resource_exec_success::add_output_argument(const std::string & name_,
+                                                    const std::string & value_repr_)
     {
       DT_THROW_IF(has_output_argument(name_), std::logic_error,
                   "Output argument with name '" << name_ << "' already exists!");
@@ -79,9 +112,9 @@ namespace vire {
       return;
     }
 
-    void resource_exec_success_response::add_output_argument(const std::string & name_,
-                                                             const std::string & value_repr_,
-                                                             const std::string & meta_)
+    void resource_exec_success::add_output_argument(const std::string & name_,
+                                                    const std::string & value_repr_,
+                                                    const std::string & meta_)
     {
       DT_THROW_IF(has_output_argument(name_), std::logic_error,
                   "Output argument with name '" << name_ << "' already exists!");
@@ -90,13 +123,13 @@ namespace vire {
       return;
     }
 
-    std::size_t resource_exec_success_response::get_number_of_output_arguments() const
+    std::size_t resource_exec_success::get_number_of_output_arguments() const
     {
       return _output_arguments_.size();
     }
 
     const method_argument &
-    resource_exec_success_response::get_output_argument(const std::size_t index_) const
+    resource_exec_success::get_output_argument(const std::size_t index_) const
     {
       DT_THROW_IF(index_ >= _output_arguments_.size(),
                   std::range_error,
@@ -105,7 +138,7 @@ namespace vire {
     }
 
     const method_argument &
-    resource_exec_success_response::get_output_argument(const std::string & name_) const
+    resource_exec_success::get_output_argument(const std::string & name_) const
     {
       for (const auto & iarg : _output_arguments_) {
         if (iarg.get_name() == name_) return iarg;
@@ -114,39 +147,49 @@ namespace vire {
     }
 
     const std::vector<method_argument> &
-    resource_exec_success_response::get_output_arguments() const
+    resource_exec_success::get_output_arguments() const
     {
       return _output_arguments_;
     }
 
-    void resource_exec_success_response::clear_output_arguments()
+    void resource_exec_success::clear_output_arguments()
     {
       _output_arguments_.clear();
       return;
     }
 
-    void resource_exec_success_response::jsonize(jsontools::node & node_,
-                                                 const unsigned long int version_)
+    void resource_exec_success::jsonize(jsontools::node & node_,
+                                        const unsigned long int version_)
     {
-      this->resource_base_response::jsonize(node_, version_);
+      this->vire::utility::base_payload::jsonize(node_, version_);
+      node_["status"] % _status_;
       node_["output_arguments"] % _output_arguments_;
       return;
     }
 
-    void resource_exec_success_response::protobufize(protobuftools::message_node & node_,
-                                                     const unsigned long int /* version_ */)
+    void resource_exec_success::protobufize(protobuftools::message_node & node_,
+                                            const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(resource_base_response, node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_payload, node_);
+      node_["status"] % _status_;
       node_["output_arguments"] % _output_arguments_;
       return;
     }
 
-    void resource_exec_success_response::tree_dump(std::ostream & out_,
-                                                   const std::string & title_,
-                                                   const std::string & indent_,
-                                                   bool inherit_) const
+    void resource_exec_success::tree_dump(std::ostream & out_,
+                                          const std::string & title_,
+                                          const std::string & indent_,
+                                          bool inherit_) const
     {
-      this->resource_base_response::tree_dump(out_, title_, indent_, true);
+      this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
+           << "Status : " << std::endl;
+      {
+        std::ostringstream indent2_oss;
+        indent2_oss << indent_ << ::datatools::i_tree_dumpable::skip_tag;
+        _status_.tree_dump(out_, "", indent2_oss.str());
+      }
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Output arguments : ";

@@ -22,11 +22,12 @@
 #define VIRE_CMS_RESOURCE_EXEC_SUCCESS_H
 
 // Standard library:
-#include <string>
+// #include <string>
 #include <vector>
 
 // This project:
-#include <vire/cms/resource_base_response.h>
+#include <vire/utility/base_payload.h>
+#include <vire/cms/resource_status_record.h>
 #include <vire/cms/method_argument.h>
 
 namespace vire {
@@ -44,6 +45,24 @@ namespace vire {
 
       /// Destructor
       virtual ~resource_exec_success();
+
+      /// Check validity
+      bool is_valid() const;
+
+      /// Reset
+      void reset();
+
+      /// Check if status is set
+      bool has_status() const;
+
+      /// Set the status
+      void set_status(const resource_status_record &);
+
+      /// Return the status
+      const resource_status_record & get_status() const;
+
+      /// Reset the status
+      void reset_status();
 
       /// Check if output arguments are set
       bool has_output_arguments() const;

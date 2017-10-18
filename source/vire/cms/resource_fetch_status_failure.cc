@@ -20,15 +20,15 @@
 // Ourselves:
 #include <vire/cms/resource_fetch_status_failure.h>
 
-// BxJsontools:
+// - BxJsontools:
 #include <bayeux/jsontools/std_type_converters.h>
-// BxProtobuftools:
+// - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/std_string_converter.h>
 
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
-#include "vire/cms/ResourceFetchStatusFailureResponse.pb.h"
+#include "vire/cms/ResourceFetchStatusFailure.pb.h"
 BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_fetch_status_failure",
                                vire::cms::ResourceFetchStatusFailure)
 
@@ -47,6 +47,35 @@ namespace vire {
 
     resource_fetch_status_failure::~resource_fetch_status_failure()
     {
+      return;
+    }
+
+    void resource_fetch_status_failure::reset()
+    {
+      reset_status();
+      set_error(vire::utility::invalid_context_error());
+      return;
+    }
+
+    bool resource_fetch_status_failure::has_status() const
+    {
+      return _status_.is_valid();
+    }
+
+    void resource_fetch_status_failure::set_status(const resource_status_record & s_)
+    {
+      _status_ = s_;
+      return;
+    }
+
+    const resource_status_record & resource_fetch_status_failure::get_status() const
+    {
+      return _status_;
+    }
+
+    void resource_fetch_status_failure::reset_status()
+    {
+      _status_.reset();
       return;
     }
 
@@ -84,6 +113,14 @@ namespace vire {
       this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
+           << "Status : " << std::endl;
+      {
+        std::ostringstream indent2_oss;
+        indent2_oss << indent_ << ::datatools::i_tree_dumpable::skip_tag;
+        _status_.tree_dump(out_, "", indent2_oss.str());
+      }
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Error type id : '" << _error_type_id_.to_string() << "'" << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
@@ -106,9 +143,10 @@ namespace vire {
     }
 
     void resource_fetch_status_failure::jsonize(jsontools::node & node_,
-                                                         const unsigned long int /* version_ */)
+                                                         const unsigned long int version_)
     {
-      this->resource_base_response::jsonize(node_);
+      this->base_payload::jsonize(node_, version_);
+      node_["status"] % _status_;
       node_["error_type_id"] % _error_type_id_;
       if (_error_type_id_.get_name() == "vire::utility::invalid_context_error") {
         node_["invalid_context_error"] % boost::get<vire::utility::invalid_context_error>(_error_);
@@ -122,7 +160,8 @@ namespace vire {
     void resource_fetch_status_failure::protobufize(protobuftools::message_node & node_,
                                                              const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(resource_base_response, node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(base_payload, node_);
+      node_["status"] % _status_;
       node_["error_type_id"] % _error_type_id_;
       if (_error_type_id_.get_name() == "vire::utility::invalid_context_error") {
         node_["invalid_context_error"] % boost::get<vire::utility::invalid_context_error>(_error_);

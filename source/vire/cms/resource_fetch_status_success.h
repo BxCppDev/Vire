@@ -37,7 +37,7 @@ namespace vire {
 
     /// \brief Resource fetch status success
     class resource_fetch_status_success
-      : public ::vire::utility::payload
+      : public ::vire::utility::base_payload
     {
     public:
 
