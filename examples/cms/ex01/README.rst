@@ -7,11 +7,11 @@ Vire CMS example ex01
 Preparation
 -----------
 
-Setup Vire and its dependees from a Cadfaelbrew shell:
+Setup Vire and its dependees from a Linuxbrew shell:
 
 .. code:: sh
 
-	  $ brew sh
+	  $ linuxbrew_setup
 	  $ bayeux_dev_setup
 	  $ vire_dev_setup
 	  $ which virequery

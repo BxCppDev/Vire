@@ -19,7 +19,7 @@
 #include <vire/message/message_body.h>
 #include <vire/message/body_layout.h>
 #include <vire/utility/path.h>
-#include <vire/cms/resource_exec_request.h>
+#include <vire/cms/resource_exec.h>
 
 struct app_params
 {
@@ -68,39 +68,39 @@ int main(int argc_, char ** argv_)
       if (vm["help"].as<bool>()) {
         app_params::print_usage(optPublic, std::cout);
         error_code = 1;
-	process = false;
+        process = false;
       }
     }
 
     if (process) {
       if (params.async) {
-	params.mode = "async_resource_exec_request";
+        params.mode = "async_resource_exec_request";
       }
       if (params.mode.empty()) {
-	params.mode = "sync_resource_exec_request";
+        params.mode = "sync_resource_exec_request";
       }
       if (params.setup.empty()) {
-	params.setup = "SuperNEMO";
+        params.setup = "SuperNEMO";
       }
       if (params.dirs.empty()) {
-	params.dirs = "/Demonstrator/CMS/Coil/Control/Voltage";
+        params.dirs = "/Demonstrator/CMS/Coil/Control/Voltage";
       }
       if (params.leaf.empty()) {
-	params.leaf = "__dp_read__";
+        params.leaf = "__dp_read__";
       }
       if (params.metadata_filename.empty()) {
-	params.metadata_filename = params.file_prefix + ".meta";
+        params.metadata_filename = params.file_prefix + ".meta";
       }
       if (params.buffer_filename.empty()) {
-	params.buffer_filename = params.file_prefix + ".buf";
+        params.buffer_filename = params.file_prefix + ".buf";
       }
       if (params.dump_filename.empty()) {
-	params.dump_filename = params.file_prefix + ".dump";
+        params.dump_filename = params.file_prefix + ".dump";
       }
 
       if (params.mode == "async_resource_exec_request") {
-	// Async return queue:
-	params.async_address = "snemo.vire.client_0.Die0baxu.q";
+        // Async return queue:
+        params.async_address = "snemo.vire.client_0.Die0baxu.q";
       }
 
       std::string resource_path = vire::utility::path::build(params.setup, params.dirs, params.leaf);
@@ -123,16 +123,17 @@ int main(int argc_, char ** argv_)
       body_layout_id.set_version(vire::message::body_layout::current_version());
       msg_header.set_message_id(msg_id);
       msg_header.set_timestamp(vire::time::now());
+      msg_header.set_category(vire::message::MESSAGE_REQUEST);
       msg_header.set_asynchronous(!params.async_address.empty());
       msg_header.set_async_address(params.async_address);
       msg_header.set_body_layout_id(body_layout_id);
       msg_header.add_metadata("user_correlation_id", routing_key);
 
       // Payload:
-      vire::cms::resource_exec_request rer;
+      vire::cms::resource_exec rer;
       rer.set_path(resource_path);
       if (params.leaf == "__dp_read__") {
-	rer.add_input_argument("refresh", "false");
+        rer.add_input_argument("refresh", "false");
       }
       rer.tree_dump(std::clog, "Resource execution request: ");
       std::clog << std::endl;
@@ -140,7 +141,7 @@ int main(int argc_, char ** argv_)
       // Body:
       vire::message::message_body & msg_body = msg.grab_body();
       vire::utility::model_identifier payload_type_id;
-      payload_type_id.set("beatles", "1.0"); 
+      payload_type_id.set("beatles", "1.0");
       // msg_body.set_payload_type_id(payload_type_id);
       msg_body.set_payload(rer);
 
@@ -155,7 +156,7 @@ int main(int argc_, char ** argv_)
       fmetadata << "resource_path=" << resource_path << std::endl;
       fmetadata << "routing_key=" << routing_key << std::endl;
       if (params.async) {
-	fmetadata << "async_address=" << params.async_address << std::endl;
+        fmetadata << "async_address=" << params.async_address << std::endl;
       }
       // Generate protobufized message:
       std::ofstream fbufferdata(params.buffer_filename.c_str(), std::ios::binary);
