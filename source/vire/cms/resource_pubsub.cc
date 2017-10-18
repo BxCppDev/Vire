@@ -18,19 +18,19 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves
-#include <vire/cms/resource_pubsub_request.h>
+#include <vire/cms/resource_pubsub.h>
 
 
 namespace vire {
 
   namespace cms {
 
-    resource_pubsub_request::resource_pubsub_request()
+    resource_pubsub::resource_pubsub()
     {
       return;
     }
 
-    resource_pubsub_request::resource_pubsub_request(const std::string & path_,
+    resource_pubsub::resource_pubsub(const std::string & path_,
                                                      pubsub_action action_)
     {
       set_path(path_);
@@ -38,29 +38,29 @@ namespace vire {
       return;
     }
 
-    resource_pubsub_request::~resource_pubsub_request()
+    resource_pubsub::~resource_pubsub()
     {
       return;
     }
 
-    void resource_pubsub_request::set_path(const std::string & path_)
+    void resource_pubsub::set_path(const std::string & path_)
     {
       _path_ = path_;
       return;
     }
 
-    const std::string & resource_pubsub_request::get_path() const
+    const std::string & resource_pubsub::get_path() const
     {
       return _path_;
     }
 
-    void resource_pubsub_request::set_action(pubsub_action action_)
+    void resource_pubsub::set_action(pubsub_action action_)
     {
       _action_ = action_;
       return;
     }
 
-    bool resource_pubsub_request::get_action() const
+    bool resource_pubsub::get_action() const
     {
       return _action_;
     }

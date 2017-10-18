@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="13.3">
   <help_text>// Uncomment the following line to change the fontsize and font:
-fontsize=12
-fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
+fontsize=10
+// fontfamily=SansSerif //possible: SansSerif,Serif,Monospaced
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,19 +161,19 @@ Possible implementation
   <element>
     <type>com.baselet.element.old.element.Class</type>
     <coordinates>
-      <x>16</x>
+      <x>0</x>
       <y>576</y>
-      <w>216</w>
+      <w>248</w>
       <h>104</h>
     </coordinates>
     <panel_attributes>*vire::cmsserver::session_info*
 --
 -id   : int32_t -- auto
--uid  : int32_t
--gid  : int32_t
--role : int32_t
+-key  : std::string 
+-description : std::string
+-role_id : int32_t
 -when : boost::posix_time::time_period
--what : std::string
+-usecase_id : std::string
 --
 _-next_id() : int32_t_
 </panel_attributes>
@@ -182,8 +182,8 @@ _-next_id() : int32_t_
   <element>
     <type>com.baselet.element.old.element.Class</type>
     <coordinates>
-      <x>248</x>
-      <y>576</y>
+      <x>264</x>
+      <y>568</y>
       <w>216</w>
       <h>112</h>
     </coordinates>
@@ -224,7 +224,7 @@ Responsability :
   <element>
     <type>com.baselet.element.old.element.Class</type>
     <coordinates>
-      <x>480</x>
+      <x>552</x>
       <y>584</y>
       <w>200</w>
       <h>64</h>
@@ -400,13 +400,13 @@ Possible implementation
   <element>
     <type>com.baselet.element.old.element.Relation</type>
     <coordinates>
-      <x>440</x>
-      <y>600</y>
-      <w>56</w>
+      <x>456</x>
+      <y>592</y>
+      <w>112</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>24;24;40;24</additional_attributes>
+    <additional_attributes>24;24;96;24</additional_attributes>
   </element>
   <element>
     <type>com.baselet.element.old.element.Class</type>
@@ -450,7 +450,7 @@ Possible implementation
     <panel_attributes>*vire::cmsserver::user_reservation*
 --
 -reservation : session_info
--service_tag : std::string
+-process_tag : std::string
 -start_macro : std::string
 -stop_macro  : std::string
 </panel_attributes>

@@ -23,7 +23,7 @@
 
 // Standard library:
 #include <string>
-#include <set>
+#include <vector>
 
 // This project:
 #include <vire/utility/base_error.h>
@@ -47,31 +47,41 @@ namespace vire {
     /// }
     /// @encode
     class unknown_resources_error
-      : public vire::utility::base_error
+      : public ::vire::utility::base_error
     {
     public:
+
+      static const int32_t EC_UNKNOWN = ::vire::utility::base_error::EC_MAXIMUM_SYSTEM + 1;
 
       /// Default constructor
       unknown_resources_error();
 
-      /// Constructor with error code
-      unknown_resources_error(int32_t code_);
-
       /// Constructor with error code and message
-      unknown_resources_error(int32_t code_, const std::string & message_);
+      unknown_resources_error(const std::string & unknown_path_);
 
       /// Destructor
       virtual ~unknown_resources_error();
+
+      /// Check if a path is unknown
+      bool has_unknown_path(const std::string & path_) const;
 
       /// Add a unknown resource path in the list
       void add(const std::string & unknown_path_);
 
       /// Return the list of unknown paths
-      const std::set<std::string> & get_unknown_paths() const;
+      const std::vector<std::string> & get_unknown_paths() const;
+
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
 
     private:
 
-      std::set<std::string> _unknown_paths_; ///< List of unknown resource paths
+      std::vector<std::string> _unknown_paths_; ///< List of unknown resource paths
 
       VIRE_UTILITY_PAYLOAD_INTERFACE(unknown_resources_error)
 
@@ -80,6 +90,10 @@ namespace vire {
   } // namespace cms
 
 } // namespace vire
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::unknown_resources_error, "vire::cms::unknown_resources_error")
 
 #endif // VIRE_CMS_UNKNOWN_RESOURCES_ERROR_H
 

@@ -44,8 +44,7 @@ namespace vire {
     {
     public:
 
-      static const int32_t EC_INVALID_PATH = ::vire::utility::base_error::EC_MAXIMUM_SYSTEM + 1;
-      static const int32_t EC_INVALID_ID   = EC_INVALID_PATH + 1;
+      static const int32_t EC_NO_PUBSUB_SUPPORT = ::vire::utility::base_error::EC_MAXIMUM_SYSTEM + 1;
 
       /// Default constructor
       no_pubsub_resource_error();
@@ -74,6 +73,7 @@ namespace vire {
 
       /// Main Protobuf (de-)serialization method
       virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
 
     protected:
 
@@ -83,7 +83,7 @@ namespace vire {
 
       std::string _path_; ///< Resource path
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(no_pubsub_resource_error)
 
     };
 

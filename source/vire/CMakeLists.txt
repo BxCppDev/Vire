@@ -105,10 +105,22 @@ if (VIRE_WITH_QT_GUI)
 endif()
 
 #-----------------------------------------------------------------------
+# BxJsontools support
+#
+message (STATUS "[info] Searching for BxJsontools...")
+find_package(BxJsontools 0.2 REQUIRED CONFIG COMPONENTS manager)
+if (BxJsontools_FOUND)
+  message( STATUS "[info] Found the BxJsontools library:")
+  message( STATUS "[info]   BxJsontools_VERSION           = '${BxJsontools_VERSION}'")
+  message( STATUS "[info]   BxJsontools_INCLUDE_DIRS      = '${BxJsontools_INCLUDE_DIRS}'")
+  message( STATUS "[info]   BxJsontools_LIBRARIES         = '${BxJsontools_LIBRARIES}'")
+endif()
+
+#-----------------------------------------------------------------------
 # BxRabbitMQ support
 #
 message (STATUS "[info] Searching for BxRabbitMQ...")
-find_package(BxRabbitMQ 0.1 REQUIRED CONFIG COMPONENTS manager)
+find_package(BxRabbitMQ 0.3 REQUIRED CONFIG COMPONENTS manager)
 if (BxRabbitMQ_FOUND)
   message( STATUS "[info] Found the BxRabbitMQ library:")
   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
@@ -121,7 +133,7 @@ endif()
 # BxProtobuftools support
 #
 message (STATUS "[info] Searching for BxProtobuftools...")
-find_package(BxProtobuftools 0.1 REQUIRED CONFIG)
+find_package(BxProtobuftools 0.2 REQUIRED CONFIG)
 if (BxProtobuftools_FOUND)
   message( STATUS "[info] Found the BxProtobuftools library:")
   message( STATUS "[info]   BxProtobuftools_VERSION      = '${BxProtobuftools_VERSION}'")
@@ -132,7 +144,7 @@ if (BxProtobuftools_FOUND)
   message( STATUS "[info]   BxProtobuftools_LIBRARIES    = '${BxProtobuftools_LIBRARIES}'")
 endif()
 
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 
 message (STATUS "[info] Adding subdirectory 'protobuf'...")
 add_subdirectory(protobuf)
@@ -174,7 +186,7 @@ include(cms/Lists.cmake)
 # # Communication service
 # include(com/Lists.cmake)
 
-# # CMS server kernel and utilities:
+# CMS server kernel and utilities:
 # include(cmsserver/Lists.cmake)
 
 # # CMS client kernel and utilities:

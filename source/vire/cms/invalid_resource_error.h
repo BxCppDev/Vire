@@ -72,13 +72,16 @@ namespace vire {
       /// Return the invalid resource path
       const std::string & get_invalid_resource_path() const;
 
-      /// Check invalid UID
+      /// Check invalid resource ID
+      bool is_invalid_resource_id() const;
+
+      /// Check invalid ID
       bool has_invalid_resource_id() const;
 
-      /// Set the invalid resource version representation
+      /// Set the invalid resource ID
       void set_invalid_resource_id(int32_t);
 
-      /// Return the invalid resource version representation
+      /// Return the invalid resource ID
       int32_t get_invalid_resource_id() const;
 
       /// Clear all internal informations
@@ -99,7 +102,7 @@ namespace vire {
     private:
 
       std::string _invalid_resource_path_;    ///< Invalid resource path
-      int32_t     _invalid_resource_id_ = -1; ///< Invalid UID
+      int32_t     _invalid_resource_id_ = -1; ///< Invalid resource UID
 
       VIRE_UTILITY_PAYLOAD_INTERFACE(invalid_resource_error)
 

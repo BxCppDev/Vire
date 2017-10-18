@@ -82,7 +82,7 @@ namespace vire {
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_failure)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_pubsub_failure)
 
     };
 

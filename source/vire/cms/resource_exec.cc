@@ -75,6 +75,13 @@ namespace vire {
       return;
     }
 
+    void resource_exec::reset()
+    {
+      reset_path();
+      clear_input_arguments();
+      return;
+    }
+
     void resource_exec::reset_path()
     {
       _path_.clear();

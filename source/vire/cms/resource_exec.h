@@ -60,6 +60,9 @@ namespace vire {
       /// Reset the path
       void reset_path();
 
+      /// Reset
+      void reset();
+
       /// Check if input arguments are set
       bool has_input_arguments() const;
 
@@ -78,7 +81,7 @@ namespace vire {
       const method_argument & get_input_argument(const std::size_t index_) const;
 
       /// Return input argument by name
-      const method_argument & get_input_argument(const std::string & name_) const;
+.      const method_argument & get_input_argument(const std::string & name_) const;
 
       /// Return the number of input arguments
       std::size_t get_number_of_input_arguments() const;

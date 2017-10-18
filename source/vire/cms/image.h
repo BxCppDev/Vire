@@ -50,7 +50,8 @@ namespace vire {
   namespace cms {
 
     //! \brief Dynamic status of a device or resource
-    class image : public datatools::i_tree_dumpable
+    class image
+      : public datatools::i_tree_dumpable
     {
     public:
 

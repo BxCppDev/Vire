@@ -32,6 +32,9 @@
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/UnknownResourcesError.pb.h"
 
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::unknown_resources_error",
+                               vire::cms::UnknownResourcesError)
+
 namespace vire {
 
   namespace cms {
@@ -39,22 +42,19 @@ namespace vire {
     VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(unknown_resources_error,
                                         "vire::cms::unknown_resources_error");
 
+    // static
+    const int32_t unknown_resources_error::EC_UNKNOWN;
+
     unknown_resources_error::unknown_resources_error()
-      : ::vire::utility::base_error(::vire::utility::base_error::EC_GENERIC_FAILURE, "")
+      : ::vire::utility::base_error(EC_UNKNOWN, "")
     {
       return;
     }
 
-    unknown_resources_error::unknown_resources_error(int32_t code_)
-      : ::vire::utility::base_error(code_, "")
+    unknown_resources_error::unknown_resources_error(const std::string & unknown_path_)
+      : ::vire::utility::base_error(EC_UNKNOWN, "")
     {
-      return;
-    }
-
-    unknown_resources_error::unknown_resources_error(int32_t code_,
-                                                     const std::string & message_)
-      : ::vire::utility::base_error(code_, message_)
-    {
+      add(unknown_path_);
       return;
     }
 
@@ -63,29 +63,39 @@ namespace vire {
       return;
     }
 
+    bool unknown_resources_error::has_unknown_path(const std::string & path_) const
+    {
+      for (const auto & p : _unknown_paths_) {
+        if (p == path_) return true;
+      }
+      return false;
+    }
+
     void
     unknown_resources_error::add(const std::string & unknown_path_)
     {
-      _unknown_paths_.insert(unknown_path_);
+      if (!has_unknown_path(unknown_path_)) {
+        _unknown_paths_.push_back(unknown_path_);
+      }
       return;
     }
 
-    const std::set<std::string> &
+    const std::vector<std::string> &
     unknown_resources_error::get_unknown_paths() const
     {
       return _unknown_paths_;
     }
 
     void unknown_resources_error::jsonize(jsontools::node & node_,
-                                     const unsigned long int /* version_ */)
+                                          const unsigned long int /* version_ */)
     {
       this->::vire::utility::base_error::jsonize(node_);
       node_["unknown_paths"] % _unknown_paths_;
       return;
     }
 
-    void invalid_user_error::protobufize(protobuftools::message_node & node_,
-                                         const unsigned long int /* version_ */)
+    void unknown_resources_error::protobufize(protobuftools::message_node & node_,
+                                              const unsigned long int /* version_ */)
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error,node_);
       node_["unknown_paths"] % _unknown_paths_;

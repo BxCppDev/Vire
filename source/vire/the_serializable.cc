@@ -110,4 +110,23 @@ BOOST_CLASS_EXPORT_IMPLEMENT(vire::user::group)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::device::slot)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::device::slot)
 
-//
+// // --------------------------------------------------------------------------------------------
+// // Vire/cmsserver:
+// #include <vire/cmsserver/session_info-serial.ipp>
+// #include <vire/cmsserver/process_info-serial.ipp>
+// #include <vire/cmsserver/session_reservation-serial.ipp>
+
+// // Class vire::cmsserver::session_info:
+// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmsserver::session_info)
+// BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmsserver::session_info)
+
+// // Class vire::cmsserver::process_info:
+// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmsserver::process_info)
+// BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmsserver::process_info)
+
+// // Class vire::cmsserver::session_reservation:
+// DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmsserver::session_reservation)
+// BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmsserver::session_reservation)
+
+
+// end

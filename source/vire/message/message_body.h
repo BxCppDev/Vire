@@ -32,7 +32,6 @@
 // - Bxprotobuftools:
 #include <protobuftools/core.h>
 
-
 // This project:
 #include <vire/utility/model_identifier.h>
 #include <vire/utility/base_payload.h>

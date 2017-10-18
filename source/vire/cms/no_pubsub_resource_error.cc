@@ -22,6 +22,12 @@
 // Third party
 // - Boost
 #include <boost/algorithm/string/replace.hpp>
+// BxJsontools:
+#include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+// BxProtobuftools:
+#include <bayeux/protobuftools/protobuf_factory.h>
+#include <bayeux/protobuftools/std_string_converter.h>
 
 // This project:
 #include <vire/base_object_protobuf.h>
@@ -34,17 +40,17 @@ namespace vire {
 
   namespace cms {
 
-    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(no_pubsub_resource_errord,
-                                        "vire::cms::no_pubsub_resource_errord");
+    VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(no_pubsub_resource_error,
+                                        "vire::cms::no_pubsub_resource_error");
 
     no_pubsub_resource_error::no_pubsub_resource_error()
-      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
+      : ::vire::utility::base_error(EC_NO_PUBSUB_SUPPORT, "")
     {
       return;
     }
 
     no_pubsub_resource_error::no_pubsub_resource_error(const std::string & path_)
-      : ::vire::utility::base_error(base_error::EC_GENERIC_FAILURE, "")
+      : ::vire::utility::base_error(EC_NO_PUBSUB_SUPPORT, "")
     {
       set_path(path_);
       return;
@@ -91,7 +97,7 @@ namespace vire {
     }
 
     void no_pubsub_resource_error::jsonize(jsontools::node & node_,
-                                     const unsigned long int /* version_ */)
+                                           const unsigned long int /* version_ */)
     {
       this->::vire::utility::base_error::jsonize(node_);
       node_["path"] % _path_;
@@ -99,9 +105,9 @@ namespace vire {
     }
 
     void no_pubsub_resource_error::protobufize(protobuftools::message_node & node_,
-                                         const unsigned long int /* version_ */)
+                                               const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error,node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(::vire::utility::base_error, node_);
       node_["path"] % _path_;
       return;
     }

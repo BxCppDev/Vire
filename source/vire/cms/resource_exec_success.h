@@ -1,4 +1,4 @@
-//! \file  vire/cms/resource_exec_success_response.h
+//! \file  vire/cms/resource_exec_success.h
 //! \brief Success response to a resource execution request
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_RESOURCE_EXEC_SUCCESS_RESPONSE_H
-#define VIRE_CMS_RESOURCE_EXEC_SUCCESS_RESPONSE_H
+#ifndef VIRE_CMS_RESOURCE_EXEC_SUCCESS_H
+#define VIRE_CMS_RESOURCE_EXEC_SUCCESS_H
 
 // Standard library:
 #include <string>
@@ -33,17 +33,17 @@ namespace vire {
 
   namespace cms {
 
-    /// \brief Resource execution success response
-    class resource_exec_success_response
-      : public resource_base_response
+    /// \brief Resource execution success
+    class resource_exec_success
+      : public vire::utility::base_payload
     {
     public:
 
       /// Default constructor
-      resource_exec_success_response();
+      resource_exec_success();
 
       /// Destructor
-      virtual ~resource_exec_success_response();
+      virtual ~resource_exec_success();
 
       /// Check if output arguments are set
       bool has_output_arguments() const;
@@ -89,7 +89,7 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_exec_success_response)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_exec_success)
 
     private:
 
@@ -104,10 +104,10 @@ namespace vire {
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
-BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_exec_success_response,
-                                                  "vire::cms::resource_exec_success_response")
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::resource_exec_success,
+                                                  "vire::cms::resource_exec_success")
 
-#endif // VIRE_CMS_RESOURCE_EXEC_SUCCESS_RESPONSE_H
+#endif // VIRE_CMS_RESOURCE_EXEC_SUCCESS_H
 
 // Local Variables: --
 // mode: c++ --

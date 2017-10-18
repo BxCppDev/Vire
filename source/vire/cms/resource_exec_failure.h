@@ -98,7 +98,7 @@ namespace vire {
 
     private:
 
-      resource_status_record          _status_; ///< Resource status
+      resource_status_record          _status_;        ///< Resource status
       vire::utility::model_identifier _error_type_id_; ///< The error type identifier
       error_type                      _error_;         ///< The error object
 

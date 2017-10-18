@@ -11,12 +11,12 @@ list(APPEND VireLibrary_HEADERS
   # cms/image.h
   # #cms/experiment_image_registry.h
   # error types:
-  # cms/invalid_resource_error.h
-  # cms/invalid_resource_error-serial.ipp
-  # cms/no_pubsub_resource_error.h
-  # cms/no_pubsub_resource_error-serial.ipp
-  # cms/unknown_resources_error.h
-  # cms/unknown_resources_error-serial.ipp
+  cms/invalid_resource_error.h
+  cms/invalid_resource_error-serial.ipp
+  cms/no_pubsub_resource_error.h
+  cms/no_pubsub_resource_error-serial.ipp
+  cms/unknown_resources_error.h
+  cms/unknown_resources_error-serial.ipp
   # cms/invalid_status_error.h
   # cms/invalid_status_error-serial.ipp
   # cms/invalid_user_error.h
@@ -60,9 +60,9 @@ list(APPEND VireLibrary_SOURCES
   cms/method_argument.cc
   #cms/experiment_image_registry.cc
   # error types:
-  # cms/invalid_resource_error.cc
-  # cms/no_pubsub_resource_error.cc
-  # cms/unknown_resources_error.cc
+  cms/invalid_resource_error.cc
+  cms/no_pubsub_resource_error.cc
+  cms/unknown_resources_error.cc
   # cms/invalid_status_error.cc
   # cms/invalid_user_error.cc
   # cms/invalid_credentials_error.cc

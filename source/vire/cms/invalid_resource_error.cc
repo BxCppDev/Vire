@@ -45,7 +45,6 @@ namespace vire {
     VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(invalid_resource_error,
                                         "vire::cms::invalid_resource_error");
 
-
     // static
     const int32_t invalid_resource_error::EC_INVALID_PATH;
     const int32_t invalid_resource_error::EC_INVALID_ID;
