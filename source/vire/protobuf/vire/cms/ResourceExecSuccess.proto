@@ -4,12 +4,14 @@ option java_outer_classname = "ResourceExecSuccessStub";
 package vire.cms;
 
 import "vire/utility/BasePayload.proto";
+import "vire/cms/ResourceStatusRecord.proto";
 import "vire/cms/MethodArgument.proto";
 
 message ResourceExecSuccess {
 
   vire.utility.BasePayload _base = 1;
 
-  repeated vire.cms.MethodArgument output_arguments = 100;
+  vire.cms.ResourceStatusRecord    status = 100;
+  repeated vire.cms.MethodArgument output_arguments = 101;
 
 }

@@ -1,4 +1,6 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "DeviceStatusChangeStub";
 package vire.cms;
 
 import "vire/utility/BasePayload.proto";

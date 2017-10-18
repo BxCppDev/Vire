@@ -63,8 +63,9 @@ set(protobufList
 
   vire/cms/ResourceStatusRecord.proto
 
-  # vire/cms/ResourceStatusChange.proto
-  # vire/cms/DeviceStatusChange.proto
+  vire/cms/ResourceStatusChange.proto
+  vire/cms/DeviceStatusChange.proto
+
   )
 message( STATUS "[info] protobufList = '${protobufList}'")
 

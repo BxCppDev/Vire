@@ -8,7 +8,7 @@ import "vire/cms/ResourceStatusRecord.proto";
 
 message ResourceStatusChange {
 
-  vire.utility.BasePayload _base  = 1;// Base class
+  vire.utility.BasePayload _base  = 1; // Base class
 
   vire.cms.ResourceStatusRecord status = 100; // Resource status record
 

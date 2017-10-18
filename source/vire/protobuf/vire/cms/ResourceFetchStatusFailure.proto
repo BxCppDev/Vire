@@ -7,15 +7,17 @@ import "vire/utility/BasePayload.proto";
 import "vire/utility/ModelIdentifier.proto";
 import "vire/utility/InvalidContextError.proto";
 import "vire/cms/InvalidResourceError.proto";
+import "vire/cms/ResourceStatusRecord.proto";
 
 message ResourceFetchStatusFailure {
 
   vire.utility.BasePayload _base = 1;
 
-  vire.utility.ModelIdentifier error_type_id = 100;
+  vire.cms.ResourceStatusRecord status = 100;
+  vire.utility.ModelIdentifier  error_type_id = 101;
   oneof error_oneof {
-    vire.utility.InvalidContextError invalid_context  = 101;
-    vire.cms.InvalidResourceError    invalid_resource = 102;
+    vire.utility.InvalidContextError invalid_context  = 102;
+    vire.cms.InvalidResourceError    invalid_resource = 103;
   }
 
 }

@@ -10,18 +10,20 @@ import "vire/cms/InvalidResourceError.proto";
 import "vire/cms/InvalidStatusError.proto";
 import "vire/cms/ArgumentError.proto";
 import "vire/cms/ResourceExecError.proto";
+import "vire/cms/ResourceStatusRecord.proto";
 
 message ResourceExecFailure {
 
   vire.utility.BasePayload _base = 1;
 
-  vire.utility.ModelIdentifier error_type_id = 100;
+  vire.cms.ResourceStatusRecord status        = 100;
+  vire.utility.ModelIdentifier  error_type_id = 101;
   oneof error_oneof {
-    vire.utility.InvalidContextError invalid_context_err  = 101;
-    vire.cms.InvalidResourceError    invalid_resource_err = 102;
-    vire.cms.InvalidStatusError      invalid_status_err   = 103;
-    vire.cms.ArgumentError           argument_err         = 104;
-    vire.cms.ResourceExecError       exec_err             = 105;
+    vire.utility.InvalidContextError invalid_context_err  = 102;
+    vire.cms.InvalidResourceError    invalid_resource_err = 103;
+    vire.cms.InvalidStatusError      invalid_status_err   = 104;
+    vire.cms.ArgumentError           argument_err         = 105;
+    vire.cms.ResourceExecError       exec_err             = 106;
   }
 
 }
