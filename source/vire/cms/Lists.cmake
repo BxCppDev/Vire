@@ -29,14 +29,14 @@ list(APPEND VireLibrary_HEADERS
   cms/timeout_error.h
   cms/timeout_error-serial.ipp
   # request/response types:
-  # cms/resource_exec.h
-  # cms/resource_exec-serial.ipp
+  cms/resource_fetch_status.h
+  cms/resource_fetch_status-serial.ipp
+  cms/resource_exec.h
+  cms/resource_exec-serial.ipp
   # cms/resource_exec_success.h
   # cms/resource_exec_success-serial.ipp
   # cms/resource_exec_failure.h
   # cms/resource_exec_failure-serial.ipp
-  # cms/resource_fetch_status.h
-  # cms/resource_fetch_status-serial.ipp
   # cms/resource_fetch_status_success.h
   # cms/resource_fetch_status_success-serial.ipp
   # cms/resource_fetch_status_failure.h
@@ -71,10 +71,10 @@ list(APPEND VireLibrary_SOURCES
   cms/argument_error.cc
   cms/timeout_error.cc
   # request/response types:
-  # cms/resource_fetch_status_request.cc
+  cms/resource_fetch_status.cc
   # cms/resource_fetch_status_success_response.cc
   # cms/resource_fetch_status_failure_response.cc
-  # cms/resource_exec_request.cc
+  cms/resource_exec.cc
   # cms/resource_exec_success_response.cc
   # cms/resource_exec_failure_response.cc
   # # cms/resource_pubsub_request.cc
@@ -94,10 +94,10 @@ list(APPEND VireLibrary_TESTS
   cms/testing/test-cms-method_argument.cxx
   cms/testing/test-cms-resource_exec_error.cxx
   cms/testing/test-cms-timeout_error.cxx
-#   cms/testing/test-cms-resource_fetch_status.cxx
+  cms/testing/test-cms-resource_fetch_status.cxx
+  cms/testing/test-cms-resource_exec.cxx
 #   cms/testing/test-cms-resource_fetch_status_success.cxx
 #   cms/testing/test-cms-resource_fetch_status_failure.cxx
-#   cms/testing/test-cms-resource_exec.cxx
 #   cms/testing/test-cms-resource_exec_success.cxx
 #   cms/testing/test-cms-resource_exec_failure.cxx
 #   cms/testing/test-cms-resource_status_change.cxx

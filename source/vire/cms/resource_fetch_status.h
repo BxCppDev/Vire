@@ -36,7 +36,7 @@ namespace vire {
 
     /// \brief Resource fetch status command
     class resource_fetch_status
-      : public ::vire::utility::payload
+      : public ::vire::utility::base_payload
     {
     public:
 
@@ -79,7 +79,7 @@ namespace vire {
 
       std::string _path_; ///< Resource path
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status_request)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(resource_fetch_status)
 
     };
 
