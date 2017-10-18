@@ -22,7 +22,7 @@
 
 // Third party:
 // - Bayeux/datatools:
-#include <datatools/exception.h>
+#include <bayeux/datatools/exception.h>
 
 namespace vire {
 
@@ -43,7 +43,6 @@ namespace vire {
 
     void slot::set_dimension(space::dimension_type dim_)
     {
-      // std::cerr << "DEVEL: slot::set_dimension: dim_=" << dim_ << std::endl;
       reset_coordinates();
       _dimension_ = dim_;
       return;
@@ -51,7 +50,6 @@ namespace vire {
 
     space::dimension_type slot::get_dimension() const
     {
-      //std::cerr << "DEVEL: slot::get_dimension: dimension =" << _dimension_ << std::endl;
       return _dimension_;
     }
 
