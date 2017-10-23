@@ -1,4 +1,4 @@
-# Vire MOS Plugin material
+# Vire MOS Plugin source
 
 #-----------------------------------------------------------------------
 # Core configuration

@@ -1,4 +1,5 @@
 # - CMake build script for Vire MOS Plugin
+message( STATUS "[Vire_MOS] Entering...")
 
 message (STATUS "========================")
 message (STATUS "=  M O S  P L U G I N  =")
@@ -39,8 +40,8 @@ endif()
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 # - Versioning
-set(Vire_MOS_VERSION_MAJOR 0)
-set(Vire_MOS_VERSION_MINOR 1)
+set(Vire_MOS_VERSION_MAJOR 1)
+set(Vire_MOS_VERSION_MINOR 0)
 set(Vire_MOS_VERSION_PATCH 0)
 set(Vire_MOS_VERSION "${Vire_MOS_VERSION_MAJOR}.${Vire_MOS_VERSION_MINOR}.${Vire_MOS_VERSION_PATCH}")
 project(Vire_MOS_Plugin VERSION ${Vire_MOS_VERSION})
@@ -53,5 +54,7 @@ set(Vire_MOS_VERSION_REVISION 0)
 # ----------------
 # Source
 add_subdirectory(source)
+
+message( STATUS "[Vire_MOS] Exiting.")
 
 # - end
