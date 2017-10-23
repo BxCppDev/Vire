@@ -27,6 +27,8 @@
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/string.hpp>
 
 namespace vire {
 
