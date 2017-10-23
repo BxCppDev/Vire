@@ -1,4 +1,4 @@
-// vire/cmslapp/connection_request.cc
+// vire/cmslapp/connection_success.cc
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -19,6 +19,25 @@
 // Ourselves:
 #include <vire/cmslapp/connection_success.h>
 
+// Third party
+// - Boost
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/lexical_cast.hpp>
+// BxJsontools:
+#include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+// BxProtobuftools:
+#include <bayeux/protobuftools/protobuf_factory.h>
+#include <bayeux/protobuftools/base_type_converters.h>
+#include <bayeux/protobuftools/std_string_converter.h>
+#include <bayeux/protobuftools/std_vector_converter.h>
+
+// This project:
+#include <vire/base_object_protobuf.h>
+#include "vire/cmslapp/ConnectionSuccess.pb.h"
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cmslapp::connection_success",
+                               vire::cmslapp::ConnectionSuccess)
+
 namespace vire {
 
   namespace cmslapp {
@@ -36,6 +55,18 @@ namespace vire {
       return;
     }
 
+    void connection_success::reset()
+    {
+      clear_resource_snapshots();
+      return;
+    }
+
+    void connection_success::clear_resource_snapshots()
+    {
+      _resource_snapshots_.clear();
+      return;
+    }
+
     void connection_success::add_resource_status_record(const vire::cms::resource_status_record & record_)
     {
       _resource_snapshots_.push_back(record_);
@@ -46,6 +77,35 @@ namespace vire {
     connection_success::get_resource_snapshots() const
     {
       return _resource_snapshots_;
+    }
+
+    void connection_success::jsonize(jsontools::node & node_,
+                                        const unsigned long int version_)
+    {
+      this->vire::utility::base_payload::jsonize(node_, version_);
+      node_["requested_resources"] % _resource_snapshots_;
+      return;
+    }
+
+    void connection_success::protobufize(protobuftools::message_node & node_,
+                                         const unsigned long int /* version_ */)
+    {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_payload, node_);
+       node_["resource_snapshots"] % _resource_snapshots_;
+      return;
+    }
+
+    void connection_success::tree_dump(std::ostream & out_,
+                                       const std::string & title_,
+                                       const std::string & indent_,
+                                       bool inherit_) const
+    {
+      this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
+           << "Resource snapshots : " << _resource_snapshots_.size() << std::endl;
+
+      return;
     }
 
   } // namespace cmslapp

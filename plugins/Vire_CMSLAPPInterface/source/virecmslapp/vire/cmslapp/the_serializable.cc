@@ -33,16 +33,22 @@
 #include <vire/cmslapp/connection_success-serial.ipp>
 #include <vire/cmslapp/connection_failure-serial.ipp>
 #include <vire/cmslapp/disconnection_request-serial.ipp>
+#include <vire/cmslapp/disconnection_success-serial.ipp>
+#include <vire/cmslapp/disconnection_failure-serial.ipp>
 
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmslapp::connection_request)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmslapp::connection_success)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmslapp::connection_failure)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmslapp::disconnection_request)
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmslapp::disconnection_success)
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::cmslapp::disconnection_failure)
 
 // Export classes:
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmslapp::connection_request)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmslapp::connection_success)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmslapp::connection_failure)
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmslapp::disconnection_request)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmslapp::disconnection_success)
+BOOST_CLASS_EXPORT_IMPLEMENT(vire::cmslapp::disconnection_failure)
 
 // end

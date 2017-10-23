@@ -66,15 +66,15 @@ void test0()
     vire::utility::instance_identifier sid;
     sid.from_string("SuperNEMO-1.0");
     req.set_setup_id(sid);
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/Coil/Monitoring/Voltage/__dp_read__");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/Coil/Monitoring/Current/__dp_read__");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/Coil/Control/Voltage/__dp_read__");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/Coil/Control/Voltage/__dp_write__");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/Coil/Control/Current/__dp_read__");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/Coil/Control/Current/__dp_write__");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/DAS/start");
-    req.add_requested_resource("SuperNEMO://Demonstrator/CMS/DAS/stop");
-    req.tree_dump(std::log, "connection request: ", "[info] ");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Monitoring/Voltage/__dp_read__");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Monitoring/Current/__dp_read__");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Voltage/__dp_read__");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Voltage/__dp_write__");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_read__");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_write__");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/DAS/start");
+    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/DAS/stop");
+    req.tree_dump(std::clog, "connection request: ", "[info] ");
 
     jsontools::store("test_connection_request.json", req);
   }

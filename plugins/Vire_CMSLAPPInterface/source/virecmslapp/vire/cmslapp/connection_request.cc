@@ -49,6 +49,24 @@ namespace vire {
       return;
     }
 
+    void connection_request::reset()
+    {
+      reset_setup_id();
+      remove_requested_resources();
+      return;
+    }
+
+    bool connection_request::has_setup_id() const
+    {
+      return _setup_id_.is_valid();
+    }
+
+    void connection_request::reset_setup_id()
+    {
+      _setup_id_.reset();
+      return;
+    }
+
     void connection_request::set_setup_id(const vire::utility::instance_identifier & id_)
     {
       _setup_id_ = id_;
@@ -59,6 +77,12 @@ namespace vire {
     connection_request::get_setup_id() const
     {
       return _setup_id_;
+    }
+
+    void connection_request::remove_requested_resources()
+    {
+      _requested_resources_.clear();
+      return;
     }
 
     void connection_request::add_requested_resource(const std::string & path_)
@@ -73,10 +97,18 @@ namespace vire {
       return _requested_resources_;
     }
 
+    bool connection_request::has_requested_resource(const std::string & path_) const
+    {
+      for (const auto & p : _requested_resources_) {
+        if (p == path_) return true;
+      }
+      return false;
+    }
+
     void connection_request::jsonize(jsontools::node & node_,
                                         const unsigned long int version_)
     {
-      this->vire::utility::base_request::jsonize(node_, version_);
+      this->vire::utility::base_payload::jsonize(node_, version_);
       node_["setup_id"] % _setup_id_;
       node_["requested_resources"] % _requested_resources_;
       return;
@@ -85,7 +117,7 @@ namespace vire {
     void connection_request::protobufize(protobuftools::message_node & node_,
                                          const unsigned long int /* version_ */)
     {
-      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_request, node_);
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_payload, node_);
       node_["setup_id"] % _setup_id_;
       node_["requested_resources"] % _requested_resources_;
       return;
@@ -96,9 +128,9 @@ namespace vire {
                                        const std::string & indent_,
                                        bool inherit_) const
     {
-      this->vire::utility::base_request::tree_dump(out_, title_, indent_, true);
+      this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
 
-      out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Setup ID : '" << _setup_id_.to_string() << "'" << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)

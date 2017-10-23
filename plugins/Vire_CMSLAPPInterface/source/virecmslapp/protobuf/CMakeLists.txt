@@ -21,12 +21,15 @@ set(protobufList
   vire/cmslapp/ConnectionRequest.proto
   vire/cmslapp/ConnectionSuccess.proto
   vire/cmslapp/ConnectionFailure.proto
+  vire/cmslapp/DisconnectionRequest.proto
+  vire/cmslapp/DisconnectionSuccess.proto
+  vire/cmslapp/DisconnectionFailure.proto
   )
 
 message( STATUS "protobufList             = '${protobufList}'")
 message( STATUS "PROJECT_SOURCE_DIR       = '${PROJECT_SOURCE_DIR}'")
 message( STATUS "CMAKE_CURRENT_SOURCE_DIR = '${CMAKE_CURRENT_SOURCE_DIR}'")
-message( STATUS "VIRE_BUILD_PREFIX    = '${VIRE_BUILD_PREFIX}'")
+message( STATUS "VIRE_BUILD_PREFIX        = '${VIRE_BUILD_PREFIX}'")
 
 execute_process(COMMAND ${VIRE_SOURCE_DIR}/utilities/Protobuf/scripts/gen_pb_source.sh
   --debug

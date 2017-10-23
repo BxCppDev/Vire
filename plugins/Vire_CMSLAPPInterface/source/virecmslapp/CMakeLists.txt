@@ -16,11 +16,10 @@ message( STATUS "*****************************************")
 #   message( STATUS "  BxJsontools_LIBRARY='${BxJsontools_LIBRARY}'")
 # endif()
 
-message( STATUS "[debug] VIRE_BUILD_PREFIX = '${VIRE_BUILD_PREFIX}'")
+message( STATUS "[Vire_CMSLAPPInterface] VIRE_BUILD_PREFIX = '${VIRE_BUILD_PREFIX}'")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-# include_directories(${BxJsontools_INCLUDE_DIRS})
 
 add_subdirectory(protobuf)
 get_directory_property(_VireCmsLappProtobufLibrary_cpp_HEADERS
@@ -29,8 +28,8 @@ get_directory_property(_VireCmsLappProtobufLibrary_cpp_HEADERS
 get_directory_property(_VireCmsLappProtobufLibrary_cpp_SOURCES
   DIRECTORY protobuf
   DEFINITION Vire_CMSLAPPInterface_ProtobufLibrary_cpp_SOURCES)
-message(STATUS "_VireCmsLappProtobufLibrary_cpp_HEADERS='${_VireCmsLappProtobufLibrary_cpp_HEADERS}'")
-message(STATUS "_VireCmsLappProtobufLibrary_cpp_SOURCES='${_VireCmsLappProtobufLibrary_cpp_SOURCES}'")
+message(STATUS "[Vire_CMSLAPPInterface] _VireCmsLappProtobufLibrary_cpp_HEADERS='${_VireCmsLappProtobufLibrary_cpp_HEADERS}'")
+message(STATUS "[Vire_CMSLAPPInterface] _VireCmsLappProtobufLibrary_cpp_SOURCES='${_VireCmsLappProtobufLibrary_cpp_SOURCES}'")
 
 #-----------------------------------------------------------------------
 # Declare headers
@@ -49,6 +48,7 @@ set(Vire_CMSLAPPInterface_Plugin_HEADERS
   vire/cmslapp/disconnection_success-serial.ipp
   vire/cmslapp/disconnection_failure.h
   vire/cmslapp/disconnection_failure-serial.ipp
+  vire/cmslapp/pubsub_support.h
   ${_VireCmsLappProtobufLibrary_cpp_HEADERS}
 )
 
@@ -71,7 +71,7 @@ set(Vire_CMSLAPPInterface_Plugin_SOURCES
   vire/cmslapp/disconnection_success.cc
   vire/cmslapp/disconnection_failure.cc
   vire/cmslapp/the_serializable.cc
-  # vire/cmslapp/disconnection_success.cc
+  vire/cmslapp/pubsub_support.cc
   ${_VireCmsLappProtobufLibrary_cpp_SOURCES}
 )
 
@@ -89,11 +89,16 @@ add_library(Vire_CMSLAPP
   ${Vire_CMSLAPPInterface_Plugin_SOURCES}
   )
 
+message (STATUS "[Vire_CMSLAPPInterface] Boost_LOG_LIBRARY       = ${Boost_LOG_LIBRARY}")
+message (STATUS "[Vire_CMSLAPPInterface] Boost_LOG_SETUP_LIBRARY = ${Boost_LOG_SETUP_LIBRARY}")
+message (STATUS "[Vire_CMSLAPPInterface] PROTOBUF_LIBRARIES      = ${PROTOBUF_LIBRARIES}")
 target_link_libraries(Vire_CMSLAPP
-  ${Vire_LIBRARIES}
+  Vire
   ${Boost_LOG_LIBRARY}
   ${Boost_LOG_SETUP_LIBRARY}
+  #${PROTOBUF_LIBRARIES}
   )
+
 
 # - RPATH it
 set_target_properties(Vire_CMSLAPP PROPERTIES INSTALL_RPATH_USE_LINK_PATH 1)
@@ -137,7 +142,7 @@ install(TARGETS Vire_CMSLAPP DESTINATION ${CMAKE_INSTALL_LIBDIR}/${VIRE_PLUGINLI
 # - List of test programs:
 set(Vire_CMSLAPP_TESTS
   testing/test_connection_request.cxx
-  # testing/test_connection_failure_response.cxx
+  # testing/test_connection_failure.cxx
   )
 
 set(_virecmslapp_TEST_ENVIRONMENT "VIRE_RESOURCE_FILES_DIR=${VIRE_DATAROOTDIR}/resources")

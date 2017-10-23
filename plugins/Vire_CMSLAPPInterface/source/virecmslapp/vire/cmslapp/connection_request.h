@@ -52,12 +52,12 @@ namespace vire {
     ///     "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__" ,
     ///     "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__" ,
     ///     "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_read__" ,
-    ///     ...
+    ///      ...
     ///     "SuperNEMO://Demonstrator/CMS/Acquisition/start",
     ///     "SuperNEMO://Demonstrator/CMS/Acquisition/stop"
     ///   ]
     /// }
-    /// @encode
+    /// @endcode
     class connection_request
       : public ::vire::utility::base_payload
     {
@@ -69,17 +69,32 @@ namespace vire {
       /// Destructor
       virtual ~connection_request();
 
+      /// Reset
+      void reset();
+
+      /// Check if setup identifier is set
+      bool has_setup_id() const;
+
+      /// Reset the setup identifier
+      void reset_setup_id();
+
       /// Set the setup identifier
       void set_setup_id(const vire::utility::instance_identifier & setup_id_);
 
       /// Return the setup identifier
       const vire::utility::instance_identifier & get_setup_id() const;
 
+      /// Check if a resource is requested
+      bool has_requested_resource(const std::string & path_) const;
+
       /// Add a requested resource path
       void add_requested_resource(const std::string & path_);
 
       /// Return the set of requested resource paths
       const std::vector<std::string> & get_requested_resources() const;
+
+      /// Remove all requested resource paths
+      void remove_requested_resources();
 
       /// Main JSON (de-)serialization method
       virtual void jsonize(jsontools::node & node_,

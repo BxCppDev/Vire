@@ -33,7 +33,7 @@
 
 // This project:
 #include <vire/utility/base_payload-serial.ipp>
-#include <vire/cms/instance_identifier.ipp>
+#include <vire/utility/instance_identifier-serial.ipp>
 
 namespace vire {
 

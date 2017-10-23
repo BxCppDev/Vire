@@ -42,6 +42,10 @@ namespace vire {
     ///
     /// @code JSON
     /// {
+    ///   "setup_id": {
+    ///      "name"    : "snemo",
+    ///      "version" : "1.0.2"
+    ///   }
     /// }
     /// @encode
     class disconnection_request
@@ -54,18 +58,41 @@ namespace vire {
       /// Destructor
       virtual ~disconnection_request();
 
+      /// Reset
+      void reset();
+
+      /// Check if setup identifier is set
+      bool has_setup_id() const;
+
+      /// Reset the setup identifier
+      void reset_setup_id();
+
       /// Set the setup identifier
       void set_setup_id(const vire::utility::instance_identifier & setup_id_);
 
       /// Return the setup identifier
       const vire::utility::instance_identifier & get_setup_id() const;
 
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
+
+      /// Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
+
     private:
 
       // Attributes:
       vire::utility::instance_identifier _setup_id_;  ///< The setup identifier
 
-      VIRE_UTILITY_PAYLOAD_INTERFACE(deconnection_request)
+      VIRE_UTILITY_PAYLOAD_INTERFACE(disconnection_request)
 
     };
 

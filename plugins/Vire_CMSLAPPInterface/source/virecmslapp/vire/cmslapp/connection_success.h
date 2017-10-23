@@ -25,6 +25,7 @@
 #include <vector>
 
 // This project:
+#include <vire/utility/base_payload.h>
 #include <vire/cms/resource_status_record.h>
 
 namespace vire {
@@ -66,22 +67,12 @@ namespace vire {
     ///     }
     ///   ]
     /// }
-    /// @encode
-    class connection_success : public ::vire::utility::base_response
+    /// @endcode
+    class connection_success
+      : public ::vire::utility::base_payload
     {
     public:
 
-      /// \brief Dynamic status associated to a resource
-      ///
-      /// Type id: "resource_status_record", version "1.0"
-      ///
-      /// @code JSON
-      /// {
-      ///   "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__" ,
-      ///   "timestamp" : "20160930173425.257613",
-      ///   "status" : "0010"
-      /// }
-      /// @encode
 
       /// Default constructor
       connection_success();
@@ -89,11 +80,31 @@ namespace vire {
       /// Destructor
       virtual ~connection_success();
 
+      /// Reset
+      void reset();
+
       /// Add a resource status record
       void add_resource_status_record(const vire::cms::resource_status_record & record_);
 
       /// Return the set of resource status records
       const std::vector<vire::cms::resource_status_record> & get_resource_snapshots() const;
+
+      /// Reset
+      void clear_resource_snapshots();
+
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
+
+      /// Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
 
     private:
 
@@ -111,7 +122,8 @@ BOOST_CLASS_EXPORT_KEY2(vire::cmslapp::connection_success,"vire::cmslapp::connec
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
-BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cmslapp::connection_success, "vire::cmslapp::connection_success")
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cmslapp::connection_success,
+                                                  "vire::cmslapp::connection_success")
 
 #endif // VIRE_CMSLAPP_CONNECTION_SUCCESS_H
 

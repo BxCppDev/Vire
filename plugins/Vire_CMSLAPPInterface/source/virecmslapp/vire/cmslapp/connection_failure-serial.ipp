@@ -41,14 +41,18 @@ namespace vire {
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_payload>(*this));
+
       archive_ & boost::serialization::make_nvp("error_type_id", _error_type_id_);
-      if (_error_type_id_ == "vire::utility::invalid_context_error") {
+
+      if (_error_type_id_.match("vire::utility::invalid_context_error")) {
         archive_ & boost::serialization::make_nvp("error", boost::get<vire::utility::invalid_context_error>(_error_));
       }
-      if (_error_type_id_ == "vire::utility::invalid_setup_id_error") {
+
+      if (_error_type_id_.match("vire::utility::invalid_setup_id_error")) {
         archive_ & boost::serialization::make_nvp("error", boost::get<vire::utility::invalid_setup_id_error>(_error_));
       }
-      if (_error_type_id_ == "vire::cms::unknown_resources_error") {
+
+      if (_error_type_id_.match("vire::cms::unknown_resources_error")) {
         archive_ & boost::serialization::make_nvp("error", boost::get<vire::cms::unknown_resources_error>(_error_));
       }
       return;

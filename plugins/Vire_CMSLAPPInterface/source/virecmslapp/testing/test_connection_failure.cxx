@@ -1,4 +1,4 @@
-//! \file test_connection_failure_response.cxx
+//! \file test_connection_failure.cxx
 //
 // Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmslapp/connection_failure_response.h>
+#include <vire/cmslapp/connection_failure.h>
 
 // Standard library:
 #include <iostream>
@@ -62,19 +62,18 @@ void test0()
   std::clog << "\ntest0: Entering..." << std::endl;
 
   {
-    vire::cmslapp::connection_failure_response resp;
+    vire::cmslapp::connection_failure resp;
     vire::utility::invalid_context_error err;
     err.set_code(666);
     err.set_message_format("Invalid testing context");
     resp.set_error(err);
-    //resp.tree_dump(std::log, "Failure response: ", "[info] ");
-
-    jsontools::store("test_connection_failure_response.json", resp);
+    resp.tree_dump(std::log, "Connection failure: ", "[info] ");
+    jsontools::store("test_connection_failure.json", resp);
   }
 
   {
-    vire::cmslapp::connection_failure_response resp;
-    jsontools::load("test_connection_failure_response.json", resp);
+    vire::cmslapp::connection_failure resp;
+    jsontools::load("test_connection_failure.json", resp);
   }
 
   std::clog << "\ntest0: Exiting." << std::endl;

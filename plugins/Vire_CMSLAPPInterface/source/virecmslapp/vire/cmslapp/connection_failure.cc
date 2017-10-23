@@ -21,7 +21,19 @@
 
 // Third party:
 // - BxJsontools:
-#include <jsontools/boost_type_converters.h>
+#include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/std_type_converters.h>
+#include <bayeux/jsontools/boost_type_converters.h>
+// BxProtobuftools:
+#include <bayeux/protobuftools/protobuf_factory.h>
+#include <bayeux/protobuftools/base_type_converters.h>
+#include <bayeux/protobuftools/std_string_converter.h>
+
+// This project:
+#include <vire/base_object_protobuf.h>
+#include "vire/cmslapp/ConnectionFailure.pb.h"
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cmslapp::connection_failure",
+                               vire::cmslapp::ConnectionFailure)
 
 namespace vire {
 
@@ -73,10 +85,25 @@ namespace vire {
       return _error_;
     }
 
-    void connection_failure::serialize(jsontools::node & node_,
-                                                unsigned long int /* version_ */)
+    void connection_failure::jsonize(jsontools::node & node_,
+                                     const unsigned long int version_)
     {
-      this->::vire::utility::base_response::serialize(node_);
+      this->::vire::utility::base_payload::jsonize(node_, version_);
+      node_["error_type_id"] % _error_type_id_;
+      if (_error_type_id_.get_name() == "vire::cms::unknown_resources_error") {
+        node_["error"] % boost::get<vire::cms::unknown_resources_error>(_error_);
+      } else if (_error_type_id_.get_name() == "vire::utility::invalid_setup_id_error") {
+        node_["error"] % boost::get<vire::utility::invalid_setup_id_error>(_error_);
+      } else if (_error_type_id_.get_name() == "vire::utility::invalid_context_error") {
+        node_["error"] % boost::get<vire::utility::invalid_context_error>(_error_);
+      }
+      return;
+    }
+
+    void connection_failure::protobufize(protobuftools::message_node & node_,
+                                         const unsigned long int /* version_ */)
+    {
+      VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_payload, node_);
       node_["error_type_id"] % _error_type_id_;
       if (_error_type_id_.get_name() == "vire::cms::unknown_resources_error") {
         node_["error"] % boost::get<vire::cms::unknown_resources_error>(_error_);
@@ -93,7 +120,7 @@ namespace vire {
                                        const std::string & indent_,
                                        bool inherit_) const
     {
-      this->vire::utility::base_response::tree_dump(out_, title_, indent_, true);
+      this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Error type ID : '" << _error_type_id_.to_string() << "'" << std::endl;

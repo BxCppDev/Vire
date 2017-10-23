@@ -1,5 +1,5 @@
 //! \file  vire/cmslapp/pubsub_support.h
-//! \brief Pub/Sub support for the server by the Vire server
+//! \brief Pub/Sub support for the CMS/LAPP server by the Vire server
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -50,7 +50,7 @@ namespace vire {
     static const std::string & dp_pub_suffix();
 
     // Convert a "resource_pubsub" payload received from the Vire client to the Vire server
-    // (PubSub manager) into a dedicated "resource_exec" payload for 
+    // (PubSub manager) into a dedicated "resource_exec" payload for
     int convert(const vire::cms::resource_pubsub & pubsub_,
                  vire::cms::resource_exec & exec_);
 

@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Vire. If not, see <http://www.gnu.org/licenses/>.
 #-----------------------------------------------------------------------
+message( STATUS "[Vire_CMSLAPPInterface] Entering...")
 
 message (STATUS "=====================================================")
 message (STATUS "=  C M S / L A P P  I N T E R F A C E  P L U G I N  =")
@@ -39,24 +40,26 @@ endif()
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 # - Versioning
-set(Vire_CMSLAPPInterface_VERSION_MAJOR 0)
-set(Vire_CMSLAPPInterface_VERSION_MINOR 1)
+set(Vire_CMSLAPPInterface_VERSION_MAJOR 1)
+set(Vire_CMSLAPPInterface_VERSION_MINOR 0)
 set(Vire_CMSLAPPInterface_VERSION_PATCH 0)
 set(Vire_CMSLAPPInterface_VERSION "${Vire_CMSLAPPInterface_VERSION_MAJOR}.${Vire_CMSLAPPInterface_VERSION_MINOR}.${Vire_CMSLAPPInterface_VERSION_PATCH}")
 
 project(Vire_CMSLAPPInterface VERSION ${Vire_CMSLAPPInterface_VERSION})
 
-# - SVN Versioning, if available
+# - Versioning, if available
 set(Vire_CMSLAPPInterface_VERSION_REVISION 0)
 
-# find_package(Vire REQUIRED)
-message( STATUS "VIRE_SOURCE_DIR   = '${VIRE_SOURCE_DIR}'")
-message( STATUS "VIRE_BUILD_PREFIX = '${VIRE_BUILD_PREFIX}'")
+message( STATUS "[Vire_CMSLAPPInterface] Plugin version    = '${Vire_CMSLAPPInterface_VERSION}'")
+message( STATUS "[Vire_CMSLAPPInterface] VIRE_SOURCE_DIR   = '${VIRE_SOURCE_DIR}'")
+message( STATUS "[Vire_CMSLAPPInterface] VIRE_BUILD_PREFIX = '${VIRE_BUILD_PREFIX}'")
 
 option(VIRE_CMSLAPPINTERFACE_WITH_PROTOBUF_JAVA "Generate Protobuf Java stub files" OFF)
 
 # ----------------
 # Source
 add_subdirectory(source)
+
+message( STATUS "[Vire_CMSLAPPInterface] Exiting.")
 
 # - end

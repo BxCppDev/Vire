@@ -1,4 +1,4 @@
-//! \file  vire/cmslapp/disconnection_success_response.h
+//! \file  vire/cmslapp/disconnection_success.h
 //! \brief Disconnection success response from the CMS server to the Vire server
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,37 +18,74 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSLAPP_DISCONNECTION_SUCCESS_RESPONSE_H
-#define VIRE_CMSLAPP_DISCONNECTION_SUCCESS_RESPONSE_H
+#ifndef VIRE_CMSLAPP_DISCONNECTION_SUCCESS_H
+#define VIRE_CMSLAPP_DISCONNECTION_SUCCESS_H
 
 // Standard library:
 #include <string>
 #include <vector>
 
 // Ourselves:
-#include <vire/utility/base_request.h>
-#include <vire/utility/base_response.h>
+#include <vire/utility/base_payload.h>
+#include <vire/utility/instance_identifier.h>
 
 namespace vire {
 
   namespace cmslapp {
 
-    /// \brief Disconnection request success response from the CMS server to the Vire server
+    /// \brief Disconnection success response from the CMS server to the Vire server
     ///
-    /// Type id: "vire::cmslapp::disconnection_success_response", version "1.0"
+    /// Type id: "vire::cmslapp::disconnection_success", version "1.0"
     ///
     /// @code JSON
     /// {
     /// }
-    class disconnection_success_response : public vire::utility::base_response
+    class disconnection_success
+      : public vire::utility::base_payload
     {
     public:
 
       /// Default constructor
-      disconnection_success_response();
+      disconnection_success();
 
       /// Destructor
-      virtual ~disconnection_success_response();
+      virtual ~disconnection_success();
+
+      /// Reset
+      void reset();
+
+      /// Check if setup identifier is set
+      bool has_setup_id() const;
+
+      /// Reset the setup identifier
+      void reset_setup_id();
+
+      /// Set the setup identifier
+      void set_setup_id(const vire::utility::instance_identifier & setup_id_);
+
+      /// Return the setup identifier
+      const vire::utility::instance_identifier & get_setup_id() const;
+
+      /// Main JSON (de-)serialization method
+      virtual void jsonize(jsontools::node & node_,
+                           const unsigned long int version_ = 0);
+
+      /// Main Protobuf (de-)serialization method
+      virtual void protobufize(protobuftools::message_node & node_,
+                               const unsigned long int version_ = 0);
+
+      /// Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
+
+    private:
+
+      // Attributes:
+      vire::utility::instance_identifier _setup_id_; ///< The setup identifier
+
+      VIRE_UTILITY_PAYLOAD_INTERFACE(disconnection_success)
 
     };
 
@@ -56,7 +93,7 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_CMSLAPP_DISCONNECTION_SUCCESS_RESPONSE_H
+#endif // VIRE_CMSLAPP_DISCONNECTION_SUCCESS_H
 
 // Local Variables: --
 // mode: c++ --

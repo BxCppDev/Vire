@@ -24,8 +24,15 @@
 // Ourselves:
 #include <vire/cmslapp/connection_success.h>
 
+// Third Party:
+// - Boost:
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
+
 // This project:
-#include <vire/cms/resource_status_record.ipp>
+#include <vire/cms/resource_status_record-serial.ipp>
 
 namespace vire {
 

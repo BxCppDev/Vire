@@ -20,7 +20,6 @@
 // Ourselves
 #include <vire/cmslapp/pubsub_support.h>
 
-
 namespace vire {
 
   namespace cmslapp {
@@ -46,18 +45,13 @@ namespace vire {
       } {
         return 0;
       }
-      exec_.add_input_argument("active", active);
+      std::string active_repr;
+      if (active) active_repr="1";
+      else active_repr="0";
+      exec_.add_input_argument("active", active_repr);
       return 0;
     }
 
   } // namespace cmslapp
 
 } // namespace vire
-
-#endif // VIRE_CMSLAPP_DISCONNECTION_REQUEST_H
-
-// Local Variables: --
-// mode: c++ --
-// c-file-style: "gnu" --
-// tab-width: 2 --
-// End: --
