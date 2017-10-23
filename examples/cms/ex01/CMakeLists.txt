@@ -30,7 +30,7 @@ endforeach()
 # set(Vire_example_cms_ex01_Boost_LIBRARIES Boost::log Boost::program_options)
 
 message(STATUS "[info] Finding Vire 0.1...")
-find_package(Vire 0.1 REQUIRED)
+find_package(Vire 1.0)
 get_target_property(Vire_COMPILE_FEATURES Vire::Vire INTERFACE_COMPILE_FEATURES)
 get_target_property(Vire_INCLUDE_DIRS     Vire::Vire INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(Vire_LINK_LIBRARIES   Vire::Vire INTERFACE_LINK_LIBRARIES)

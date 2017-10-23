@@ -9,6 +9,7 @@ function my_exit()
     exit ${error_code}
 }
 
+
 which virequery > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo >&2 "[error] Vire is not installed!"
