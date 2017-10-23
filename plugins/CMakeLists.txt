@@ -35,10 +35,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VIRE_BUILD_PREFIX}/${CMAKE_INSTALL_LIBDIR}
 set(Vire_DIR "${VIRE_BUILD_PREFIX}/${CMAKE_INSTALL_CMAKEDIR}/${VIRE_TAG}")
 
 # - List of plugins:
-set(_vire_PLUGINS
-  Vire_MOS              # The Vire to Multipurpose OPCUA Server (MOS) plugin and utilities
-  # Vire_CMSLAPPInterface # The Vire-CMS/LAPP interface plugin
-)
+set(_vire_PLUGINS ${VIRE_PLUGINS})
 
 # - Process plugins here:
 foreach(_vireplugin ${_vire_PLUGINS})
@@ -69,5 +66,9 @@ foreach(_vireplugin ${_vire_PLUGINS})
     message( FATAL "Vire plugin '${_vireplugin}' does not exist!")
   endif()
 endforeach()
+
+message (STATUS "===================================")
+message (STATUS "=  E N D    O F    P L U G I N S  =")
+message (STATUS "===================================")
 
 # - end
