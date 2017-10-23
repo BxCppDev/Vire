@@ -72,7 +72,10 @@ set_and_check(Vire_INCLUDE_DIR
 set_and_check(Vire_PROTOBUF_INCLUDE_DIR
   "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/cpp"
   )
-set_and_check(Vire_JAVA_CLASSPATH "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/java")
+if (Vire_WITH_PROTOBUF_JAVA)
+  set_and_check(Vire_JAVA_CLASSPATH "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/java")
+  message(STATUS "[info] VireConfig.cmake: Vire_JAVA_CLASSPATH               = '${Vire_JAVA_CLASSPATH}'")
+endif()
 set(Vire_INCLUDE_DIRS
   "${Vire_INCLUDE_DIR}"
   "${BxJsontools_INCLUDE_DIRS}"
@@ -81,7 +84,6 @@ set(Vire_INCLUDE_DIRS
 
 message(STATUS "[info] VireConfig.cmake: Vire_INCLUDE_DIR                  = '${Vire_INCLUDE_DIR}'")
 message(STATUS "[info] VireConfig.cmake: Vire_PROTOBUF_INCLUDE_DIR         = '${Vire_PROTOBUF_INCLUDE_DIR}'")
-message(STATUS "[info] VireConfig.cmake: Vire_JAVA_CLASSPATH               = '${Vire_JAVA_CLASSPATH}'")
 
 #set_and_check(Vire_RESOURCE_DIR "@PACKAGE_CMAKE_INSTALL_DATAROOTDIR@/resources")
 

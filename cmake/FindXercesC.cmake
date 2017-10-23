@@ -43,10 +43,10 @@
 
 # Written by Roger Leigh <rleigh@codelibre.net>
 
-message(STATUS "***** DEVEL ***** FindXercesC.cmake: Entering...")
+message( STATUS "[Vire_MOS] Entering FindXercesC.cmake...")
 
 if (XERCESC_ROOT)
-  message(STATUS "***** DEVEL ***** FindXercesC.cmake: XERCESC_ROOT = ${XERCESC_ROOT}")
+  message( STATUS "[Vire_MOS] Predefined XERCESC_ROOT = ${XERCESC_ROOT}")
 endif()
 
 if (XERCESC_INCLUDE_DIR)
@@ -78,7 +78,7 @@ function(_XercesC_GET_VERSION  version_hdr)
     endif()
 endfunction()
 
-message(STATUS "***** DEVEL ***** FindXercesC.cmake: XERCESC_ROOT = ${XERCESC_ROOT}")
+message( STATUS "[Vire_MOS] XERCESC_ROOT = ${XERCESC_ROOT}")
 
 # Find include directory
 find_path(XercesC_INCLUDE_DIR
@@ -88,7 +88,7 @@ find_path(XercesC_INCLUDE_DIR
   DOC "Xerces-C++ include directory"
   )
 mark_as_advanced(XercesC_INCLUDE_DIR)
-message(STATUS "***** DEVEL ***** FindXercesC.cmake: XercesC_INCLUDE_DIR= '${XercesC_INCLUDE_DIR}'.")
+message( STATUS "[Vire_MOS] XercesC_INCLUDE_DIR= '${XercesC_INCLUDE_DIR}'")
 
 if(PROTOBUF_INCLUDE_DIR STREQUAL "")
   message(STATUS "[warning] FindProtobuf: Could not find google/protobuf/message.h in provided pathes, please set either PROTOBUF_ROOT or PROTOBUF_INCLUDE_DIR")
@@ -155,3 +155,5 @@ if(XercesC_FOUND)
     endif()
   endif()
 endif()
+
+message( STATUS "[Vire_MOS] End of FindXercesC.cmake.")

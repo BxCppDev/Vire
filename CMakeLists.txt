@@ -180,6 +180,15 @@ add_subdirectory(source)
 # Resource installation
 add_subdirectory(resources)
 
+
+#-----------------------------------------------------------------------
+# Prepare plugin installation
+# - List of built plugins:
+set(VIRE_PLUGINS
+  Vire_MOS              # The Vire to Multipurpose OPCUA Server (MOS) plugin and utilities
+  Vire_CMSLAPPInterface # The Vire-CMS/LAPP interface plugin
+)
+
 #-----------------------------------------------------------------------
 # - CMake Support files
 include(CMakePackageConfigHelpers)
@@ -240,9 +249,9 @@ install(DIRECTORY ${PROJECT_BUILD_DATAROOTDIR}/
 
 #-----------------------------------------------------------------------
 # - Plugins installation - Must come last because they must find Vire
-# if (VIRE_WITH_PLUGINS)
-#   add_subdirectory(plugins)
-# endif()
+if (VIRE_WITH_PLUGINS)
+  add_subdirectory(plugins)
+endif()
 
 message (STATUS "[info] End of 'CMakeLists.txt'.")
 
