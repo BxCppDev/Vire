@@ -23,6 +23,7 @@ message (STATUS "[info] Begin of 'source/virequery/CMakeLists.txt'.")
 #-----------------------------------------------------------------------
 # Build utility script
 #
+message (STATUS "[info] Generating the 'virequery' utility script...")
 configure_file(virequery.in ${CMAKE_CURRENT_BINARY_DIR}/virequery @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/virequery

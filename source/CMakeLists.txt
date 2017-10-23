@@ -21,50 +21,6 @@
 message (STATUS "[info] Begin of 'source/CMakeLists.txt'.")
 
 #-----------------------------------------------------------------------
-# Configure build of Vire library
-# - Packages
-# - Boost
-message(STATUS "[info] Finding Boost 1.60 with specific libraries...")
-set(VIRE_BOOST_MIN_VERSION 1.60)
-set(Boost_NO_BOOST_CMAKE ON)
-set(VIRE_BOOST_COMPONENTS
-  # filesystem
-  # system
-  # serialization
-  # iostreams
-  # program_options
-  # thread
-  # date_time
-  # regex
-  log
-  )
-find_package(Boost ${VIRE_BOOST_MIN_VERSION}
-  REQUIRED
-  ${VIRE_BOOST_COMPONENTS}
-  )
-set(Vire_Boost_LIBRARIES)
-foreach(_vire_boost_lib ${VIRE_BOOST_COMPONENTS})
-  list(APPEND Vire_Boost_LIBRARIES Boost::${_vire_boost_lib})
-endforeach()
-message(STATUS "[info] Vire_Boost_LIBRARIES = '${Vire_Boost_LIBRARIES}'")
-# message(STATUS "[info] Boost_LIBRARIES               = '${Boost_LIBRARIES}'")
-# message(STATUS "[info] Boost_FILESYSTEM_LIBRARY      = '${Boost_FILESYSTEM_LIBRARY}'")
-# message(STATUS "[info] Boost_SYSTEM_LIBRARY          = '${Boost_SYSTEM_LIBRARY}'")
-# message(STATUS "[info] Boost_SERIALIZATION_LIBRARY   = '${Boost_SERIALIZATION_LIBRARY}'")
-# message(STATUS "[info] Boost_IOSTREAMS_LIBRARY       = '${Boost_IOSTREAMS_LIBRARY}'")
-# message(STATUS "[info] Boost_PROGRAM_OPTIONS_LIBRARY = '${Boost_PROGRAM_OPTIONS_LIBRARY}'")
-# message(STATUS "[info] Boost_DATE_TIME_LIBRARY       = '${Boost_DATE_TIME_LIBRARY}'")
-# message(STATUS "[info] Boost_THREAD_LIBRARY          = '${Boost_THREAD_LIBRARY}'")
-# message(STATUS "[info] Boost_LOG_LIBRARY             = '${Boost_LOG_LIBRARY}'")
-# message(STATUS "[info] Boost_LOG_SETUP_LIBRARY       = '${Boost_LOG_SETUP_LIBRARY}'")
-
-# - Camp
-find_package(CAMP 0.8.0 REQUIRED)
-
-# - CLHEP
-find_package(CLHEP 2.1.3.1 REQUIRED)
-
-#-----------------------------------------------------------------------
 # Core configuration
 #
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

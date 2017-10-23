@@ -115,12 +115,11 @@ if (BxJsontools_FOUND)
   message( STATUS "[info]   BxJsontools_INCLUDE_DIRS      = '${BxJsontools_INCLUDE_DIRS}'")
   message( STATUS "[info]   BxJsontools_LIBRARIES         = '${BxJsontools_LIBRARIES}'")
 endif()
-
 #-----------------------------------------------------------------------
 # BxRabbitMQ support
 #
 message (STATUS "[info] Searching for BxRabbitMQ...")
-find_package(BxRabbitMQ 0.4 REQUIRED CONFIG COMPONENTS manager)
+find_package(BxRabbitMQ 0.4.1 REQUIRED CONFIG COMPONENTS manager)
 if (BxRabbitMQ_FOUND)
   message( STATUS "[info] Found the BxRabbitMQ library:")
   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")

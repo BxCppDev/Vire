@@ -2,9 +2,12 @@
 # It defines the following variables
 #  Vire_VERSION            - Vire version
 #  Vire_VERSION_REVISION   - Vire version revision
-#  Vire_WITH_QT_GUI        - Vire version revision
-#  Vire_WITH_PROTOBUF_JAVA - Vire version revision
-#  Vire_INCLUDE_DIRS       - include directories for Vire
+#  Vire_WITH_QT_GUI        - Vire is built with Qt support
+#  Vire_WITH_PLUGINS       - Vire is built with plugin
+#  Vire_WITH_PROTOBUF_JAVA - Vire is built with protobuf java support
+#  Vire_WITH_DEVELOPER_TOOLS - Vire is built with development tools
+#  Vire_INCLUDE_DIRS       - Vire include directories
+#  Vire_CMAKE_CONFIG_DIR   - Vire CMake config path
 #
 
 #----------------------------------------------------------------------
@@ -50,15 +53,6 @@ message(STATUS "[info] VireConfig.cmake: Vire_WITH_PROTOBUF_JAVA           = '${
 @PACKAGE_INIT@
 # END OF CMAKE GENERATED
 
-# - BxJsontools
-find_package(BxJsontools @BxJsontools_VERSION@ EXACT REQUIRED NO_MODULE)
-
-# # - Protobuf
-# find_package(Protobuf @PROTOBUF_VERSION_STRING@ EXACT REQUIRED)
-
-# - BxProtobuftools
-find_package(BxProtobuftools @BxProtobuftools_VERSION@ EXACT REQUIRED NO_MODULE)
-
 #-----------------------------------------------------------------------
 # Setup paths that clients may need
 #
@@ -69,32 +63,67 @@ message(STATUS "[info] VireConfig.cmake: PACKAGE_CMAKE_INSTALL_DATAROOTDIR = '@P
 set_and_check(Vire_INCLUDE_DIR
   "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@"
   )
+message(STATUS "[info] VireConfig.cmake: Vire_INCLUDE_DIR = '@Vire_INCLUDE_DIR@'")
 set_and_check(Vire_PROTOBUF_INCLUDE_DIR
   "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/cpp"
   )
+message(STATUS "[info] VireConfig.cmake: Vire_PROTOBUF_INCLUDE_DIR = '@Vire_PROTOBUF_INCLUDE_DIR@'")
 if (Vire_WITH_PROTOBUF_JAVA)
-  set_and_check(Vire_JAVA_CLASSPATH "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/java")
+  set_and_check(Vire_JAVA_CLASSPATH
+    "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/protobuf/java"
+    )
   message(STATUS "[info] VireConfig.cmake: Vire_JAVA_CLASSPATH               = '${Vire_JAVA_CLASSPATH}'")
 endif()
-set(Vire_INCLUDE_DIRS
-  "${Vire_INCLUDE_DIR}"
-  "${BxJsontools_INCLUDE_DIRS}"
-  "${BxProtobuftools_INCLUDE_DIRS}"
-  )
-
-message(STATUS "[info] VireConfig.cmake: Vire_INCLUDE_DIR                  = '${Vire_INCLUDE_DIR}'")
-message(STATUS "[info] VireConfig.cmake: Vire_PROTOBUF_INCLUDE_DIR         = '${Vire_PROTOBUF_INCLUDE_DIR}'")
 
 #set_and_check(Vire_RESOURCE_DIR "@PACKAGE_CMAKE_INSTALL_DATAROOTDIR@/resources")
 
 #-----------------------------------------------------------------------
 # Handle paths/targets for third party deps here...
+
+# - Bayeux
 # Our main dependency is Bayeux, and this will supply the main third
 # party deps for Vire as well
-set(VIRE_BAYEUX_VERSION @Bayeux_VERSION@)
+set(Vire_Bayeux_VERSION @Vire_BAYEUX_VERSION@)
 set(Bayeux_DIR @Bayeux_CMAKE_CONFIG_DIR@)
-message(STATUS "[info] VireConfig.cmake: Searching Bayeux ${VIRE_BAYEUX_VERSION} from ${Bayeux_DIR}...")
-find_package(Bayeux ${VIRE_BAYEUX_VERSION} EXACT REQUIRED)
+message(STATUS "[info] VireConfig.cmake: Searching Bayeux ${Vire_Bayeux_VERSION} from ${Bayeux_DIR}...")
+find_package(Bayeux ${Vire_Bayeux_VERSION} EXACT REQUIRED NO_MODULE)
+
+# - More boost
+message(STATUS "[info] VireConfig.cmake: Searching specific Boost ${Vire_Bayeux_VERSION} from ${Bayeux_DIR}...")
+set(Boost_NO_BOOST_CMAKE ON)
+set(Vire_Boost_VERSION    @Vire_Boost_VERSION@)
+set(Vire_BOOST_COMPONENTS @VIRE_BOOST_COMPONENTS@)
+find_package(Boost @Vire_Boost_VERSION@ REQUIRED
+  ${Vire_BOOST_COMPONENTS}
+  )
+
+set(Vire_BxRabbitMQ_VERSION      @BxRabbitMQ_VERSION@)
+set(Vire_BxJsontools_VERSION     @BxJsontools_VERSION@)
+set(Vire_BxProtobuftools_VERSION @BxProtobuftools_VERSION@)
+message(STATUS "[info] VireConfig.cmake: Vire_Bayeux_VERSION          = ${Vire_Bayeux_VERSION}")
+message(STATUS "[info] VireConfig.cmake: Vire_Boost_VERSION           = ${Vire_Boost_VERSION}")
+message(STATUS "[info] VireConfig.cmake: Vire_BxRabbitMQ_VERSION      = ${Vire_BxRabbitMQ_VERSION}")
+message(STATUS "[info] VireConfig.cmake: Vire_BxJsontools_VERSION     = ${Vire_BxJsontools_VERSION}")
+message(STATUS "[info] VireConfig.cmake: Vire_BxProtobuftools_VERSION = ${Vire_BxProtobuftools_VERSION}")
+
+#-----------------------------------------------------------------------
+# - BxJsontools
+find_package(BxJsontools ${Vire_BxJsontools_VERSION} EXACT REQUIRED NO_MODULE)
+
+# # - Protobuf
+# find_package(Protobuf @PROTOBUF_VERSION_STRING@ EXACT REQUIRED)
+
+# - BxRabbitMQ
+find_package(BxRabbitMQ ${Vire_BxRabbitMQ_VERSION} EXACT REQUIRED NO_MODULE)
+
+# - BxProtobuftools
+find_package(BxProtobuftools ${Vire_BxProtobuftools_VERSION} EXACT REQUIRED NO_MODULE)
+set(Vire_INCLUDE_DIRS
+  "${Vire_INCLUDE_DIR}"
+  "${Vire_PROTOBUF_INCLUDE_DIR}"
+  "${BxJsontools_INCLUDE_DIRS}"
+  "${BxProtobuftools_INCLUDE_DIRS}"
+  )
 
 #-----------------------------------------------------------------------
 # Include the file listing all the imported targets.
