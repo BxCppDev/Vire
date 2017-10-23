@@ -24,8 +24,8 @@ message(STATUS "[info] Begin of 'source/vire/CMakeLists.txt'")
 # Configure Vire library
 #
 
-message(STATUS "[devel] VIRE_LIBDIR_TO_RESOURCEDIR = '${VIRE_LIBDIR_TO_RESOURCEDIR}'")
-message(STATUS "[devel] VIRE_LIBDIR_TO_PLUGINDIR   = '${VIRE_LIBDIR_TO_PLUGINDIR}'")
+message(STATUS "[debug] VIRE_LIBDIR_TO_RESOURCEDIR = '${VIRE_LIBDIR_TO_RESOURCEDIR}'")
+message(STATUS "[debug] VIRE_LIBDIR_TO_PLUGINDIR   = '${VIRE_LIBDIR_TO_PLUGINDIR}'")
 
 # -- RPATH settings --
 # From: https://cmake.org/Wiki/CMake_RPATH_handling
@@ -108,7 +108,7 @@ endif()
 # BxJsontools support
 #
 message (STATUS "[info] Searching for BxJsontools...")
-find_package(BxJsontools 0.2 REQUIRED CONFIG COMPONENTS manager)
+find_package(BxJsontools 0.3 REQUIRED CONFIG COMPONENTS manager)
 if (BxJsontools_FOUND)
   message( STATUS "[info] Found the BxJsontools library:")
   message( STATUS "[info]   BxJsontools_VERSION           = '${BxJsontools_VERSION}'")
@@ -120,7 +120,7 @@ endif()
 # BxRabbitMQ support
 #
 message (STATUS "[info] Searching for BxRabbitMQ...")
-find_package(BxRabbitMQ 0.3 REQUIRED CONFIG COMPONENTS manager)
+find_package(BxRabbitMQ 0.4 REQUIRED CONFIG COMPONENTS manager)
 if (BxRabbitMQ_FOUND)
   message( STATUS "[info] Found the BxRabbitMQ library:")
   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
@@ -133,7 +133,7 @@ endif()
 # BxProtobuftools support
 #
 message (STATUS "[info] Searching for BxProtobuftools...")
-find_package(BxProtobuftools 0.2 REQUIRED CONFIG)
+find_package(BxProtobuftools 0.3 REQUIRED CONFIG)
 if (BxProtobuftools_FOUND)
   message( STATUS "[info] Found the BxProtobuftools library:")
   message( STATUS "[info]   BxProtobuftools_VERSION      = '${BxProtobuftools_VERSION}'")
@@ -305,13 +305,22 @@ target_include_directories(Vire
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/protobuf/cpp>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/protobuf/cpp/vire>
   )
-# target_link_libraries(Vire PUBLIC Bayeux::Bayeux)
+
+message( STATUS "[debug] Vire_Boost_LIBRARIES    = '${Vire_Boost_LIBRARIES}'")
+message( STATUS "[debug] BxJsontools_LIBRARY     = '${BxJsontools_LIBRARY}'")
+message( STATUS "[debug] BxProtobuftools_LIBRARY = '${BxProtobuftools_LIBRARY}'")
+message( STATUS "[debug] PROTOBUF_LIBRARIES      = '${PROTOBUF_LIBRARIES}'")
+message( STATUS "[debug] Readline_LIBRARIES      = '${Readline_LIBRARIES}'")
+message( STATUS "[debug] BxRabbitMQ_LIBRARIES    = '${BxRabbitMQ_LIBRARIES}'")
+message( STATUS "[debug] BxRabbitMQ_MANAGER_LIBRARIES = '${BxRabbitMQ_MANAGER_LIBRARIES}'")
 target_link_libraries(Vire PUBLIC
   Bayeux::Bayeux
   ${Vire_Boost_LIBRARIES}
   ${BxJsontools_LIBRARY}
   ${BxProtobuftools_LIBRARY}
+  ${PROTOBUF_LIBRARIES}
   ${BxRabbitMQ_LIBRARIES}
+  ${BxRabbitMQ_MANAGER_LIBRARIES}
   ${Readline_LIBRARIES}
   pthread
   b64
@@ -319,7 +328,6 @@ target_link_libraries(Vire PUBLIC
 if(VIRE_WITH_QT_GUI)
   target_link_libraries(Vire PUBLIC Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg)
 endif()
-
 message (STATUS "[info] CMAKE_INSTALL_FULL_LIBDIR = '${CMAKE_INSTALL_FULL_LIBDIR}'")
 
 # if(UNIX AND NOT APPLE)
@@ -396,8 +404,21 @@ if(VIRE_ENABLE_TESTING)
     #message( STATUS "[info] _vire_TEST_ENVIRONMENT='${_vire_TEST_ENVIRONMENT}'")
     set(_testname "vire-${_testname}")
     #message( STATUS "[info] _testname='${_testname}'")
+    # message( STATUS "[DEVEL] ************* BxJsontools_LIBRARY     = '${BxJsontools_LIBRARY}'")
+    # message( STATUS "[DEVEL] ************* BxProtobuftools_LIBRARY = '${BxProtobuftools_LIBRARY}'")
+    # message( STATUS "[DEVEL] ************* PROTOBUF_LIBRARIES      = '${PROTOBUF_LIBRARIES}'")
     add_executable(${_testname} ${_testsource})
-    target_link_libraries(${_testname} Vire ${Vire_Boost_LIBRARIES})
+    target_link_libraries(${_testname}
+      Vire
+      # ${Vire_Boost_LIBRARIES}
+      # ${BxJsontools_LIBRARY}
+      # ${BxProtobuftools_LIBRARY}
+      # ${PROTOBUF_LIBRARIES}
+      # ${Readline_LIBRARIES}
+      # pthread
+      # b64
+      # crypt
+      )
     set(_test_with_protobuf 0)
     string(SUBSTRING ${_testname} 0 19 _testname_prefix)
     #message( STATUS "[info] _testname_prefix='${_testname_prefix}'")
