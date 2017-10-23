@@ -22,7 +22,7 @@
 #define VIRE_CMS_RESOURCE_STATUS_CHANGE_SERIAL_IPP
 
 // Ourselves:
-#include <vire/utility/resource_status_change.h>
+#include <vire/cms/resource_status_change.h>
 
 // Third Party:
 // - Boost:

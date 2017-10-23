@@ -22,11 +22,12 @@
 #define VIRE_CMS_RESOURCE_FETCH_STATUS_FAILURE_SERIAL_IPP
 
 // Ourselves:
-#include <vire/utility/resource_fetch_status.h>
+#include <vire/cms/resource_fetch_status_failure.h>
 
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/string.hpp>
 
 namespace vire {
@@ -42,12 +43,12 @@ namespace vire {
       archive_ & boost::serialization::make_nvp("error_type_id", _error_type_id_);
 
       if (_error_type_id_.match("vire::cms::invalid_resource_error")) {
-        /*const*/ vire::cms::invalid_resource_error & ire
+        vire::cms::invalid_resource_error & ire
           = boost::get<vire::cms::invalid_resource_error>(_error_);
         archive_ & boost::serialization::make_nvp("invalid_resource_error", ire);
       }
       if (_error_type_id_.match("vire::utility::invalid_context_error")) {
-        /*const*/ vire::utility::invalid_context_error & ice
+        vire::utility::invalid_context_error & ice
           = boost::get<vire::utility::invalid_context_error>(_error_);
         archive_ & boost::serialization::make_nvp("invalid_context_error", ice);
       }

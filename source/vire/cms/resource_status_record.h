@@ -48,7 +48,7 @@ namespace vire {
     ///
     /// @code JSON
     /// {
-    ///   "path" : "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__" ,
+    ///   "path" : "SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__" ,
     ///   "timestamp" : "20160610T012723.425362",
     ///   "flags" : "0010"
     ///

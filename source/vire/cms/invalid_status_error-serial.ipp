@@ -1,4 +1,4 @@
-//! \file  vire/cms/invalid_status-serial.ipp
+//! \file  vire/cms/invalid_status_error-serial.ipp
 //! \brief Resource status record serialization
 //
 // Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,22 +18,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_INVALID_STATUS_SERIAL_IPP
-#define VIRE_CMS_INVALID_STATUS_SERIAL_IPP
+#ifndef VIRE_CMS_INVALID_STATUS_ERROR_SERIAL_IPP
+#define VIRE_CMS_INVALID_STATUS_ERROR_SERIAL_IPP
 
 // Ourselves:
-#include <vire/cms/invalid_status.h>
+#include <vire/cms/invalid_status_error.h>
 
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/string.hpp>
+
+// This project:
+#include <vire/utility/base_error-serial.ipp>
 
 namespace vire {
 
   namespace cms {
 
     template<class Archive>
-    void invalid_status::serialize(Archive & archive_, const unsigned int /* version_*/)
+    void invalid_status_error::serialize(Archive & archive_, const unsigned int /* version_*/)
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_error>(*this));
@@ -46,7 +51,7 @@ namespace vire {
 
 } // end of namespace vire
 
-#endif // VIRE_CMS_INVALID_STATUS_SERIAL_IPP
+#endif // VIRE_CMS_INVALID_STATUS_ERROR_SERIAL_IPP
 
 // Local Variables: --
 // mode: c++ --

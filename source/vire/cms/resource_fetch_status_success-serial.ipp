@@ -22,11 +22,12 @@
 #define VIRE_CMS_RESOURCE_FETCH_STATUS_SUCCESS_SERIAL_IPP
 
 // Ourselves:
-#include <vire/utility/resource_fetch_status.h>
+#include <vire/cms/resource_fetch_status_success.h>
 
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/base_object.hpp>
 
 // Ourselves:
 #include <vire/cms/resource_status_record-serial.ipp>

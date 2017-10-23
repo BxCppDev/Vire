@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_UTILITY_ARGUMENT_ERROR_SERIAL_IPP
-#define VIRE_UTILITY_ARGUMENT_ERROR_SERIAL_IPP
+#ifndef VIRE_CMS_ARGUMENT_ERROR_SERIAL_IPP
+#define VIRE_CMS_ARGUMENT_ERROR_SERIAL_IPP
 
 // Ourselves:
-#include <vire/utility/argument_error.h>
+#include <vire/cms/argument_error.h>
 
 // Third Party:
 // - Boost:
@@ -30,7 +30,7 @@
 
 namespace vire {
 
-  namespace utility {
+  namespace cms {
 
     template<class Archive>
     void argument_error::serialize(Archive & archive_, const unsigned int /* version_*/)
@@ -44,11 +44,11 @@ namespace vire {
       return;
     }
 
-  } // end of namespace utility
+  } // end of namespace cms
 
 } // end of namespace vire
 
-#endif // VIRE_UTILITY_ARGUMENT_ERROR_SERIAL_IPP
+#endif // VIRE_CMS_ARGUMENT_ERROR_SERIAL_IPP
 
 // Local Variables: --
 // mode: c++ --

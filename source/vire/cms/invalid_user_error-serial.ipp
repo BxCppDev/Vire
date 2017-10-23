@@ -2,18 +2,23 @@
 #define VIRE_CMS_INVALID_USER_ERROR_SERIAL_IPP
 
 // Ourselves:
-#include <vire/cms/invalid_user.h>
+#include <vire/cms/invalid_user_error.h>
 
 // Third Party:
 // - Boost:
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/string.hpp>
+
+// This project:
+#include <vire/utility/base_error-serial.ipp>
 
 namespace vire {
 
   namespace cms {
 
     template<class Archive>
-    void invalid_user::serialize(Archive & archive_, const unsigned int /* version_*/)
+    void invalid_user_error::serialize(Archive & archive_, const unsigned int /* version_*/)
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_error>(*this));

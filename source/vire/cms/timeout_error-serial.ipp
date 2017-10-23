@@ -23,6 +23,8 @@
 
 // Ourselves:
 #include <vire/cms/timeout_error.h>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/string.hpp>
 
 // Third Party:
 // - Boost:
@@ -37,7 +39,7 @@ namespace vire {
     {
       archive_ & boost::serialization::make_nvp("__base__",
                                                 boost::serialization::base_object<vire::utility::base_error>(*this));
-      if (is_timeout_error()) {
+      if (is_deadline()) {
         archive_ & boost::serialization::make_nvp("deadline",   _deadline_);
       }
       return;

@@ -22,7 +22,7 @@
 #define VIRE_CMS_DEVICE_STATUS_CHANGE_SERIAL_IPP
 
 // Ourselves:
-#include <vire/utility/device_status_change.h>
+#include <vire/cms/device_status_change.h>
 
 // Third Party:
 // - Boost:
