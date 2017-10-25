@@ -16,6 +16,8 @@ function my_exit()
 
 debug=0
 out_dir=
+vire_version="1.0.0"
+ar_suffix=""
 
 while [ -n "$1" ]; do
     token="$1"
@@ -26,6 +28,12 @@ while [ -n "$1" ]; do
 	elif [  ${option} = "-d" -o ${option} = "--out-dir" ]; then
             shift 1
             out_dir="$1"
+ 	elif [  ${option} = "-V" -o ${option} = "--vire-version" ]; then
+            shift 1
+            vire_version="$1"
+	elif [  ${option} = "-S" -o ${option} = "--archive-suffix" ]; then
+            shift 1
+            ar_suffix="$1"
         fi
     else
         argument="$token"
@@ -34,7 +42,7 @@ while [ -n "$1" ]; do
     shift 1
 done
 if [ "x${out_dir}" = "x" ]; then
-    out_dir="/tmp/${USER}/_vire.d/VireProtobuf"
+    out_dir="/tmp/${USER}/_vire.d/VireProtobuf-${vire_version}"
 fi
 
 echo 1>&2 "NOTICE: out_dir = '${out_dir}'"
@@ -55,7 +63,7 @@ for fproto in ${packed_vire_protos} ; do
     thistargetdir=${out_dir}/${thisprotodir}
     thisfproto=${out_dir}/_tmp.proto
     echo 1>&2 "NOTICE: Building proto file '${thisfproto}'..."
-    echo "option java_package = \"VireProtobuf\"" > ${thisfproto}
+    # echo "option java_package = \"VireProtobuf\"" > ${thisfproto}
     cat ${fproto} >> ${thisfproto}
     cat ${thisfproto}
     if [ ! -d ${thistargetdir} ]; then
@@ -72,10 +80,14 @@ tree ${out_dir}/
 
 cd ${out_dir}/
 
-tar cvzf VireProtobuf.tar.gz vire
-ls -l VireProtobuf.tar.gz
-tar tvzf VireProtobuf.tar.gz
-mv VireProtobuf.tar.gz ${opwd}/
+vrpbar="VireProtobuf-${vire_version}.tar.gz"
+if [ "x${ar_suffix}" != "x" ]; then
+    vrpbar="VireProtobuf-${vire_version}${ar_suffix}.tar.gz"
+fi
+tar cvzf ${vrpbar} vire
+ls -l ${vrpbar}
+tar tvzf ${vrpbar}
+mv ${vrpbar} ${opwd}/
 cd ${opwd}
 
 my_exit 0

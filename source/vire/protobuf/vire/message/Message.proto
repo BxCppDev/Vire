@@ -1,4 +1,6 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.message";
+option java_outer_classname = "MessageStub";
 package vire.message;
 
 import "vire/message/MessageHeader.proto";

@@ -1,4 +1,6 @@
 syntax = "proto3";
+option java_package = "VireProtobuf.vire.message";
+option java_outer_classname = "MessageBodyStub";
 package vire.message;
 
 import "vire/utility/ModelIdentifier.proto";
