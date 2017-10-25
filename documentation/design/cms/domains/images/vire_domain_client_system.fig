@@ -58,9 +58,9 @@ Single
 4 1 0 50 -1 0 8 0.0000 4 90 1395 2925 360 Vire Server - Vire Client\001
 4 1 0 50 -1 0 8 0.0000 4 120 915 2925 585 Domain System\001
 4 1 5 50 -1 0 8 0.0000 4 120 3690 2925 45 /supernemo/demonstrator/cms/vire/clients/system/XYZTUVW\001
-4 0 1 50 -1 0 8 0.0000 4 90 675 2655 1575 client.event\001
 4 2 1 50 -1 0 8 0.0000 4 90 1005 3375 2790 vireserver.service\001
 4 1 0 50 -1 0 6 0.0000 4 90 990 3870 1800 "subscribe([topics...])"\001
 4 1 0 50 -1 0 6 0.0000 4 90 405 3735 2565 "request"\001
 4 1 0 50 -1 0 6 0.0000 4 90 990 2070 2610 "subscribe([topics...])"\001
 4 1 0 50 -1 0 6 0.0000 4 90 360 2070 1800 "signal"\001
+4 0 1 50 -1 0 8 0.0000 4 90 915 2655 1575 vireserver.event\001
