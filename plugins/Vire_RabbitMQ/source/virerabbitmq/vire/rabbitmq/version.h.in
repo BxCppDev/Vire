@@ -1,0 +1,103 @@
+//! \file  vire/rabbitmq/version.h
+//! \brief Describe the Vire RabbitMQ plugin version
+//
+// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+//
+// This file is part of Vire.
+//
+// Vire is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Vire is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Vire. If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef VIRE_RABBITMQ_VERSION_H
+#define VIRE_RABBITMQ_VERSION_H
+
+// Standard Library:
+#include <string>
+
+//----------------------------------------------------------------------
+// - Compile Time API
+//! Major version number of Vire RabbitMQ Interface
+#define VIRE_RabbitMQ_VERSION_MAJOR @Vire_RabbitMQ_VERSION_MAJOR@
+
+//! Minor version number of Vire RabbitMQ Interface
+#define VIRE_RabbitMQ_VERSION_MINOR @Vire_RabbitMQ_VERSION_MINOR@
+
+//! Patch version number of Vire RabbitMQ Interface
+#define VIRE_RabbitMQ_VERSION_PATCH @Vire_RabbitMQ_VERSION_PATCH@
+
+//! Current revision/build number of Vire RabbitMQ Interface, 0 for a release
+#define VIRE_RabbitMQ_VERSION_REVISION @Vire_RabbitMQ_VERSION_REVISION@
+
+//! Encode Vire to ordered integer available at compile time
+#define VIRE_RabbitMQ_ENCODE_VERSION(major_, minor_, patch_) (          \
+                                                              ((major_) * 10000) \
+                                                              + ((minor_) *   100) \
+                                                              + ((patch_) *     1))
+
+//! Integer encoded Vire RabbitMQ Interface version available at compile time
+#define VIRE_RabbitMQ_VERSION VIRE_RabbitMQ_ENCODE_VERSION(             \
+                                                           VIRE_RabbitMQ_VERSION_MAJOR, \
+                                                           VIRE_RabbitMQ_VERSION_MINOR, \
+                                                           VIRE_RabbitMQ_VERSION_PATCH)
+
+//! String encoded full version number, e.g. "1.2.3", available at compile time
+#define VIRE_RabbitMQ_LIB_VERSION "@Vire_RabbitMQ_VERSION_MAJOR@.@Vire_RabbitMQ_VERSION_MINOR@.@Vire_RabbitMQ_VERSION_PATCH@"
+
+//! Check current version >= (major, minor, patch) at compile time
+#define VIRE_RabbitMQ_IS_AT_LEAST(major_,minor_,patch_) (               \
+                                                         VIRE_RabbitMQ_VERSION >= \
+                                                         VIRE_RabbitMQ_ENCODE_VERSION(major_,minor_,patch_))
+
+//----------------------------------------------------------------------
+// Runtime API
+namespace vire {
+
+  namespace rabbitmq {
+
+    //! \brief Describe the Vire API version and features
+    struct version {
+
+      //! Return the major version number of Vire, e.g., 1 for '1.2.3'
+      static int get_major();
+
+      //! Return the minor version number of Vire, e.g., 2 for '1.2.3'
+      static int get_minor();
+
+      //! Return the patch version number of Vire, e.g., 3 for '1.2.3'
+      static int get_patch();
+
+      //! Return the revision/build number of Vire, e.g., 1234
+      static int get_revision();
+
+      //! Return the full version number of Vire as a string, e.g., '1.2.3'
+      static std::string get_version();
+
+      //! Return true if the current Vire version >= (major, minor, patch)
+      static bool is_at_least(int major_, int minor_, int patch_);
+
+      //! Return true if the named feature is available in Vire
+      static bool has_feature(const std::string & feature_);
+
+    };
+
+  } // namespace rabbitmq
+
+} // namespace vire
+
+#endif // VIRE_RABBITMQ_VERSION_H
+
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

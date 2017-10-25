@@ -233,7 +233,8 @@ add_subdirectory(resources)
 # - List of built plugins:
 set(VIRE_PLUGINS
   Vire_MOS              # The Vire to Multipurpose OPCUA Server (MOS) plugin and utilities
-  Vire_CMSLAPPInterface # The Vire-CMS/LAPP interface plugin
+  Vire_CMSLAPPInterface # The Vire CMS/LAPP interface plugin
+  Vire_RabbitMQ         # The Vire RabbitMQ plugin
 )
 
 #-----------------------------------------------------------------------
