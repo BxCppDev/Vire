@@ -68,6 +68,11 @@ namespace vire {
       return;
     }
 
+    std::string i_encoding_driver::class_guid() const
+    {
+      return _class_guid_();
+    }
+
     void i_encoding_driver::initialize(const datatools::properties & config_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
@@ -87,19 +92,19 @@ namespace vire {
     }
 
     int i_encoding_driver::encode(const vire::message::message & msg_,
-                                  std::vector<char> & buffer_)
+                                  raw_message_type & raw_msg_)
     {
       int error_code = 0;
-      error_code = _encode_impl_(msg_, buffer_);
+      error_code = _encode_impl_(msg_, raw_msg_);
       return error_code;
     }
 
-    int i_encoding_driver::decode(const std::vector<char> & buffer_,
+    int i_encoding_driver::decode(const raw_message_type & raw_msg_,
                                   vire::message::message & msg_)
     {
       int error_code = 0;
       msg_.reset();
-      error_code = _decode_impl_(buffer_, msg_);
+      error_code = _decode_impl_(raw_msg_, msg_);
       return error_code;
     }
 

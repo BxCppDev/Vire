@@ -39,7 +39,7 @@ namespace vire {
 
   namespace com {
 
-    //! \brief Mailbox utility
+    //! \brief Mailbox description
     class mailbox
       : public ::datatools::i_tree_dumpable
     {
@@ -48,10 +48,8 @@ namespace vire {
       //! \brief Mailbox privacy
       enum privacy_type {
         PRIVACY_INVALID = 0,
-        //! Public mailbox, accessible by many actors (corresponds to a RabbitMQ's exchange)
-        PRIVACY_PUBLIC  = 1,
-        //! Private mailbox, generally accessible by only one actor (corresponds to a RabbitMQ's exclusive queue)
-        PRIVACY_PRIVATE = 2
+        PRIVACY_PUBLIC  = 1, //!< Public mailbox, accessible by many actors (corresponds to a RabbitMQ's exchange)
+        PRIVACY_PRIVATE = 2  //!< Private mailbox, generally accessible by only one actor (corresponds to a RabbitMQ's exclusive queue)
       };
 
       //! Return the label associated to a privacy type
@@ -63,10 +61,8 @@ namespace vire {
       //! \brief Mailbox mode (service or event)
       enum mode_type {
         MODE_INVALID = 0,
-        //!< RPC like functionality with query/response transaction between a client and a server
-        MODE_SERVICE = 1,
-        //!< Asynchronous event publishing functionality
-        MODE_EVENT   = 2
+        MODE_SERVICE = 1, //!< RPC like functionality with request/response transaction between a client and a server
+        MODE_EVENT   = 2  //!< Asynchronous event publishing functionality between a producer and a listener
       };
 
       //! Return the label associated to a mode
@@ -78,9 +74,9 @@ namespace vire {
       //! Usage permission associated to mailbox
       enum usage_permission_flag {
         USAGE_PERMISSION_NULL             = 0x0,
-        USAGE_PERMISSION_PUT              = datatools::bit_mask::bit00,
-        USAGE_PERMISSION_PRIVATE_PICKUP   = datatools::bit_mask::bit01,
-        USAGE_PERMISSION_PUBLIC_SUBSCRIBE = datatools::bit_mask::bit02
+        USAGE_PERMISSION_PUT              = datatools::bit_mask::bit00, //!< "p--"
+        USAGE_PERMISSION_PRIVATE_PICKUP   = datatools::bit_mask::bit01, //!< "-k-"
+        USAGE_PERMISSION_PUBLIC_SUBSCRIBE = datatools::bit_mask::bit02  //!< "--s"
       };
 
       //! Type alias for permissions bitset

@@ -51,6 +51,12 @@ namespace vire {
       return;
     }
 
+    std::string json_encoding_driver::_class_guid_() const
+    {
+      return json_encoding_driver::system_factory_auto_registration_id();
+    }
+
+
     void json_encoding_driver::_initialize_impl_(const datatools::properties & config_)
     {
       _default_locale_ = new std::locale(std::locale::classic(),
@@ -80,19 +86,19 @@ namespace vire {
     }
 
     int json_encoding_driver::_encode_impl_(const vire::message::message & msg_,
-                                            std::vector<char> & buffer_)
+                                            raw_message_type & raw_msg_)
     {
-      boost::iostreams::stream<boost::iostreams::back_insert_device<std::vector<char> > > out_stream(buffer_);
+      boost::iostreams::stream<boost::iostreams::back_insert_device<std::vector<char> > > out_stream(raw_msg_.buffer);
       out_stream.imbue(*_out_locale_);
       jsontools::store(out_stream, msg_);
       out_stream << std::flush;
       return 0;
     }
 
-    int json_encoding_driver::_decode_impl_(const std::vector<char> & buffer_,
+    int json_encoding_driver::_decode_impl_(const raw_message_type & raw_msg_,
                                             vire::message::message & msg_)
     {
-      boost::iostreams::basic_array_source<char> in_source(&buffer_[0], buffer_.size());
+      boost::iostreams::basic_array_source<char> in_source(&raw_msg_.buffer[0], raw_msg_.buffer.size());
       boost::iostreams::stream<boost::iostreams::basic_array_source<char> > in_stream(in_source);
       in_stream.imbue(*_in_locale_);
       jsontools::load(in_stream, msg_);

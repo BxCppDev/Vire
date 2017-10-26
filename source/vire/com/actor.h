@@ -35,6 +35,14 @@ namespace vire {
   namespace com {
 
     //! \brief Actor description
+    //!
+    //! Vire uses 3 types of actors:for a given control and monitoring system
+    //! associated to an experiment:
+    //! * a unique Vire server,
+    //! * an arbitrary number of Vire clients,
+    //! * optional Vire subcontractors (generally at least one) responsible
+    //!   of the management of hardware devices.
+    //!
     class actor
       : public ::datatools::i_tree_dumpable
     {

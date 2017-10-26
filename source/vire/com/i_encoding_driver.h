@@ -42,7 +42,15 @@ namespace vire {
 
   namespace com {
 
-    //! \brief Encoding driver interface
+    //! \brief Encoding driver abstract interface
+    //!
+    //! An encoding driver is responsible to encode a Vire message (header + payload)
+    //! in a raw message data structure (buffer + metadata). It also performs decoding
+    //! in the other direction.
+    //!
+    //! Concrete encoding driver classes must implement 4 protected methods to fulfill
+    //! the interface.
+    //!
     class i_encoding_driver
     {
     public:
@@ -71,13 +79,19 @@ namespace vire {
       //! Reset the driver
       void reset();
 
-      //! Encode a source object to a target string buffer
-      int encode(const vire::message::message & msg_, std::vector<char> & buffer_);
+      //! Encode a message object to a target raw message
+      int encode(const vire::message::message & msg_, raw_message_type & msg_data_);
 
-      //! Decode a target object from a source string buffer
-      int decode(const std::vector<char> & buffer_, vire::message::message & msg_);
+      //! Decode a message object from a raw message
+      int decode(const raw_message_type & msg_data_, vire::message::message & msg_);
+
+      //! Return the class unique identifier
+      std::string class_guid() const;
 
     private:
+
+      //! Initialization
+      virtual std::string _class_guid_() const = 0;
 
       //! Initialization
       virtual void _initialize_impl_(const datatools::properties &) = 0;
@@ -85,17 +99,17 @@ namespace vire {
       //! Reset
       virtual void _reset_impl_() = 0;
 
-      //! Encode a target object from a source string buffer
+      //! Encode a message object to a raw message
       virtual int _encode_impl_(const vire::message::message & msg_,
-                                std::vector<char> & buffer_) = 0;
+                                raw_message_type & raw_msg_) = 0;
 
-      //! Decode a target object from a source string buffer
-      virtual int _decode_impl_(const std::vector<char> & buffer_,
+      //! Decode a message object from a raw message
+      virtual int _decode_impl_(const raw_message_type & raw_msg_,
                                 vire::message::message & msg_) = 0;
 
     private:
 
-      bool _initialized_ = false; //!< Initialization flag
+      bool _initialized_ = false;            //!< Initialization flag
       datatools::logger::priority _logging_; //!< Logging priority threshold
 
       // Factory stuff :

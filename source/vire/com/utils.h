@@ -1,7 +1,7 @@
 //! \file  vire/com/utils.h
 //! \brief Vire com utilities
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -32,15 +32,24 @@ namespace vire {
   namespace com {
 
     enum com_status {
-      COM_OK          = 0, //!< Successful operation
-      COM_FAILURE     = 1, //!< Generic failed operation
-      COM_UNAVAILABLE = 2, //!< Unavailable resource
+      COM_OK          = 0, //!< Success
+      COM_FAILURE     = 1, //!< Generic failure
+      COM_UNAVAILABLE = 2, //!< Unavailable resource error
       COM_PERMISSION  = 3, //!< Permission error
-      COM_TIMEOUT     = 4  //!< Timeout operation
+      COM_TIMEOUT     = 4  //!< Timeout error
     };
 
-    typedef std::vector<char>     msg_buffer_type;
-    typedef datatools::properties msg_metadata_type;
+    struct raw_message_type
+    {
+      typedef std::vector<char>     buffer_type;
+
+      //! Clear the raw message internals
+      void reset();
+
+      datatools::properties metadata; //!< List of metadata (key/value pairs)
+      buffer_type           buffer;   //!< Encoded message buffer
+
+    };
 
   } // namespace com
 

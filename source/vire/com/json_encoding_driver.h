@@ -50,17 +50,20 @@ namespace vire {
     private:
 
       //! Initialization
+      virtual std::string _class_guid_() const;
+
+      //! Initialization
       virtual void _initialize_impl_(const datatools::properties &);
 
       //! Reset
       virtual void _reset_impl_();
 
-      //! Encode a source object to a target string buffer
+      //! Encode a message object to a raw message
       virtual int _encode_impl_(const vire::message::message & msg_,
-                               std::vector<char> & buffer_);
+                                raw_message_type & raw_msg_);
 
-      //! Decode a target object from a source string buffer
-      virtual int _decode_impl_(const std::vector<char> & buffer_,
+      //! Decode a message object from a raw message
+      virtual int _decode_impl_(const raw_message_type & raw_msg__,
                                 vire::message::message & msg_);
 
     private:

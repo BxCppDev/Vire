@@ -107,10 +107,15 @@ namespace vire {
       return;
     }
 
-    int boost_serialization_encoding_driver::_encode_impl_(const vire::message::message & msg_,
-                                                          std::vector<char> & buffer_)
+    std::string boost_serialization_encoding_driver::_class_guid_() const
     {
-      boost::iostreams::stream<boost::iostreams::back_insert_device<std::vector<char> > > out_stream(buffer_);
+      return boost_serialization_encoding_driver::system_factory_auto_registration_id();
+    }
+
+    int boost_serialization_encoding_driver::_encode_impl_(const vire::message::message & msg_,
+                                                           raw_message_type & raw_msg_)
+    {
+      boost::iostreams::stream<boost::iostreams::back_insert_device<std::vector<char>>> out_stream(raw_msg_.buffer);
       out_stream.imbue(*_out_locale_);
       if (_archive_format_ == AR_XML) {
         boost::archive::xml_oarchive oxar(out_stream, boost::archive::no_codecvt);
@@ -126,10 +131,10 @@ namespace vire {
       return 0;
     }
 
-    int boost_serialization_encoding_driver::_decode_impl_(const std::vector<char> & buffer_,
+    int boost_serialization_encoding_driver::_decode_impl_(const raw_message_type & raw_msg_,
                                                            vire::message::message & msg_)
     {
-      boost::iostreams::basic_array_source<char> in_source(&buffer_[0], buffer_.size());
+      boost::iostreams::basic_array_source<char> in_source(&raw_msg_.buffer[0], raw_msg_.buffer.size());
       boost::iostreams::stream<boost::iostreams::basic_array_source<char> > in_stream(in_source);
       in_stream.imbue(*_in_locale_);
       if (_archive_format_ == AR_XML) {

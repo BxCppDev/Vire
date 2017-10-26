@@ -68,7 +68,7 @@ void test_com_pbed_1(bool interactive_)
   // pbEncodingDriver.set_logging(datatools::logger::PRIO_DEBUG);
   pbEncodingDriver.initialize_simple();
 
-  std::vector<char> io_buffer;
+  vire::com::raw_message_type raw_msg;
   {
     // Create an error event payload:
     vire::utility::base_alarm my_alarm("warning", "A simple warning");
@@ -85,6 +85,7 @@ void test_com_pbed_1(bool interactive_)
     body_layout_id.set_version(vire::message::body_layout::current_version());
     h.set_message_id(msg_id);
     h.set_timestamp(vire::time::now());
+    h.set_category(vire::message::MESSAGE_EVENT);
     h.set_in_reply_to(vire::message::message_identifier("vire.client.0", 23));
     // h.set_asynchronous(true);
     h.set_async_address("snemo.vire.cms.alarm");
@@ -95,13 +96,13 @@ void test_com_pbed_1(bool interactive_)
     msg.tree_dump(std::clog, "Stored message: ");
 
     // pbEncodingDriver.set_logging(datatools::logger::PRIO_DEBUG);
-    pbEncodingDriver.encode(msg, io_buffer);
+    pbEncodingDriver.encode(msg, raw_msg);
 
     std::clog << "===========================================" << std::endl;
-    std::clog << "Buffer: " << "size=" << io_buffer.size() << std::endl;
+    std::clog << "Buffer: " << "size=" << raw_msg.buffer.size() << std::endl;
     std::clog << "===========================================" << std::endl;
     std::size_t count = 0;
-    for (auto c : io_buffer) {
+    for (auto c : raw_msg.buffer) {
       std::clog << (std::isprint((int) c) ? c : '?');
       if (++count % 32 == 0) std::clog << '\n';
     }
@@ -110,7 +111,7 @@ void test_com_pbed_1(bool interactive_)
   }
   {
     vire::message::message msg;
-    pbEncodingDriver.decode(io_buffer, msg);
+    pbEncodingDriver.decode(raw_msg, msg);
     // pbEncodingDriver.set_logging(datatools::logger::PRIO_DEBUG);
     msg.tree_dump(std::clog, "Decoded message: ");
   }

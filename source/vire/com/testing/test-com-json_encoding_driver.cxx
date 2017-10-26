@@ -69,7 +69,7 @@ void test_com_jed_1(bool interactive_)
   vire::com::json_encoding_driver jEncodingDriver;
   jEncodingDriver.initialize_simple();
 
-  std::vector<char> io_buffer;
+  vire::com::raw_message_type raw_msg;
   {
     // Create an error event payload:
     vire::utility::base_alarm my_alarm("warning", "A simple warning");
@@ -86,6 +86,7 @@ void test_com_jed_1(bool interactive_)
     body_layout_id.set_version(vire::message::body_layout::current_version());
     h.set_message_id(msg_id);
     h.set_timestamp(vire::time::now());
+    h.set_category(vire::message::MESSAGE_EVENT);
     h.set_in_reply_to(vire::message::message_identifier("vire.client.0", 23));
     // h.set_asynchronous(true);
     h.set_async_address("snemo.vire.cms.alarm");
@@ -95,12 +96,12 @@ void test_com_jed_1(bool interactive_)
     b.set_payload(my_alarm);
     msg.tree_dump(std::clog, "Message: ");
 
-    jEncodingDriver.encode(msg, io_buffer);
+    jEncodingDriver.encode(msg, raw_msg);
 
     std::clog << "===========================================" << std::endl;
     std::clog << "Buffer: " << std::endl;
     std::clog << "===========================================" << std::endl;
-    for (auto c : io_buffer) {
+    for (auto c : raw_msg.buffer) {
       std::clog << c;
     }
     std::clog << "===========================================" << std::endl;
@@ -108,7 +109,7 @@ void test_com_jed_1(bool interactive_)
   }
   {
     vire::message::message msg;
-    jEncodingDriver.decode(io_buffer, msg);
+    jEncodingDriver.decode(raw_msg, msg);
     msg.tree_dump(std::clog, "Decoded message: ");
   }
   return;

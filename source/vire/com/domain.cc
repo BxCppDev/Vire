@@ -349,7 +349,7 @@ namespace vire {
     {
       DT_THROW_IF(mode_ == mailbox::MODE_INVALID, std::logic_error, "Invalid mailbox mode!");
       std::string mb_name = generate_private_mailbox_name(owner_id_, mode_);
-      std::string mb_address = grab_transport_driver().new_private_mailbox_address(mailbox::MODE_EVENT);
+      std::string mb_address = ""; // grab_transport_driver().new_private_mailbox_address(mailbox::MODE_EVENT);
       DT_THROW_IF(mb_address.empty(), std::logic_error,
                   "Transport driver failed to provide an address for a new private mailbox in domain '" << get_name() << "'!");
       add_mailbox(mb_name,
@@ -391,34 +391,34 @@ namespace vire {
        return out.str();
     }
 
-    const i_transport_driver & domain::get_transport_driver() const
-    {
-      domain * mutable_this = const_cast<domain*>(this);
-      return mutable_this->_transport_driver_instance_();
-    }
+    // const i_transport_driver & domain::get_transport_driver() const
+    // {
+    //   domain * mutable_this = const_cast<domain*>(this);
+    //   return mutable_this->_transport_driver_instance_();
+    // }
 
-    i_transport_driver & domain::grab_transport_driver()
-    {
-      return _transport_driver_instance_();
-    }
+    // i_transport_driver & domain::grab_transport_driver()
+    // {
+    //   return _transport_driver_instance_();
+    // }
 
-    i_transport_driver & domain::_transport_driver_instance_()
-    {
-      if (_transport_driver_.get() == nullptr) {
-        std::string transport_driver_type_id = _transport_type_id_.get_name();
-        i_transport_driver::factory_register_type & sys_factory_register
-          = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_transport_driver);
-        DT_THROW_IF(! sys_factory_register.has(transport_driver_type_id), std::logic_error,
-                    "No transport type ID '" << transport_driver_type_id << "' factory is known from the system register!");
-        // Factory instantiates a new object:
-        const i_transport_driver::factory_register_type::factory_type & the_factory
-          = sys_factory_register.get(transport_driver_type_id);
-        _transport_driver_.reset(the_factory());
-        _transport_driver_->set_domain(*this);
-        _transport_driver_->initialize(_transport_driver_params_);
-      }
-      return *_transport_driver_.get();
-    }
+    // i_transport_driver & domain::_transport_driver_instance_()
+    // {
+    //   if (_transport_driver_.get() == nullptr) {
+    //     std::string transport_driver_type_id = _transport_type_id_.get_name();
+    //     i_transport_driver::factory_register_type & sys_factory_register
+    //       = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_transport_driver);
+    //     DT_THROW_IF(! sys_factory_register.has(transport_driver_type_id), std::logic_error,
+    //                 "No transport type ID '" << transport_driver_type_id << "' factory is known from the system register!");
+    //     // Factory instantiates a new object:
+    //     const i_transport_driver::factory_register_type::factory_type & the_factory
+    //       = sys_factory_register.get(transport_driver_type_id);
+    //     _transport_driver_.reset(the_factory());
+    //     _transport_driver_->set_domain(*this);
+    //     _transport_driver_->initialize(_transport_driver_params_);
+    //   }
+    //   return *_transport_driver_.get();
+    // }
 
     void domain::tree_dump(std::ostream & out_,
                            const std::string & title_,
