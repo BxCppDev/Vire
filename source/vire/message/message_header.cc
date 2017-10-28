@@ -266,7 +266,13 @@ namespace vire {
            << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
-           << "Category    : '" << message_category_label(_category_) << "'" << std::endl;
+           << "Category    : ";
+      if (_category_ != MESSAGE_INVALID) {
+        out_ << "'" << message_category_label(_category_) << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
 
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "In reply to : ";
