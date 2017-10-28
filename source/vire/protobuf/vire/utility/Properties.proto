@@ -1,0 +1,21 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.utility";
+option java_outer_classname = "PropertiesStub";
+package vire.utility;
+
+import "vire/utility/BasePayload.proto";
+import "vire/utility/InstanceIdentifier.proto";
+import "vire/utility/ModelIdentifier.proto";
+import "vire/utility/MetadataRecord.proto";
+
+message Properties {
+
+  // reserved 1-99
+
+  BasePayload _base = 1; // Base class
+
+  InstanceIdentifier      id         = 100; // The identifier
+  ModelIdentifier         model      = 101; // The model identifier
+  repeated MetadataRecord properties = 102; // The collection of properties
+
+}

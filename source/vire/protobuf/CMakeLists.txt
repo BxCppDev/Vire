@@ -30,6 +30,7 @@ set(protobufList
   vire/utility/InvalidContextError.proto
   vire/utility/InvalidSetupIdError.proto
   vire/utility/MetadataRecord.proto
+  vire/utility/Properties.proto
 
   # vire/message:
   vire/message/MessageIdentifier.proto

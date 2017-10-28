@@ -7,7 +7,9 @@ message MetadataRecord {
 
   // reserved 1-99
 
-  string key   = 100; // Unique key
-  string value = 101; // Value represention
+  string key        = 100; // Unique key
+  string value      = 101; // Value representation
+  string type       = 102; // Type representation
+  string additional = 103; // Additional information
 
 }
