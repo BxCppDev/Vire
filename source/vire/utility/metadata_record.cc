@@ -1,6 +1,6 @@
 // vire/utility/metadata_record.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -49,10 +49,19 @@ namespace vire {
       return;
     }
 
-    metadata_record::metadata_record(const std::string & key_, const std::string & value_)
+    metadata_record::metadata_record(const std::string & key_,
+                                     const std::string & value_,
+                                     const std::string & type_,
+                                     const std::string & additional_)
     {
       set_key(key_);
       set_value(value_);
+      if (!type_.empty()) {
+        set_type(type_);
+      }
+      if (!additional_.empty()) {
+        set_additional(additional_);
+      }
       return;
     }
 
@@ -93,6 +102,38 @@ namespace vire {
       return _value_;
     }
 
+    bool metadata_record::has_type() const
+    {
+      return !_type_.empty();
+    }
+
+    void metadata_record::set_type(const std::string & type_)
+    {
+      _type_ = type_;
+      return;
+    }
+
+    const std::string & metadata_record::get_type() const
+    {
+      return _type_;
+    }
+
+    bool metadata_record::has_additional() const
+    {
+      return !_additional_.empty();
+    }
+
+    void metadata_record::set_additional(const std::string & additional_)
+    {
+      _additional_ = additional_;
+      return;
+    }
+
+    const std::string & metadata_record::get_additional() const
+    {
+      return _additional_;
+    }
+
     bool metadata_record::is_valid() const
     {
       if (_key_.empty()) return false;
@@ -103,6 +144,8 @@ namespace vire {
     {
       _key_.clear();
       _value_.clear();
+      _type_.clear();
+      _additional_.clear();
       return;
     }
 
@@ -111,6 +154,8 @@ namespace vire {
     {
       node_["key"] % _key_;
       node_["value"] % _value_;
+      node_["type"] % _value_;
+      node_["additional"] % _additional_;
       return;
     }
 
@@ -119,6 +164,8 @@ namespace vire {
     {
       node_["key"] % _key_;
       node_["value"] % _value_;
+      node_["type"] % _value_;
+      node_["additional"] % _additional_;
       return;
     }
 
@@ -142,6 +189,24 @@ namespace vire {
            << "Value : ";
       if (has_value()) {
         out_ << "'" << _value_ << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
+           << "Type : ";
+      if (has_type()) {
+        out_ << "'" << _type_ << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
+           << "Additional : ";
+      if (has_additional()) {
+        out_ << "'" << _additional_ << "'";
       } else {
         out_ << "<none>";
       }

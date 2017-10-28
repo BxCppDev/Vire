@@ -23,6 +23,8 @@ list(APPEND VireLibrary_HEADERS
   utility/payload_macros.h
   utility/metadata_record.h
   utility/metadata_record-serial.ipp
+  utility/properties.h
+  utility/properties-serial.ipp
   utility/path.h
   utility/backup_file.h
 )
@@ -39,6 +41,7 @@ list(APPEND VireLibrary_SOURCES
   utility/base_alarm.cc
   utility/json_converters.cc
   utility/metadata_record.cc
+  utility/properties.cc
   utility/path.cc
   utility/backup_file.cc
 )
@@ -52,4 +55,5 @@ list(APPEND VireLibrary_TESTS
   utility/testing/test-utility-identifiers.cxx
   utility/testing/test-utility-path.cxx
   utility/testing/test-utility-backup_file.cxx
+  utility/testing/test-utility-properties.cxx
 )

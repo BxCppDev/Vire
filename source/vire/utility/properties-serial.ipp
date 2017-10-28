@@ -1,7 +1,7 @@
-//! \file  vire/utility/metadata_record-serial.ipp
-//! \brief Base identifier body serialization
+//! \file  vire/utility/properties-serial.ipp
+//! \brief Properties serialization
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_UTILITY_METADATA_RECORD_SERIAL_IPP
-#define VIRE_UTILITY_METADATA_RECORD_SERIAL_IPP
+#ifndef VIRE_UTILITY_PROPERTIES_SERIAL_IPP
+#define VIRE_UTILITY_PROPERTIES_SERIAL_IPP
 
 // Ourselves:
-#include <vire/utility/metadata_record.h>
+#include <vire/utility/properties.h>
 
 // Third Party:
 // - Boost:
@@ -34,13 +34,13 @@ namespace vire {
   namespace utility {
 
     template<class Archive>
-    void metadata_record::serialize (Archive & archive_,
-                                     const unsigned int /* version_*/)
+    void properties::serialize(Archive & archive_, const unsigned int /* version_*/)
     {
-      archive_ & boost::serialization::make_nvp("key",   _key_);
-      archive_ & boost::serialization::make_nvp("value", _value_);
-      archive_ & boost::serialization::make_nvp("type", _type_);
-      archive_ & boost::serialization::make_nvp("additional", _additional_);
+      archive_ & boost::serialization::make_nvp("__base__",
+                                                boost::serialization::base_object<vire::utility::base_payload>(*this));
+      archive_ & boost::serialization::make_nvp("id",         _id_);
+      archive_ & boost::serialization::make_nvp("model",      _model_);
+      archive_ & boost::serialization::make_nvp("properties", _properties_);
       return;
     }
 
@@ -48,7 +48,7 @@ namespace vire {
 
 } // end of namespace vire
 
-#endif // VIRE_UTILITY_METADATA_RECORD_SERIAL_IPP
+#endif // VIRE_UTILITY_PROPERTIES_SERIAL_IPP
 
 // Local Variables: --
 // mode: c++ --

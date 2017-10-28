@@ -1,7 +1,7 @@
 //! \file  vire/utility/metadata_record.h
 //! \brief Metadate key/value record
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -41,6 +41,16 @@ namespace vire {
   namespace utility {
 
     /// \brief Metadata record
+    ///
+    /// A metadata record is stored as a key/value pair, optionally
+    /// associated to an additional information.
+    /// All attributes have a textual representation.
+    /// Examples:
+    /// \code
+    /// key : "length"
+    /// value : "3.45 m"
+    /// additional : "const"
+    /// \endcode
     class metadata_record
       : public ::datatools::i_tree_dumpable
       , public ::jsontools::i_jsonizable
@@ -52,7 +62,10 @@ namespace vire {
       metadata_record();
 
       /// Constructor
-      metadata_record(const std::string & key_, const std::string & value_);
+      metadata_record(const std::string & key_,
+                      const std::string & value_,
+                      const std::string & type_ = "",
+                      const std::string & additional_ = "");
 
       /// Destructor
       virtual ~metadata_record();
@@ -75,7 +88,25 @@ namespace vire {
       /// Return the value
       const std::string & get_value() const;
 
-      /// Check validity
+      /// Check if a type is set
+      bool has_type() const;
+
+      /// Set the type
+      void set_type(const std::string & type_);
+
+      /// Return the type
+      const std::string & get_type() const;
+
+      /// Check if a additional is set
+      bool has_additional() const;
+
+      /// Set the additional
+      void set_additional(const std::string & additional_);
+
+      /// Return the additional
+      const std::string & get_additional() const;
+
+       /// Check validity
       bool is_valid() const;
 
       /// Reset
@@ -116,8 +147,10 @@ namespace vire {
 
     private:
 
-      std::string _key_;   ///< Metadata key
-      std::string _value_; ///< Metadata value representation
+      std::string _key_;        ///< Metadata key
+      std::string _value_;      ///< Metadata value representation
+      std::string _type_;       ///< Metadata type
+      std::string _additional_; ///< Metadata additional information
 
     };
 
