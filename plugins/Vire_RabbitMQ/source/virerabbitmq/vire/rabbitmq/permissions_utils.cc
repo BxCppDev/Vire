@@ -26,7 +26,7 @@ namespace vire {
 
 
     void permissions::add_exchange_service_client_perms (::rabbitmq::permissions & perms_,
-                                                         const std::string exchange_name_)
+                                                         const std::string & exchange_name_)
     {
       ::rabbitmq::permissions::add_amqgen_to   (perms_.configure);
       ::rabbitmq::permissions::add_exchange_to (perms_.write, exchange_name_);
@@ -34,7 +34,7 @@ namespace vire {
     }
 
     void permissions::add_exchange_service_server_perms (::rabbitmq::permissions & perms_,
-                                                         const std::string exchange_name_)
+                                                         const std::string & exchange_name_)
     {
       ::rabbitmq::permissions::add_amqgen_to   (perms_.configure);
       ::rabbitmq::permissions::add_amqdef_to   (perms_.write);
@@ -44,13 +44,13 @@ namespace vire {
     }
 
     void permissions::add_exchange_event_producer_perms (::rabbitmq::permissions & perms_,
-                                                         const std::string exchange_name_)
+                                                         const std::string & exchange_name_)
     {
       ::rabbitmq::permissions::add_exchange_to (perms_.write, exchange_name_);
     }
 
     void permissions::add_exchange_event_listener_perms (::rabbitmq::permissions & perms_,
-                                                         const std::string exchange_name_)
+                                                         const std::string & exchange_name_)
     {
       ::rabbitmq::permissions::add_amqgen_to   (perms_.configure);
       ::rabbitmq::permissions::add_amqgen_to   (perms_.write);
@@ -66,7 +66,7 @@ namespace vire {
     }
 
     void permissions::add_direct_service_server_perms (::rabbitmq::permissions & perms_,
-                                                       const std::string queue_name_)
+                                                       const std::string & queue_name_)
     {
       ::rabbitmq::permissions::add_amqdef_to   (perms_.write);
       ::rabbitmq::permissions::add_queue_to    (perms_.read, queue_name_);
@@ -78,7 +78,7 @@ namespace vire {
     }
 
     void permissions::add_direct_event_listener_perms (::rabbitmq::permissions & perms_,
-                                                       const std::string queue_name_)
+                                                       const std::string & queue_name_)
     {
       ::rabbitmq::permissions::add_queue_to  (perms_.read, queue_name_);
     }

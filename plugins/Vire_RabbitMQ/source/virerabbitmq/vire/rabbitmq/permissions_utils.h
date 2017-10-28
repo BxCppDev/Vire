@@ -34,26 +34,26 @@ namespace vire {
     struct permissions {
 
       static void add_exchange_service_client_perms(::rabbitmq::permissions & perms_,
-                                                    const std::string exchange_name_);
+                                                    const std::string & exchange_name_);
 
       static void add_exchange_service_server_perms(::rabbitmq::permissions & perms_,
-                                                    const std::string exchange_name_);
+                                                    const std::string & exchange_name_);
 
       static void add_exchange_event_producer_perms(::rabbitmq::permissions & perms_,
-                                                    const std::string exchange_name_);
+                                                    const std::string & exchange_name_);
 
       static void add_exchange_event_listener_perms(::rabbitmq::permissions & perms_,
-                                                    const std::string exchange_name_);
+                                                    const std::string & exchange_name_);
 
       static void add_direct_service_client_perms(::rabbitmq::permissions & perms_);
 
       static void add_direct_service_server_perms(::rabbitmq::permissions & perms_,
-                                                  const std::string queue_name_);
+                                                  const std::string & queue_name_);
 
       static void add_direct_event_producer_perms(::rabbitmq::permissions & perms_);
 
       static void add_direct_event_listener_perms(::rabbitmq::permissions & perms_,
-                                                  const std::string queue_name_);
+                                                  const std::string & queue_name_);
 
     };
 
