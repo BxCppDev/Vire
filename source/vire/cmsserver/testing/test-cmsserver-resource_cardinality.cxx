@@ -52,14 +52,15 @@ void test_resource_cardinality_1()
   std::clog << "\ntest_resource_cardinality_1: basics" << std::endl;
 
   vire::cmsserver::cardinalities_request_type cardreq;
-  cardreq.set_limited_resource(23);
-  cardreq.set_limited_resource(24);
-  cardreq.set_limited_resource(25);
-  cardreq.set_limited_resource(26, 3);
-  cardreq.set_unlimited_resource(27);
-  cardreq.set_unlimited_resource(28);
-  cardreq.set_unlimited_resource(29);
-  cardreq.print(std::clog);
+  vire::cmsserver::resource_cardinality wrapper(cardreq);
+  wrapper.set_limited_resource(23);
+  wrapper.set_limited_resource(24);
+  wrapper.set_limited_resource(25);
+  wrapper.set_limited_resource(26, 3);
+  wrapper.set_unlimited_resource(27);
+  wrapper.set_unlimited_resource(28);
+  wrapper.set_unlimited_resource(29);
+  wrapper.print(std::clog);
   std::clog << std::endl;
   return;
 }
@@ -109,8 +110,9 @@ void test_resource_cardinality_2()
   crconfig.store("limited", limited);
 
   vire::cmsserver::cardinalities_request_type cardreq;
-  cardreq.initialize(crconfig, mgr);
-  cardreq.print(std::clog);
+  vire::cmsserver::resource_cardinality wrapper(cardreq);
+  wrapper.initialize(crconfig, mgr);
+  wrapper.print(std::clog);
 
   std::clog << std::endl;
   return;

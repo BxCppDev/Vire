@@ -28,10 +28,14 @@
 #include <vire/user/manager.h>
 #include <vire/resource/role.h>
 #include <vire/resource/manager.h>
+#include <vire/cmsserver/resource_cardinality.h>
 
 namespace vire {
 
   namespace cmsserver {
+
+    // Serialization implementation
+    DATATOOLS_SERIALIZATION_IMPLEMENTATION(session_info, "vire::cmsserver::session_info")
 
     // static
     const int32_t session_info::INVALID_ID;
@@ -159,13 +163,15 @@ namespace vire {
       if (!has_special_functional_cardinalities()) {
         datatools::properties sfc_config;
         config_.export_and_rename_starting_with(sfc_config, "special_functional_cardinalities.", "");
-        _special_functional_cardinalities_.initialize(sfc_config, resource_mgr_);
+        resource_cardinality wrapper(_special_functional_cardinalities_);
+        wrapper.initialize(sfc_config, resource_mgr_);
       }
 
       if (!has_special_distributable_cardinalities()) {
         datatools::properties sdc_config;
         config_.export_and_rename_starting_with(sdc_config, "special_distributable_cardinalities.", "");
-        _special_distributable_cardinalities_.initialize(sdc_config, resource_mgr_);
+        resource_cardinality wrapper(_special_distributable_cardinalities_);
+        wrapper.initialize(sdc_config, resource_mgr_);
       }
 
       // if (!is_valid()) {
@@ -391,53 +397,45 @@ namespace vire {
 
     void session_info::set_special_functional_limited(int32_t resource_id_, std::size_t cardinality_)
     {
-      _special_functional_cardinalities_.set_limited_resource(resource_id_, cardinality_);
+      resource_cardinality wrapper(_special_functional_cardinalities_);
+      wrapper.set_limited_resource(resource_id_, cardinality_);
       return;
     }
 
     void session_info::set_special_functional_unlimited(int32_t resource_id_)
     {
-      _special_functional_cardinalities_.set_unlimited_resource(resource_id_);
+      resource_cardinality wrapper(_special_functional_cardinalities_);
+      wrapper.set_unlimited_resource(resource_id_);
       return;
     }
 
     void session_info::unset_special_functional(int32_t resource_id_)
     {
-      _special_functional_cardinalities_.unset_resource(resource_id_);
+      resource_cardinality wrapper(_special_functional_cardinalities_);
+      wrapper.unset_resource(resource_id_);
       return;
     }
 
     void session_info::set_special_distributable_limited(int32_t resource_id_, std::size_t cardinality_)
     {
-      _special_distributable_cardinalities_.set_limited_resource(resource_id_, cardinality_);
+      resource_cardinality wrapper(_special_distributable_cardinalities_);
+      wrapper.set_limited_resource(resource_id_, cardinality_);
       return;
     }
 
     void session_info::set_special_distributable_unlimited(int32_t resource_id_)
     {
-      _special_distributable_cardinalities_.set_unlimited_resource(resource_id_);
+      resource_cardinality wrapper(_special_distributable_cardinalities_);
+      wrapper.set_unlimited_resource(resource_id_);
       return;
     }
 
     void session_info::unset_special_distributable(int32_t resource_id_)
     {
-      _special_distributable_cardinalities_.unset_resource(resource_id_);
-       return;
+      resource_cardinality wrapper(_special_distributable_cardinalities_);
+      wrapper.unset_resource(resource_id_);
+      return;
     }
-
-    // bool session_info::has_role() const
-    // {
-    //   return _role_ != nullptr || _role_id_ < -1;
-    // }
-
-    // const resource::role & session_info::get_role() const
-    // {
-    //   if (_role_ != nullptr) {
-    //     return *_role_;
-    //   } else if (_role_id_ < -1) {
-    //     return _process_desc_._role_.get();
-    //   }
-    // }
 
   } // namespace cmsserver
 

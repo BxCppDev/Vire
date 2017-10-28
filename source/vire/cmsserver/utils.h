@@ -23,6 +23,7 @@
 
 // Standard Library:
 #include <string>
+#include <map>
 
 // Third party:
 // - Bayeux/datatools:
@@ -34,6 +35,8 @@ namespace vire {
 
     datatools::logger::priority logging(datatools::logger::priority p_
                                         = datatools::logger::PRIO_UNDEFINED);
+
+    typedef std::map<int32_t, std::size_t> cardinalities_request_type;
 
     struct service {
 
@@ -55,12 +58,10 @@ namespace vire {
       /// Default name of the gate service
       static const std::string & default_gate_name();
 
-      // Default name of the agenda service
-      // static const std::string & default_rabbitctrl_name();
-
       /// Default name of the agenda service
       static const std::string & default_agenda_name();
 
+      /// Default name of the Pub/Sub controller service
       static const std::string & default_pubsubctrl_name();
 
       /// Default name of the communication service

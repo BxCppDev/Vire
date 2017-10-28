@@ -27,7 +27,6 @@
 #include <vire/com/manager.h>
 #include <vire/com/event_emitter_plug.h>
 #include <vire/com/domain_builder.h>
-#include <vire/utility/base_alarm.h>
 
 void test_com_manager_1(bool interactive_ = false);
 
@@ -62,64 +61,73 @@ void test_com_manager_1(bool interactive_)
 
   std::string setup_name = "supernemo/demonstrator";
 
+  vire::utility::model_identifier protocol_id("rabbitmq",
+                                              datatools::version_id(1, 0));
+  vire::utility::model_identifier encoding_id("protobuf",
+                                              datatools::version_id(3));
+
+  vire::com::actor vireServer("vireserver",
+                              vire::com::actor::CATEGORY_SERVER);
+
+  // vire::com::domain_builder domBuilder;
+  // domBuilder.set_setup_name(setup_name);
+  // domBuilder.set_encoding_type_id(protocol_id);
+  // domBuilder.set_transport_type_id(encoding_id);
+
   vire::com::manager comMgr;
   comMgr.set_name("Com");
-  comMgr.set_display_name("Communication");
   comMgr.set_terse_description("SuperNEMO Vire Server Communication Service");
-  vire::com::actor vireServer("supernemo.demonstrator.vire.server",
-                              vire::com::actor::CATEGORY_SERVER);
+  comMgr.set_display_name("Communication");
+  comMgr.set_setup_name(setup_name);
+  comMgr.set_encoding_type_id(protocol_id);
+  comMgr.set_transport_type_id(encoding_id);
   comMgr.set_actor(vireServer);
+  comMgr.add_subcontractor("cmslapp");
   comMgr.initialize_simple();
 
-  std::string protocol_id = "rabbitmq-1.0";
-  std::string encoding_id = "protobuf-3";
-  comMgr.create_domain(vire::com::domain_builder::build_cms_subcontractor_system_name(setup_name, "cmslapp"),
-                       "vire::com::domain::system",
-                       protocol_id,
-                       encoding_id);
-  comMgr.create_domain(vire::com::domain_builder::build_cms_control_name(setup_name),
-                       "vire::com::domain::control",
-                       protocol_id,
-                       encoding_id);
-  comMgr.create_domain(vire::com::domain_builder::build_cms_monitoring_name(setup_name),
-                       "vire::com::domain::monitoring",
-                       protocol_id,
-                       encoding_id);
+  /*
+  vire::com::domain & gate
+    = comMgr.create_domain(vire::com::domain_builder::build_cms_clients_gate_name(setup_name),
+                           "vire::com::domain::general",
+                           protocol_id,
+                           encoding_id);
+  domBuilder.build_clients_gate_domain(gate);
+
+  vire::com::domain & syscmslapp
+    = comMgr.create_domain(vire::com::domain_builder::build_cms_subcontractor_system_name(setup_name, "cmslapp"),
+                           "vire::com::domain::system",
+                           protocol_id,
+                           encoding_id);
+  domBuilder.build_subcontractor_system_domain(syscmslapp, "cmslapp");
+
+  vire::com::domain & control
+    = comMgr.create_domain(vire::com::domain_builder::build_cms_control_name(setup_name),
+                           "vire::com::domain::control",
+                           protocol_id,
+                           encoding_id);
+  domBuilder.build_control_domain(control);
+
+  vire::com::domain & monitoring
+    = comMgr.create_domain(vire::com::domain_builder::build_cms_monitoring_name(setup_name),
+                           "vire::com::domain::monitoring",
+                           protocol_id,
+                           encoding_id);
+  domBuilder.build_monitoring_domain(monitoring);
+
   comMgr.create_domain(vire::com::domain_builder::build_cms_topic_name(setup_name, "sandbox"),
                        "vire::com::domain::general",
                        protocol_id,
                        encoding_id);
-  comMgr.create_domain(vire::com::domain_builder::build_cms_topic_name(setup_name, "events"),
-                       "vire::com::domain::general",
-                       protocol_id,
-                       encoding_id);
+  */
 
   comMgr.tree_dump(std::clog, "Communication service: ");
 
-  // comMgr.create_plug("sys",     "client_rpc_plug", "/snemo/vire/cms/control");
-  // comMgr.create_plug("pubsub1", "event_listener_plug", "vire.server.cms.monitoring");
-  // comMgr.create_plug("pubsub2", "event_listener_plug", "vire.server.cms.monitoring");
-  // comMgr.create_plug("pubsub3", "event_listener_plug", "vire.server.cms.monitoring");
-  // comMgr.create_plug("events.in",  "event_listener_plug", "vire.server.cmsinterface.service");
-  // comMgr.create_plug("events.out", "event_emitter_plug", "vire.server.cmsinterface.service");
-  // comMgr.create_plug("events2.out", "event_emitter_plug", "vire.server.cms.bad");
+  if (comMgr.has_domain(vire::com::domain_builder::build_cms_monitoring_name(setup_name))) {
+    vire::com::domain & monitoring = comMgr.grab_domain(vire::com::domain_builder::build_cms_monitoring_name(setup_name));
 
-  // comMgr.tree_dump(std::clog, "Communication service: ");
 
-  // // Create a simple alarm event:
-  // vire::utility::base_alarm my_alarm;
-  // my_alarm.set_severity("warning");
-  // my_alarm.set_message("It's raining again!");
+    monitoring.tree_dump(std::clog, "Monitoring domain: ");
+  }
 
-  // // Use a dedicated plug to send it to some destination:
-  // vire::com::event_emitter_plug & ee = comMgr.grab_event_emitter_plug("events.out");
-  // int error_code = ee.send_event(my_alarm);
-  // if (error_code != vire::com::event_emitter_plug::SEND_EVENT_OK) {
-  //   std::cerr << "error: Alarm event was not sent: code=" << error_code << "!\n";
-  // } else {
-  //   std::clog << "info: Alarm event was sent!\n";
-  // }
-
-  // comMgr.tree_dump(std::clog, "Communication service: ");
   return;
 }

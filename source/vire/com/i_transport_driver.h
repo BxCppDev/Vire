@@ -110,7 +110,7 @@ namespace vire {
       // Management:
       bool _initialized_ = false; //!< Initialization flag
 
-      // Configuration
+      // Configuration:
       domain * _domain_ = nullptr;
 
 

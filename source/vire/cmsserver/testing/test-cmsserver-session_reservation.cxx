@@ -13,6 +13,8 @@
 // Third party:
 // - Boost:
 #include <boost/filesystem.hpp>
+// - Bayeux/datatools:
+#include <bayeux/datatools/io_factory.h>
 
 // This project:
 #include <vire/vire.h>
@@ -52,7 +54,6 @@ void test_session_reservation_1()
     pinfo.set_description("Data acquisition process");
     pinfo.set_model_id("snemo::demonstrator::cms::daq_process");
     pinfo.set_config_urn("snemo:demonstrator:daq:config:dbd-1.2");
-    std::clog << std::endl;
 
     vire::cmsserver::session_info sinfo;
     sinfo.set_id(1000);
@@ -76,6 +77,7 @@ void test_session_reservation_1()
     sres1.set_start_macro("daq_start.macro");
   }
   sres1.tree_dump(std::clog, "Session reservation 1: ", "[info] ");
+  std::clog << std::endl;
 
   vire::cmsserver::session_reservation sres2;
   {
@@ -110,12 +112,23 @@ void test_session_reservation_1()
     sres2.set_stop_macro("survey_stop.macro");
   }
   sres2.tree_dump(std::clog, "Session reservation 2: ", "[info] ");
+  std::clog << std::endl;
 
   if (sres1 < sres2) {
     std::clog << "[info] reservation 1 < reservation 2" << std::endl;
   } else {
     std::clog << "[info] reservation 1 not < reservation 2" << std::endl;
   }
+  std::clog << std::endl;
+
+  std::clog << "[info] serialization..." << std::endl;
+  {
+    datatools::data_writer writer("test-cmsserver-session_reservation.xml",
+                                  datatools::using_multi_archives);
+    writer.store(sres1);
+    writer.store(sres2);
+  }
+  std::clog << std::endl;
 
   return;
 }

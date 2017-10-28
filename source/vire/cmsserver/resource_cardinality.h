@@ -1,7 +1,7 @@
 //! \file  vire/cmsserver/resource_cardinality.h
 //! \brief The CMS server resource cardinality utilities
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -32,6 +32,7 @@
 #include <datatools/properties.h>
 
 // This project:
+#include <vire/cmsserver/utils.h>
 #include <vire/resource/role.h>
 
 namespace vire {
@@ -46,10 +47,10 @@ namespace vire {
 
     class session_info;
 
-    /// \brief A type alias for resource cardinality request.
+    /// \brief A wrapper for resource cardinality request.
     ///
-    /// This object is a dictionary which defines a specific number of
-    /// tokens requested for each  resource, addressed by its resource
+    /// This object wraps a dictionary which defines a specific number of
+    /// tokens requested for each resource, addressed by its resource
     /// identifier.
     ///
     /// Example:
@@ -77,41 +78,43 @@ namespace vire {
     /// default,  if   no  specific   request  is  defined   for  some
     /// (functional or  distributable) resource, the number  of tokens
     /// should be set to 1 for any limited resource.
-    struct cardinalities_request_type
-      : public std::map<int32_t, std::size_t>
+    struct resource_cardinality
     {
 
       /// Default constructor
-      cardinalities_request_type();
+      resource_cardinality(cardinalities_request_type & request_);
 
       /// Destructor
-      virtual ~cardinalities_request_type();
+      virtual ~resource_cardinality();
 
       /// Check if a given resource is explicitely set
-      bool has_resource(int32_t resource_id_) const;
+      bool has_resource(const int32_t resource_id_) const;
+
+      /// Return the cardinality associated to a resource
+      std::size_t at(const int32_t resource_id_) const;
 
       /// Explicitely inhibit the (limited or unlimited) resource by setting zero cardinality
       /// @arg resource_id_ the identifier of the resource to be inhibited
-      void unset_resource(int32_t resource_id_);
+      void unset_resource(const int32_t resource_id_);
 
       /// Check if a given resource is explicitely unset
-      bool has_unset_resource(int32_t resource_id_) const;
+      bool has_unset_resource(const int32_t resource_id_) const;
 
       /// Set the limited resource with a given cardinality
       /// @arg resource_id_ the identifier of the resource with limited token cardinality
       /// @arg cardinality_ the requested cardinality for the limited resource (default is 1)
-      void set_limited_resource(int32_t resource_id_,
-                                std::size_t cardinality_ = 1);
+      void set_limited_resource(const int32_t resource_id_,
+                                const std::size_t cardinality_ = 1);
 
       /// Check if a given limited resource is set
-      bool has_limited_resource(int32_t resource_id_) const;
+      bool has_limited_resource(const int32_t resource_id_) const;
 
       /// Set the unlimited resource
       /// @arg resource_id_ the identifier of the unlimited resource
-      void set_unlimited_resource(int32_t resource_id_);
+      void set_unlimited_resource(const int32_t resource_id_);
 
       /// Check if a given unlimited resource is set
-      bool has_unlimited_resource(int32_t resource_id_) const;
+      bool has_unlimited_resource(const int32_t resource_id_) const;
 
       /// Print
       void print(std::ostream & out_) const;
@@ -127,11 +130,15 @@ namespace vire {
       /// Reset
       void reset();
 
-      /// Build a 'cardinalities request' from a role and optional special request
+      /// Build a 'cardinality request' from a role and optional special request
       void build_from_role(const vire::resource::manager & resource_mgr_,
                            const vire::resource::role & r_,
-                           vire::resource::role::resource_set_flag flag_,
-                           cardinalities_request_type special_);
+                           const vire::resource::role::resource_set_flag flag_,
+                           const resource_cardinality & special_);
+
+    private:
+
+      cardinalities_request_type & _request_; ///< Wrapped cardinality request dictionary
 
     };
 

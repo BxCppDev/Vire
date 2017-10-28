@@ -28,6 +28,9 @@ namespace vire {
 
   namespace cmsserver {
 
+    // Serialization implementation
+    DATATOOLS_SERIALIZATION_IMPLEMENTATION(session_reservation, "vire::cmsserver::session_reservation")
+
     session_reservation::session_reservation()
     {
       return;

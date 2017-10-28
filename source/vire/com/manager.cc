@@ -21,6 +21,8 @@
 #include <vire/com/manager.h>
 
 // Third party
+// - Boost:
+#include <boost/algorithm/string.hpp>
 // - Bayeux/datatools
 #include <bayeux/datatools/utils.h>
 #include <bayeux/datatools/exception.h>
@@ -55,6 +57,36 @@ namespace vire {
       return;
     }
 
+    bool manager::has_setup_name() const
+    {
+      return !_setup_name_.empty();
+    }
+
+    void manager::set_setup_name(const std::string & setup_name_)
+    {
+      typedef std::vector<std::string > split_vector_type;
+      split_vector_type splitted;
+      boost::split(splitted, setup_name_, boost::is_any_of("/"));
+      DT_THROW_IF(splitted.size() < 1,
+                  std::logic_error,
+                  "Invalid setup name '" << setup_name_ << "'!");
+      uint32_t nv_flags = ::datatools::NV_NO_HYPHEN
+        | ::datatools::NV_NO_DOT
+        | ::datatools::NV_NO_COLON;
+      for (std::size_t i = 0; i < splitted.size(); i++) {
+        DT_THROW_IF(!datatools::name_validation(splitted[i], nv_flags),
+                    std::logic_error,
+                    "Invalid setup name '" << setup_name_ << "'!");
+      }
+      _setup_name_ = setup_name_;
+      return;
+    }
+
+    const std::string & manager::get_setup_name() const
+    {
+      return _setup_name_;
+    }
+
     bool manager::has_actor() const
     {
       return _actor_.is_valid();
@@ -82,6 +114,63 @@ namespace vire {
       return _actor_;
     }
 
+    bool manager::has_transport_type_id() const
+    {
+      return _transport_type_id_.is_valid();
+    }
+
+    void manager::set_transport_type_id(const vire::utility::model_identifier & id_)
+    {
+      _transport_type_id_ = id_;
+      return;
+    }
+
+    // void manager::set_transport_type_id(const std::string & id_repr_)
+    // {
+    //   DT_THROW_IF(!_transport_type_id_.from_string(id_repr_),
+    //               std::logic_error,
+    //               "Invalid transport type ID representation '" << id_repr_ << "'!");
+    //   return;
+    // }
+
+    const vire::utility::model_identifier & manager::get_transport_type_id() const
+    {
+      return _transport_type_id_;
+    }
+
+    bool manager::has_encoding_type_id() const
+    {
+      return _encoding_type_id_.is_valid();
+    }
+
+    void manager::set_encoding_type_id(const vire::utility::model_identifier & id_)
+    {
+      _encoding_type_id_ = id_;
+      return;
+    }
+
+    // void manager::set_encoding_type_id(const std::string & id_repr_)
+    // {
+    //   DT_THROW_IF(!_encoding_type_id_.from_string(id_repr_), std::logic_error, "Invalid encoding type ID representation '" << id_repr_ << "'!");
+    //   return;
+    // }
+
+    const vire::utility::model_identifier & manager::get_encoding_type_id() const
+    {
+      return _encoding_type_id_;
+    }
+
+    bool manager::has_subcontractor(const std::string & name_) const
+    {
+      return _subcontractors_.count(name_);
+    }
+
+    void manager::add_subcontractor(const std::string & name_)
+    {
+      _subcontractors_.insert(name_);
+      return;
+    }
+
     bool manager::has_resources() const
     {
       return _resources_ != nullptr;
@@ -100,6 +189,11 @@ namespace vire {
       DT_THROW_IF(!has_resources(), std::logic_error,
                   "No resources manager is available!");
       return *_resources_;
+    }
+
+    const domain_builder & manager::get_domain_maker() const
+    {
+      return _domain_maker_;
     }
 
     bool manager::has_domains() const
@@ -133,8 +227,8 @@ namespace vire {
     domain &
     manager::create_domain(const std::string & domain_name_,
                            const std::string & domain_category_,
-                           const std::string & domain_protocol_id_repr_,
-                           const std::string & domain_encoding_id_repr_)
+                           const vire::utility::model_identifier & domain_protocol_id_,
+                           const vire::utility::model_identifier & domain_encoding_id_)
     {
       DT_THROW_IF(has_domain(domain_name_),
                   std::logic_error,
@@ -144,6 +238,21 @@ namespace vire {
       DT_THROW_IF(dom_cat == domain::CATEGORY_INVALID,
                   std::logic_error,
                   "Invalid domain category '" << domain_category_ << "' for domain ID '" << domain_name_ << "'!");
+      DT_THROW_IF(!domain_protocol_id_.is_valid(), std::logic_error, "Invalid protocol ID !");
+      DT_THROW_IF(!domain_encoding_id_.is_valid(), std::logic_error, "Invalid encoding ID !");
+      sp.reset(new domain(domain_name_, dom_cat, domain_protocol_id_, domain_encoding_id_));
+      if (sp.get() != nullptr) {
+        _domains_[domain_name_] = sp;
+      }
+      return *_domains_.find(domain_name_)->second;
+    }
+
+    domain &
+    manager::create_domain(const std::string & domain_name_,
+                           const std::string & domain_category_,
+                           const std::string & domain_protocol_id_repr_,
+                           const std::string & domain_encoding_id_repr_)
+    {
       vire::utility::model_identifier protocol_id;
       DT_THROW_IF(!protocol_id.from_string(domain_protocol_id_repr_),
                   std::logic_error,
@@ -152,11 +261,7 @@ namespace vire {
       DT_THROW_IF(!encoding_id.from_string(domain_encoding_id_repr_),
                   std::logic_error,
                   "Invalid encoding ID '" << domain_encoding_id_repr_ << "'!");
-      sp.reset(new domain(domain_name_, dom_cat, protocol_id, encoding_id));
-      if (sp.get() != nullptr) {
-        _domains_[domain_name_] = sp;
-      }
-      return *_domains_.find(domain_name_)->second;
+      return create_domain(domain_name_, domain_category_, protocol_id, encoding_id);
     }
 
     void manager::remove_domain(const std::string & domain_name_)
@@ -167,37 +272,6 @@ namespace vire {
                   "No domain with identifier '" << domain_name_ << "'!");
       _domains_.erase(found);
       return;
-    }
-
-    std::string manager::create_private_event_mailbox(const std::string & domain_name_)
-    {
-      domain & dom = grab_domain(domain_name_);
-      std::string perms_repr = "---------";
-      if (_actor_.is_client()) {
-        perms_repr = "p--p--pk-";
-      } else if (_actor_.is_server()) {
-        perms_repr = "pk-p--p--";
-      } else if (_actor_.is_subcontractor()) {
-        perms_repr = "p--pk-p--";
-      }
-      mailbox::permissions_type perms = mailbox::usage_permission_from_string(perms_repr);
-      return dom.add_private_mailbox(_actor_.get_name(), mailbox::MODE_EVENT, perms);
-    }
-
-    std::string manager::create_private_service_mailbox(const std::string & domain_name_)
-    {
-      DT_THROW_IF(_actor_.is_client(),
-                  std::logic_error,
-                  "Client '" << _actor_.get_name() << "' cannot crate private service mailbox!");
-      domain & dom = grab_domain(domain_name_);
-      std::string perms_repr = "---------";
-      if (_actor_.is_server()) {
-        perms_repr = "pk-p--p--";
-      } else if (_actor_.is_subcontractor()) {
-        perms_repr = "p--pk-p--";
-      }
-      mailbox::permissions_type perms = mailbox::usage_permission_from_string(perms_repr);
-      return dom.add_private_mailbox(_actor_.get_name(), mailbox::MODE_SERVICE, perms);
     }
 
     void manager::tree_dump(std::ostream & out_,
@@ -291,6 +365,15 @@ namespace vire {
     void manager::_at_init_()
     {
       // DT_THROW_IF(!has_resources(), std::logic_error, "Missing 'resources' service!");
+
+      if (_actor_.is_server()) {
+
+      } else if (_actor_.is_client()) {
+
+      } else if (_actor_.is_subcontractor()) {
+
+      }
+
       return;
     }
 
@@ -300,96 +383,6 @@ namespace vire {
       _resources_ = nullptr;
       _actor_.reset();
       return;
-    }
-
-    bool manager::has_mailbox(const std::string & domain_name_,
-                              const std::string & mailbox_name_) const
-    {
-      if (!has_domain(domain_name_)) {
-        return false;
-      }
-      const domain & dom = get_domain(domain_name_);
-      if (!dom.has_mailbox(mailbox_name_)) {
-        return false;
-      }
-      return true;
-    }
-
-    const mailbox & manager::get_mailbox(const std::string & domain_name_,
-                                         const std::string & mailbox_name_) const
-    {
-      DT_THROW_IF(!has_domain(domain_name_),
-                  std::logic_error,
-                  "No domain '" << domain_name_ << "'!");
-      const domain & dom = get_domain(domain_name_);
-      DT_THROW_IF(!dom.has_mailbox(mailbox_name_),
-                  std::logic_error,
-                  "No mailbox '" << mailbox_name_ << "' in domain '" << domain_name_ << "'!");
-      return dom.get_mailbox(mailbox_name_);
-    }
-
-    //! Notify an event payload to a given domain/mailbox
-    com_status manager::notify_event(const std::string & domain_name_,
-                                     const std::string & mailbox_name_,
-                                     const utility::base_event & event_)
-    {
-      if (!has_domain(domain_name_)) {
-        return COM_FAILURE;
-      }
-      const domain & dom = get_domain(domain_name_);
-      if (!dom.has_mailbox(mailbox_name_)) {
-        return COM_FAILURE;
-      }
-      const mailbox & mb = dom.get_mailbox(mailbox_name_);
-      if (!mb.is_event()) {
-        return COM_FAILURE;
-      }
-      if (!mb.check_permissions(get_actor(), mailbox::USAGE_PERMISSION_PUT)) {
-        return COM_PERMISSION;
-      }
-
-      return COM_FAILURE;
-    }
-
-    //! Remote Procedure Call with request-response addressed to a given domain/mailbox
-    com_status manager::request_response(const std::string & domain_name_,
-                                         const std::string & mailbox_name_,
-                                         const utility::base_request & request_,
-                                         utility::base_response & response_,
-                                         const std::string & mailbox_async_name_)
-    {
-      if (!has_domain(domain_name_)) {
-        return COM_UNAVAILABLE;
-      }
-      const domain & dom = get_domain(domain_name_);
-      if (!dom.has_mailbox(mailbox_name_)) {
-        return COM_UNAVAILABLE;
-      }
-      const mailbox & mb = dom.get_mailbox(mailbox_name_);
-      if (!mb.is_service()) {
-        return COM_FAILURE;
-      }
-      if (!mb.check_permissions(get_actor(), mailbox::USAGE_PERMISSION_PUT)) {
-        return COM_PERMISSION;
-      }
-      bool async = false;
-      if (!mailbox_async_name_.empty()) {
-        if (!dom.has_mailbox(mailbox_async_name_)) {
-          return COM_UNAVAILABLE;
-        }
-        const mailbox & async_mb = dom.get_mailbox(mailbox_async_name_);
-        if (!async_mb.is_event()) {
-          return COM_FAILURE;
-        }
-        if (!async_mb.is_private()) {
-          return COM_FAILURE;
-        }
-        // verifie permissions :
-        // - ok tout le temps: droits fondamental de creer queues privées
-        // - servers peuvent creer des mb privées de type service (vire server et subcontractor)
-        // - clients "                         "  de type event (vire server et clients)
-      }
-      return COM_FAILURE;
     }
 
   } // namespace com

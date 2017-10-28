@@ -56,16 +56,16 @@ namespace vire {
                                                                     const std::string & subcontractor_id_)
     {
       std::ostringstream oss;
-      oss << '/' << setup_id_ << '/' << "cms" << '/' << "vire" << '/' << "subcontractors" << '/' << "system" << '/'  << subcontractor_id_;
-      return oss.str();
+      oss << "subcontractors" << '/' << "system" << '/'  << subcontractor_id_;
+      return build_cms_topic_name(setup_id_, oss.str());
     }
 
     // static
     std::string domain_builder::build_cms_clients_gate_name(const std::string & setup_id_)
     {
       std::ostringstream oss;
-      oss << '/' << setup_id_ << '/' << "cms" << '/' << "vire" << '/' << "clients" << '/' << "gate";
-      return oss.str();
+      oss << "clients" << '/' << "gate";
+      return build_cms_topic_name(setup_id_, oss.str());
     }
 
     // static
@@ -73,15 +73,15 @@ namespace vire {
                                                              const std::string & client_id_)
     {
       std::ostringstream oss;
-      oss << '/' << setup_id_ << '/' << "cms" << '/' << "vire" << '/' << "clients" << '/' << "system" << '/' << client_id_;
-      return oss.str();
+      oss << "clients" << '/' << "system" << '/' << client_id_;
+      return build_cms_topic_name(setup_id_, oss.str());
     }
 
     void domain_builder::_set_defaults_()
     {
       _setup_name_ = "";
-      _default_transport_type_id_.from_string("rabbitmq");
-      _default_encoding_type_id_.from_string("protobuf-3");
+      _transport_type_id_.reset();
+      _encoding_type_id_.reset();
       return;
     }
 
@@ -106,6 +106,8 @@ namespace vire {
     bool domain_builder::is_valid() const
     {
       if (!has_setup_name()) return false;
+      if (!has_encoding_type_id()) return false;
+      if (!has_transport_type_id()) return false;
       return true;
     }
 
@@ -139,13 +141,45 @@ namespace vire {
       return _setup_name_;
     }
 
+    bool domain_builder::has_encoding_type_id() const
+    {
+      return _encoding_type_id_.is_valid();
+    }
+
+    void domain_builder::set_encoding_type_id(const vire::utility::model_identifier & encoding_type_id_)
+    {
+      _encoding_type_id_ = encoding_type_id_;
+      return;
+    }
+
+    const vire::utility::model_identifier & domain_builder::get_encoding_type_id() const
+    {
+      return _encoding_type_id_;
+    }
+
+    bool domain_builder::has_transport_type_id() const
+    {
+      return _transport_type_id_.is_valid();
+    }
+
+    void domain_builder::set_transport_type_id(const vire::utility::model_identifier & transport_type_id_)
+    {
+      _transport_type_id_ = transport_type_id_;
+      return;
+    }
+
+    const vire::utility::model_identifier & domain_builder::get_transport_type_id() const
+    {
+      return _transport_type_id_;
+    }
+
     void domain_builder::build_clients_gate_domain(domain & dom_)
     {
       dom_.reset();
       dom_.set_name(domain_builder::build_cms_clients_gate_name(_setup_name_));
       dom_.set_category(vire::com::domain::CATEGORY_GENERAL);
-      dom_.set_transport_type_id(_default_transport_type_id_);
-      dom_.set_encoding_type_id(_default_encoding_type_id_);
+      dom_.set_transport_type_id(_transport_type_id_);
+      dom_.set_encoding_type_id(_encoding_type_id_);
       mailbox::permissions_type gate_perms = mailbox::usage_permission_from_string("--s---p--");
       dom_.add_mailbox("Gate",
                        mailbox::MODE_SERVICE,
@@ -161,9 +195,9 @@ namespace vire {
       dom_.reset();
       dom_.set_name(domain_builder::build_cms_control_name(_setup_name_));
       dom_.set_category(vire::com::domain::CATEGORY_CONTROL);
-      dom_.set_transport_type_id(_default_transport_type_id_);
-      dom_.set_encoding_type_id(_default_encoding_type_id_);
-      mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("p-------s");
+      dom_.set_transport_type_id(_transport_type_id_);
+      dom_.set_encoding_type_id(_encoding_type_id_);
+      mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("--s---p--");
       dom_.add_mailbox("ResourceRequest",
                        mailbox::MODE_SERVICE,
                        mailbox::PRIVACY_PUBLIC,
@@ -178,16 +212,16 @@ namespace vire {
       dom_.reset();
       dom_.set_name(domain_builder::build_cms_monitoring_name(_setup_name_));
       dom_.set_category(vire::com::domain::CATEGORY_MONITORING);
-      dom_.set_transport_type_id(_default_transport_type_id_);
-      dom_.set_encoding_type_id(_default_encoding_type_id_);
+      dom_.set_transport_type_id(_transport_type_id_);
+      dom_.set_encoding_type_id(_encoding_type_id_);
       mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("p-s--sp--");
-      mailbox::permissions_type event_perms = mailbox::usage_permission_from_string("p-sp----s");
       dom_.add_mailbox("ResourceRequest",
                        mailbox::MODE_SERVICE,
                        mailbox::PRIVACY_PUBLIC,
                        "resource_request.service",
                        rr_perms,
                        true);
+      mailbox::permissions_type event_perms = mailbox::usage_permission_from_string("p-sp----s");
       dom_.add_mailbox("Alarm",
                        vire::com::mailbox::MODE_EVENT,
                        vire::com::mailbox::PRIVACY_PUBLIC,
@@ -214,21 +248,23 @@ namespace vire {
       dom_.reset();
       dom_.set_name(domain_builder::build_cms_client_system_name(_setup_name_, client_id_));
       dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
-      dom_.set_transport_type_id(_default_transport_type_id_);
-      dom_.set_encoding_type_id(_default_encoding_type_id_);
-      mailbox::permissions_type s2c_perms = mailbox::usage_permission_from_string("p------k-");
-      mailbox::permissions_type r2s_perms = mailbox::usage_permission_from_string("-k----p--");
-      dom_.add_mailbox("SignalToClient",
-                       vire::com::mailbox::MODE_EVENT,
-                       vire::com::mailbox::PRIVACY_PRIVATE,
-                       "client.event",
-                       s2c_perms,
-                       true);
+      dom_.set_transport_type_id(_transport_type_id_);
+      dom_.set_encoding_type_id(_encoding_type_id_);
+
+      mailbox::permissions_type rts_perms = mailbox::usage_permission_from_string("--s---p--");
       dom_.add_mailbox("RequestToServer",
                        vire::com::mailbox::MODE_SERVICE,
-                       vire::com::mailbox::PRIVACY_PRIVATE,
+                       vire::com::mailbox::PRIVACY_PUBLIC,
                        "vireserver.service",
-                       r2s_perms,
+                       rts_perms,
+                       true);
+
+      mailbox::permissions_type sfs_perms = mailbox::usage_permission_from_string("p-------s");
+      dom_.add_mailbox("SignalFromServer",
+                       vire::com::mailbox::MODE_EVENT,
+                       vire::com::mailbox::PRIVACY_PUBLIC,
+                       "vireserver.event",
+                       sfs_perms,
                        true);
       return;
     }
@@ -238,35 +274,39 @@ namespace vire {
       dom_.reset();
       dom_.set_name(domain_builder::build_cms_subcontractor_system_name(_setup_name_, subcontractor_id_));
       dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
-      dom_.set_transport_type_id(_default_transport_type_id_);
-      dom_.set_encoding_type_id(_default_encoding_type_id_);
-      mailbox::permissions_type s2b_perms = mailbox::usage_permission_from_string("p---k----");
-      mailbox::permissions_type s2s_perms = mailbox::usage_permission_from_string("-k-p-----");
-      mailbox::permissions_type r2s_perms = mailbox::usage_permission_from_string("-k-p-----");
-      mailbox::permissions_type r2b_perms = mailbox::usage_permission_from_string("p---k----");
-      dom_.add_mailbox("SignalToSubcontractor",
-                       vire::com::mailbox::MODE_EVENT,
-                       vire::com::mailbox::PRIVACY_PRIVATE,
-                       "subcontractor.event",
-                       s2b_perms,
-                       true);
-      dom_.add_mailbox("SignalToServer",
-                       vire::com::mailbox::MODE_EVENT,
-                       vire::com::mailbox::PRIVACY_PRIVATE,
-                       "vireserver.event",
-                       s2s_perms,
-                       true);
+      dom_.set_transport_type_id(_transport_type_id_);
+      dom_.set_encoding_type_id(_encoding_type_id_);
+
+      mailbox::permissions_type rts_perms = mailbox::usage_permission_from_string("--sp-----");
       dom_.add_mailbox("RequestToServer",
                        vire::com::mailbox::MODE_SERVICE,
-                       vire::com::mailbox::PRIVACY_PRIVATE,
+                       vire::com::mailbox::PRIVACY_PUBLIC,
                        "vireserver.service",
-                       r2s_perms,
+                       rts_perms,
                        true);
+
+      mailbox::permissions_type sfs_perms = mailbox::usage_permission_from_string("p----s---");
+      dom_.add_mailbox("SignalFromServer",
+                       vire::com::mailbox::MODE_EVENT,
+                       vire::com::mailbox::PRIVACY_PUBLIC,
+                       "vireserver.event",
+                       sfs_perms,
+                       true);
+
+      mailbox::permissions_type rtc_perms = mailbox::usage_permission_from_string("p----s---");
       dom_.add_mailbox("RequestToSubcontractor",
                        vire::com::mailbox::MODE_SERVICE,
-                       vire::com::mailbox::PRIVACY_PRIVATE,
+                       vire::com::mailbox::PRIVACY_PUBLIC,
                        "subcontractor.service",
-                       r2b_perms,
+                       rtc_perms,
+                       true);
+
+      mailbox::permissions_type sfc_perms = mailbox::usage_permission_from_string("--sp-----");
+      dom_.add_mailbox("SignalFromSubcontractor",
+                       vire::com::mailbox::MODE_EVENT,
+                       vire::com::mailbox::PRIVACY_PUBLIC,
+                       "subcontractor.event",
+                       sfc_perms,
                        true);
       return;
     }

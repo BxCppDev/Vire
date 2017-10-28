@@ -29,6 +29,9 @@ namespace vire {
 
   namespace cmsserver {
 
+    // Serialization implementation
+    DATATOOLS_SERIALIZATION_IMPLEMENTATION(process_info, "vire::cmsserver::process_info")
+
     process_info::process_info()
     {
       return;

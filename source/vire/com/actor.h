@@ -117,9 +117,9 @@ namespace vire {
 
     private:
 
-      std::string   _name_;     //!< Actor name
-      category_type _category_; //!< Actor category
-      datatools::properties _metadata_; //! Metadata
+      std::string           _name_;     //!< Actor name
+      category_type         _category_; //!< Actor category
+      datatools::properties _metadata_; //!< Metadata
 
     };
 

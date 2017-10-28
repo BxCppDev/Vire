@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <string>
 #include <map>
+#include <set>
 #include <memory>
 
 // Third party:
@@ -33,13 +34,9 @@
 #include <bayeux/datatools/base_service.h>
 
 // // This project:
-// #include <vire/com/base_plug.h>
-#include <vire/utility/base_event.h>
-#include <vire/utility/base_request.h>
-#include <vire/utility/base_response.h>
 #include <vire/com/actor.h>
-#include <vire/com/mailbox.h>
 #include <vire/com/utils.h>
+#include <vire/com/domain_builder.h>
 
 namespace vire {
 
@@ -66,6 +63,20 @@ namespace vire {
       //! Destructor
       virtual ~manager();
 
+      //! Check setup name
+      bool has_setup_name() const;
+
+      //! Set setup name
+      //!
+      //! Supported formats:
+      //! - "supernemo"
+      //! - "supernemo/demonstrator"
+      //! - "supernemo/test"
+      void set_setup_name(const std::string & name_);
+
+      //! Return setup name
+      const std::string & get_setup_name() const;
+
       //! Check the actor
       bool has_actor() const;
 
@@ -78,6 +89,28 @@ namespace vire {
       //! Return the actor
       const actor & get_actor() const;
 
+      //! Check the transport type identifier
+      bool has_transport_type_id() const;
+
+      //! Set the transport type identifier
+      void set_transport_type_id(const vire::utility::model_identifier &);
+
+      //! Return the transport type identifier
+      const vire::utility::model_identifier & get_transport_type_id() const;
+
+      //! Check the encoding type identifier
+      bool has_encoding_type_id() const;
+
+      //! Set the encoding type identifier
+      void set_encoding_type_id(const vire::utility::model_identifier &);
+
+      //! Return the encoding type identifier
+      const vire::utility::model_identifier & get_encoding_type_id() const;
+
+      bool has_subcontractor(const std::string &) const;
+
+      void add_subcontractor(const std::string &);
+
       //! Check the resources service
       bool has_resources() const;
 
@@ -86,6 +119,8 @@ namespace vire {
 
       //! Return a const handle to the resources service
       const vire::resource::manager & get_resources() const;
+
+      const domain_builder & get_domain_maker() const;
 
       //! Check the domains
       bool has_domains() const;
@@ -105,42 +140,14 @@ namespace vire {
                              const std::string & domain_protocol_id_repr_,
                              const std::string & domain_encoding_id_repr_);
 
+      //! Create and insert a new plug of given identifier and category
+      domain & create_domain(const std::string & domain_name_,
+                             const std::string & domain_category_,
+                             const vire::utility::model_identifier & domain_protocol_id_,
+                             const vire::utility::model_identifier & domain_encoding_id_);
+
       //! Remove a domain given its name
       void remove_domain(const std::string & domain_name_);
-
-      //! Check a mailbox by name
-      bool has_mailbox(const std::string & domain_name_,
-                       const std::string & mailbox_name_) const;
-
-      //! Create a new private event mailbox in a given domain
-      std::string create_private_event_mailbox(const std::string & domain_name_);
-
-      //! Create a new private service mailbox in a given domain
-      std::string create_private_service_mailbox(const std::string & domain_name_);
-
-      //! Create a new private event mailbox from a given domain
-      void remove_private_event_mailbox(const std::string & domain_name_,
-                                        const std::string & mailbox_name_);
-
-      //! Create a new private service rpc mailbox from a given domain
-      void remove_private_service_mailbox(const std::string & domain_name_,
-                                          const std::string & mailbox_name_);
-
-      // //! Subscribe to an existing public service mailbox in a given domain
-      // //!
-      // std::string subscribe_to_service_mailbox(const std::string & domain_name_,
-      //                                          const std::string & mailbox_name_
-      //                                         const std::string & topic_,
-      //                                         const std::string & );
-
-      // //! Subscribe to an existing public event mailbox in a given domain
-      // //!
-      // std::string subscribe_to_event_mailbox(const std::string & domain_name_,
-      //                                        const std::string & mailbox_name_);
-
-      //! Return a mailbox by name
-      const mailbox & get_mailbox(const std::string & domain_name_,
-                                  const std::string & mailbox_name_) const;
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
@@ -158,18 +165,6 @@ namespace vire {
       //! Reset the service
       virtual int reset();
 
-      //! Notify an event payload to a given domain/mailbox
-      com_status notify_event(const std::string & domain_name_,
-                              const std::string & mailbox_name_,
-                              const utility::base_event & event_);
-
-      //! Perform a request-response (Remote Procedure Call) addressed to a given domain/mailbox
-      com_status request_response(const std::string & domain_name_,
-                                  const std::string & mailbox_name_,
-                                  const utility::base_request & request_,
-                                  utility::base_response & response_,
-                                  const std::string & mailbox_async_name_ = "");
-
     private:
 
       //! Set default attribute values
@@ -185,11 +180,17 @@ namespace vire {
       bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
-      actor       _actor_; //!< Actor
-      const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
+     const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
+      std::string _setup_name_; //!< Name of the setup
+      actor       _actor_;      //!< Actor
+      vire::utility::model_identifier _transport_type_id_; //!< Transport type identifier associated to the domain
+      vire::utility::model_identifier _encoding_type_id_;  //!< Encoding type identifier associated to the domain
+      std::set<std::string> _subcontractors_; //!< Set of subcontractors
+
+      domain_builder   _domain_maker_; //!< Domain builder
 
       // Working data:
-      domain_dict_type _domains_; //!< Dictionary of domains
+      domain_dict_type _domains_;   //!< Dictionary of domains
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(manager);

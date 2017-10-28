@@ -29,6 +29,7 @@
 // Third party:
 // - Bayeux:
 #include <bayeux/datatools/i_tree_dump.h>
+#include <bayeux/datatools/i_serializable.h>
 #include <bayeux/datatools/properties.h>
 
 namespace vire {
@@ -70,6 +71,7 @@ namespace vire {
      */
     class process_info
       : public datatools::i_tree_dumpable
+      , public datatools::i_serializable
     {
     public:
 
@@ -134,6 +136,9 @@ namespace vire {
       std::string _config_urn_;       ///< The tag of the set of configuration parameters
       std::string _config_path_;      ///< The path of the configuration file
       datatools::properties _config_; ///< Set of configuration parameters
+
+      //! Serialization interface
+      DATATOOLS_SERIALIZATION_DECLARATION()
 
     };
 

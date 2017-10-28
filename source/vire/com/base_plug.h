@@ -140,7 +140,7 @@ namespace vire {
 
       // Configuration:
       std::string     _name_;              //!< Identifier
-      const mailbox * _mailbox_ = nullptr; //!< Handle to the parent manager
+      const mailbox * _mailbox_ = nullptr; //!< Handle to the mailbox
       // const manager * _mgr_ = nullptr; //!< Handle to the parent manager
       // std::string     _domain_name_;   //!< Domain identifier
       datatools::properties _config_; //!< Various configuration parameters

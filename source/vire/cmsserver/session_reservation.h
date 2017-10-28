@@ -37,6 +37,7 @@ namespace vire {
     /// \brief Session reservation
     class session_reservation
       : public datatools::i_tree_dumpable
+      , public datatools::i_serializable
     {
     public:
 
@@ -122,6 +123,9 @@ namespace vire {
       process_info _pinfo_;       ///< Process information
       std::string  _start_macro_; ///< Start macro executed at session start
       std::string  _stop_macro_;  ///< Stop macro executed at session stop
+
+      //! Serialization interface
+      DATATOOLS_SERIALIZATION_DECLARATION()
 
     };
 

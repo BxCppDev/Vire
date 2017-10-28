@@ -156,8 +156,8 @@ namespace vire {
       _category_ = cat_;
       switch (_category_) {
       case CATEGORY_SYSTEM:
-        _forbid_private_mailbox_ = false;
-        _forbid_public_mailbox_  = true;
+        _forbid_private_mailbox_ = true;
+        _forbid_public_mailbox_  = false;
         break;
       case CATEGORY_CONTROL:
       case CATEGORY_MONITORING:
@@ -389,6 +389,34 @@ namespace vire {
        std::ostringstream out;
        out << "__mb." << owner_id_ << "." << mailbox::mode_label(m_) << "." << mb_uuid;
        return out.str();
+    }
+
+    const i_encoding_driver & domain::get_encoding_driver() const
+    {
+      domain * mutable_this = const_cast<domain*>(this);
+      return mutable_this->_encoding_driver_instance_();
+    }
+
+    i_encoding_driver & domain::grab_encoding_driver()
+    {
+      return _encoding_driver_instance_();
+    }
+
+    i_encoding_driver & domain::_encoding_driver_instance_()
+    {
+      if (_encoding_driver_.get() == nullptr) {
+        std::string encoding_driver_type_id = _encoding_type_id_.get_name();
+        i_encoding_driver::factory_register_type & sys_factory_register
+          = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_encoding_driver);
+        DT_THROW_IF(! sys_factory_register.has(encoding_driver_type_id), std::logic_error,
+                    "No encoding type ID '" << encoding_driver_type_id << "' factory is known from the system register!");
+        // Factory instantiates a new object:
+        const i_encoding_driver::factory_register_type::factory_type & the_factory
+          = sys_factory_register.get(encoding_driver_type_id);
+        _encoding_driver_.reset(the_factory());
+        _encoding_driver_->initialize(_encoding_driver_params_);
+      }
+      return *_encoding_driver_.get();
     }
 
     // const i_transport_driver & domain::get_transport_driver() const

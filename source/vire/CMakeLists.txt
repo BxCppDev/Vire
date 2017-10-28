@@ -182,14 +182,14 @@ include(message/Lists.cmake)
 # CMS payload objects:
 include(cms/Lists.cmake)
 
-# # Communication service
-# include(com/Lists.cmake)
+# Communication service
+include(com/Lists.cmake)
+
+# CMS client kernel and utilities:
+include(cmsclient/Lists.cmake)
 
 # CMS server kernel and utilities:
 # include(cmsserver/Lists.cmake)
-
-# # CMS client kernel and utilities:
-# include(cmsclient/Lists.cmake)
 
 list(APPEND VireLibrary_HEADERS
   )

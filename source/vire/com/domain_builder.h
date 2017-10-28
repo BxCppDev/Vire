@@ -37,18 +37,24 @@ namespace vire {
     {
     public:
 
+      // Build the name of a domain associated to a given topic
       static std::string build_cms_topic_name(const std::string & setup_id_, const std::string & topic_);
 
+      // Build the name of the vire control domain
       static std::string build_cms_control_name(const std::string & setup_id_);
 
+      // Build the name of the vire monitoring domain
       static std::string build_cms_monitoring_name(const std::string & setup_id_);
 
+      // Build the name of the vire system domain associated to a subcontractor
       static std::string build_cms_subcontractor_system_name(const std::string & setup_id_,
                                                              const std::string & subcontractor_id_);
 
+      // Build the name of the vire system domain associated to a client
       static std::string build_cms_client_system_name(const std::string & setup_id_,
                                                       const std::string & client_id_);
 
+      // Build the name of the vire client gate domain
       static std::string build_cms_clients_gate_name(const std::string & setup_id_);
 
       //! Default constructor
@@ -77,6 +83,24 @@ namespace vire {
       //! Return setup name
       const std::string & get_setup_name() const;
 
+      //! Check encoding type identifier
+      bool has_encoding_type_id() const;
+
+      //! Set encoding type identifier
+      void set_encoding_type_id(const vire::utility::model_identifier & encoding_type_id_);
+
+      //! Return encoding type identifier
+      const vire::utility::model_identifier & get_encoding_type_id() const;
+
+      //! Check transport type identifier
+      bool has_transport_type_id() const;
+
+      //! Set transport type identifier
+      void set_transport_type_id(const vire::utility::model_identifier & transport_type_id_);
+
+      //! Return transport type identifier
+      const vire::utility::model_identifier & get_transport_type_id() const;
+
       //! Build the clients gate domain
       void build_clients_gate_domain(domain &);
 
@@ -99,8 +123,8 @@ namespace vire {
     private:
 
       std::string _setup_name_; //!< Name of the setup
-      vire::utility::model_identifier _default_transport_type_id_; //!< Default transport type identifier
-      vire::utility::model_identifier _default_encoding_type_id_;  //!< Default encoding type identifier
+      vire::utility::model_identifier _transport_type_id_; //!< Transport type identifier
+      vire::utility::model_identifier _encoding_type_id_;  //!< Encoding type identifier
 
     };
 

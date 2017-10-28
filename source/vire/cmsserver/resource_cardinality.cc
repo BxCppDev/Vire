@@ -1,6 +1,6 @@
 //! \file vire/cmsserver/resource_cardinality.cc
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -36,59 +36,67 @@ namespace vire {
 
   namespace cmsserver {
 
-    cardinalities_request_type::cardinalities_request_type()
+    resource_cardinality::resource_cardinality(cardinalities_request_type & request_)
+      : _request_(request_)
     {
       return;
     }
 
-    cardinalities_request_type::~cardinalities_request_type()
+    resource_cardinality::~resource_cardinality()
     {
       return;
     }
 
-    bool cardinalities_request_type::has_resource(int32_t resource_id_) const
+    std::size_t resource_cardinality::at(const int32_t resource_id_) const
     {
-      return this->count(resource_id_) != 0;
+      DT_THROW_IF(!has_resource(resource_id_), std::logic_error,
+                  "Unknown resource ID=[" << resource_id_ << "]!");
+      return this->_request_[resource_id_];
     }
 
-    void cardinalities_request_type::set_unlimited_resource(int32_t resource_id_)
+    bool resource_cardinality::has_resource(const int32_t resource_id_) const
     {
-      (*this)[resource_id_] = vire::resource::resource::MAX_TOKENS_UNLIMITED;
+      return this->_request_.count(resource_id_) != 0;
+    }
+
+    void resource_cardinality::set_unlimited_resource(const int32_t resource_id_)
+    {
+      this->_request_[resource_id_] = vire::resource::resource::MAX_TOKENS_UNLIMITED;
       return;
     }
 
-    bool cardinalities_request_type::has_unlimited_resource(int32_t resource_id_) const
+    bool resource_cardinality::has_unlimited_resource(const int32_t resource_id_) const
     {
-      if (this->has_resource(resource_id_)
-          && this->at(resource_id_) == vire::resource::resource::MAX_TOKENS_UNLIMITED) {
+      if (has_resource(resource_id_)
+          && this->_request_.at(resource_id_) == vire::resource::resource::MAX_TOKENS_UNLIMITED) {
         return true;
       }
       return false;
     }
 
-    void cardinalities_request_type::unset_resource(int32_t resource_id_)
+    void resource_cardinality::unset_resource(const int32_t resource_id_)
     {
-      (*this)[resource_id_] = 0;
+      (this->_request_)[resource_id_] = 0;
       return;
     }
 
-    bool cardinalities_request_type::has_unset_resource(int32_t resource_id_) const
+    bool resource_cardinality::has_unset_resource(const int32_t resource_id_) const
     {
-      if (this->has_resource(resource_id_) && this->at(resource_id_) == 0) return true;
+      if (this->has_resource(resource_id_) && this->_request_.at(resource_id_) == 0) return true;
       return false;
     }
 
-    void cardinalities_request_type::set_limited_resource(int32_t resource_id_,
-                                                          std::size_t cardinality_)
+    void resource_cardinality::set_limited_resource(const int32_t resource_id_,
+                                                    const std::size_t cardinality_)
     {
-      (*this)[resource_id_] = cardinality_;
+      (this->_request_)[resource_id_] = cardinality_;
       return;
     }
 
-    bool cardinalities_request_type::has_limited_resource(int32_t resource_id_) const
+    bool resource_cardinality::has_limited_resource(const int32_t resource_id_) const
     {
       if (this->has_resource(resource_id_)) {
-        std::size_t cardinality = this->at(resource_id_);
+        std::size_t cardinality = this->_request_.at(resource_id_);
         if (cardinality != 0
             && cardinality != vire::resource::resource::MAX_TOKENS_UNLIMITED) {
           return true;
@@ -97,28 +105,28 @@ namespace vire {
       return false;
     }
 
-    void cardinalities_request_type::print(std::ostream & out_) const
+    void resource_cardinality::print(std::ostream & out_) const
     {
-      out_ << "#@number_of_cardinalities=" << this->size() << std::endl;
-      for (const_iterator i = this->begin(); i != this->end(); i++) {
+      out_ << "#@number_of_cardinalities=" << this->_request_.size() << std::endl;
+      for (cardinalities_request_type::const_iterator i = this->_request_.begin(); i != this->_request_.end(); i++) {
         out_ << i->first << " " << i->second << std::endl;
       }
       out_ << std::endl;
       return;
     }
 
-    void cardinalities_request_type::initialize(const datatools::properties & config_,
-                                                const vire::resource::manager & resource_mgr_)
+    void resource_cardinality::initialize(const datatools::properties & config_,
+                                          const vire::resource::manager & resource_mgr_)
     {
       initialize(config_, &resource_mgr_);
       return;
     }
 
-    void cardinalities_request_type::initialize(const datatools::properties & config_,
-                                                const vire::resource::manager * resource_mgr_)
+    void resource_cardinality::initialize(const datatools::properties & config_,
+                                          const vire::resource::manager * resource_mgr_)
     {
       // Reset the map:
-      clear();
+      this->_request_.clear();
 
       {
         // Unset resources:
@@ -171,7 +179,7 @@ namespace vire {
           }
           DT_THROW_IF(resource_id < vire::resource::resource::MIN_ID, std::logic_error,
                       "Invalid resource identifier!");
-          DT_THROW_IF(this->count(resource_id) == 1, std::logic_error,
+          DT_THROW_IF(this->_request_.count(resource_id) == 1, std::logic_error,
                       "Resource '" << resource_str << "' is already registered !");
           set_unlimited_resource(resource_id);
         }
@@ -219,7 +227,7 @@ namespace vire {
           }
           DT_THROW_IF(resource_id < vire::resource::resource::MIN_ID, std::logic_error,
                       "Invalid resource identifier!");
-          DT_THROW_IF(this->count(resource_id) == 1, std::logic_error,
+          DT_THROW_IF(this->_request_.count(resource_id) == 1, std::logic_error,
                       "Resource '" << tokens[0] << "' is already registered !");
           set_limited_resource(resource_id, cardinality);
         }
@@ -228,20 +236,20 @@ namespace vire {
       return;
     }
 
-    void cardinalities_request_type::reset()
+    void resource_cardinality::reset()
     {
-      this->clear();
+      this->_request_.clear();
       return;
     }
 
-    void cardinalities_request_type::build_from_role(const vire::resource::manager & resource_mgr_,
-                                                     const vire::resource::role & r_,
-                                                     vire::resource::role::resource_set_flag flag_,
-                                                     cardinalities_request_type special_)
+    void resource_cardinality::build_from_role(const vire::resource::manager & resource_mgr_,
+                                               const vire::resource::role & r_,
+                                               const vire::resource::role::resource_set_flag flag_,
+                                               const resource_cardinality & special_)
     {
       DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
       // Reset the map:
-      this->clear();
+      this->_request_.clear();
 
       const std::set<int32_t> * res_pool_ptr = nullptr;
       if (flag_ & ::vire::resource::role::RESOURCE_SET_FUNCTIONAL) {
@@ -284,7 +292,7 @@ namespace vire {
                       std::logic_error,
                       "Resource with ID=[" << resource_id << "] is limited!");
           if (special_.has_limited_resource(resource_id)) {
-            cardinality = special_[resource_id];
+            cardinality = special_._request_[resource_id];
           }
           this->set_limited_resource(resource_id, cardinality);
         }

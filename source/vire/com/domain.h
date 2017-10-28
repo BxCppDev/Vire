@@ -37,7 +37,7 @@
 #include <vire/utility/model_identifier.h>
 #include <vire/com/mailbox.h>
 #include <vire/com/actor.h>
-// #include <vire/com/i_encoding_driver.h>
+#include <vire/com/i_encoding_driver.h>
 // #include <vire/com/i_transport_driver.h>
 
 namespace vire {
@@ -226,6 +226,12 @@ namespace vire {
       std::string generate_private_mailbox_name(const std::string & id_,
                                                 const mailbox::mode_type);
 
+      //! Return a non mutable handle to the encoding driver
+      const i_encoding_driver & get_encoding_driver() const;
+
+      //! Return a mutable handle to the encoding driver
+      i_encoding_driver & grab_encoding_driver();
+
       // //! Return a non mutable handle to the transport driver
       // const i_transport_driver & get_transport_driver() const;
 
@@ -234,7 +240,7 @@ namespace vire {
 
     private:
 
-      // i_encoding_driver & _encoding_driver_instance_();
+      i_encoding_driver & _encoding_driver_instance_();
 
       // i_transport_driver & _transport_driver_instance_();
 
@@ -252,8 +258,8 @@ namespace vire {
       datatools::properties           _transport_driver_params_;
       datatools::properties           _encoding_driver_params_;
 
-      // // Working data:
-      // std::shared_ptr<i_encoding_driver> _encoding_driver_;
+      // Working data:
+      std::shared_ptr<i_encoding_driver> _encoding_driver_;
       // std::shared_ptr<i_transport_driver> _transport_driver_;
 
     };
