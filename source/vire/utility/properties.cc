@@ -21,8 +21,13 @@
 #include <vire/utility/properties.h>
 
 // Third party:
+// Boost:
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+// Bayeux:
 #include <bayeux/datatools/exception.h>
 #include <bayeux/datatools/utils.h>
+#include <bayeux/datatools/units.h>
 // BxJsontools:
 #include <bayeux/jsontools/std_type_converters.h>
 // BxProtobuftools:
@@ -187,11 +192,107 @@ namespace vire {
       return;
     }
 
+    std::size_t properties::get_number_of_properties() const
+    {
+      return _properties_.size();
+    }
+
     void properties::reset()
     {
       remove_properties();
       reset_model();
       reset_id();
+      return;
+    }
+
+    void properties::import_from(const datatools::properties & bxprops_, const uint32_t flags_)
+    {
+      bool skip_on_error = false;
+      if (flags_ & IO_SKIP_ON_ERROR) {
+        skip_on_error = true;
+      }
+      if (flags_ & IO_CLEAR_TARGET) {
+        this->remove_properties();
+      }
+      return;
+    }
+
+    void properties::export_to(datatools::properties & bxprops_, const uint32_t flags_) const
+    {
+      bool skip_on_error = false;
+      if (flags_ & IO_SKIP_ON_ERROR) {
+        skip_on_error = true;
+      }
+      if (flags_ & IO_CLEAR_TARGET) {
+        bxprops_.erase_all();
+      }
+      for (std::size_t i = 0; i != _properties_.size(); i++) {
+        const metadata_record & mdr = _properties_[i];
+        const std::string & key = mdr.get_key();
+        const std::string & type = mdr.get_type();
+        const std::string & value_repr = mdr.get_value();
+        const std::string & add = mdr.get_additional();
+        // Check type:
+        if (type == "boolean" || type == "bool") {
+          bool val = true;
+          try {
+            val = boost::lexical_cast<bool>(value_repr);
+          } catch (...) {
+            if (skip_on_error) continue;
+            throw;
+          }
+          bxprops_.store_boolean(key, val);
+        } else if (type == "int" || type == "integer") {
+          int val = 0;
+          try {
+            val = boost::lexical_cast<int>(value_repr);
+          } catch (...) {
+            if (skip_on_error) continue;
+            throw;
+          }
+           bxprops_.store_integer(key, val);
+        } else if (type == "float" || type == "real" || type == "double") {
+          double val = datatools::invalid_real();
+          try {
+            val = boost::lexical_cast<double>(value_repr);
+          } catch (...) {
+            if (skip_on_error) continue;
+            throw;
+          }
+          if (!add.empty()) {
+            if (boost::starts_with(add, "unit=")) {
+              std::string unit_str = add.substr(5);
+              double uval = 1.0;
+              try {
+                uval = datatools::units::get_unit(unit_str);
+              } catch (...) {
+                if (skip_on_error) continue;
+                throw;
+              }
+              val *= uval;
+              bxprops_.store_real_with_explicit_unit(key, val);
+              bxprops_.set_unit_symbol(key, unit_str);
+            } else {
+              bxprops_.store_real(key, val);
+            }
+          } else {
+            bxprops_.store_real(key, val);
+          }
+        } else if (type.empty() || type == "str"  || type == "string") {
+          bxprops_.store_string(key, value_repr);
+          if (!add.empty()) {
+            if (add == "path") {
+              bxprops_.set_explicit_path(key, true);
+            }
+          }
+        } else {
+          if (skip_on_error) {
+            continue;
+          }
+          DT_THROW(std::logic_error,
+                   "Cannot export property '" << key << "' due to unsupported type '" << type << "'!");
+        }
+      }
       return;
     }
 
@@ -202,6 +303,8 @@ namespace vire {
       node_["id"] % _id_;
       node_["model"] % _model_;
       node_["properties"] % _properties_;
+
+
       return;
     }
 

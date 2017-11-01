@@ -83,6 +83,8 @@ namespace vire {
       bool has_value() const;
 
       /// Set the value
+      ///
+      /// Only scalar properties are supported.
       void set_value(const std::string & value_);
 
       /// Return the value
@@ -92,6 +94,14 @@ namespace vire {
       bool has_type() const;
 
       /// Set the type
+      ///
+      /// Typically supported types are:
+      ///
+      ///  - "boolean",
+      ///  - "integer",
+      ///  - "real",
+      ///  - "string" (default).
+      ///
       void set_type(const std::string & type_);
 
       /// Return the type
@@ -101,6 +111,12 @@ namespace vire {
       bool has_additional() const;
 
       /// Set the additional
+      ///
+      /// Typical additional information is:
+      ///
+      ///  - "path" for a string property,
+      ///  - "unit=symbol" for a real property (example: "unit=mm").
+      ///
       void set_additional(const std::string & additional_);
 
       /// Return the additional

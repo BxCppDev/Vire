@@ -24,9 +24,11 @@
 // Standard Library:
 #include <string>
 
-// Third party
+// Third party:
 // - Boost
 #include <boost/cstdint.hpp>
+// - Bayeux
+#include <bayeux/datatools/properties.h>
 
 // This project
 #include <vire/utility/base_payload.h>
@@ -38,7 +40,8 @@ namespace vire {
 
   namespace utility {
 
-    /// \brief Arbitrary collection of properties (key/value pairs)
+    /// \brief Arbitrary collection of simple typed properties (key/value
+    ///        pairs with optional type and additional infos)
     class properties
       : public ::vire::utility::base_payload
     {
@@ -103,8 +106,22 @@ namespace vire {
       //! Build the list of property keys
       void build_keys(std::set<std::string> & keys_) const;
 
+      //! Return the number of embedded properties
+      std::size_t get_number_of_properties() const;
+
       /// Reset
       void reset();
+
+      enum io_flags {
+        IO_SKIP_ON_ERROR = datatools::bit_mask::bit00,
+        IO_CLEAR_TARGET = datatools::bit_mask::bit01
+       };
+
+      /// Import from a datatools::properties container
+      void import_from(const datatools::properties &, const uint32_t flags_ = 0);
+
+      /// Export to a datatools::properties container
+      void export_to(datatools::properties &, const uint32_t flags_ = 0) const;
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,

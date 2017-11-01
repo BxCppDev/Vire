@@ -24,6 +24,7 @@
 // - Bayeux/datatools
 #include <datatools/logger.h>
 #include <datatools/exception.h>
+#include <datatools/properties.h>
 
 // This project:
 #include <vire/utility/properties.h>
@@ -47,10 +48,20 @@ int main( int argc_, char * argv_[])
     vire::utility::properties config;
     config.set_id(configId);
     config.set_model(topicId);
+    config.add_property("test", "1", "bool");
+    config.add_property("counter", "42", "integer");
     config.add_property("vire.api.version", "1.0.0", "string");
     config.add_property("com.default_encoding", "protobuf", "string");
     config.add_property("com.default_transport", "rabbitmq", "string");
+    config.add_property("length", "3.0", "real", "unit=cm");
+    config.add_property("logfile", "/var/log/vire.log", "string", "path");
     config.tree_dump(std::clog, "Properties: ");
+    config.remove_property("com.default_transport");
+
+    // Export to a Bayeux properties container:
+    datatools::properties bxconfig;
+    config.export_to(bxconfig);
+    bxconfig.tree_dump(std::clog, "Bayeux properties: ");
 
   } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL,
