@@ -1,0 +1,19 @@
+#!datatools::properties
+
+#@config
+
+#@description Name of the device management service
+devices_service : string =  "devices"
+
+#@description Flag to build the universe role
+build_universe_role : boolean = true
+
+#@description Flag to build the cache
+build_cache : boolean = true
+
+#@description Path to the roles definitions
+roles_table_path : string as path =  "roles.defs"
+
+
+
+# end
