@@ -8,6 +8,8 @@ message( STATUS "[Vire_RabbitMQ] VIRE_BUILD_PREFIX = '${VIRE_BUILD_PREFIX}'")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${VIRE_BUILD_PREFIX}/include)
+include_directories(${VIRE_BUILD_PREFIX}/include/vire)
 
 
 #-----------------------------------------------------------------------
@@ -16,6 +18,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(Vire_RabbitMQ_Plugin_HEADERS
   vire/rabbitmq/version.h.in
   vire/rabbitmq/permissions_utils.h
+  vire/rabbitmq/user.h
+  vire/rabbitmq/transport_driver.h
+  vire/rabbitmq/manager_service.h
 )
 
 set(Vire_RabbitMQ_Plugin_PRIVATE_HEADERS
@@ -30,7 +35,10 @@ set(Vire_RabbitMQ_Plugin_PRIVATE_HEADERS
 
 set(Vire_RabbitMQ_Plugin_SOURCES
   vire/rabbitmq/version.cc
+  vire/rabbitmq/user.cc
   vire/rabbitmq/permissions_utils.cc
+  vire/rabbitmq/transport_driver.cc
+  vire/rabbitmq/manager_service.cc
 )
 
 # - Publish headers
@@ -94,6 +102,7 @@ install(TARGETS Vire_RabbitMQ DESTINATION ${CMAKE_INSTALL_LIBDIR}/${VIRE_PLUGINL
 # - List of test programs:
 set(Vire_RabbitMQ_TESTS
   testing/test_version.cxx
+  testing/test_manager_service.cxx
   )
 
 set(_virerabbitmq_TEST_ENVIRONMENT "VIRE_RESOURCE_FILES_DIR=${VIRE_DATAROOTDIR}/resources")
