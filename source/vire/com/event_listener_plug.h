@@ -23,30 +23,57 @@
 
 // Standard library:
 #include <cstdint>
+#include <mutex>
+#include <memory>
 
 // This project:
 #include <vire/com/base_plug.h>
+#include <vire/utility/base_payload.h>
 
 namespace vire {
 
   namespace com {
 
-   //! \brief User credentials data
-    class event_listener_plug : public vire::com::base_plug
+    //! \brief User credentials data
+    class event_listener_plug
+      : public base_plug
     {
     public:
 
+      enum received_event_error_type {
+        RECEIVED_EVENT_SUCCESS   = 0, ///< Success
+        RECEIVED_EVENT_FAILURE   = 1, ///< Generic error
+        RECEIVED_EVENT_NO_EVENT  = 2, ///< No event is available
+        RECEIVED_EVENT_TIMEOUT   = 3  ///< Timeout
+      };
+
       //! Default constructor
-      event_listener_plug(const manager & mgr_);
+      event_listener_plug(domain & dom_,
+                          const std::string & name_);
 
       //! Destructor
       virtual ~event_listener_plug();
 
-      //! Check if a new event payload object is available
-      bool has_event() const;
+      // //! Check if a new event payload object is available
+      // bool has_event() const;
 
-      // //! Pop an event payload object
-      // int pop_event(vire::utility::base_event & event_payload_);
+      //! Collect/pop the next available event payload object
+      int collect_event(vire::utility::payload_ptr_type & event_payload_,
+                        std::string & mailbox_name_,
+                        std::string & topic_);
+
+      //! Return the number of received events
+      std::size_t get_received_events_counter() const;
+
+    private:
+
+      void _increment_received_events_counter_();
+
+    private:
+
+      // Working:
+      std::size_t _received_events_counter_= 0;
+      std::mutex _received_event_mutex_;
 
     };
 

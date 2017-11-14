@@ -51,18 +51,24 @@ namespace vire {
     }
 
     // static
-    std::string actor::build_name(const std::string & setup_name_,
-                                 const category_type category_,
-                                 const std::string & id_)
+    std::string actor::build_name(const category_type category_,
+                                  const std::string & setup_name_,
+                                  const std::string & id_)
     {
       std::ostringstream out;
-      out << setup_name_ << ".vire.";
+      if (!setup_name_.empty()) {
+        out << setup_name_ << '.';
+      }
+      out << "vire";
       if (category_ == CATEGORY_SERVER) {
-        out << "server";
+        out << ".server";
       } else if (category_ == CATEGORY_CLIENT) {
-        out << "client." << id_;
+        out << ".client";
       } else if (category_ == CATEGORY_SUBCONTRACTOR) {
-        out << "subcontractor." << id_;
+        out << ".subcontractor";
+      }
+      if (!id_.empty()) {
+        out << '.' << id_;
       }
       return out.str();
     }
@@ -86,7 +92,7 @@ namespace vire {
 
     bool actor::is_valid() const
     {
-
+      if (!has_category()) return false;
       return true;
     }
 
@@ -98,15 +104,9 @@ namespace vire {
       return;
     }
 
-    void actor::set_name(const std::string & name_)
+    bool actor::has_category() const
     {
-      _name_ = name_;
-      return;
-    }
-
-    const std::string & actor::get_name() const
-    {
-      return _name_;
+      return _category_ == CATEGORY_INVALID;
     }
 
     void actor::set_category(const category_type & category_)
@@ -118,6 +118,22 @@ namespace vire {
     actor::category_type actor::get_category() const
     {
       return _category_;
+    }
+
+    bool actor::has_name() const
+    {
+      return !_name_.empty();
+    }
+
+    void actor::set_name(const std::string & name_)
+    {
+      _name_ = name_;
+      return;
+    }
+
+    const std::string & actor::get_name() const
+    {
+      return _name_;
     }
 
     bool actor::is_server() const
@@ -155,10 +171,10 @@ namespace vire {
       }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Name     : '" << _name_ << "'" << std::endl;
+           << "Category : '" << category_label(_category_) << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Category : '" << category_label(_category_) << "'" << std::endl;
+           << "Name     : '" << _name_ << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Metadata : [" << _metadata_.size() << "]" << std::endl;

@@ -96,52 +96,53 @@ list(APPEND VireLibrary_TESTS
 # - Declare headers, sources and test programs
 #   specific to various topics:
 
-if (VIRE_WITH_QT_GUI)
-  set(VireLibrary_HEADERS_QT_TO_BE_MOCCED)
-  find_package(Qt5Core    ${VIRE_QT5_VERSION} REQUIRED)
-  find_package(Qt5Gui     ${VIRE_QT5_VERSION} REQUIRED)
-  find_package(Qt5Widgets ${VIRE_QT5_VERSION} REQUIRED)
-  find_package(Qt5Svg     ${VIRE_QT5_VERSION} REQUIRED)
-endif()
+# if (VIRE_WITH_QT_GUI)
+#   set(VireLibrary_HEADERS_QT_TO_BE_MOCCED)
+#   find_package(Qt5Core    ${VIRE_QT5_VERSION} REQUIRED)
+#   find_package(Qt5Gui     ${VIRE_QT5_VERSION} REQUIRED)
+#   find_package(Qt5Widgets ${VIRE_QT5_VERSION} REQUIRED)
+#   find_package(Qt5Svg     ${VIRE_QT5_VERSION} REQUIRED)
+# endif()
 
-#-----------------------------------------------------------------------
-# BxJsontools support
-#
-message (STATUS "[info] Searching for BxJsontools...")
-find_package(BxJsontools 0.3 REQUIRED CONFIG COMPONENTS manager)
-if (BxJsontools_FOUND)
-  message( STATUS "[info] Found the BxJsontools library:")
-  message( STATUS "[info]   BxJsontools_VERSION           = '${BxJsontools_VERSION}'")
-  message( STATUS "[info]   BxJsontools_INCLUDE_DIRS      = '${BxJsontools_INCLUDE_DIRS}'")
-  message( STATUS "[info]   BxJsontools_LIBRARIES         = '${BxJsontools_LIBRARIES}'")
-endif()
-#-----------------------------------------------------------------------
-# BxRabbitMQ support
-#
-message (STATUS "[info] Searching for BxRabbitMQ...")
-find_package(BxRabbitMQ 0.4.1 REQUIRED CONFIG COMPONENTS manager)
-if (BxRabbitMQ_FOUND)
-  message( STATUS "[info] Found the BxRabbitMQ library:")
-  message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
-  message( STATUS "[info]   BxRabbitMQ_INCLUDE_DIRS      = '${BxRabbitMQ_INCLUDE_DIRS}'")
-  message( STATUS "[info]   BxRabbitMQ_LIBRARIES         = '${BxRabbitMQ_LIBRARIES}'")
-  message( STATUS "[info]   BxRabbitMQ_MANAGER_LIBRARIES = '${BxRabbitMQ_MANAGER_LIBRARIES}'")
-endif()
+# #-----------------------------------------------------------------------
+# # BxJsontools support
+# #
+# message (STATUS "[info] Searching for BxJsontools...")
+# find_package(BxJsontools 0.3 REQUIRED CONFIG COMPONENTS manager)
+# if (BxJsontools_FOUND)
+#   message( STATUS "[info] Found the BxJsontools library:")
+#   message( STATUS "[info]   BxJsontools_VERSION           = '${BxJsontools_VERSION}'")
+#   message( STATUS "[info]   BxJsontools_INCLUDE_DIRS      = '${BxJsontools_INCLUDE_DIRS}'")
+#   message( STATUS "[info]   BxJsontools_LIBRARIES         = '${BxJsontools_LIBRARIES}'")
+# endif()
 
-#-----------------------------------------------------------------------
-# BxProtobuftools support
-#
-message (STATUS "[info] Searching for BxProtobuftools...")
-find_package(BxProtobuftools 0.3 REQUIRED CONFIG)
-if (BxProtobuftools_FOUND)
-  message( STATUS "[info] Found the BxProtobuftools library:")
-  message( STATUS "[info]   BxProtobuftools_VERSION      = '${BxProtobuftools_VERSION}'")
-  message( STATUS "[info]   BxProtobuftools_DEFINITIONS  = '${BxProtobuftools_DEFINITIONS}'")
-  message( STATUS "[info]   BxProtobuftools_INCLUDE_DIR  = '${BxProtobuftools_INCLUDE_DIR}'")
-  message( STATUS "[info]   BxProtobuftools_INCLUDE_DIRS = '${BxProtobuftools_INCLUDE_DIRS}'")
-  message( STATUS "[info]   BxProtobuftools_LIBRARY      = '${BxProtobuftools_LIBRARY}'")
-  message( STATUS "[info]   BxProtobuftools_LIBRARIES    = '${BxProtobuftools_LIBRARIES}'")
-endif()
+# #-----------------------------------------------------------------------
+# # BxRabbitMQ support
+# #
+# message (STATUS "[info] Searching for BxRabbitMQ...")
+# find_package(BxRabbitMQ 0.4.1 REQUIRED CONFIG COMPONENTS manager)
+# if (BxRabbitMQ_FOUND)
+#   message( STATUS "[info] Found the BxRabbitMQ library:")
+#   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
+#   message( STATUS "[info]   BxRabbitMQ_INCLUDE_DIRS      = '${BxRabbitMQ_INCLUDE_DIRS}'")
+#   message( STATUS "[info]   BxRabbitMQ_LIBRARIES         = '${BxRabbitMQ_LIBRARIES}'")
+#   message( STATUS "[info]   BxRabbitMQ_MANAGER_LIBRARIES = '${BxRabbitMQ_MANAGER_LIBRARIES}'")
+# endif()
+
+# #-----------------------------------------------------------------------
+# # BxProtobuftools support
+# #
+# message (STATUS "[info] Searching for BxProtobuftools...")
+# find_package(BxProtobuftools 0.3 REQUIRED CONFIG)
+# if (BxProtobuftools_FOUND)
+#   message( STATUS "[info] Found the BxProtobuftools library:")
+#   message( STATUS "[info]   BxProtobuftools_VERSION      = '${BxProtobuftools_VERSION}'")
+#   message( STATUS "[info]   BxProtobuftools_DEFINITIONS  = '${BxProtobuftools_DEFINITIONS}'")
+#   message( STATUS "[info]   BxProtobuftools_INCLUDE_DIR  = '${BxProtobuftools_INCLUDE_DIR}'")
+#   message( STATUS "[info]   BxProtobuftools_INCLUDE_DIRS = '${BxProtobuftools_INCLUDE_DIRS}'")
+#   message( STATUS "[info]   BxProtobuftools_LIBRARY      = '${BxProtobuftools_LIBRARY}'")
+#   message( STATUS "[info]   BxProtobuftools_LIBRARIES    = '${BxProtobuftools_LIBRARIES}'")
+# endif()
 
 # -----------------------------------------------------------------------
 
@@ -160,6 +161,9 @@ include(time/Lists.cmake)
 
 # General utilities:
 include(utility/Lists.cmake)
+
+# Time utilities:
+include(ui/Lists.cmake)
 
 # Logging service:
 include(logging/Lists.cmake)
@@ -186,7 +190,7 @@ include(cms/Lists.cmake)
 include(com/Lists.cmake)
 
 # CMS client kernel and utilities:
-include(cmsclient/Lists.cmake)
+# include(cmsclient/Lists.cmake)
 
 # CMS server kernel and utilities:
 # include(cmsserver/Lists.cmake)
@@ -250,9 +254,9 @@ endif()
 # Build/Link Library
 #
 
-find_package(Readline MODULE)
-message (STATUS "[info] Readline_INCLUDE_DIR = '${Readline_INCLUDE_DIR}' ")
-message (STATUS "[info] Readline_LIBRARIES   = '${Readline_LIBRARIES}' ")
+# find_package(Readline MODULE)
+# message (STATUS "[info] Readline_INCLUDE_DIR = '${Readline_INCLUDE_DIR}' ")
+# message (STATUS "[info] Readline_LIBRARIES   = '${Readline_LIBRARIES}' ")
 
 include_directories(${Readline_INCLUDE_DIR})
 include_directories(${BxJsontools_INCLUDE_DIRS})

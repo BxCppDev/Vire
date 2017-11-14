@@ -30,15 +30,23 @@
 #include <bayeux/datatools/properties.h>
 
 // This project:
-#include <vire/utility/model_identifier.h>
-// #include <vire/com/i_protocol_driver.h>
-#include <vire/com/i_encoding_driver.h>
+// #include <vire/utility/model_identifier.h>
 
 namespace vire {
 
   namespace com {
 
-    class mailbox;
+    enum plug_category_type {
+      PLUG_INVALID        = 0,
+      PLUG_EVENT_EMITTER  = 1,
+      PLUG_EVENT_LISTENER = 2,
+      PLUG_SERVICE_CLIENT = 3,
+      PLUG_SERVICE_SERVER = 4
+    };
+
+    std::string plug_category_to_label(const plug_category_type);
+
+    class domain;
 
     //! \brief Base communication plug
     class base_plug
@@ -50,78 +58,53 @@ namespace vire {
       base_plug();
 
       //! Constructor
-      base_plug(const mailbox & mailbox_);
+      base_plug(domain & dom_,
+                const std::string & name_,
+                const plug_category_type category_);
 
       //! Destructor
       virtual ~base_plug();
 
-      //! Check mailbox
-      bool has_mailbox() const;
+      bool is_valid() const;
 
-      //! Set the mailbox handle
-      void set_mailbox(const mailbox & mailbox_);
+      //! Check domain
+      bool has_domain() const;
 
-      //! Return the mailbox handle
-      const mailbox & get_mailbox() const;
+      //! Set domain
+      void set_domain(domain &);
 
-      //! Check identifier
+      //! Return the domain
+      const domain & get_domain() const;
+
+      //! Check name
       bool has_name() const;
 
-      //! Set identifier
+      //! Set name
       void set_name(const std::string & name_);
 
-      //! Get identifier
+      //! Return name
       const std::string & get_name() const;
 
-      // //! Check domain identifier
-      // bool has_domain_name() const;
+      //! Check category
+      bool has_category() const;
 
-      // //! Set domain identifier
-      // void set_domain_name(const std::string & domain_name_);
+      //! Set category
+      void set_category(const plug_category_type & category_);
 
-      // //! Get domain identifier
-      // const std::string & get_domain_name() const;
-
-      // //! Set the configuration parameters for drivers
-      // void set_drivers_config(const datatools::properties &);
-
-      // //! Return the configuration parameters for drivers
-      // const datatools::properties & get_drivers_config() const;
-
-      // //! Return the number of sent messages
-      // std::size_t get_sent_messages_counter() const;
-
-      // //! Return the number of received messages
-      // std::size_t get_received_messages_counter() const;
-
-      // //! Reset the messages counter
-      // void reset_messages_counters();
-
-      //! Check initialization flag
-      bool is_initialized() const;
-
-      //! Check if the encoding driver is set
-      bool has_encoding_driver() const;
-
-      //! Return the handle to the embedded encoding driver
-      i_encoding_driver & grab_encoding_driver();
+      //! Return category
+      plug_category_type get_category() const;
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
                              const std::string & title_  = "",
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
+
+      bool is_initialized() const;
+
     protected:
 
       void _set_initialized(bool);
-
-      // void _increment_sent_messages_counter();
-
-      // void _decrement_sent_messages_counter();
-
-      // void _increment_received_messages_counter();
-
-      // void _decrement_received_messages_counter();
 
       void _base_init();
 
@@ -129,29 +112,17 @@ namespace vire {
 
     private:
 
-      void _init_encoding_driver_();
-
-      void _reset_encoding_driver_();
-
-    private:
-
       // Management:
       bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
-      std::string     _name_;              //!< Identifier
-      const mailbox * _mailbox_ = nullptr; //!< Handle to the mailbox
-      // const manager * _mgr_ = nullptr; //!< Handle to the parent manager
-      // std::string     _domain_name_;   //!< Domain identifier
-      datatools::properties _config_; //!< Various configuration parameters
-
-      // Working data:
-      // const domain * _dom_ = nullptr;
-      std::shared_ptr<i_encoding_driver> _encoding_;
-      // std::size_t _sent_messages_counter_     = 0; //!< Sent messages counter
-      // std::size_t _received_messages_counter_ = 0; //!< Received messages counter
+      domain *           _dom_ = nullptr;
+      std::string        _name_;    //!< Identifier
+      plug_category_type _category_ = PLUG_INVALID; //!< Plug category
 
     };
+
+    typedef std::shared_ptr<base_plug> plug_ptr_type;
 
   } // namespace com
 

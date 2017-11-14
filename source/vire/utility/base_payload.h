@@ -25,7 +25,7 @@
 
 // Standard library:
 #include <string>
-// #include <memory>
+#include <memory>
 
 // Third party:
 // - Boost:
@@ -94,6 +94,8 @@ namespace vire {
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(base_payload)
 
     };
+
+    typedef std::shared_ptr<base_payload> payload_ptr_type;
 
   } // namespace utility
 

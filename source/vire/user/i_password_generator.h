@@ -1,5 +1,5 @@
 //! \file  vire/user/i_password_generator.h
-//! \brief Interface for password geenrators
+//! \brief Interface for password generators
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //

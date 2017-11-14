@@ -62,8 +62,8 @@ void test_com_domain_builder_1(bool interactive_)
   std::clog << "\ntest_com_domain_builder_1: basics" << std::endl;
 
   // Domain builder:
-  std::string setup_name = "supernemo/demonstrator";
-  vire::com::domain_builder db(setup_name);
+  std::string domain_name_prefix = "/supernemo/demonstrator";
+  vire::com::domain_builder db(domain_name_prefix);
 
   // Monitoring domain:
   std::clog << "\ntest_com_domain_builder_1: Building monitoring domain..." << std::endl;
@@ -109,7 +109,6 @@ void test_com_domain_builder_1(bool interactive_)
     subcontractorSystemDom.tree_dump(std::clog, "CMS a subcontractor system domain: ");
     std::clog << std::endl;
   }
-
 
   return;
 }

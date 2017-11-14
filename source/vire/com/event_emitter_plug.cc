@@ -21,9 +21,6 @@
 #include <vire/com/event_emitter_plug.h>
 
 // Standard library:
-#include <string>
-#include <map>
-#include <vector>
 
 // This project:
 #include <vire/message/message.h>
@@ -32,15 +29,15 @@
 #include <vire/message/body_layout.h>
 #include <vire/message/message_body.h>
 #include <vire/time/utils.h>
-#include <vire/utility/base_event.h>
 #include <vire/com/utils.h>
 
 namespace vire {
 
   namespace com {
 
-    event_emitter_plug::event_emitter_plug(const manager & mgr_)
-      : base_plug(mgr_)
+    event_emitter_plug::event_emitter_plug(domain & dom_,
+                                           const std::string & name_)
+      : base_plug(dom_, name_, PLUG_EVENT_EMITTER)
     {
       return;
     }
@@ -50,78 +47,53 @@ namespace vire {
       return;
     }
 
-    int event_emitter_plug::send_event(const vire::utility::base_event & event_payload_)
+    void event_emitter_plug::_increment_sent_events_counter_()
+    {
+      _sent_events_counter_++;
+      return;
+    }
+
+    std::size_t event_emitter_plug::get_sent_events_counter() const
+    {
+      return _sent_events_counter_;
+    }
+
+    int event_emitter_plug::send_event(const vire::utility::payload_ptr_type & event_payload_,
+                                       const std::string & mailbox_name_,
+                                       const std::string & topic_)
     {
       std::lock_guard<std::mutex> lock(_send_event_mutex_);
-      // if (!has_protocol_driver()) {
-      //   return SEND_EVENT_NO_PROTOCOL;
-      // }
 
       // Build the message:
       vire::message::message msg;
 
       // Build the header:
       vire::message::message_header & msg_header = msg.grab_header();
+
       vire::message::message_identifier msg_id;
-      msg_id.set_emitter(get_full_key());
-      msg_id.set_number(get_sent_messages_counter());
+      msg_id.set_emitter(get_name());
+      msg_id.set_number(get_sent_events_counter());
       msg_header.set_message_id(msg_id);
+
       vire::utility::model_identifier body_layout_id(vire::message::body_layout::name(),
                                                      vire::message::body_layout::current_version());
-      msg_header.set_timestamp(vire::time::now());
-      msg_header.set_asynchronous(true);
       msg_header.set_body_layout_id(body_layout_id);
-      msg_header.add_metadata("signature", "dummy");
+
+      msg_header.set_timestamp(vire::time::now());
+      msg_header.set_category(vire::message::MESSAGE_EVENT);
+      //msg_header.set_asynchronous(true);
+      //msg_header.add_metadata("signature", "dummy");
 
       // Build the body:
       vire::message::message_body & msg_body = msg.grab_body();
-      msg_body.set_payload(event_payload_);
+      msg_body.set_payload(*event_payload_.get());
 
       // XXX
       // grab_protocol_driver().send(msg);
 
-      _increment_sent_messages_counter();
-      return SEND_EVENT_OK;
+      _increment_sent_events_counter_();
+      return SEND_EVENT_SUCCESS;
     }
-
-    /*
-    int event_emitter_plug::send_event(vire::utility::const_payload_ptr_type event_payload_)
-    {
-      std::lock_guard<std::mutex> lock(_send_event_mutex_);
-      if (!event_payload_->is_event()) {
-        return SEND_EVENT_INVALID_CATEGORY;
-      }
-      if (!has_protocol_driver()) {
-        return SEND_EVENT_NO_PROTOCOL;
-      }
-
-      // Build the message:
-      vire::message::message msg;
-      msg_metadata_type msg_metadata;
-
-      // Build the header:
-      vire::message::message_header & msg_header = msg.grab_header();
-      vire::message::message_identifier msg_id;
-      msg_id.set_emitter(get_full_id());
-      msg_id.set_number(get_sent_messages_counter());
-      msg_header.set_message_id(msg_id);
-      vire::utility::model_identifier format_id(vire::message::basic_format::name(),
-                                                vire::message::basic_format::current_version());
-      msg_header.set_format_id(format_id);
-      msg_header.set_timestamp(vire::time::now());
-      // Build the body:
-      vire::message::message_body & msg_body = msg.grab_body();
-      msg_body.set_payload(event_payload_);
-      vire::utility::model_identifier payload_type_id(event_payload_->get_serial_tag());
-      msg_body.set_payload_type_id(payload_type_id);
-
-      // XXX
-      // grab_protocol_driver().send(msg_data, msg_metadata);
-
-      _increment_sent_messages_counter();
-      return SEND_EVENT_OK;
-    }
-    */
 
   } // namespace com
 

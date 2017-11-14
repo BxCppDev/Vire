@@ -24,8 +24,9 @@ namespace vire {
 
   namespace com {
 
-    event_listener_plug::event_listener_plug(const manager & mgr_)
-      : base_plug(mgr_)
+    event_listener_plug::event_listener_plug(domain & dom_,
+                                             const std::string & name_)
+      : base_plug(dom_, name_, PLUG_EVENT_EMITTER)
     {
       return;
     }
@@ -34,6 +35,29 @@ namespace vire {
     {
       return;
     }
+
+    std::size_t event_listener_plug::get_received_events_counter() const
+    {
+      return _received_events_counter_;
+    }
+
+    int event_listener_plug::collect_event(vire::utility::payload_ptr_type & event_payload_,
+                                           std::string & mailbox_name_,
+                                           std::string & topic_)
+    {
+      std::lock_guard<std::mutex> lock(_received_event_mutex_);
+      event_payload_.reset();
+      mailbox_name_.clear();
+      topic_.clear();
+
+
+      return RECEIVED_EVENT_SUCCESS;
+    }
+
+    // bool event_listener_plug::has_event() const
+    // {
+    //   return true;
+    // }
 
   } // namespace com
 

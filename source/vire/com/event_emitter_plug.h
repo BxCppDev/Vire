@@ -32,61 +32,44 @@
 
 namespace vire {
 
-  namespace utility {
-
-    class base_event;
-
-  }
-
   namespace com {
 
     //! \brief User credentials data
-    class event_emitter_plug : public vire::com::base_plug
+    class event_emitter_plug
+      : public base_plug
     {
     public:
 
       enum send_event_error_type {
-        SEND_EVENT_OK               = 0, ///< Payload is ok
-        SEND_EVENT_INVALID_CATEGORY = 1, ///< Payload is not an event
-        SEND_EVENT_NO_PROTOCOL      = 2, ///< Undefined protocol
-        SEND_EVENT_NO_DESTINATION   = 3, ///< Undefined destination
-        SEND_EVENT_TIMEOUT          = 4  ///< Timeout
+        SEND_EVENT_SUCCESS          = 0, ///< Success
+        SEND_EVENT_FAILURE          = 1, ///< Generic error
+        SEND_EVENT_INVALID_MAILBOX  = 2, ///< Payload is not an event
+        SEND_EVENT_TIMEOUT          = 3  ///< Timeout
       };
 
       //! Default constructor
-      event_emitter_plug(const manager & mgr_);
+      event_emitter_plug(domain & dom_,
+                         const std::string & name_);
 
       //! Destructor
       virtual ~event_emitter_plug();
 
-      //! Check if relay is set
-      bool has_relay() const;
+      //! Send an event
+      int send_event(const vire::utility::payload_ptr_type & event_payload_,
+                     const std::string & mailbox_name_,
+                     const std::string & topic_);
 
-      //! Return the relay
-      const std::string & get_relay() const;
-
-      //! Set the relay
-      void set_relay(const std::string &);
-
-      //! Send an event (hardcoded relay)
-      int send_event(const vire::utility::base_event & event_payload_);
-
-      //! Send an event through a relay (exchange)
-      int send_event_through_relay(const vire::utility::base_event & event_payload_,
-                                   const std::string & relay_,
-                                   const std::string & source_key_);
-
-      //! Send an event to a specific logical address (queue)
-      int send_event_to_address(const vire::utility::base_event & event_payload_,
-                                const std::string & address_,
-                                const std::string & source_key_);
+      //! Return the number of sent events
+      std::size_t get_sent_events_counter() const;
 
     private:
 
-      // Configuration
-      std::string _relay_; //!< Identifier of the relay
+      void _increment_sent_events_counter_();
 
-      // Working
+    private:
+
+      // Working:
+      std::size_t _sent_events_counter_= 0;
       std::mutex _send_event_mutex_;
 
     };

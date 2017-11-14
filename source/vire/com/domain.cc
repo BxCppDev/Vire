@@ -1,6 +1,6 @@
 //! \file vire/com/domain.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -258,6 +258,30 @@ namespace vire {
       return _encoding_type_id_;
     }
 
+    const datatools::properties &
+    domain::get_transport_driver_params() const
+    {
+      return _transport_driver_params_;
+    }
+
+    void domain::set_transport_driver_params(const datatools::properties & params_)
+    {
+      _transport_driver_params_ = params_;
+      return;
+    }
+
+    const datatools::properties &
+    domain::get_encoding_driver_params() const
+    {
+      return _encoding_driver_params_;
+    }
+
+    void domain::set_encoding_driver_params(const datatools::properties & params_)
+    {
+      _encoding_driver_params_ = params_;
+      return;
+    }
+
     void domain::initialize(const datatools::properties & config_)
     {
       if (!has_name()) {
@@ -288,18 +312,26 @@ namespace vire {
         }
       }
 
-      config_.export_and_rename_starting_with(_transport_driver_params_, "transport.", "");
-      config_.export_and_rename_starting_with(_encoding_driver_params_, "encoding.", "");
+      if (_transport_driver_params_.size() == 0) {
+        config_.export_and_rename_starting_with(_transport_driver_params_, "transport.", "");
+      }
+
+      if (_encoding_driver_params_.size() == 0) {
+        config_.export_and_rename_starting_with(_encoding_driver_params_, "encoding.", "");
+      }
 
      return;
     }
 
     void domain::reset()
     {
+      _plugs_.clear();
       _name_.clear();
       _category_ = CATEGORY_INVALID;
       _transport_type_id_.reset();
+      _transport_driver_params_.clear();
       _encoding_type_id_.reset();
+      _encoding_driver_params_.clear();
       _forbid_private_mailbox_ = false;
       _forbid_public_mailbox_ = false;
       _mailboxes_.clear();
@@ -391,6 +423,46 @@ namespace vire {
        return out.str();
     }
 
+    const domain::plug_dict_type & domain::get_plugs() const
+    {
+      return _plugs_;
+    }
+
+    domain::plug_dict_type domain::grab_plugs()
+    {
+      return _plugs_;
+    }
+
+    bool domain::has_plug(const std::string & plug_name_) const
+    {
+      return _plugs_.count(plug_name_) == 1;
+    }
+
+    void domain::remove_plug(const std::string & plug_name_)
+    {
+      plug_dict_type::iterator found = _plugs_.find(plug_name_);
+      DT_THROW_IF(found == _plugs_.end(), std::logic_error,
+                  "No plug '" << plug_name_ << "'!");
+      _plugs_.erase(found);
+      return;
+    }
+
+    const plug_ptr_type & domain::get_plug(const std::string & plug_name_) const
+    {
+      plug_dict_type::const_iterator found = _plugs_.find(plug_name_);
+      DT_THROW_IF(found == _plugs_.end(), std::logic_error,
+                  "No plug '" << plug_name_ << "'!");
+      return found->second;
+    }
+
+    plug_ptr_type & domain::grab_plug(const std::string & plug_name_)
+    {
+      plug_dict_type::iterator found = _plugs_.find(plug_name_);
+      DT_THROW_IF(found == _plugs_.end(), std::logic_error,
+                  "No plug '" << plug_name_ << "'!");
+      return found->second;
+    }
+
     const i_encoding_driver & domain::get_encoding_driver() const
     {
       domain * mutable_this = const_cast<domain*>(this);
@@ -419,34 +491,34 @@ namespace vire {
       return *_encoding_driver_.get();
     }
 
-    // const i_transport_driver & domain::get_transport_driver() const
-    // {
-    //   domain * mutable_this = const_cast<domain*>(this);
-    //   return mutable_this->_transport_driver_instance_();
-    // }
+    const i_transport_driver & domain::get_transport_driver() const
+    {
+      domain * mutable_this = const_cast<domain*>(this);
+      return mutable_this->_transport_driver_instance_();
+    }
 
-    // i_transport_driver & domain::grab_transport_driver()
-    // {
-    //   return _transport_driver_instance_();
-    // }
+    i_transport_driver & domain::grab_transport_driver()
+    {
+      return _transport_driver_instance_();
+    }
 
-    // i_transport_driver & domain::_transport_driver_instance_()
-    // {
-    //   if (_transport_driver_.get() == nullptr) {
-    //     std::string transport_driver_type_id = _transport_type_id_.get_name();
-    //     i_transport_driver::factory_register_type & sys_factory_register
-    //       = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_transport_driver);
-    //     DT_THROW_IF(! sys_factory_register.has(transport_driver_type_id), std::logic_error,
-    //                 "No transport type ID '" << transport_driver_type_id << "' factory is known from the system register!");
-    //     // Factory instantiates a new object:
-    //     const i_transport_driver::factory_register_type::factory_type & the_factory
-    //       = sys_factory_register.get(transport_driver_type_id);
-    //     _transport_driver_.reset(the_factory());
-    //     _transport_driver_->set_domain(*this);
-    //     _transport_driver_->initialize(_transport_driver_params_);
-    //   }
-    //   return *_transport_driver_.get();
-    // }
+    i_transport_driver & domain::_transport_driver_instance_()
+    {
+      if (_transport_driver_.get() == nullptr) {
+        std::string transport_driver_type_id = _transport_type_id_.get_name();
+        i_transport_driver::factory_register_type & sys_factory_register
+          = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_transport_driver);
+        DT_THROW_IF(! sys_factory_register.has(transport_driver_type_id), std::logic_error,
+                    "No transport type ID '" << transport_driver_type_id << "' factory is known from the system register!");
+        // Factory instantiates a new object:
+        const i_transport_driver::factory_register_type::factory_type & the_factory
+          = sys_factory_register.get(transport_driver_type_id);
+        _transport_driver_.reset(the_factory());
+        _transport_driver_->set_domain(*this);
+        _transport_driver_->initialize(get_transport_driver_params());
+      }
+      return *_transport_driver_.get();
+    }
 
     void domain::tree_dump(std::ostream & out_,
                            const std::string & title_,
@@ -487,6 +559,25 @@ namespace vire {
              << ";privacy=" << mailbox::privacy_label(mb.get_privacy())
              << ";address=" << mb.get_address()
              << ";permissions=[" << mailbox::usage_permission_to_string(mb.get_permissions()) << ']'
+             << '}';
+        out_ << std::endl;
+      }
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Plugs             : [" << _plugs_.size() << "]" << std::endl;
+      for (plug_dict_type::const_iterator i = _plugs_.begin();
+            i != _plugs_.end();
+           i++) {
+        plug_dict_type::const_iterator j = i;
+        out_ << indent_ << datatools::i_tree_dumpable::skip_tag;
+        if (++j == _plugs_.end()) {
+          out_ << datatools::i_tree_dumpable::last_tag;
+        } else {
+          out_ << datatools::i_tree_dumpable::tag;
+        }
+        const plug_ptr_type & pp = i->second;
+        out_ << "Plug '" << i->first << "' : "  ;
+        out_ << "{category=" << plug_category_to_label(pp->get_category())
              << '}';
         out_ << std::endl;
       }

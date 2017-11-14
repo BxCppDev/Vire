@@ -1,6 +1,6 @@
 //! \file vire/com/manager.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -57,35 +57,35 @@ namespace vire {
       return;
     }
 
-    bool manager::has_setup_name() const
-    {
-      return !_setup_name_.empty();
-    }
+    // bool manager::has_setup_name() const
+    // {
+    //   return !_setup_name_.empty();
+    // }
 
-    void manager::set_setup_name(const std::string & setup_name_)
-    {
-      typedef std::vector<std::string > split_vector_type;
-      split_vector_type splitted;
-      boost::split(splitted, setup_name_, boost::is_any_of("/"));
-      DT_THROW_IF(splitted.size() < 1,
-                  std::logic_error,
-                  "Invalid setup name '" << setup_name_ << "'!");
-      uint32_t nv_flags = ::datatools::NV_NO_HYPHEN
-        | ::datatools::NV_NO_DOT
-        | ::datatools::NV_NO_COLON;
-      for (std::size_t i = 0; i < splitted.size(); i++) {
-        DT_THROW_IF(!datatools::name_validation(splitted[i], nv_flags),
-                    std::logic_error,
-                    "Invalid setup name '" << setup_name_ << "'!");
-      }
-      _setup_name_ = setup_name_;
-      return;
-    }
+    // void manager::set_setup_name(const std::string & setup_name_)
+    // {
+    //   typedef std::vector<std::string > split_vector_type;
+    //   split_vector_type splitted;
+    //   boost::split(splitted, setup_name_, boost::is_any_of("/"));
+    //   DT_THROW_IF(splitted.size() < 1,
+    //               std::logic_error,
+    //               "Invalid setup name '" << setup_name_ << "'!");
+    //   uint32_t nv_flags = ::datatools::NV_NO_HYPHEN
+    //     | ::datatools::NV_NO_DOT
+    //     | ::datatools::NV_NO_COLON;
+    //   for (std::size_t i = 0; i < splitted.size(); i++) {
+    //     DT_THROW_IF(!datatools::name_validation(splitted[i], nv_flags),
+    //                 std::logic_error,
+    //                 "Invalid setup name '" << setup_name_ << "'!");
+    //   }
+    //   _setup_name_ = setup_name_;
+    //   return;
+    // }
 
-    const std::string & manager::get_setup_name() const
-    {
-      return _setup_name_;
-    }
+    // const std::string & manager::get_setup_name() const
+    // {
+    //   return _setup_name_;
+    // }
 
     bool manager::has_actor() const
     {
@@ -178,9 +178,15 @@ namespace vire {
 
     void manager::set_resources(const vire::resource::manager & resources_)
     {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Communication manager is initialized!");
+      // DT_THROW_IF(is_initialized(), std::logic_error,
+      //             "Communication manager is initialized!");
       _resources_ = &resources_;
+      return;
+    }
+
+    void manager::reset_resources()
+    {
+      _resources_ = nullptr;
       return;
     }
 
@@ -226,7 +232,7 @@ namespace vire {
 
     domain &
     manager::create_domain(const std::string & domain_name_,
-                           const std::string & domain_category_,
+                           const domain::category_type & domain_category_,
                            const vire::utility::model_identifier & domain_protocol_id_,
                            const vire::utility::model_identifier & domain_encoding_id_)
     {
@@ -234,13 +240,9 @@ namespace vire {
                   std::logic_error,
                   "Manager already has a domain with ID '" << domain_name_ << "'!");
       std::shared_ptr<domain> sp;
-      domain::category_type dom_cat = domain::category_from_label(domain_category_);
-      DT_THROW_IF(dom_cat == domain::CATEGORY_INVALID,
-                  std::logic_error,
-                  "Invalid domain category '" << domain_category_ << "' for domain ID '" << domain_name_ << "'!");
       DT_THROW_IF(!domain_protocol_id_.is_valid(), std::logic_error, "Invalid protocol ID !");
       DT_THROW_IF(!domain_encoding_id_.is_valid(), std::logic_error, "Invalid encoding ID !");
-      sp.reset(new domain(domain_name_, dom_cat, domain_protocol_id_, domain_encoding_id_));
+      sp.reset(new domain(domain_name_, domain_category_, domain_protocol_id_, domain_encoding_id_));
       if (sp.get() != nullptr) {
         _domains_[domain_name_] = sp;
       }
@@ -249,10 +251,14 @@ namespace vire {
 
     domain &
     manager::create_domain(const std::string & domain_name_,
-                           const std::string & domain_category_,
+                           const std::string & domain_category_repr_,
                            const std::string & domain_protocol_id_repr_,
                            const std::string & domain_encoding_id_repr_)
     {
+      domain::category_type dom_cat = domain::category_from_label(domain_category_repr_);
+      DT_THROW_IF(dom_cat == domain::CATEGORY_INVALID,
+                  std::logic_error,
+                  "Invalid domain category '" << domain_category_repr_ << "' for domain ID '" << domain_name_ << "'!");
       vire::utility::model_identifier protocol_id;
       DT_THROW_IF(!protocol_id.from_string(domain_protocol_id_repr_),
                   std::logic_error,
@@ -261,7 +267,7 @@ namespace vire {
       DT_THROW_IF(!encoding_id.from_string(domain_encoding_id_repr_),
                   std::logic_error,
                   "Invalid encoding ID '" << domain_encoding_id_repr_ << "'!");
-      return create_domain(domain_name_, domain_category_, protocol_id, encoding_id);
+      return create_domain(domain_name_, dom_cat, protocol_id, encoding_id);
     }
 
     void manager::remove_domain(const std::string & domain_name_)
@@ -272,6 +278,11 @@ namespace vire {
                   "No domain with identifier '" << domain_name_ << "'!");
       _domains_.erase(found);
       return;
+    }
+
+    const plug_factory & manager::get_plug_factory() const
+    {
+      return *_factory_.get();
     }
 
     void manager::tree_dump(std::ostream & out_,
@@ -374,11 +385,14 @@ namespace vire {
 
       }
 
+      _factory_.reset(new plug_factory(*this));
+
       return;
     }
 
     void manager::_at_reset_()
     {
+      _factory_.reset();
       _domains_.clear();
       _resources_ = nullptr;
       _actor_.reset();

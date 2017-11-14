@@ -60,7 +60,7 @@ void test_com_domain_1(bool interactive_)
 {
   std::clog << "\ntest_com_domain_1: basics" << std::endl;
 
-  std::string setup_name   = "snemo_demo";
+  std::string setup_name   = "supernemo/demonstrator";
   std::string transport_id = "rabbitmq";
   std::string encoding_id  = "protobuf-3";
 
@@ -93,13 +93,18 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #1" << std::endl;
   vire::com::domain dom1;
   std::string subcontractor_name = "cmslapp";
-  dom1.set_name("/" + setup_name + "/vire/cms/subcontractors/" + subcontractor_name);
+  dom1.set_name("/" + setup_name + "/cms/vire/subcontractors/system/" + subcontractor_name);
   dom1.set_category(vire::com::domain::CATEGORY_SYSTEM);
-  dom1.add_mailbox("X1",
+  dom1.add_mailbox("RequestToServer",
                    vire::com::mailbox::MODE_SERVICE,
-                   vire::com::mailbox::PRIVACY_PRIVATE,
-                   "vire.snemo.cms.server.service",
-                   "-k----p--");
+                   vire::com::mailbox::PRIVACY_PUBLIC,
+                   "vireserver.service",
+                   "--sp-----");
+  dom1.add_mailbox("SignalFromServer",
+                   vire::com::mailbox::MODE_EVENT,
+                   vire::com::mailbox::PRIVACY_PUBLIC,
+                   "vireserver.event",
+                   "p----s---");
   dom1.set_transport_type_id(transport_id);
   dom1.set_encoding_type_id(encoding_id);
   dom1.tree_dump(std::clog, "Server to subcontractor '" + subcontractor_name + "' system communication domain: ");
@@ -108,7 +113,7 @@ void test_com_domain_1(bool interactive_)
   // Domain #2:
   std::clog << "\ntest_com_domain_1: Domain #2" << std::endl;
   vire::com::domain dom2;
-  dom2.set_name("/" + setup_name + "/vire/cms/clients/" + "clientFoo");
+  dom2.set_name("/" + setup_name + "/cms/vire/clients/system/" + "clientFoo");
   dom2.set_category(vire::com::domain::CATEGORY_SYSTEM);
   dom2.set_transport_type_id(transport_id);
   dom2.set_encoding_type_id(encoding_id);
@@ -118,7 +123,7 @@ void test_com_domain_1(bool interactive_)
   // Domain #3:
   std::clog << "\ntest_com_domain_1: Domain #3" << std::endl;
   vire::com::domain dom3;
-  dom3.set_name("/" + setup_name + "/vire/cms/monitoring");
+  dom3.set_name("/" + setup_name + "/cms/vire/monitoring");
   dom3.set_category(vire::com::domain::CATEGORY_MONITORING);
   dom3.set_transport_type_id(transport_id);
   dom3.set_encoding_type_id(encoding_id);
@@ -128,7 +133,7 @@ void test_com_domain_1(bool interactive_)
   // Domain #4:
   std::clog << "\ntest_com_domain_1: Domain #4" << std::endl;
   vire::com::domain dom4;
-  dom4.set_name("/" + setup_name + "/vire/cms/control");
+  dom4.set_name("/" + setup_name + "/cms/vire/control");
   dom4.set_category(vire::com::domain::CATEGORY_CONTROL);
   dom4.set_transport_type_id(transport_id);
   dom4.set_encoding_type_id(encoding_id);
@@ -138,7 +143,7 @@ void test_com_domain_1(bool interactive_)
   // Domain #5:
   std::clog << "\ntest_com_domain_1: Domain #5" << std::endl;
   vire::com::domain dom5;
-  dom5.set_name("/" + setup_name + "/vire/cms/clients/gate");
+  dom5.set_name("/" + setup_name + "/cms/vire/clients/gate");
   dom5.set_category(vire::com::domain::CATEGORY_CONTROL);
   dom5.set_transport_type_id(transport_id);
   dom5.set_encoding_type_id(encoding_id);

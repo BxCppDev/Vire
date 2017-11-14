@@ -37,6 +37,7 @@
 #include <vire/com/actor.h>
 #include <vire/com/utils.h>
 #include <vire/com/domain_builder.h>
+#include <vire/com/plug_factory.h>
 
 namespace vire {
 
@@ -63,19 +64,19 @@ namespace vire {
       //! Destructor
       virtual ~manager();
 
-      //! Check setup name
-      bool has_setup_name() const;
+      // //! Check setup name
+      // bool has_setup_name() const;
 
-      //! Set setup name
-      //!
-      //! Supported formats:
-      //! - "supernemo"
-      //! - "supernemo/demonstrator"
-      //! - "supernemo/test"
-      void set_setup_name(const std::string & name_);
+      // //! Set setup name
+      // //!
+      // //! Supported formats:
+      // //! - "supernemo"
+      // //! - "supernemo/demonstrator"
+      // //! - "supernemo/test"
+      // void set_setup_name(const std::string & name_);
 
-      //! Return setup name
-      const std::string & get_setup_name() const;
+      // //! Return setup name
+      // const std::string & get_setup_name() const;
 
       //! Check the actor
       bool has_actor() const;
@@ -111,16 +112,21 @@ namespace vire {
 
       void add_subcontractor(const std::string &);
 
-      //! Check the resources service
+      //! Check the resources service handle is set
       bool has_resources() const;
 
-      //! Return the resources service
+      //! Set the resources service handle
       void set_resources(const vire::resource::manager & resources_);
 
       //! Return a const handle to the resources service
       const vire::resource::manager & get_resources() const;
 
+      //! Reset the resources service handle
+      void reset_resources();
+
       const domain_builder & get_domain_maker() const;
+
+      const plug_factory & get_plug_factory() const;
 
       //! Check the domains
       bool has_domains() const;
@@ -134,15 +140,15 @@ namespace vire {
       //! Return a domain by name
       domain & grab_domain(const std::string & domain_name_);
 
-      //! Create and insert a new plug of given identifier and category
+      //! Create and insert a new domain of given name and category
       domain & create_domain(const std::string & domain_name_,
-                             const std::string & domain_category_,
+                             const std::string & domain_category_repr_,
                              const std::string & domain_protocol_id_repr_,
                              const std::string & domain_encoding_id_repr_);
 
-      //! Create and insert a new plug of given identifier and category
+      //! Create and insert a new domain of given name and category
       domain & create_domain(const std::string & domain_name_,
-                             const std::string & domain_category_,
+                             const domain::category_type & domain_category_,
                              const vire::utility::model_identifier & domain_protocol_id_,
                              const vire::utility::model_identifier & domain_encoding_id_);
 
@@ -180,14 +186,14 @@ namespace vire {
       bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
-     const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
-      std::string _setup_name_; //!< Name of the setup
-      actor       _actor_;      //!< Actor
-      vire::utility::model_identifier _transport_type_id_; //!< Transport type identifier associated to the domain
-      vire::utility::model_identifier _encoding_type_id_;  //!< Encoding type identifier associated to the domain
-      std::set<std::string> _subcontractors_; //!< Set of subcontractors
+      const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
+      actor                           _actor_;      //!< Actor
+      vire::utility::model_identifier _transport_type_id_; //!< Default transport type identifier associated to the domains
+      vire::utility::model_identifier _encoding_type_id_;  //!< Default encoding type identifier associated to the domains
+      std::set<std::string>           _subcontractors_; //!< Set of subcontractors
 
       domain_builder   _domain_maker_; //!< Domain builder
+      std::unique_ptr<plug_factory> _factory_; //!< Plug factory
 
       // Working data:
       domain_dict_type _domains_;   //!< Dictionary of domains

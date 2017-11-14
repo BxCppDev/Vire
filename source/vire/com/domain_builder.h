@@ -37,31 +37,38 @@ namespace vire {
     {
     public:
 
+      // Validate a domain name prefix
+      static bool validate_domain_name_prefix(const std::string & setup_name_);
+
+      // Build  the domain name prefix from the name of a setup
+      static std::string domain_name_prefix(const std::string & setup_name_);
+
       // Build the name of a domain associated to a given topic
-      static std::string build_cms_topic_name(const std::string & setup_id_, const std::string & topic_);
+      static std::string build_cms_topic_name(const std::string & name_prefix_,
+                                              const std::string & topic_);
 
       // Build the name of the vire control domain
-      static std::string build_cms_control_name(const std::string & setup_id_);
+      static std::string build_cms_control_name(const std::string & name_prefix_);
 
       // Build the name of the vire monitoring domain
-      static std::string build_cms_monitoring_name(const std::string & setup_id_);
+      static std::string build_cms_monitoring_name(const std::string & name_prefix_);
 
       // Build the name of the vire system domain associated to a subcontractor
-      static std::string build_cms_subcontractor_system_name(const std::string & setup_id_,
+      static std::string build_cms_subcontractor_system_name(const std::string & name_prefix_,
                                                              const std::string & subcontractor_id_);
 
       // Build the name of the vire system domain associated to a client
-      static std::string build_cms_client_system_name(const std::string & setup_id_,
+      static std::string build_cms_client_system_name(const std::string & name_prefix_,
                                                       const std::string & client_id_);
 
       // Build the name of the vire client gate domain
-      static std::string build_cms_clients_gate_name(const std::string & setup_id_);
+      static std::string build_cms_clients_gate_name(const std::string & name_prefix_);
 
       //! Default constructor
       domain_builder();
 
       //! Constructor
-      domain_builder(const std::string & setup_name_);
+      domain_builder(const std::string & domain_name_prefix_);
 
       //! Destructor
       virtual ~domain_builder();
@@ -69,19 +76,19 @@ namespace vire {
       //! Check if the domain is valid
       bool is_valid() const;
 
-      //! Check setup name
-      bool has_setup_name() const;
+      //! Check domain name prefix
+      bool has_domain_name_prefix() const;
 
-      //! Set setup name
+      //! Set domain name prefix
       //!
       //! Supported formats:
-      //! - "supernemo"
-      //! - "supernemo/demonstrator"
-      //! - "supernemo/test"
-      void set_setup_name(const std::string & name_);
+      //! - "/supernemo"
+      //! - "/supernemo/demonstrator"
+      //! - "/supernemo/test_bench"
+      void set_domain_name_prefix(const std::string & name_);
 
-      //! Return setup name
-      const std::string & get_setup_name() const;
+      //! Return domain name prefix
+      const std::string & get_domain_name_prefix() const;
 
       //! Check encoding type identifier
       bool has_encoding_type_id() const;
@@ -122,7 +129,7 @@ namespace vire {
 
     private:
 
-      std::string _setup_name_; //!< Name of the setup
+      std::string _domain_name_prefix_; //!< Domain name prefix
       vire::utility::model_identifier _transport_type_id_; //!< Transport type identifier
       vire::utility::model_identifier _encoding_type_id_;  //!< Encoding type identifier
 

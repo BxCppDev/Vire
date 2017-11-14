@@ -63,9 +63,9 @@ namespace vire {
       static category_type category(const std::string &);
 
       //! Build actor name
-      static std::string build_name(const std::string & setup_name_,
-                                    const category_type category_,
-                                    const std::string & id_);
+      static std::string build_name(const category_type category_,
+                                    const std::string & setup_name_ = "",
+                                    const std::string & id_ = "");
 
       //! Default constructor
       actor();
@@ -82,11 +82,17 @@ namespace vire {
       //! Reset/invalidate
       void reset();
 
+      //! Check if name is set
+      bool has_name() const;
+
       //! Set the actor name
       void set_name(const std::string & name_);
 
       //! Return the actor name
       const std::string & get_name() const;
+
+      //! Check if category is set
+      bool has_category() const;
 
       //! Set the actor category
       void set_category(const category_type & category_);
@@ -117,8 +123,8 @@ namespace vire {
 
     private:
 
-      std::string           _name_;     //!< Actor name
       category_type         _category_; //!< Actor category
+      std::string           _name_;     //!< Actor name
       datatools::properties _metadata_; //!< Metadata
 
     };

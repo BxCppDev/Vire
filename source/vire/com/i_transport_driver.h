@@ -52,6 +52,9 @@ namespace vire {
       //! Destructor
       virtual ~i_transport_driver();
 
+      //! Check if domain is set
+      bool has_domain() const;
+
       //! Set the domain
       void set_domain(domain & domain_);
 
@@ -64,6 +67,9 @@ namespace vire {
       //! Check initialization flag
       bool is_initialized() const;
 
+      //! Initialize the driver from the domain it is associated to
+      void initialize();
+
       //! Initialize the driver from a set of configuration parameters
       void initialize(const datatools::properties &);
 
@@ -73,10 +79,10 @@ namespace vire {
       //! Create a new private mailbox address
       std::string new_private_mailbox_address(const mailbox::mode_type);
 
-      //! Send a message
-      int send(const mailbox & mailbox_,
-               const vire::message::message & msg_,
-               const datatools::properties & msg_metadata_);
+      // //! Send a message
+      // int send(const mailbox & mailbox_,
+      //          const vire::message::message & msg_,
+      //          const datatools::properties & msg_metadata_);
 
       // //! Receive a message
       // int receive(vire::message::message & msg_,
@@ -97,9 +103,9 @@ namespace vire {
       // virtual std::string _create_private_service_mailbox_(const std::string & name_) = 0;
 
       //! Send a Vire message to from a source string buffer
-      virtual int _send_impl_(const mailbox & mailbox_,
-                              const vire::message::message & msg_,
-                              const datatools::properties & msg_metadata_) = 0;
+      // virtual int _send_impl_(const mailbox & mailbox_,
+      // const vire::message::message & msg_,
+      //  const datatools::properties & msg_metadata_) = 0;
 
       // //! Receive a target object from a source string buffer
       // virtual int _receive_impl_(vire::message::message & msg_,
@@ -112,7 +118,6 @@ namespace vire {
 
       // Configuration:
       domain * _domain_ = nullptr;
-
 
       // Factory stuff :
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(i_transport_driver)

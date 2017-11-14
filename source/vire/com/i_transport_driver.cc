@@ -27,6 +27,7 @@
 // This project:
 #include <vire/com/utils.h>
 #include <vire/com/mailbox.h>
+#include <vire/com/domain.h>
 
 namespace vire {
 
@@ -54,6 +55,11 @@ namespace vire {
       return;
     }
 
+    bool i_transport_driver::has_domain() const
+    {
+      return _domain_ != nullptr;
+    }
+
     void i_transport_driver::set_domain(domain & domain_)
     {
       _domain_ = &domain_;
@@ -73,6 +79,14 @@ namespace vire {
     bool i_transport_driver::is_initialized() const
     {
       return _initialized_;
+    }
+
+    void i_transport_driver::initialize()
+    {
+      DT_THROW_IF(!has_domain(), std::logic_error,
+                  "Transport driver has no associated domain!");
+      initialize(get_domain().get_transport_driver_params());
+      return;
     }
 
     void i_transport_driver::initialize(const datatools::properties & config_)
@@ -107,16 +121,16 @@ namespace vire {
       return addr;
     }
 
-    int i_transport_driver::send(const mailbox & mailbox_,
-                                 const vire::message::message & msg_,
-                                 const datatools::properties & msg_metadata_)
-    {
-      DT_THROW_IF(!is_initialized(), std::logic_error,
-                  "Transport driver is not initialized!");
-      int error_code = COM_OK;
-      error_code = _send_impl_(mailbox_, msg_, msg_metadata_);
-      return error_code;
-    }
+    // int i_transport_driver::send(const mailbox & mailbox_,
+    //                              const vire::message::message & msg_,
+    //                              const datatools::properties & msg_metadata_)
+    // {
+    //   DT_THROW_IF(!is_initialized(), std::logic_error,
+    //               "Transport driver is not initialized!");
+    //   int error_code = COM_OK;
+    //   error_code = _send_impl_(mailbox_, msg_, msg_metadata_);
+    //   return error_code;
+    // }
 
   } // namespace com
 

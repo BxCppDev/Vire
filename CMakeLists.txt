@@ -144,74 +144,7 @@ message( STATUS "[info] VIRE_WITH_PLUGINS         = '${VIRE_WITH_PLUGINS}'")
 message( STATUS "[info] VIRE_WITH_SANDBOX         = '${VIRE_WITH_SANDBOX}'")
 
 #-----------------------------------------------------------------------
-# Bayeux is the main external dependency, and we know it will additionally
-# search for and provide compatible versions of:
-#
-# - Boost
-# - GSL
-# - ROOT
-set(VIRE_BAYEUX_MIN_VERSION "3.1.0")
-message( STATUS "[info] Searching Bayeux ${VIRE_BAYEUX_MIN_VERSION}...")
-find_package(Bayeux ${VIRE_BAYEUX_MIN_VERSION} REQUIRED NO_MODULE)
-if (Bayeux_FOUND)
-  message( STATUS "[info] Bayeux ${Bayeux_VERSION} found.")
-  message( STATUS "[info] BAYEUX_BOOST_VERSION    = '${BAYEUX_BOOST_VERSION}'")
-  # Trick because BayeuxConfig 3.1 does not provide the BAYEUX_BOOST_COMPONENTS variable:
-  set(Vire_BAYEUX_VERSION ${Bayeux_VERSION})
-  set(BAYEUX_BOOST_COMPONENTS
-    "filesystem;system;serialization;iostreams;program_options;regex;thread"
-    )
-  message( STATUS "[info] BAYEUX_BOOST_COMPONENTS = '${BAYEUX_BOOST_COMPONENTS}'")
-  message( STATUS "[info] Bayeux_CMAKE_CONFIG_DIR = '${Bayeux_CMAKE_CONFIG_DIR}'")
-endif()
-
-#-------------------------------------------------------------------------
-# Boost is also important with specific libs
-message( STATUS "[info] Searching special Boost material for Vire...")
-set(VIRE_BOOST_MIN_VERSION ${BAYEUX_BOOST_VERSION})
-set(Boost_NO_BOOST_CMAKE ON)
-set(VIRE_BOOST_COMPONENTS
-  ${BAYEUX_BOOST_COMPONENTS}
-  )
-list(APPEND VIRE_BOOST_COMPONENTS log)
-message( STATUS "[info] VIRE_BOOST_COMPONENTS   = '${VIRE_BOOST_COMPONENTS}'")
-message( STATUS "[info] Finding Boost with specific libraries...")
-find_package(Boost ${VIRE_BOOST_MIN_VERSION} REQUIRED
-  ${VIRE_BOOST_COMPONENTS}
-  )
-set(Vire_Boost_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION})
-set(Vire_Boost_LIBRARIES)
-foreach(_vire_boost_lib ${VIRE_BOOST_COMPONENTS})
-  list(APPEND Vire_Boost_LIBRARIES Boost::${_vire_boost_lib})
-endforeach()
-message(STATUS "[info] Vire_Boost_VERSION   = '${Vire_Boost_VERSION}'")
-message(STATUS "[info] Vire_Boost_LIBRARIES = '${Vire_Boost_LIBRARIES}'")
-# message(STATUS "[info] Boost_LIBRARIES               = '${Boost_LIBRARIES}'")
-# message(STATUS "[info] Boost_FILESYSTEM_LIBRARY      = '${Boost_FILESYSTEM_LIBRARY}'")
-# message(STATUS "[info] Boost_SYSTEM_LIBRARY          = '${Boost_SYSTEM_LIBRARY}'")
-# message(STATUS "[info] Boost_SERIALIZATION_LIBRARY   = '${Boost_SERIALIZATION_LIBRARY}'")
-# message(STATUS "[info] Boost_IOSTREAMS_LIBRARY       = '${Boost_IOSTREAMS_LIBRARY}'")
-# message(STATUS "[info] Boost_PROGRAM_OPTIONS_LIBRARY = '${Boost_PROGRAM_OPTIONS_LIBRARY}'")
-# message(STATUS "[info] Boost_DATE_TIME_LIBRARY       = '${Boost_DATE_TIME_LIBRARY}'")
-# message(STATUS "[info] Boost_THREAD_LIBRARY          = '${Boost_THREAD_LIBRARY}'")
-# message(STATUS "[info] Boost_LOG_LIBRARY             = '${Boost_LOG_LIBRARY}'")
-# message(STATUS "[info] Boost_LOG_SETUP_LIBRARY       = '${Boost_LOG_SETUP_LIBRARY}'")
-
-# # - Camp
-# find_package(CAMP ${BAYEUX_CAMP_VERSION} REQUIRED)
-
-# # - CLHEP
-# find_package(CLHEP ${BAYEUX_CLHEP_VERSION} REQUIRED)
-
-if (VIRE_WITH_JAVA OR VIRE_WITH_PROTOBUF_JAVA)
-  message( STATUS "[info] Searching Java...")
-  find_package(Java)
-  if (Java_FOUND)
-    message( STATUS "[info] Java ${Java_VERSION_STRING} found.")
-  endif()
-else()
-  message( STATUS "[info] No Java support.")
-endif()
+include(VireDependencies)
 
 #-----------------------------------------------------------------------
 # Build the subdirectories as required

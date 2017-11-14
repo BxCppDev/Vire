@@ -32,54 +32,100 @@ namespace vire {
   namespace com {
 
     // static
-    std::string domain_builder::build_cms_topic_name(const std::string & setup_id_, const std::string & topic_)
+    bool domain_builder::validate_domain_name_prefix(const std::string & prefix_)
+    {
+      if (prefix_.empty()) {
+        // std::cerr << "[devel] empty prefix='" << prefix_ << "'\n";
+        return false;
+      }
+      if (prefix_[0] != '/') {
+        // std::cerr << "[devel] missing leading '/' prefix='" << prefix_ << "'\n";
+        return false;
+      }
+      if (prefix_.length() < 1) return false;
+      std::string domain_name_prefix_tmp = prefix_.substr(1);
+      // std::cerr << "[devel] domain_name_prefix_tmp=" << domain_name_prefix_tmp << "\n";
+      typedef std::vector<std::string > split_vector_type;
+      split_vector_type splitted;
+      boost::split(splitted, domain_name_prefix_tmp, boost::is_any_of("/"));
+      DT_THROW_IF(splitted.size() < 1,
+                  std::logic_error,
+                  "Invalid domain name prefix '" << prefix_ << "'!");
+      uint32_t nv_flags = ::datatools::NV_NO_HYPHEN
+        | ::datatools::NV_NO_DOT
+        | ::datatools::NV_NO_COLON;
+      for (std::size_t i = 0; i < splitted.size(); i++) {
+        if (!datatools::name_validation(splitted[i], nv_flags)) {
+          // std::cerr << "[devel] invalid segment : splitted[i]=" << splitted[i] << "\n";
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // static
+    std::string domain_builder::domain_name_prefix(const std::string & domain_name_prefix_)
+    {
+      std::string dnp;
+      if (domain_name_prefix_.empty()) {
+        DT_THROW(std::logic_error, "Invalid domain name prefix!");
+      }
+      if (domain_name_prefix_[0] != '/') {
+        dnp.push_back('/');
+      }
+      dnp += domain_name_prefix_;
+      return dnp;
+    }
+
+    // static
+    std::string domain_builder::build_cms_topic_name(const std::string & domain_name_prefix_, const std::string & topic_)
     {
       std::ostringstream oss;
-      oss << '/' << setup_id_ << '/' << "cms" << '/' << "vire" << '/' << topic_;
+      oss << domain_name_prefix(domain_name_prefix_) << '/' << "cms" << '/' << "vire" << '/' << topic_;
       return oss.str();
     }
 
     // static
-    std::string domain_builder::build_cms_control_name(const std::string & setup_id_)
+    std::string domain_builder::build_cms_control_name(const std::string & domain_name_prefix_)
     {
-      return build_cms_topic_name(setup_id_, "control");
+      return build_cms_topic_name(domain_name_prefix_, "control");
     }
 
     // static
-    std::string domain_builder::build_cms_monitoring_name(const std::string & setup_id_)
+    std::string domain_builder::build_cms_monitoring_name(const std::string & domain_name_prefix_)
     {
-      return build_cms_topic_name(setup_id_, "monitoring");
+      return build_cms_topic_name(domain_name_prefix_, "monitoring");
     }
 
     // static
-    std::string domain_builder::build_cms_subcontractor_system_name(const std::string & setup_id_,
+    std::string domain_builder::build_cms_subcontractor_system_name(const std::string & domain_name_prefix_,
                                                                     const std::string & subcontractor_id_)
     {
       std::ostringstream oss;
       oss << "subcontractors" << '/' << "system" << '/'  << subcontractor_id_;
-      return build_cms_topic_name(setup_id_, oss.str());
+      return build_cms_topic_name(domain_name_prefix_, oss.str());
     }
 
     // static
-    std::string domain_builder::build_cms_clients_gate_name(const std::string & setup_id_)
+    std::string domain_builder::build_cms_clients_gate_name(const std::string & domain_name_prefix_)
     {
       std::ostringstream oss;
       oss << "clients" << '/' << "gate";
-      return build_cms_topic_name(setup_id_, oss.str());
+      return build_cms_topic_name(domain_name_prefix_, oss.str());
     }
 
     // static
-    std::string domain_builder::build_cms_client_system_name(const std::string & setup_id_,
+    std::string domain_builder::build_cms_client_system_name(const std::string & domain_name_prefix_,
                                                              const std::string & client_id_)
     {
       std::ostringstream oss;
       oss << "clients" << '/' << "system" << '/' << client_id_;
-      return build_cms_topic_name(setup_id_, oss.str());
+      return build_cms_topic_name(domain_name_prefix_, oss.str());
     }
 
     void domain_builder::_set_defaults_()
     {
-      _setup_name_ = "";
+      _domain_name_prefix_.clear();
       _transport_type_id_.reset();
       _encoding_type_id_.reset();
       return;
@@ -91,10 +137,10 @@ namespace vire {
       return;
     }
 
-    domain_builder::domain_builder(const std::string & setup_name_)
+    domain_builder::domain_builder(const std::string & domain_name_prefix_)
     {
       _set_defaults_();
-      set_setup_name(setup_name_);
+      set_domain_name_prefix(domain_name_prefix_);
       return;
     }
 
@@ -105,40 +151,29 @@ namespace vire {
 
     bool domain_builder::is_valid() const
     {
-      if (!has_setup_name()) return false;
+      if (!has_domain_name_prefix()) return false;
       if (!has_encoding_type_id()) return false;
       if (!has_transport_type_id()) return false;
       return true;
     }
 
-    bool domain_builder::has_setup_name() const
+    bool domain_builder::has_domain_name_prefix() const
     {
-      return !_setup_name_.empty();
+      return !_domain_name_prefix_.empty();
     }
 
-    void domain_builder::set_setup_name(const std::string & setup_name_)
+    void domain_builder::set_domain_name_prefix(const std::string & domain_name_prefix_)
     {
-      typedef std::vector<std::string > split_vector_type;
-      split_vector_type splitted;
-      boost::split(splitted, setup_name_, boost::is_any_of("/"));
-      DT_THROW_IF(splitted.size() < 1,
+      DT_THROW_IF(!validate_domain_name_prefix(domain_name_prefix_),
                   std::logic_error,
-                  "Invalid setup name '" << setup_name_ << "'!");
-      uint32_t nv_flags = ::datatools::NV_NO_HYPHEN
-        | ::datatools::NV_NO_DOT
-        | ::datatools::NV_NO_COLON;
-      for (std::size_t i = 0; i < splitted.size(); i++) {
-        DT_THROW_IF(!datatools::name_validation(splitted[i], nv_flags),
-                    std::logic_error,
-                    "Invalid setup name '" << setup_name_ << "'!");
-      }
-      _setup_name_ = setup_name_;
+                  "Invalid domain name prefix '" << domain_name_prefix_ << "'!");
+      _domain_name_prefix_ = domain_name_prefix_;
       return;
     }
 
-    const std::string & domain_builder::get_setup_name() const
+    const std::string & domain_builder::get_domain_name_prefix() const
     {
-      return _setup_name_;
+      return _domain_name_prefix_;
     }
 
     bool domain_builder::has_encoding_type_id() const
@@ -175,11 +210,19 @@ namespace vire {
 
     void domain_builder::build_clients_gate_domain(domain & dom_)
     {
-      dom_.reset();
-      dom_.set_name(domain_builder::build_cms_clients_gate_name(_setup_name_));
-      dom_.set_category(vire::com::domain::CATEGORY_GENERAL);
-      dom_.set_transport_type_id(_transport_type_id_);
-      dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_name()) {
+        dom_.set_name(domain_builder::build_cms_clients_gate_name(_domain_name_prefix_));
+      }
+      if (!dom_.has_category()) {
+        dom_.set_category(vire::com::domain::CATEGORY_GENERAL);
+      }
+      if (!dom_.has_transport_type_id()) {
+        dom_.set_transport_type_id(_transport_type_id_);
+      }
+      if (!dom_.has_encoding_type_id()) {
+        dom_.set_encoding_type_id(_encoding_type_id_);
+      }
+
       mailbox::permissions_type gate_perms = mailbox::usage_permission_from_string("--s---p--");
       dom_.add_mailbox("Gate",
                        mailbox::MODE_SERVICE,
@@ -192,11 +235,19 @@ namespace vire {
 
     void domain_builder::build_control_domain(domain & dom_)
     {
-      dom_.reset();
-      dom_.set_name(domain_builder::build_cms_control_name(_setup_name_));
-      dom_.set_category(vire::com::domain::CATEGORY_CONTROL);
-      dom_.set_transport_type_id(_transport_type_id_);
-      dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_name()) {
+        dom_.set_name(domain_builder::build_cms_control_name(_domain_name_prefix_));
+      }
+      if (!dom_.has_category()) {
+        dom_.set_category(vire::com::domain::CATEGORY_CONTROL);
+      }
+      if (!dom_.has_transport_type_id()) {
+        dom_.set_transport_type_id(_transport_type_id_);
+      }
+      if (!dom_.has_encoding_type_id()) {
+        dom_.set_encoding_type_id(_encoding_type_id_);
+      }
+
       mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("--s---p--");
       dom_.add_mailbox("ResourceRequest",
                        mailbox::MODE_SERVICE,
@@ -209,11 +260,19 @@ namespace vire {
 
     void domain_builder::build_monitoring_domain(domain & dom_)
     {
-      dom_.reset();
-      dom_.set_name(domain_builder::build_cms_monitoring_name(_setup_name_));
-      dom_.set_category(vire::com::domain::CATEGORY_MONITORING);
-      dom_.set_transport_type_id(_transport_type_id_);
-      dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_name()) {
+        dom_.set_name(domain_builder::build_cms_monitoring_name(_domain_name_prefix_));
+      }
+      if (!dom_.has_category()) {
+        dom_.set_category(vire::com::domain::CATEGORY_MONITORING);
+      }
+      if (!dom_.has_transport_type_id()) {
+        dom_.set_transport_type_id(_transport_type_id_);
+      }
+      if (!dom_.has_encoding_type_id()) {
+        dom_.set_encoding_type_id(_encoding_type_id_);
+      }
+
       mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("p-s--sp--");
       dom_.add_mailbox("ResourceRequest",
                        mailbox::MODE_SERVICE,
@@ -245,11 +304,18 @@ namespace vire {
 
     void domain_builder::build_client_system_domain(domain & dom_, const std::string & client_id_)
     {
-      dom_.reset();
-      dom_.set_name(domain_builder::build_cms_client_system_name(_setup_name_, client_id_));
-      dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
-      dom_.set_transport_type_id(_transport_type_id_);
-      dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_name()) {
+        dom_.set_name(domain_builder::build_cms_client_system_name(_domain_name_prefix_, client_id_));
+      }
+      if (!dom_.has_category()) {
+        dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
+      }
+      if (!dom_.has_transport_type_id()) {
+        dom_.set_transport_type_id(_transport_type_id_);
+      }
+      if (!dom_.has_encoding_type_id()) {
+        dom_.set_encoding_type_id(_encoding_type_id_);
+      }
 
       mailbox::permissions_type rts_perms = mailbox::usage_permission_from_string("--s---p--");
       dom_.add_mailbox("RequestToServer",
@@ -271,11 +337,18 @@ namespace vire {
 
     void domain_builder::build_subcontractor_system_domain(domain & dom_, const std::string & subcontractor_id_)
     {
-      dom_.reset();
-      dom_.set_name(domain_builder::build_cms_subcontractor_system_name(_setup_name_, subcontractor_id_));
-      dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
-      dom_.set_transport_type_id(_transport_type_id_);
-      dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_name()) {
+        dom_.set_name(build_cms_subcontractor_system_name(_domain_name_prefix_, subcontractor_id_));
+      }
+      if (!dom_.has_category()) {
+        dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
+      }
+      if (!dom_.has_transport_type_id()) {
+        dom_.set_transport_type_id(_transport_type_id_);
+      }
+      if (!dom_.has_encoding_type_id()) {
+        dom_.set_encoding_type_id(_encoding_type_id_);
+      }
 
       mailbox::permissions_type rts_perms = mailbox::usage_permission_from_string("--sp-----");
       dom_.add_mailbox("RequestToServer",

@@ -63,7 +63,7 @@ void test_com_manager_1(bool interactive_)
 
   vire::utility::model_identifier protocol_id("rabbitmq",
                                               datatools::version_id(1, 0));
-  vire::utility::model_identifier encoding_id("protobuf",
+  vire::utility::model_identifier encoding_id("vire::com::protobuf_encoding_driver",
                                               datatools::version_id(3));
 
   vire::com::actor vireServer("vireserver",
@@ -78,7 +78,6 @@ void test_com_manager_1(bool interactive_)
   comMgr.set_name("Com");
   comMgr.set_terse_description("SuperNEMO Vire Server Communication Service");
   comMgr.set_display_name("Communication");
-  comMgr.set_setup_name(setup_name);
   comMgr.set_encoding_type_id(protocol_id);
   comMgr.set_transport_type_id(encoding_id);
   comMgr.set_actor(vireServer);

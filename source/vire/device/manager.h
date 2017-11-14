@@ -59,7 +59,8 @@ namespace vire {
   namespace device {
 
     //! \brief Device management service
-    class manager : public ::datatools::base_service
+    class manager
+      : public ::datatools::base_service
     {
 
     public:
@@ -94,7 +95,7 @@ namespace vire {
       manager(uint32_t flags_ = 0);
 
       //! Destructor
-      ~manager();
+      virtual ~manager();
 
       //! Set the name of the setup
       void set_setup_label(const std::string & name_);

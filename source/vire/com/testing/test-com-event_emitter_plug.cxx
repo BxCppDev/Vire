@@ -203,7 +203,7 @@ void test_com_event_emitter_plug_1(bool interactive_)
   comMgr.set_node_id("snemo.client1");
   comMgr.initialize_simple();
   comMgr.create_domain("service", "vire::com::domain::service");
-  comMgr.create_plug("alarm_publisher", "event_emitter_plug", "service");
+  // comMgr.create_plug("alarm_publisher", "event_emitter_plug", "service");
   comMgr.tree_dump(std::clog, "Communication service: ");
 
   // Use a dedicated plug to send alarms to some destination:

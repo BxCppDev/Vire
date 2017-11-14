@@ -8,8 +8,11 @@ list(APPEND VireLibrary_HEADERS
   com/actor.h
   com/domain.h
   com/domain_builder.h
-  # com/i_transport_driver.h
-  #com/rabbitmq_transport_driver.h
+  com/i_transport_driver.h
+  com/base_plug.h
+  com/event_emitter_plug.h
+  com/event_listener_plug.h
+  com/plug_factory.h
   com/manager.h
   #com/manager-reflect.h
   )
@@ -24,8 +27,11 @@ list(APPEND VireLibrary_SOURCES
   com/actor.cc
   com/domain.cc
   com/domain_builder.cc
-  # com/i_transport_driver.cc
-  # #com/rabbitmq_transport_driver.cc
+  com/i_transport_driver.cc
+  com/base_plug.cc
+  com/event_emitter_plug.cc
+  com/event_listener_plug.cc
+  com/plug_factory.cc
   com/manager.cc
   )
 

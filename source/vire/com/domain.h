@@ -38,7 +38,8 @@
 #include <vire/com/mailbox.h>
 #include <vire/com/actor.h>
 #include <vire/com/i_encoding_driver.h>
-// #include <vire/com/i_transport_driver.h>
+#include <vire/com/base_plug.h>
+#include <vire/com/i_transport_driver.h>
 
 namespace vire {
 
@@ -67,11 +68,13 @@ namespace vire {
       //! \brief Mailbox entry categories
       struct mailbox_entry {
         mailbox mb;
-        // std::shared_ptr<base_plug> plug;
       };
 
-      //! \brief Dictionary of mailbox entry
+      //! \brief Dictionary of mailbox entries
       typedef std::map<std::string, mailbox_entry> mailbox_dict_type;
+
+      //! \brief Dictionary of plug entries
+      typedef std::map<std::string, plug_ptr_type> plug_dict_type;
 
       //! Validate a domain name
       //! Domain name syntax is similar to an absolute filesystem path.
@@ -232,17 +235,59 @@ namespace vire {
       //! Return a mutable handle to the encoding driver
       i_encoding_driver & grab_encoding_driver();
 
-      // //! Return a non mutable handle to the transport driver
-      // const i_transport_driver & get_transport_driver() const;
+      const datatools::properties & get_transport_driver_params() const;
 
-      // //! Return a mutable handle to the transport driver
-      // i_transport_driver & grab_transport_driver();
+      void set_transport_driver_params(const datatools::properties & params_);
+
+      const datatools::properties & get_encoding_driver_params() const;
+
+      void set_encoding_driver_params(const datatools::properties & params_);
+
+      //! Return a non mutable handle to the transport driver
+      const i_transport_driver & get_transport_driver() const;
+
+      //! Return a mutable handle to the transport driver
+      i_transport_driver & grab_transport_driver();
+
+      const plug_dict_type & get_plugs() const;
+
+      plug_dict_type grab_plugs();
+
+      bool has_plug(const std::string & plug_name_) const;
+
+      template<class PlugType>
+      bool is_a(const std::string & plug_name_) const
+      {
+        const plug_ptr_type & pp = get_plug(plug_name_);
+        const std::type_info & ti = typeid(PlugType);
+        const std::type_info & tf = typeid(pp);
+        return (typeid(ti) == typeid(tf));
+      }
+
+      template<class PlugType>
+      PlugType & grab_plug_as(const std::string & plug_name_)
+      {
+        return dynamic_cast<PlugType&>(grab_plug(plug_name_));
+      }
+
+      template<class PlugType>
+      const PlugType & get_plug_as(const std::string & plug_name_) const
+      {
+        domain* mutable_this = const_cast<domain*>(this);
+        return const_cast<PlugType&>(mutable_this->grab_plug_as<PlugType>(plug_name_));
+      }
+
+      void remove_plug(const std::string & plug_name_);
+
+      const plug_ptr_type & get_plug(const std::string & plug_name_) const;
+
+      plug_ptr_type & grab_plug(const std::string & plug_name_);
 
     private:
 
       i_encoding_driver & _encoding_driver_instance_();
 
-      // i_transport_driver & _transport_driver_instance_();
+      i_transport_driver & _transport_driver_instance_();
 
     private:
 
@@ -259,8 +304,9 @@ namespace vire {
       datatools::properties           _encoding_driver_params_;
 
       // Working data:
-      std::shared_ptr<i_encoding_driver> _encoding_driver_;
-      // std::shared_ptr<i_transport_driver> _transport_driver_;
+      std::shared_ptr<i_encoding_driver>  _encoding_driver_;  //!< Encoding driver instance
+      std::shared_ptr<i_transport_driver> _transport_driver_; //!< Transport driver instance
+      plug_dict_type                      _plugs_;            //!< Dictionary of plugs
 
     };
 

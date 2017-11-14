@@ -285,12 +285,12 @@ namespace vire {
         DT_LOG_TRACE(_logging_, "Vire library has been registered in the Bayeux/datatools' kernel.");
       }
 
-      // Sandbox: SuperNEMO
+      // SuperNEMO Sandbox:
       {
-        DT_LOG_TRACE(_logging_, "Registration of SuperNEMO Vire sandbox library in the Bayeux/datatools' kernel...");
+        DT_LOG_TRACE(_logging_, "Registration of Vire SuperNEMO sandbox library in the Bayeux/datatools' kernel...");
         datatools::properties & vire_snemo_lib_infos
           = lib_info_reg.registration("snemo",
-                                      "SuperNEMO Vire sandbox",
+                                      "Vire SuperNEMO sandbox",
                                       vire::version::get_version()
                                       );
 
@@ -299,9 +299,9 @@ namespace vire {
         p /= "sandbox";
         p /= "snemo";
         vire_snemo_lib_infos.store_string(datatools::library_info::keys::install_resource_dir(),
-                                          p.string());
-        DT_LOG_TRACE(_logging_, "SuperNEMO Vire sandbox resource files dir is documented.");
-        DT_LOG_TRACE(_logging_, "SuperNEMO Vire sandbox library entry is now registered in the Bayeux/datatools' kernel.");
+                                            p.string());
+        DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox resource files dir is documented.");
+        DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox library entry is now registered in the Bayeux/datatools' kernel.");
       }
 
       DT_LOG_TRACE_EXITING(_logging_);
@@ -321,9 +321,9 @@ namespace vire {
           // Unregistration of all registered submodules from the kernel's
           // library info register:
           if (lib_info_reg.has("snemo")) {
-            DT_LOG_TRACE(_logging_, "Deregistration of the SuperNEMO sandbox Vire library from the Bayeux/datatools' kernel...");
+            DT_LOG_TRACE(_logging_, "Deregistration of the Vire SuperNEMO sandbox library from the Bayeux/datatools' kernel...");
             lib_info_reg.unregistration("snemo");
-            DT_LOG_TRACE(_logging_, "SuperNEMO sandbox Vire library has been deregistered from the Bayeux/datatools' kernel.");
+            DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox library has been deregistered from the Bayeux/datatools' kernel.");
           }
 
           if (lib_info_reg.has("vire")) {
