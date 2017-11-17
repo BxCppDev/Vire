@@ -38,7 +38,8 @@ namespace vire {
   namespace auth {
 
     //! \brief User credentials data
-    class credentials : public datatools::i_tree_dumpable
+    class credentials
+      : public datatools::i_tree_dumpable
     {
     public:
 
@@ -114,6 +115,8 @@ namespace vire {
 
       const std::string & get_password_encrypted() const;
 
+      const std::string & get_password() const;
+
       /// Parse from a character string record
       bool from_table_record_line(const std::string & record_);
 
@@ -129,8 +132,9 @@ namespace vire {
     private:
 
       // see shadow.h header
-      std::string _login_; ///< Login name
+      std::string _login_;                 ///< Login name
       bool        _password_lock_ = false; ///< Password lock flag
+      std::string _password_;              ///< Plain password
       std::string _password_encrypted_;    ///< Encrypted password
       int32_t     _password_last_change_ = DATE_UNSET;  ///< Date of last change
       int32_t     _password_min_   = DATE_UNSET; ///< Minimum number of days between changes

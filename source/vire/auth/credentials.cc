@@ -111,8 +111,14 @@ namespace vire {
       return;
     }
 
+    const std::string & credentials::get_password() const
+    {
+      return _password_;
+    }
+
     bool credentials::set_password(const std::string & password_)
     {
+      _password_ = password_;
       std::string encrypted_password;
       if (sha512::encrypt(password_, encrypted_password, sha512::encrypt_clear_key)) {
         set_password_encrypted(encrypted_password);
