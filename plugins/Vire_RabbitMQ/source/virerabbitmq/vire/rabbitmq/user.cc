@@ -67,6 +67,28 @@ namespace vire {
       return;
     }
 
+    const std::string & user::get_password() const
+    {
+      return password;
+    }
+
+    void user::set_password(const std::string & password_)
+    {
+      password = password_;
+      return;
+    }
+
+    void user::set_category(const vire::com::actor::category_type & category_)
+    {
+      category = category_;
+      return;
+    }
+
+    const vire::com::actor::category_type & user::get_category() const
+    {
+      return category;
+    }
+
     bool user::is_valid() const
     {
       if (_login_.empty()) return false;
@@ -83,6 +105,11 @@ namespace vire {
     bool user::is_client() const
     {
       return category == vire::com::actor::CATEGORY_CLIENT;
+    }
+
+    bool user::is_system() const
+    {
+      return category == vire::com::actor::CATEGORY_SYSTEM;
     }
 
     bool user::is_subcontractor() const

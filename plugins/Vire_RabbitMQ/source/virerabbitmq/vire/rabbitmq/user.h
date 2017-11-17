@@ -41,7 +41,7 @@ namespace vire {
     private:
       std::string _login_;  //!< Login of the RabbitMQ Vire user
     public:
-      std::string password; //!<
+      std::string password; //!< Password
       vire::com::actor::category_type category = vire::com::actor::CATEGORY_INVALID;
       std::string system_domain;   //!< Special name of the system domain
       bool use_monitoring = true;  //!< Access to the monitoring domain (client)
@@ -59,10 +59,14 @@ namespace vire {
       static bool validate_login(const std::string & login_);
       void set_login(const std::string & login_);
       const std::string & get_login() const;
-
+      void set_password(const std::string & password_);
+      const std::string & get_password() const;
+      void set_category(const vire::com::actor::category_type & category_);
+      const vire::com::actor::category_type & get_category() const;
       bool is_valid() const;
       bool is_server() const;
       bool is_client() const;
+      bool is_system() const;
       bool is_subcontractor() const;
       std::string get_system_domain() const;
 

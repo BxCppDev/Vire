@@ -34,6 +34,7 @@ set(Vire_RabbitMQ_Plugin_PRIVATE_HEADERS
 #   vire/rabbitmq/vire_xxx.cc @ONLY)
 
 set(Vire_RabbitMQ_Plugin_SOURCES
+  vire/rabbitmq/__init_fini__.cc
   vire/rabbitmq/version.cc
   vire/rabbitmq/user.cc
   vire/rabbitmq/permissions_utils.cc

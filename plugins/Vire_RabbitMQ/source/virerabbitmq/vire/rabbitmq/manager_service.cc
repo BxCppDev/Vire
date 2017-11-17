@@ -30,22 +30,32 @@
 #include <bayeux/rabbitmq/rabbit_mgr.h>
 #include <bayeux/datatools/exception.h>
 #include <bayeux/datatools/logger.h>
+#include <bayeux/datatools/service_tools.h>
 
 // This package:
 #include <vire/rabbitmq/permissions_utils.h>
+#include <vire/cmsserver/server.h>
+#include <vire/cmsserver/gate.h>
+#include <vire/user/manager.h>
+#include <vire/user/user.h>
+#include <vire/auth/manager.h>
+#include <vire/auth/credentials.h>
 
 namespace vire {
 
   namespace rabbitmq {
 
     // Auto-registration of this service class in a central service database of Bayeux/datatools:
-    DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(manager_service, "vire::rabbitmq::manager_service");
+    DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(manager_service, "vire::rabbitmq::manager_service")
 
+    //! PIMPL-ized internal working data:
     class manager_service::pimpl_type
     {
     public:
       std::mutex mgr_mutex;
       std::unique_ptr<::rabbitmq::rabbit_mgr> mgr;
+      const vire::user::manager * users = nullptr; //! Service describing the users
+      const vire::auth::manager * auth = nullptr;  //! Service providing the authentication mechanism
     };
 
     // static
@@ -106,7 +116,7 @@ namespace vire {
                   "Invalid virtual host name prefix '" << vnp_ << "'!");
       DT_THROW_IF(vnp_[vnp_.size() - 1] == '/', std::logic_error,
                   "Invalid virtual host name prefix '" << vnp_ << "'!");
-       _vhost_name_prefix_ = vnp_;
+      _vhost_name_prefix_ = vnp_;
       return;
     }
 
@@ -130,7 +140,7 @@ namespace vire {
 
     bool manager_service::has_server_port() const
     {
-      return _server_port_ < 0;
+      return _server_port_ > 0;
     }
 
     int manager_service::get_server_port() const
@@ -142,7 +152,11 @@ namespace vire {
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "RabbitMQ manager service is already initialized!");
-      _server_port_ = port_;
+      DT_THROW_IF(port_ == 0, std::logic_error,
+                  "RabbitMQ manager service does not allow port==0!");
+      int port = port_;
+      if (port < 0) port = -1;
+      _server_port_ = port;
       return;
     }
 
@@ -225,12 +239,24 @@ namespace vire {
            << "'" << _admin_password_ << "'" << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
+           << "Com service name : "
+           << "'" << _com_service_name_ << "'" << std::endl;
+
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Users service name : "
+           << "'" << _users_service_name_ << "'" << std::endl;
+
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Authentication service name : "
+           << "'" << _auth_service_name_ << "'" << std::endl;
+
+      out_ << indent_ << i_tree_dumpable::tag
            << "Static domains : "
-           << _system_domains_.size() << std::endl;
+           << _static_domains_.size() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Static users : "
-           << _system_users_.size() << std::endl;
+           << _static_users_.size() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Destroy all at reset : "
@@ -251,7 +277,7 @@ namespace vire {
 
     // virtual
     int manager_service::initialize(const datatools::properties & config_,
-                                    datatools::service_dict_type & /* service_dict_ */)
+                                    datatools::service_dict_type & services_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(is_initialized(), std::logic_error,
@@ -259,7 +285,83 @@ namespace vire {
 
       this->::datatools::base_service::common_initialize(config_);
 
+      DT_LOG_TRACE(get_logging_priority(), "Creating PIMPL...");
       _pimpl_.reset(new pimpl_type);
+
+      // Find handle to the Vire CMS com service:
+      if (_com_service_name_.empty()) {
+        if (config_.has_key("com_service_name")) {
+          _com_service_name_ = config_.fetch_string("com_service_name");
+        } else if (_com_service_name_.empty()) {
+          _com_service_name_ = vire::cmsserver::server::com_service_name();
+        }
+      }
+
+      // // Find handle to the Vire CMS gate service:
+      // if (_gate_service_name_.empty()) {
+      //   if (config_.has_key("gate_service_name")) {
+      //     _gate_service_name_ = config_.fetch_string("gate_service_name");
+      //   } else if (_gate_service_name_.empty()) {
+      //     _gate_service_name_ = vire::cmsserver::server::gate_service_name();
+      //   }
+      // }
+
+      // Find handle to the Vire CMS users service:
+      if (_users_service_name_.empty()) {
+        if (config_.has_key("users_service_name")) {
+          _users_service_name_ = config_.fetch_string("users_service_name");
+        } else if (_users_service_name_.empty()) {
+          _users_service_name_ = vire::cmsserver::server::users_service_name();
+        }
+       }
+
+      // Find handle to the Vire CMS auth service:
+      if (_auth_service_name_.empty()) {
+        if (config_.has_key("auth_service_name")) {
+          _auth_service_name_ = config_.fetch_string("auth_service_name");
+        } else if (_auth_service_name_.empty()) {
+          _auth_service_name_ = vire::cmsserver::server::auth_service_name();
+        }
+      }
+
+      if (datatools::find_service_name_with_id(services_,
+                                               "vire::user::manager",
+                                               _users_service_name_)) {
+        _pimpl_->users = &datatools::get<vire::user::manager>(services_, _users_service_name_);
+      }
+
+      if (datatools::find_service_name_with_id(services_,
+                                               "vire::auth::manager",
+                                               _auth_service_name_)) {
+        _pimpl_->auth = &datatools::get<vire::auth::manager>(services_, _auth_service_name_);
+      }
+
+      if (_pimpl_->users && _pimpl_->auth) {
+        // Load user table from auth manager...
+        sync_real_users();
+      }
+
+      // DT_LOG_TRACE(get_logging_priority(), "Access to the gate...");
+      // vire::cmsserver::gate & gate = datatools::grab<vire::cmsserver::gate>(services_,
+      //                                                                       _gate_service_name_);
+      // if (gate.has_login() && gate.has_password()) {
+      //   user gate_user;
+      //   gate_user.set_login(gate.get_login());
+      //   gate_user.set_password(gate.get_password());
+      //   gate_user.category = vire::com::actor::CATEGORY_SYSTEM;
+      //   add_static_user(gate_user);
+      // }
+
+      /*
+      // Find handle to the Vire CMS auth service
+      if (_auth_service_name_.empty()) {
+        _auth_service_name_ = fetch_string(_auth_service_name_);
+      }
+      if (_auth_service_name_.empty()) {
+        _auth_service_name_ = vire::cmsserver::server::auth_service_name();
+      }
+      */
+
 
       if (!has_vhost_name_prefix()) {
         if (config_.has_key("vhost_name_prefix")) {
@@ -296,26 +398,30 @@ namespace vire {
         }
       }
 
-      if (_system_domains_.size() == 0) {
-        DT_LOG_DEBUG(get_logging_priority(), "Adding default system domains...");
-        _system_domains_.insert("monitoring");
-        _system_domains_.insert("control");
-        _system_domains_.insert("clients/gate");
-        _system_domains_.insert("subcontractors/system/*");
+      if (_static_domains_.size() == 0) {
+        DT_LOG_DEBUG(get_logging_priority(), "Adding default static domains...");
+        _static_domains_.insert("monitoring");
+        _static_domains_.insert("control");
+        _static_domains_.insert("clients/gate");
+        _static_domains_.insert("subcontractors/system/*");
       }
 
       std::size_t nb_of_servers = 0;
-      if (_system_users_.size() == 0) {
+      if (has_server_user()) {
+        nb_of_servers = 1;
+      }
+      //if (_static_users_.size() == 0)
+      {
         std::set<std::string> susers;
-        if (config_.has_key("system_users")) {
-          config_.fetch("system_users", susers);
+        if (config_.has_key("static_users")) {
+          config_.fetch("static_users", susers);
         }
 
         for (const auto & sulogin : susers) {
           user sys_user;
           sys_user.set_login(sulogin);
           datatools::properties user_config;
-          config_.export_and_rename_starting_with(user_config, "system_users." + sulogin + ".", "");
+          config_.export_and_rename_starting_with(user_config, "static_users." + sulogin + ".", "");
           sys_user.initialize(user_config);
           if (sys_user.is_server()) {
             DT_THROW_IF(nb_of_servers != 0,
@@ -323,7 +429,7 @@ namespace vire {
                         "Only one user with server category is allowed!");
             nb_of_servers++;
           }
-          add_system_user(sys_user);
+          add_static_user(sys_user);
         }
       }
 
@@ -336,10 +442,25 @@ namespace vire {
         set_server_port(::rabbitmq::rabbit_mgr::SSL_PORT);
       }
 
+      DT_LOG_DEBUG(get_logging_priority(), "vhost_name_prefix     : " << _vhost_name_prefix_);
+      DT_LOG_DEBUG(get_logging_priority(), "server_host           : " << _server_host_);
+      DT_LOG_DEBUG(get_logging_priority(), "server_port           : " << _server_port_);
+      DT_LOG_DEBUG(get_logging_priority(), "admin_login           : " << _admin_login_);
+      DT_LOG_DEBUG(get_logging_priority(), "admin_password        : " << _admin_password_);
+      for (auto d : _static_domains_) {
+        DT_LOG_DEBUG(get_logging_priority(), "static_domain         : " << d);
+      }
+      for (auto u : _static_users_) {
+        DT_LOG_DEBUG(get_logging_priority(), "static_user           : " << u.second.get_login());
+      }
+
+      DT_LOG_TRACE(get_logging_priority(), "Instantiating the RabbitMQ management driver...");
       _pimpl_->mgr.reset(new ::rabbitmq::rabbit_mgr(_server_host_,
                                                     _server_port_,
                                                     _admin_login_,
                                                     _admin_password_));
+
+      DT_LOG_TRACE(get_logging_priority(), "Setup Vire CMS...");
       _setup_vire_cms_();
 
       _initialized_ = true;
@@ -352,6 +473,8 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(!is_initialized(), std::logic_error, "RabbitMQ manager service is not initialized!");
       _initialized_ = false;
+
+      _destroy_vire_cms_real_users_();
 
       // Remove Vire client users:
       std::set<std::string> client_logins;
@@ -371,6 +494,10 @@ namespace vire {
       _vhost_name_prefix_.clear();
       _server_port_ = -1;
       _server_host_.clear();
+      _com_service_name_.clear();
+      _auth_service_name_.clear();
+      _users_service_name_.clear();
+      _gate_service_name_.clear();
 
       _pimpl_.reset();
       _set_defaults_();
@@ -378,33 +505,33 @@ namespace vire {
       return datatools::SUCCESS;
     }
 
-    bool manager_service::has_system_user(const std::string & login_) const
+    bool manager_service::has_static_user(const std::string & login_) const
     {
-      return _system_users_.count(login_) == 1;
+      return _static_users_.count(login_) == 1;
     }
 
     bool manager_service::has_server_user() const
     {
-      for (const auto & pu : _system_users_) {
+      for (const auto & pu : _static_users_) {
         const user & su = pu.second;
         if (su.category == vire::com::actor::CATEGORY_SERVER) return true;
       }
       return false;
     }
 
-    const user & manager_service::get_system_user(const std::string & login_) const
+    const user & manager_service::get_static_user(const std::string & login_) const
     {
-      std::map<std::string, user>::const_iterator found = _system_users_.find(login_);
-      DT_THROW_IF(found == _system_users_.end(),
+      std::map<std::string, user>::const_iterator found = _static_users_.find(login_);
+      DT_THROW_IF(found == _static_users_.end(),
                   std::logic_error,
-                  "There is no system user '" << login_ << "'");
+                  "There is no static user '" << login_ << "'");
       return found->second;
     }
 
     bool manager_service::fetch_server_user(std::string & login_) const
     {
       login_.clear();
-      for (const auto & pu : _system_users_) {
+      for (const auto & pu : _static_users_) {
         const user & su = pu.second;
         if (su.category == vire::com::actor::CATEGORY_SERVER) {
           login_ = su.get_login();
@@ -416,7 +543,7 @@ namespace vire {
 
     bool manager_service::is_subcontractor_user(const std::string & login_) const
     {
-      for (const auto & pu : _system_users_) {
+      for (const auto & pu : _static_users_) {
         const user & su = pu.second;
         if (su.get_login() != login_) continue;
         if (su.category == vire::com::actor::CATEGORY_SUBCONTRACTOR) return true;
@@ -426,7 +553,7 @@ namespace vire {
 
     bool manager_service::is_server_user(const std::string & login_) const
     {
-      for (const auto & pu : _system_users_) {
+      for (const auto & pu : _static_users_) {
         const user & su = pu.second;
         if (su.get_login() != login_) continue;
         if (su.category == vire::com::actor::CATEGORY_SERVER) return true;
@@ -434,10 +561,10 @@ namespace vire {
       return false;
     }
 
-    void manager_service::fetch_system_users(std::set<std::string> & logins_) const
+    void manager_service::fetch_static_users(std::set<std::string> & logins_) const
     {
       logins_.clear();
-      for (const auto & pu : _system_users_) {
+      for (const auto & pu : _static_users_) {
         const user & su = pu.second;
         logins_.insert(su.get_login());
       }
@@ -447,7 +574,7 @@ namespace vire {
     void manager_service::fetch_subcontractor_users(std::set<std::string> & logins_) const
     {
       logins_.clear();
-      for (const auto & pu : _system_users_) {
+      for (const auto & pu : _static_users_) {
         const user & su = pu.second;
         if (su.is_subcontractor()) {
           logins_.insert(su.get_login());
@@ -464,7 +591,7 @@ namespace vire {
       DT_THROW_IF(has_server_user(),
                   std::logic_error,
                   "A server user already exists!");
-      add_system_user(user_);
+      add_static_user(user_);
       return;
     }
 
@@ -473,26 +600,26 @@ namespace vire {
       DT_THROW_IF(user_.category != vire::com::actor::CATEGORY_SUBCONTRACTOR,
                   std::logic_error,
                   "Not a subcontractor user!");
-      add_system_user(user_);
+      add_static_user(user_);
       return;
     }
 
-    void manager_service::add_system_user(const user & user_)
+    void manager_service::add_static_user(const user & user_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "RabbitMQ manager service is already initialized!");
-      DT_THROW_IF(_system_users_.count(user_.get_login()) == 1,
+      DT_THROW_IF(_static_users_.count(user_.get_login()) == 1,
                   std::logic_error,
                   "User '" << user_.get_login() << "' already exists!");
       DT_THROW_IF((user_.category == vire::com::actor::CATEGORY_CLIENT)
                   || (user_.category == vire::com::actor::CATEGORY_INVALID),
                   std::logic_error,
-                  "A server user already exists!");
+                  "Invalid user category!");
       DT_THROW_IF((user_.category == vire::com::actor::CATEGORY_SERVER)
                   && has_server_user(),
                   std::logic_error,
                   "A server user already exists!");
-      _system_users_[user_.get_login()] = user_;
+      _static_users_[user_.get_login()] = user_;
       return;
     }
 
@@ -561,7 +688,7 @@ namespace vire {
     }
 
     bool manager_service::has_queue(const std::string & vhost_,
-                                       const std::string & name_) const
+                                    const std::string & name_) const
     {
       ::rabbitmq::queue::list queues;
       ::rabbitmq::error_response err;
@@ -578,7 +705,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
 
       {
-        // Destroy the system domains/vhosts:
+        // Destroy the static domains/vhosts:
         ::rabbitmq::vhost::list vhosts;
         ::rabbitmq::error_response err;
         manager_service * mutable_this = const_cast<manager_service*>(this);
@@ -596,8 +723,8 @@ namespace vire {
         }
       }
 
-      // Destroy the system users:
-      for (const auto & psu : _system_users_) {
+      // Destroy the static users:
+      for (const auto & psu : _static_users_) {
         const user & su = psu.second;
         if (has_user(su.get_login())) {
           DT_LOG_DEBUG(get_logging_priority(), "Removing user '" << su.get_login() << "'...");
@@ -626,7 +753,7 @@ namespace vire {
     void manager_service::_setup_vire_cms_users_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      for (const auto & psu : _system_users_) {
+      for (const auto & psu : _static_users_) {
         const user & su = psu.second;
         if (!has_user(su.get_login())) {
           ::rabbitmq::error_response err;
@@ -639,6 +766,10 @@ namespace vire {
         }
       }
 
+      // Connect the "Auth" service and create as many RabbitMQ user
+      // as we have human./robot users in the DB/LDAP.
+      // Such users will be given access to the only gate domain.
+
       {
         DT_LOG_DEBUG(get_logging_priority(), "Vire CMS users:");
         ::rabbitmq::user::list users;
@@ -646,7 +777,7 @@ namespace vire {
         manager_service * mutable_this = const_cast<manager_service*>(this);
         mutable_this->grab_manager().list_users(users, err);
         for (const auto & u : users) {
-          if (has_system_user(u.name)) {
+          if (has_static_user(u.name)) {
             DT_LOG_DEBUG(get_logging_priority(), " - User: '" << u.name << "'");
           }
         }
@@ -659,11 +790,11 @@ namespace vire {
     void manager_service::_setup_vire_cms_domains_subcontractors_system_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      if (_system_domains_.count("subcontractors/system/*")) {
+      if (_static_domains_.count("subcontractors/system/*")) {
         std::set<std::string> subnames;
         fetch_subcontractor_users(subnames);
         for (const auto & name : subnames) {
-          const user & scu = get_system_user(name);
+          const user & scu = get_static_user(name);
           std::string sc_sys_dom = scu.get_system_domain();
           DT_LOG_DEBUG(get_logging_priority(), "Adding system subcontractor domain '" << sc_sys_dom
                        << "' associated to subcontractor user '" << name << "'...");
@@ -679,7 +810,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_LOG_DEBUG(get_logging_priority(), "Adding system subcontractor domain '" << name_ << "'...");
       ::rabbitmq::error_response err;
-      const user & sys_sc_user = get_system_user(name_);
+      const user & sys_sc_user = get_static_user(name_);
       std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/subcontractors/system/"
         + sys_sc_user.get_system_domain();
       DT_LOG_DEBUG(get_logging_priority(), "Building system subcontractor domain...");
@@ -724,13 +855,13 @@ namespace vire {
         sys_logins.insert(server_user);
         sys_logins.insert(name_);
         for (const auto & sys_login : sys_logins) {
-          DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for system user '" << sys_login
+          DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
                        << "' and exchange '" << exchange << "' in the '"
                        << vhost << "' virtual host...");
           ::rabbitmq::permissions perms;
           perms.user  = sys_login;
           perms.vhost = vhost;
-          const user & sys_user = get_system_user(sys_login);
+          const user & sys_user = get_static_user(sys_login);
           if (sys_user.is_server()) {
             if (exchange == "vireserver.service") {
               permissions::add_exchange_service_server_perms(perms, exchange);
@@ -801,7 +932,7 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       ::rabbitmq::error_response err;
-      if (_system_domains_.count("monitoring")) {
+      if (_static_domains_.count("monitoring")) {
         DT_LOG_DEBUG(get_logging_priority(), "Building monitoring...");
         std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/monitoring";
         if (!has_vhost(vhost)) {
@@ -812,6 +943,15 @@ namespace vire {
         } else {
           DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
         }
+        // Set administrator permissions:
+        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
+                                                    vhost,
+                                                    ".*", ".*", ".*",
+                                                    err),
+                    std::logic_error,
+                    "Cannot set '" << get_admin_login() << "' permissions for '"
+                    << vhost << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
         // Fill the vhost with exchanges:
         static const std::set<std::string> exchanges = {"resource_request.service",
                                                         "log.event",
@@ -830,25 +970,17 @@ namespace vire {
                       "Cannot create the '" << exchange << "' exchange in '"
                       << vhost << "' virtual host: "
                       << err.error << ": " << err.reason + "!");
-          DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                      vhost,
-                                                      ".*", ".*", ".*",
-                                                      err),
-                      std::logic_error,
-                      "Cannot set '" << get_admin_login() << "' permissions for '"
-                      << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
           // Permissions:
           std::set<std::string> sys_logins;
-          fetch_system_users(sys_logins);
+          fetch_static_users(sys_logins);
           for (const auto & sys_login : sys_logins) {
-            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for system user '" << sys_login
+            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
                          << "' and exchange '" << exchange << "' in the '"
                          << vhost << "' virtual host...");
             ::rabbitmq::permissions perms;
             perms.user  = sys_login;
             perms.vhost = vhost;
-            const user & sys_user = get_system_user(sys_login);
+            const user & sys_user = get_static_user(sys_login);
             if (boost::algorithm::ends_with(exchange, vire_cms_exchange_service_suffix())) {
               permissions::add_exchange_service_server_perms(perms, exchange);
               if (sys_user.is_server()) {
@@ -877,7 +1009,7 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       ::rabbitmq::error_response err;
-      if (_system_domains_.count("control")) {
+      if (_static_domains_.count("control")) {
         DT_LOG_DEBUG(get_logging_priority(), "Building control...");
         std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/control";
         if (!has_vhost(vhost)) {
@@ -888,6 +1020,15 @@ namespace vire {
         } else {
           DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
         }
+        // Set administrator permissions:
+        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
+                                                    vhost,
+                                                    ".*", ".*", ".*",
+                                                    err),
+                    std::logic_error,
+                    "Cannot set '" << get_admin_login() << "' permissions for '"
+                    << vhost << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
         // Fill the vhost with exchange:
         std::string service_exchange = "resource_request.service";
         if (!has_exchange(vhost, service_exchange)) {
@@ -902,21 +1043,13 @@ namespace vire {
                       "Cannot create the '" << service_exchange << "' exchange in '"
                       << vhost << "' virtual host: "
                       + err.error + ": " + err.reason + "!");
-          DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                      vhost,
-                                                      ".*", ".*", ".*",
-                                                      err),
-                      std::logic_error,
-                      "Cannot set '" << get_admin_login() << "' permissions for '"
-                      << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
           // Permissions:
           std::string server_login;
           fetch_server_user(server_login);
           {
             const std::string & sys_login = server_login;
             const std::string & exchange = service_exchange;
-            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for system user '" << sys_login
+            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
                          << "' and exchange '" << exchange << "' in the '"
                          << vhost << "' virtual host...");
             ::rabbitmq::permissions perms;
@@ -942,9 +1075,9 @@ namespace vire {
       ::rabbitmq::error_response err;
 
       // Gate:
-      if (_system_domains_.count("clients/gate")) {
+      if (_static_domains_.count("clients/gate")) {
         DT_LOG_DEBUG(get_logging_priority(), "Building gate...");
-        std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/gate";
+        std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/clients/gate";
         if (!has_vhost(vhost)) {
           DT_THROW_IF(!grab_manager().add_vhost(vhost, err),
                       std::logic_error,
@@ -953,6 +1086,15 @@ namespace vire {
         } else {
           DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
         }
+        // Set administrator permissions:
+        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
+                                                    vhost,
+                                                    ".*", ".*", ".*",
+                                                    err),
+                    std::logic_error,
+                    "Cannot set '" << get_admin_login() << "' permissions for '"
+                    << vhost << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
         // Fill the vhost with exchanges:
         std::string service_exchange = "gate.service";
         if (!has_exchange(vhost, service_exchange)) {
@@ -967,20 +1109,13 @@ namespace vire {
                       "Cannot create the '" << service_exchange << "' exchange"
                       << " in the '" << vhost << "' virtual host: "
                       << err.error << ": " + err.reason << "!");
-          DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                      vhost,
-                                                      ".*", ".*", ".*",
-                                                      err),
-                      std::logic_error,
-                      "Cannot set '" << get_admin_login() << "' permissions for '" << vhost << "' virtual host: "
-                      + err.error + ": " + err.reason + "!");
           // Permissions:
           std::string server_login;
           fetch_server_user(server_login);
           {
             const std::string & sys_login = server_login;
             const std::string & exchange = service_exchange;
-            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for system user '" << sys_login
+            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
                          << "' and exchange '" << exchange << "' in the '"
                          << vhost << "' virtual host...");
             ::rabbitmq::permissions perms;
@@ -1076,6 +1211,103 @@ namespace vire {
       return;
     }
 
+    bool manager_service::has_real_user(const std::string & login_) const
+    {
+      return _real_users_.count(login_) == 1;
+    }
+
+    void manager_service::change_real_user_password(const std::string & login_,
+                                                    const std::string & password_)
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      std::map<std::string, user>::iterator found = _real_users_.find(login_);
+      DT_THROW_IF(found == _real_users_.end(), std::logic_error,
+                  "Real user '" << login_ << "' does not exist!");
+      user & real_user = found->second;
+      real_user.set_password(password_);
+      // NOT IMPLEMENTED YET!
+      // if (has_user(real_user.get_login())) {
+      //   ::rabbitmq::error_response err;
+      //   if (!grab_manager().change_user_password(real_user.get_login(),
+      //                                                 real_user.password,
+      //                                                 err)) {
+      //          DT_THROW(std::logic_error,
+      //              "Cannot change password for real user '" << login_ << "': "
+      //                   + err.error + ": " + err.reason + "!");
+      //   }
+      // }
+
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+    }
+
+    void manager_service::add_real_user(const std::string & login_,
+                                        const std::string & password_)
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      DT_THROW_IF(!is_initialized(), std::logic_error,
+                  "RabbitMQ manager service is not initialized!");
+      DT_THROW_IF(has_real_user(login_), std::logic_error,
+                  "Real user '" << login_ << "' already exists!");
+      DT_THROW_IF(has_user(login_), std::logic_error,
+                  "User '" << login_ << "' already exists!");
+      DT_THROW_IF(has_real_user(login_), std::logic_error,
+                  "Real user '" << login_ << "' already exists!");
+      user real_user(login_, password_, vire::com::actor::CATEGORY_SYSTEM);
+      _real_users_[login_] = real_user;
+      if (!has_user(real_user.get_login())) {
+        ::rabbitmq::error_response err;
+        if (!grab_manager().add_user(real_user.get_login(),
+                                     real_user.password,
+                                     err)) {
+          _real_users_.erase(login_);
+          DT_THROW(std::logic_error,
+                   "Cannot create real user '" << login_ << "': "
+                   + err.error + ": " + err.reason + "!");
+        }
+      }
+      _setup_vire_cms_domains_clients_gate_add_real_user(login_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    void manager_service::remove_real_user(const std::string & login_)
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      DT_THROW_IF(! has_real_user(login_), std::logic_error,
+                  "Real user '" << login_ << "' does not exist!");
+      _setup_vire_cms_domains_clients_gate_remove_real_user(login_);
+      if (has_user(login_)) {
+        ::rabbitmq::error_response err;
+        if (!grab_manager().delete_user(login_, err)) {
+          DT_THROW(std::logic_error,
+                   "Cannot delete real user '" << login_ << "': "
+                   + err.error + ": " + err.reason + "!");
+        }
+      }
+      _real_users_.erase(login_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    const user & manager_service::get_real_user(const std::string & login_) const
+    {
+      std::map<std::string, user>::const_iterator found = _real_users_.find(login_);
+      DT_THROW_IF(found == _real_users_.end(),
+                  std::logic_error,
+                  "There is no real user '" << login_ << "'");
+      return found->second;
+    }
+
+    void manager_service::fetch_real_users(std::set<std::string> & logins_) const
+    {
+      logins_.clear();
+      for (const auto & pu : _real_users_) {
+        const user & su = pu.second;
+        logins_.insert(su.get_login());
+      }
+      return;
+    }
+
     void manager_service::_destroy_vire_cms_domains_client_system_(const std::string & login_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
@@ -1094,7 +1326,7 @@ namespace vire {
           DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' does not exist.");
         }
       }
-       DT_LOG_TRACE_EXITING(get_logging_priority());
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
@@ -1133,7 +1365,7 @@ namespace vire {
                     << err.error << ": " << err.reason << "!");
       }
 
-     if (client_user.use_monitoring) {
+      if (client_user.use_monitoring) {
         ::rabbitmq::permissions perms;
         perms.user  = client_user.get_login();
         perms.vhost = get_vhost_name_prefix() + vire_cms_path() + "/monitoring";
@@ -1214,6 +1446,104 @@ namespace vire {
                       << err.error << ": " << err.reason << "!");
         }
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    void manager_service::_setup_vire_cms_domains_clients_gate_add_real_user(const std::string & name_)
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    void manager_service::_setup_vire_cms_domains_clients_gate_remove_real_user(const std::string & name_)
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    void manager_service::_destroy_vire_cms_real_users_()
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      std::set<std::string> real_logins;
+      fetch_real_users(real_logins);
+      for (const auto & real : real_logins) {
+        remove_real_user(real);
+      }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    void manager_service::sync_real_users()
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+
+      // Build the list of users from the user DB service:
+      std::vector<std::string> db_real_user_logins;
+      _pimpl_->users->build_list_of_user_names(db_real_user_logins);
+
+      std::map<std::string, std::string> to_be_added;
+      std::map<std::string, std::string> to_be_changed;
+      std::vector<std::string> to_be_removed;
+      // Build the list of real users to be added in RabbitMQ:
+      for (const auto & db_real_user_login : db_real_user_logins) {
+        if ( _pimpl_->auth->has_credentials(db_real_user_login)) {
+          // Authentication manager has credentials for this login:
+          const vire::auth::credentials & c = _pimpl_->auth->get_credentials(db_real_user_login);
+          if (c.is_valid() && !c.is_locked() && c.has_password()) {
+            // Credentials are valid, unlocked and a password exists:
+            if (!has_real_user(db_real_user_login)) {
+               to_be_added[db_real_user_login] = c.get_password();
+            } else {
+              const user & real_user = get_real_user(db_real_user_login);
+              // Detect password change:
+              if (real_user.get_password() != c.get_password()) {
+                to_be_changed[db_real_user_login] = c.get_password();
+              }
+            }
+          }
+        }
+      }
+
+      // Build the list of real users to be removed from RabbitMQ:
+      for (const auto & ru : _real_users_) {
+        const std::string & login = ru.second.get_login();
+        bool remove_it = false;
+        if (! _pimpl_->users->has_user_by_name(login)) {
+          // User manager does not know this login:
+          remove_it = true;
+        } else if (! _pimpl_->auth->has_credentials(login)) {
+          // Authentication manager has no credentials for this login:
+          remove_it = true;
+        } else {
+          // Account is locked or missing password:
+          const vire::auth::credentials & c = _pimpl_->auth->get_credentials(login);
+          if (c.is_locked() || ! c.has_password()) {
+            remove_it = true;
+          }
+        }
+        if (remove_it) {
+          to_be_removed.push_back(login);
+        }
+      }
+
+      for (const auto & login : to_be_removed) {
+        remove_real_user(login);
+      }
+
+      for (const auto & p : to_be_added) {
+        add_real_user(p.first, p.second);
+      }
+
+      // TO BE IMPLEMENTED:
+      // for (const auto & p : to_be_changed) {
+      //   change_real_user_password(p.first, p.passwd);
+      // }
+
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }

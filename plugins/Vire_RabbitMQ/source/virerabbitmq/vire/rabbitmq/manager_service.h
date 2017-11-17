@@ -124,17 +124,21 @@ namespace vire {
       bool has_queue(const std::string & vhost_, const std::string &) const;
 
       void add_subcontractor_system_domain(const std::string & domain_name_);
-      void add_system_user(const user & user_);
+
+      // Management of permanent users:
+      void add_static_user(const user & user_);
       void add_server_user(const user & user_);
       void add_subcontractor_user(const user & user_);
-      bool has_system_user(const std::string & login_) const;
+      bool has_static_user(const std::string & login_) const;
       bool has_server_user() const;
-      void fetch_system_users(std::set<std::string> & logins_) const;
+      void fetch_static_users(std::set<std::string> & logins_) const;
       bool fetch_server_user(std::string & login_) const;
       void fetch_subcontractor_users(std::set<std::string> & logins_) const;
       bool is_server_user(const std::string & login_) const;
       bool is_subcontractor_user(const std::string & login_) const;
-      const user & get_system_user(const std::string & login_) const;
+      const user & get_static_user(const std::string & login_) const;
+
+      // Management of temporary client connection users:
       bool has_client_user(const std::string & login_) const;
       void add_client_user(const std::string & login_,
                            const std::string & password_,
@@ -143,7 +147,16 @@ namespace vire {
       void remove_client_user(const std::string & login_);
       const user & get_client_user(const std::string & login_) const;
       void fetch_client_users(std::set<std::string> & logins_) const;
-      // bool create_client_user(user & client_user_) const;
+
+      // Management of dynamic real users:
+      bool has_real_user(const std::string & login_) const;
+      void add_real_user(const std::string & login_, const std::string & password_);
+      void remove_real_user(const std::string & login_);
+      const user & get_real_user(const std::string & login_) const;
+      void fetch_real_users(std::set<std::string> & logins_) const;
+      void change_real_user_password(const std::string & login_,
+                                     const std::string & password_);
+      void sync_real_users();
 
     private:
 
@@ -160,6 +173,11 @@ namespace vire {
       void _destroy_vire_cms_domains_client_system_(const std::string & name_);
       void _force_destroy_vire_cms_();
 
+      // Add/remove dynamic real users permissions for the gate domain
+      void _setup_vire_cms_domains_clients_gate_add_real_user(const std::string & name_);
+      void _setup_vire_cms_domains_clients_gate_remove_real_user(const std::string & name_);
+      void _destroy_vire_cms_real_users_();
+
     private:
 
       // Management:
@@ -172,19 +190,24 @@ namespace vire {
       int         _server_port_ = -1;  //!< Server port
       std::string _admin_login_;       //!< Administrator login
       std::string _admin_password_;    //!< Administrator password
+      std::string _com_service_name_;
+      std::string _gate_service_name_;
+      std::string _users_service_name_;
+      std::string _auth_service_name_;
 
-      std::set<std::string>       _system_domains_; //!< List of managed system domains/vhosts
-      std::map<std::string, user> _system_users_;   //!< List of system users (1 server + N subcontractors)
+      std::set<std::string>       _static_domains_; //!< List of managed static domains/vhosts
+      std::map<std::string, user> _static_users_;   //!< List of static users (1 server + N subcontractors)
 
       // Working data:
-      std::map<std::string, user> _client_users_;  //!< List of client users
+      std::map<std::string, user> _real_users_;    //!< List of real users for gate access (sync with external database/LDAP)
+      std::map<std::string, user> _client_users_;  //!< List of temporary client users (only for session connections)
 
       // Private implementation:
       class pimpl_type;
       std::unique_ptr<pimpl_type> _pimpl_;
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
-      DATATOOLS_SERVICE_REGISTRATION_INTERFACE(manager_service);
+      DATATOOLS_SERVICE_REGISTRATION_INTERFACE(manager_service)
 
     };
 

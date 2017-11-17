@@ -81,16 +81,16 @@ void test0()
 
   // The Vire subcontractor users:
   vire::rabbitmq::user cmslapp_user("cmslapp", "cmslapp", vire::com::actor::CATEGORY_SUBCONTRACTOR);
-  // cmslapp_user.system_domain = "cmslapp";
-  if (!serv.has_system_user(cmslapp_user.get_login())) {
-    DT_LOG_DEBUG(logging, "Add system user '" << cmslapp_user.get_login() << "'...");
-    serv.add_system_user(cmslapp_user);
+  // cmslapp_user.static_domain = "cmslapp";
+  if (!serv.has_static_user(cmslapp_user.get_login())) {
+    DT_LOG_DEBUG(logging, "Add static user '" << cmslapp_user.get_login() << "'...");
+    serv.add_static_user(cmslapp_user);
   }
 
   vire::rabbitmq::user orleans_user("orleans", "orleans", vire::com::actor::CATEGORY_SUBCONTRACTOR);
-  if (!serv.has_system_user(orleans_user.get_login())) {
-    DT_LOG_DEBUG(logging, "Add system user '" << orleans_user.get_login() << "'...");
-    serv.add_system_user(orleans_user);
+  if (!serv.has_static_user(orleans_user.get_login())) {
+    DT_LOG_DEBUG(logging, "Add static user '" << orleans_user.get_login() << "'...");
+    serv.add_static_user(orleans_user);
   }
 
   serv.initialize_simple();
