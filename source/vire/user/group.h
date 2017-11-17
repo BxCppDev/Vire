@@ -57,7 +57,8 @@ namespace vire {
     //! A group is defined by its unique group identifier (GUI) and name.
     //! It is also associated to a special embedded object, the user selector,
     //! which can determine if a given user belongs to the group or not.
-    class group : public datatools::enriched_base
+    class group
+      : public datatools::enriched_base
     {
     public:
 

@@ -36,6 +36,62 @@ namespace vire {
     const int32_t user::MIN_UID;
 
     // static
+    const std::string & user::type_key()
+    {
+      static const std::string _k("type");
+      return _k;
+    }
+
+    // static
+    const std::string & user::phone_key()
+    {
+      static const std::string _k("phone");
+      return _k;
+    }
+
+    // static
+    const std::string & user::email_key()
+    {
+      static const std::string _k("email");
+      return _k;
+    }
+
+    // static
+    const std::string & user::institution_key()
+    {
+      static const std::string _k("institution");
+      return _k;
+    }
+
+    // static
+    const std::string & user::address_key()
+    {
+      static const std::string _k("address");
+      return _k;
+    }
+
+    // static
+    const std::string & user::office_key()
+    {
+      static const std::string _k("office");
+      return _k;
+    }
+
+    // static
+    const std::string & user::type_robot_label()
+    {
+      static const std::string _k("robot");
+      return _k;
+    }
+
+    // static
+    const std::string & user::type_human_label()
+    {
+      static const std::string _k("human");
+      return _k;
+    }
+
+    // static
     const std::string & user::admin_user()
     {
       static const std::string _l("admin");
@@ -52,6 +108,16 @@ namespace vire {
     {
       reset();
       return;
+    }
+
+    const std::string & user::get_login() const
+    {
+      return get_name();
+    }
+
+    const std::string & user::get_alias() const
+    {
+      return get_display_name();
     }
 
     bool user::is_valid() const

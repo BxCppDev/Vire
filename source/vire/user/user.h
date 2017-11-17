@@ -39,13 +39,34 @@ namespace vire {
   namespace user {
 
     //! \brief User description
-    class user : public datatools::enriched_base
+    //!
+    //! An user has:
+    //!  - a name : login (mandatory)
+    //!  - a display name : alias (optional)
+    //!  - a terse description : First name/last name (optional)
+    //!  - a list of auxiliary properties (optional)
+    //!  - an UID : unique identifier positive integer (mandatory)
+    //!
+    class user
+      : public datatools::enriched_base
     {
     public:
 
       static const int32_t INVALID_UID = -1; //!< Invalid user identifier (UID)
       static const int32_t ADMIN_UID   =  0; //!< Super administrator user identifier (UID)
       static const int32_t MIN_UID     =  ADMIN_UID; //!< Minimum allowed value for user identifier (UID)
+
+      // Standard record keys for auxiliaries informations :
+      static const std::string & type_key();
+      static const std::string & phone_key();
+      static const std::string & email_key();
+      static const std::string & institution_key();
+      static const std::string & address_key();
+      static const std::string & office_key();
+
+      // Standard record values for auxiliaries informations :
+      static const std::string & type_robot_label();
+      static const std::string & type_human_label();
 
       /// Return the admin user login
       static const std::string & admin_user();
@@ -55,6 +76,12 @@ namespace vire {
 
       //! Destructor
       virtual ~user();
+
+      //! Return the login/name
+      const std::string & get_login() const;
+
+      //! Return the alias/display name
+      const std::string & get_alias() const;
 
       //! Check if the user is valid
       bool is_valid() const;
@@ -98,11 +125,10 @@ namespace vire {
       void reset();
 
       //! Smart print
-      // virtual
-      void tree_dump(std::ostream & out_ = std::clog,
-                     const std::string & title_  = "",
-                     const std::string & indent_ = "",
-                     bool inherit_ = false) const;
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
 
     protected:
 

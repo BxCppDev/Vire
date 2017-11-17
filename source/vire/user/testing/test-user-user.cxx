@@ -102,9 +102,12 @@ void test_user_1()
   johndoe.set_name("johndoe");
   johndoe.set_display_name("John Doe");
   johndoe.set_terse_description("This is a mock Vire user");
-  johndoe.grab_auxiliaries().store("type", "human");
-  johndoe.grab_auxiliaries().store("phone", "(+00) 1 23 45 67 89");
-  johndoe.grab_auxiliaries().store("email", "johndoe@snemo.org");
+  johndoe.grab_auxiliaries().store(vire::user::user::type_key(),
+                                   vire::user::user::type_human_label());
+  johndoe.grab_auxiliaries().store(vire::user::user::phone_key(),
+                                   "(+00) 1 23 45 67 89");
+  johndoe.grab_auxiliaries().store(vire::user::user::email_key(),
+                                   "johndoe@snemo.org");
   johndoe.initialize_simple();
   johndoe.tree_dump(std::clog, johndoe.get_display_name());
 
@@ -113,7 +116,8 @@ void test_user_1()
   hvmonitor.set_name("hvmonitor");
   hvmonitor.set_display_name("HV monitor");
   hvmonitor.set_terse_description("This is a mock Vire user");
-  hvmonitor.grab_auxiliaries().store("type", "robot");
+  hvmonitor.grab_auxiliaries().store(vire::user::user::type_key(),
+                                     vire::user::user::type_robot_label());
   hvmonitor.initialize_simple();
   hvmonitor.tree_dump(std::clog, hvmonitor.get_display_name());
 
@@ -169,12 +173,17 @@ void test_user_3()
   user_obj.set("terse_description", camp::Value("This is a mock Vire user"));
   camp::Value  user_aux_val = user_obj.call("grab_auxiliaries");
   camp::UserObject user_aux_obj = user_aux_val.to<camp::UserObject>();
-  user_aux_obj.call("store_string", camp::Args("type", "human", "The type of the user", false));
-  user_aux_obj.call("store_string", camp::Args("phone", "(+00) 1 23 45 67 89", "The phone number of the user", false));
-  user_aux_obj.call("store_string", camp::Args("email", "johndoe@snemo.org", "The email address of the user", false));
-  user_aux_obj.call("tree_print",   camp::Args(1, "Vire user auxiliaries: "));
+  user_aux_obj.call("store_string",
+                    camp::Args("type", "human", "The type of the user", false));
+  user_aux_obj.call("store_string",
+                    camp::Args("phone", "(+00) 1 23 45 67 89", "The phone number of the user", false));
+  user_aux_obj.call("store_string",
+                    camp::Args("email", "johndoe@snemo.org", "The email address of the user", false));
+  user_aux_obj.call("tree_print",
+                    camp::Args(1, "Vire user auxiliaries: "));
   user_obj.call("initialize_simple");
-  user_obj.call("tree_print", camp::Args(1, "CMS user : "));
+  user_obj.call("tree_print",
+                camp::Args(1, "CMS user : "));
 
   return;
 }
