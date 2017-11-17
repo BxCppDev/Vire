@@ -32,7 +32,7 @@ namespace vire {
 
     // The name of the effective resource path corresponds to a method name on CMS/LAPP side:
     // Format is :
-    //   <Vire resource path> + '/'+ "__dp_sub__"
+    //   <Vire resource path> + '/'+ "__dp_subscribe__"
     //
     // Argument: boolean
     //  0 == false : unsubscribe
@@ -40,7 +40,7 @@ namespace vire {
     //
     // Example:
     //
-    //   SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_sub__(0|1)
+    //   SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_subscribe__(0|1)
     //
     // Returned payload:
     //   vire::cms::resource_exec_success

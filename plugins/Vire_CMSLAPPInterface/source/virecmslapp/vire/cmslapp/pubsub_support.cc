@@ -27,7 +27,7 @@ namespace vire {
     // static
     const std::string & dp_pub_suffix()
     {
-      static const std::string _s("__dp_sub__");
+      static const std::string _s("__dp_subscribe__");
       return _s;
     }
 
@@ -46,9 +46,9 @@ namespace vire {
         return 0;
       }
       std::string active_repr;
-      if (active) active_repr="1";
-      else active_repr="0";
-      exec_.add_input_argument("active", active_repr);
+      if (active) active_repr="true";
+      else active_repr="false";
+      exec_.add_input_argument("subscription", active_repr);
       return 0;
     }
 
