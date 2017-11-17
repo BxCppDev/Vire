@@ -26,9 +26,12 @@ message (STATUS "===================")
 #-----------------------------------------------------------------------
 # Plugins are compiled code, so need to be installed under libdir...
 #
+message(STATUS "[devel] VIRE_LIBDIR_TO_PLUGINDIR = '${VIRE_LIBDIR_TO_PLUGINDIR}'")
+set(VIRE_PLUGINLIBDIR ${VIRE_LIBDIR_TO_PLUGINDIR})
 message(STATUS "[devel] VIRE_PLUGINLIBDIR = '${VIRE_PLUGINLIBDIR}'")
+
 # - Local setting of output path
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VIRE_BUILD_PREFIX}/${CMAKE_INSTALL_LIBDIR}/${VIRE_PLUGINLIBDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VIRE_BUILD_PREFIX}/${CMAKE_INSTALL_LIBDIR}/${VIRE_LIBDIR_TO_PLUGINDIR}")
 
 # - To allow plugins to be developed independently, point
 # them to the current Vire
