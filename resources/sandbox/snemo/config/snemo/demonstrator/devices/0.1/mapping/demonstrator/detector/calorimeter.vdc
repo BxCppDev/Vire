@@ -6,14 +6,14 @@
 #@meta_label "type"
 
 
-# ############################################
-# [category="calorimeter.dc"      type="1299"]
-# inherits : string    = "detector.dc"
+############################################
+[category="calorimeter.dc"      type="1350"]
+inherits : string = "module.dc"
 
 
 ######################################################
 [category="calorimeter_submodule.dc"      type="1300"]
-extends : string    = "detector.dc"
+extends : string    = "calorimeter.dc"
 by      : string[1] = "side"
 
 
@@ -23,19 +23,24 @@ extends : string    = "calorimeter_submodule.dc"
 by      : string[2] = "column" "row"
 
 
-###################################################
-[category="calorimeter_om_hv_input.pc" type="1399"]
+######################################################
+[category="calorimeter_pmt.dc"            type="1304"]
 inherits : string   = "calorimeter_optical_module.dc"
+
+
+#######################################################
+[category="calorimeter_om_hv_input.pc"     type="1399"]
+inherits : string   = "calorimeter_pmt.dc"
 
 
 ########################################################
 [category="calorimeter_om_signal_output.pc" type="1398"]
-inherits : string   = "calorimeter_optical_module.dc"
+inherits : string   = "calorimeter_pmt.dc"
 
 
-########################################################
-[category="calorimeter_om_lifiber_input.pc" type="1397"]
-extends : string    = "calorimeter_optical_module.dc"
+#########################################################
+[category="calorimeter_om_li_fiber_input.pc" type="1397"]
+extends : string    = "calorimeter_pmt.dc"
 by      : string[1] = "fiber"
 
 

@@ -6,24 +6,24 @@
 #@meta_label "policy"
 
 
-########################################
-[model="calorimeter" policy="supersede"]
+###############################################
+[model="sndemo.calorimeter" policy="supersede"]
 
-#@description The mapping directives for the "MainWall" device
+#@description The mapping directives for the "Wall" device
 # Note: This has the effect to build the [1300:0.0-1] device identifiers.
-mapping.device.MainWall : string = "[calorimeter_submodule.dc:side+0]"
+mapping.device.Wall : string = "[calorimeter_submodule.dc:side+0]"
 
 
-###########################################
-[model="calo_main_wall" policy="supersede"]
+##################################################
+[model="sndemo.calo_main_wall" policy="supersede"]
 
 #@description The mapping directives for the "OM" device
 # Note: This has the effect to build the [1301:0.0-1.0-19.0-12] device identifiers.
 mapping.device.OM : string = "[calorimeter_optical_module.dc:column+0,row+0]"
 
 
-###########################################
-[model="optical_module" policy="supersede"]
+##################################################
+[model="sndemo.optical_module" policy="supersede"]
 
 #@description The mapping directives for the "HVInput" port
 # Note: This has the effect to build the [1399:0.0-1.0-19.0-12] port identifiers.
@@ -31,7 +31,7 @@ mapping.port.HVInput : string = "[calorimeter_om_hv_input.pc]"
 
 #@description The mapping directives for the "Signal" port
 # Note: This has the effect to build the [1398:0.0-1.0-19.0-12] port identifiers.
-mapping.port.Signal : string = "[calorimeter_om_signal_output.pc]"
+mapping.port.Signal  : string = "[calorimeter_om_signal_output.pc]"
 
 #@description The mapping directives for the "LIFiber" port
 # Note: This has the effect to build the [1397:0.0-1.0-19.0-12.0-1] port identifiers.

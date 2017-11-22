@@ -14,20 +14,27 @@
 #@parameter Logging priority threshold
 logging.priority : string = "trace"
 
+#@description Rack format
+format : string = "42U"
+
 ###################
 # Embedded crates #
 ###################
 
 #@description Maximum number of crates
-max_number_of_crates : integer = 3
+max_number_of_crates : integer = 42
 
 #@description List of embedded crates
-crates.slot_0.model  : string = "sndemo.calo_hv_crate"
-crates.slot_0.label  : string = "CaloHV_0"
-crates.slot_1.model  : string = "sndemo.calo_hv_crate"
-crates.slot_1.label  : string = "CaloHV_1"
-crates.slot_2.model  : string = "sndemo.main_calo_crate"
-crates.slot_2.label  : string = "CaloCrate_0"
+crates.slot_4.model   : string = "sndemo.calo_hv_crate"
+crates.slot_4.label   : string = "CaloHV_0"
+crates.slot_14.model  : string = "sndemo.calo_hv_crate"
+crates.slot_14.label  : string = "CaloHV_1"
+crates.slot_24.model  : string = "sndemo.main_calo_crate"
+crates.slot_24.label  : string = "CaloCrate_0"
+crates.slot_40.model  : string = "sndemo.rack_fan_crate"
+crates.slot_40.label  : string = "RackFan"
+crates.slot_41.model  : string = "sndemo.rack_ac_outlet_crate"
+crates.slot_41.label  : string = "AC_Outlet"
 
 ########################
 # Auxiliary properties #

@@ -19,15 +19,17 @@ logging.priority : string = "trace"
 ###################
 
 #@description Maximum number of crates
-max_number_of_crates : integer = 3
+max_number_of_crates : integer = 4
 
 #@description List of embedded crates
 crates.slot_0.model  : string = "sndemo.tracker_crate"
-crates.slot_0.label  : string = "TrackerCrate_0"
+crates.slot_0.label  : string = "TrackerHVCrate_0"
 crates.slot_1.model  : string = "sndemo.tracker_crate"
-crates.slot_1.label  : string = "TrackerCrate_1"
+crates.slot_1.label  : string = "TrackerHVCrate_1"
 crates.slot_2.model  : string = "sndemo.tracker_crate"
-crates.slot_2.label  : string = "TrackerCrate_2"
+crates.slot_2.label  : string = "TrackerHVCrate_2"
+crates.slot_3.model  : string = "sndemo.tracker_hv_ps_crate"
+crates.slot_3.label  : string = "TrackerHVPS"
 
 ########################
 # Auxiliary properties #

@@ -1,7 +1,8 @@
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/OM/om.vdm
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/tracker/drift_cell.vdm
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/tracker/tracker.vdm
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/calorimeter/calorimeter.vdm
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/source_frame/source_frame.vdm
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/coil/coil.vdm
-@SuperNEMO:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/detector.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/OM/om.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/tracker/drift_cell.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/tracker/tracker.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/calorimeter/calorimeter.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/source_frame/source_frame.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/coil/coil.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/tent/tent.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/detector/detector.vdm

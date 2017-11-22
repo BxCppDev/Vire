@@ -78,10 +78,10 @@ virtual : boolean = true
 embedded_devices.labels : string[1] = "Wall"
 
 #@description The device model associated to the calorimeter walls
-embedded_devices.model.MainWall : string = "sndemo.calo_main_wall"
+embedded_devices.model.Wall : string = "sndemo.calo_main_wall"
 
 #@description The instanciation policy of the calorimeter walls
-embedded_devices.instance.MainWall : string = \
+embedded_devices.instance.Wall : string = \
   "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
 
 ########################

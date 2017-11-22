@@ -6,8 +6,8 @@
 #@meta_label "type"
 
 
-################################################################
-[name="shielding@device" type="vire::device::base_device_model"]
+######################################################################
+[name="snemo.shielding@device" type="vire::device::base_device_model"]
 
 #@config Parameters describing the SuperNEMO Demonstrator shielding
 

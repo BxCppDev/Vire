@@ -22,19 +22,19 @@ type      : string  = "generic"
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[2] = "Detector" "Electronics" # "CMS"
+embedded_devices.labels : string[2] = "Detector" "CMS"
 
 #@description The device model associated to the Detector
 embedded_devices.model.Detector  : string = "sndemo.detector"
 # embedded_devices.instance.Detector : string = "vire::device::single_instance=[slot=(1:0)]"
 
-#@description The device model associated to the Electronics
-embedded_devices.model.Electronics  : string = "sndemo.electronics"
-# embedded_devices.instance.Electronics : string = "vire::device::single_instance=[slot=(1:0)]"
+#@description The device model associated to the CMS
+embedded_devices.model.CMS       : string = "sndemo.cms"
+embedded_devices.instance.CMS : string = "vire::device::single_instance=[slot=(1:0)]"
 
-# #@description The device model associated to the CMS
-# embedded_devices.model.CMS       : string = "sndemo.cms"
-# embedded_devices.instance.CMS : string = "vire::device::single_instance=[slot=(1:0)]"
+# #@description The device model associated to the Electronics
+# embedded_devices.model.Electronics  : string = "sndemo.electronics"
+# # embedded_devices.instance.Electronics : string = "vire::device::single_instance=[slot=(1:0)]"
 
 ########################
 # Auxiliary properties #

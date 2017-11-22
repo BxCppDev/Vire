@@ -27,7 +27,10 @@ SuperNEMO Demonstrator Setup Device Model version 0.1
 	|   |           +-- OM[0..1][0..15] (device model: "sndemo.optical_module")
 	|   +-- Coil (device model: "snemo.coil")
 	|   +-- SourceFrame (device model: "sndemo.source_frame")
+	|   +-- Electronics (device model: "sndemo.electronics")
 	+-- Electronics (device model: "sndemo.electronics")
+	|   TODO
+	+-- Readout (device model: "sndemo.readout")
 	|   TODO
         +-- CMS (device model: "sndemo.cms")
 

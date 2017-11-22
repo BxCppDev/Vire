@@ -6,13 +6,15 @@
 #@meta_label "type"
 
 
-####################################
-[category="detector.dc" type="1001"]
+###################################
+[category="module.dc"  type="1000"]
 
-#@config The geometry category associated to the SuperNEMO demonstrator detection module
+#@config The category associated to the SuperNEMO module
+# Note: we consider here that the experiment consists in one single module:
+#       the so-called "demonstrator" detector with module number = 0.
 
 #@description The module number
-inherits : string = "module.dc"
+addresses : string[1] = "module"
 
 
 # end of detector.vdc

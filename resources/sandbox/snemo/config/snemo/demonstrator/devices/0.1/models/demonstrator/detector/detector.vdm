@@ -22,16 +22,18 @@ type      : string  = "generic"
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[4] = \
+embedded_devices.labels : string[6] = \
   "Calorimeter" \
   "Tracker" \
-  "SourceFrame"
+  "SourceFrame" \
   "Coil" \
+  "Tent" \
+  "Shielding"
 
 #@description The device model associated to the calorimeter
 embedded_devices.model.Calorimeter : string = "sndemo.calorimeter"
 
-#@description The device model associated to the Tracker
+#@description The device model associated to the tracker
 embedded_devices.model.Tracker     : string = "sndemo.tracker"
 
 #@description The device model associated to the source frame
@@ -39,6 +41,12 @@ embedded_devices.model.SourceFrame : string = "sndemo.source_frame"
 
 #@description The device model associated to the coil
 embedded_devices.model.Coil        : string = "sndemo.coil"
+
+#@description The device model associated to the tent
+embedded_devices.model.Tent        : string = "sndemo.tent"
+
+#@description The device model associated to the shielding
+embedded_devices.model.Shielding   : string = "sndemo.shielding"
 
 ########################
 # Auxiliary properties #

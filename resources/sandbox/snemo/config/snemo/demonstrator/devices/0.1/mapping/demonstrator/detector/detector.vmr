@@ -6,12 +6,32 @@
 #@meta_label "policy"
 
 
-#####################################
-[model="detector" policy="supersede"]
+############################################
+[model="sndemo.detector" policy="supersede"]
 
 #@description The mapping directives for the "Calorimeter" device
-# Note: This has the effect to build the [1000:0] device identifier.
-mapping.device.Calorimeter : string = "[detector.dc]"
+# Note: This has the effect to build the [1350:0] device identifier.
+mapping.device.Calorimeter : string = "[calorimeter.dc]"
+
+#@description The mapping directives for the "Tracker" device
+# Note: This has the effect to build the [1201:0] device identifier.
+mapping.device.Tracker : string = "[tracker.dc]"
+
+#@description The mapping directives for the "SourceFrame" device
+# Note: This has the effect to build the [1100:0] device identifier.
+mapping.device.SourceFrame : string = "[source_submodule.dc]"
+
+#@description The mapping directives for the "Coil" device
+# Note: This has the effect to build the [1600:0] device identifier.
+mapping.device.Coil : string = "[coil.dc]"
+
+#@description The mapping directives for the "Tent" device
+# Note: This has the effect to build the [1700:0] device identifier.
+mapping.device.Tent : string = "[tent.dc]"
+
+#@description The mapping directives for the "Shielding" device
+# Note: This has the effect to build the [1800:0] device identifier.
+mapping.device.Shielding : string = "[shielding.dc]"
 
 
 # end of detector.vmr

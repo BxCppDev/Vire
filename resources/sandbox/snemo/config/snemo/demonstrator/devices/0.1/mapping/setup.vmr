@@ -9,11 +9,11 @@
 ##################################
 [model="setup" policy="supersede"]
 
-#@config The mapping rule of the module positionned in the top level setup
+# #@config The mapping rule of the module positionned in the top level setup
 
-#@description The mapping directives for the "Demonstrator" device
-# Note: This has the effect to build the [1000:0] device identifier.
-mapping.device.Demonstrator : string = "[module.dc:module=0]"
+# #@description The mapping directives for the "Demonstrator" device
+# # Note: This has the effect to build the [1000:0] device identifier.
+# mapping.device.Demonstrator : string = "[module.dc:module=0]"
 
 
 # end of setup.vmr

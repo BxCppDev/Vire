@@ -161,23 +161,6 @@ embedded_devices.instance.XWall : string = \
 aux.manufacturer : string = "SuperNEMO Collaboration"
 
 
-#########################################################################
-[name="sndemo.calorimeter@device" type="vire::device::base_device_model"]
-
-#@config Parameters describing the SuperNEMO demonstrator calorimeter
-
-#@parameter Logging priority threshold
-logging.priority : string = "fatal"
-
-
-########################
-# Auxiliary properties #
-########################
-
-#@description Manufacturer
-aux.manufacturer : string = "SuperNEMO Collaboration"
-
-
 #####################################################################
 [name="sndemo.tracker@device" type="vire::device::base_device_model"]
 

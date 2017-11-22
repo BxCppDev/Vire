@@ -6,10 +6,25 @@
 #@meta_label "type"
 
 
+#################################################################################
+[name="sndemo.tracker_hv_ps_crate@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the tracker HV main power supply + computer interface crate
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "ACME"
+
 ##############################################################################
 [name="sndemo.tracker_hv_crate@device" type="vire::device::base_device_model"]
 
-#@config Parameters describing the tracker HV power supply crate
+#@config Parameters describing the tracker HV crate
 
 #@parameter Logging priority threshold
 logging.priority : string = "trace"

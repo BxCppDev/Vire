@@ -6,16 +6,16 @@
 #@meta_label "type"
 
 
-#####################################################################################
+########################################################################################
 [name="sndemo.drift_cell_anode_signal_hv_pin@port" type="vire::device::base_port_model"]
 
-#@config Parameters describing the anode output pin port of the tracker drift cell
+#@config Parameters describing the anode output/HV input pin port of the tracker drift cell
 
 #@parameter Logging priority threshold
 logging.priority : string = "fatal"
 
 #@description Type of I/O
-io_type      : string  = "out"
+io_type      : string  = "in/out"
 
 
 #######################################################################################
@@ -36,7 +36,7 @@ io_type      : string  = "out"
 #@config Parameters describing the SuperNEMO calorimeter optical module
 #
 #    +--------------------+
-#    |                    o-> Anode signal/V output/input
+#    |                    o-> Anode signal/HV output/input
 #    |  Drift cell        o-> Cathode signal output 0
 #    |                    o-> Cathode signal output 1
 #    +--------------------+
@@ -44,10 +44,6 @@ io_type      : string  = "out"
 
 #@parameter Logging priority threshold
 logging.priority : string = "fatal"
-
-#########
-# Ports #
-#########
 
 #########
 # Ports #

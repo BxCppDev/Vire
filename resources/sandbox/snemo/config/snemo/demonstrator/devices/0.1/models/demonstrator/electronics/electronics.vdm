@@ -17,21 +17,33 @@ logging.priority : string = "fatal"
 #@description Type of device
 type      : string  = "generic"
 
+#@description A virtual device
+virtual   : boolean  = true
+
 ####################
 # Embedded devices #
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[3] = "Rack2" "Rack3" "Rack4"
+# embedded_devices.labels : string[6] = "Rack0" "Rack1" "Rack2" "Rack3" "Rack4" "Rack5"
+
+#@description The device model associated to the rack 0
+embedded_devices.model.Rack0 : string = "sndemo.rack_0"
+
+#@description The device model associated to the rack 1
+embedded_devices.model.Rack1 : string = "sndemo.rack_1"
 
 #@description The device model associated to the rack 2
-embedded_devices.model.Rack2 : string = "sndemo.calo_rack_2"
+embedded_devices.model.Rack2 : string = "sndemo.rack_2"
 
 #@description The device model associated to the rack 3
-embedded_devices.model.Rack3 : string = "sndemo.calo_rack_3"
+embedded_devices.model.Rack3 : string = "sndemo.rack_3"
 
 #@description The device model associated to the rack 4
-embedded_devices.model.Rack4 : string = "sndemo.calo_rack_4"
+embedded_devices.model.Rack4 : string = "sndemo.rack_4"
+
+#@description The device model associated to the rack 5
+embedded_devices.model.Rack5 : string = "sndemo.rack_5"
 
 ########################
 # Auxiliary properties #
