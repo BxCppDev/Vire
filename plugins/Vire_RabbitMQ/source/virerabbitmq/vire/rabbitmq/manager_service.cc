@@ -822,6 +822,15 @@ namespace vire {
       } else {
         DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
       }
+      // Set administrator permissions:
+      DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
+                                                  vhost,
+                                                  ".*", ".*", ".*",
+                                                  err),
+                    std::logic_error,
+                  "Cannot set '" << get_admin_login() << "' permissions for '"
+                  << vhost << "' virtual host: "
+                  << err.error << ": " << err.reason << "!");
       // Fill the vhost with exchanges:
       static const std::set<std::string> exchanges = {"vireserver.service",
                                                       "vireserver.event",
@@ -841,14 +850,6 @@ namespace vire {
                     "Cannot create the '" << exchange << "' exchange in '"
                     << vhost << "' virtual host: "
                     << err.error << ": " << err.reason + "!");
-        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                    vhost,
-                                                    ".*", ".*", ".*",
-                                                    err),
-                    std::logic_error,
-                    "Cannot set '" << get_admin_login() << "' permissions for '"
-                    << vhost << "' virtual host: "
-                    << err.error << ": " << err.reason << "!");
         std::set<std::string> sys_logins;
         std::string server_user;
         fetch_server_user(server_user);
