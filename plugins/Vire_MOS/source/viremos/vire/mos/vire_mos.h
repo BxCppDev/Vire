@@ -33,33 +33,36 @@ namespace vire {
 
   namespace mos {
 
-    //! Initialize special resources of the Falaise library
-    void initialize(int argc_ = 0, char * argv_[] = 0);
+    //! Check if the Vire MOS library is initialized
+    bool is_initialized();
 
-    //! Terminate special resources of the Falaise library
+    //! Initialize special resources of the Vire MOS library
+    void initialize(int argc_ = 0, char * argv_[] = 0, uint32_t flags_ = 0);
+
+    //! Terminate special resources of the Vire MOS library
     void terminate();
 
   } // namespace mos
 
 } // namespace vire
 
-//! Vire MOS initialization macro using main function arguments
-#define VIRE_MOS_INIT_MAIN(Argc,Argv)   \
-  VIRE_INIT_MAIN(Argc,Argv)     \
-  ::vire::mos::initialize( Argc , Argv ); \
-  /**/
+// //! Vire MOS initialization macro using main function arguments
+// #define VIRE_MOS_INIT_MAIN(Argc,Argv)   \
+//   VIRE_INIT_MAIN(Argc,Argv)     \
+//   ::vire::mos::initialize( Argc , Argv ); \
+//   /**/
 
-//! Vire MOS initialization macro
-#define VIRE_MOS_INIT()       \
-  VIRE_INIT()         \
-  ::vire::mos::initialize(0, 0);    \
-  /**/
+// //! Vire MOS initialization macro
+// #define VIRE_MOS_INIT()       \
+//   VIRE_INIT()         \
+//   ::vire::mos::initialize(0, 0);    \
+//   /**/
 
-//! Vire MOS termination macro
-#define VIRE_MOS_FINI()       \
-  ::vire::mos::terminate();     \
-  VIRE_FINI();          \
-  /**/
+// //! Vire MOS termination macro
+// #define VIRE_MOS_FINI()       \
+//   ::vire::mos::terminate();     \
+//   VIRE_FINI();          \
+//   /**/
 
 #endif // VIRE_MOS_VIRE_MOS_H
 

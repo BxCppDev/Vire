@@ -22,6 +22,7 @@
 
 // Standard library:
 #include <string>
+#include <list>
 
 // Third Party:
 // - Boost++:
@@ -46,10 +47,19 @@ namespace vire {
     public:
 
       //! Return the standard filename for device and port models definitions
-      static const std::string & get_models_definition_filename();
+      static const std::string & model_definition_filename();
+
+      //! Return the standard filename for merged device and port models definitions
+      static const std::string & merged_models_definition_filename();
+
+      //! Return the standard filename for list of definition files
+      static const std::string & model_list_of_definition_filenames();
 
       //! Return the standard suffix for model name
-      static const std::string & get_model_name_suffix();
+      static const std::string & model_name_suffix();
+
+      //! Return the name of the standard programs informations device
+      static const std::string & programs_informations_name();
 
       //! Default constructor
       opcua_export_vire();
@@ -69,17 +79,29 @@ namespace vire {
       //! Set the flag to export only public components
       void set_export_only_public_components(bool);
 
-      //! Check if datapoint should be equipped with their default inteface
-      bool is_datapoint_default_interface() const;
+      // //! Check if datapoint should be equipped with their default inteface
+      // bool is_datapoint_default_interface() const;
 
-      //! Set the flag to equip datapoint with their default inteface
-      void set_datapoint_default_interface(bool);
+      // //! Set the flag to equip datapoint with their default inteface
+      // void set_datapoint_default_interface(bool);
+
+      //! Set the flag to not export "private informations" compound datapoints
+      void set_export_no_private_informations(bool);
+
+      //! Set the flag to not export "get" and "set" MOS methods
+      void set_export_no_getset_methods(bool);
+
+      //! Set the flag to not export the MOS server model
+      void set_export_no_mos_server(bool);
 
       //! Set the export path
       void set_export_path(const std::string &);
 
       //! Return the export path
       const std::string & get_export_path() const;
+
+      //! Return the suffix for model name
+      std::string get_model_name_suffix();
 
       //! Check if OPCUA server model name is set
       bool has_model_name() const;
@@ -90,6 +112,15 @@ namespace vire {
       //! Set the OPCUA server model name
       void set_model_name(const std::string &);
 
+      //! Set the path prefix for listing the model definition files
+      void set_model_def_filename_path_prefix(const std::string &);
+
+      //! Check if the path prefix for listing the model definition files is set
+      bool has_model_def_filename_path_prefix() const;
+
+      //! Set the flag to not export the MOS server model
+      void set_model_merge_def_files(bool);
+
       //! Main export
       void process(const vire::mos::OPCUA & server_);
 
@@ -97,7 +128,7 @@ namespace vire {
       static datatools::introspection::data_type translate_type(Type type_);
 
       //! Translate MOS info to RW access type
-      static vire::utility::rw_access_type translate_rw_access(const has_info_interface & with_info_,
+      static vire::utility::rw_access_type translate_rw_access(const has_infos_interface & with_infos_,
                                                                bool strict_ = false);
 
       //! Translate a typed object to a datatools introspection data description
@@ -158,15 +189,24 @@ namespace vire {
       void _scan_device_userinfos(const has_userinfos_interface & common_,
                                   device_entry_type & common_model_desc_);
 
-      bool is_published(const has_info_interface & with_info_, const std::string & name_) const;
+      // bool is_published(const has_info_interface & with_info_, const std::string & name_) const;
+      bool is_published(const has_infos_interface & with_infos_, const std::string & name_) const;
+
+      bool is_special_published(const has_infos_interface & with_infos_, const std::string & name_) const;
 
     private:
 
-      datatools::logger::priority _logging_; //!< The logging priority threshold
-      std::string _model_name_;  //!< OPCUA server model name
-      std::string _export_path_; //!< The base directory for the generation of device model definition files
-      bool _export_only_public_components_; //!< Flag to export only public components (methods/devices/datapoints)
-      bool _datapoint_default_interface_; //!< Flag to setup the default interface for datapoint
+      datatools::logger::priority _logging_;        //!< The logging priority threshold
+      std::string _model_name_;                     //!< OPCUA server model name
+      std::string _export_path_;                    //!< The base directory for the generation of device model definition files
+      bool _export_only_public_components_  = true; //!< Flag to export only public components (methods/devices/datapoints)
+      bool _export_no_private_informations_ = true; //!< Don't export private informations compound datapoints
+      bool _export_no_getset_methods_       = true; //!< Don't export get/set methods
+      bool _export_no_mos_server_           = true; //!< Don't export the MOS server model
+      // bool _datapoint_default_interface_;           //!< Flag to setup the default interface for datapoint (not used)
+      std::list<std::string> _model_def_filenames_list_;
+      std::string            _model_def_filename_path_prefix_;
+      bool                   _model_merge_def_files_ = true;
 
     };
 

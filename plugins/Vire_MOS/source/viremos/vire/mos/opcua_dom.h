@@ -230,7 +230,7 @@ namespace vire {
   }                                                                     \
   /**/
 
-#endif //VIRE_MOS_OPCUA_DOM_H
+#endif // VIRE_MOS_OPCUA_DOM_H
 
 // Local Variables: --
 // mode: c++ --

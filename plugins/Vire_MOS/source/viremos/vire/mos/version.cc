@@ -62,6 +62,11 @@ namespace vire {
       return version;
     }
 
+    std::string version::get_xsd_version()
+    {
+      return std::string(VIRE_MOS_XSD_VERSION);
+    }
+
     bool version::is_at_least(int major_, int minor_, int patch_)
     {
       if (VIRE_MOS_VERSION_MAJOR < major_) return false;

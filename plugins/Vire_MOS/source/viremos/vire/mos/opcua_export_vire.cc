@@ -29,6 +29,7 @@
 // - Boost:
 #include <boost/algorithm/string.hpp>
 // - Bayeux/datatools:
+#include <datatools/logger.h>
 #include <datatools/exception.h>
 #include <datatools/multi_properties.h>
 #include <datatools/i_tree_dump.h>
@@ -42,31 +43,73 @@
 
 // This project:
 #include <vire/device/utils.h>
-// #include <vire/mos/datapoint_interface.h>
 
 namespace vire {
 
   namespace mos {
 
     // static
-    const std::string & opcua_export_vire::get_models_definition_filename()
+    const std::string & opcua_export_vire::merged_models_definition_filename()
     {
-      static const std::string _filename("models.vdm");
+      static const std::string _filename("mos_models.vdm");
       return _filename;
     }
 
     // static
-    const std::string & opcua_export_vire::get_model_name_suffix()
+    const std::string & opcua_export_vire::model_definition_filename()
+    {
+      static const std::string _filename("model.vdm");
+      return _filename;
+    }
+
+    // static
+    const std::string & opcua_export_vire::model_list_of_definition_filenames()
+    {
+      static const std::string _filename("models.lis");
+      return _filename;
+    }
+
+    // static
+    const std::string & opcua_export_vire::model_name_suffix()
     {
       static const std::string _suffix(".model");
       return _suffix;
+    }
+
+    // static
+    const std::string & opcua_export_vire::programs_informations_name()
+    {
+      static const std::string _name("0_ProgramInformations");
+      return _name;
     }
 
     void opcua_export_vire::_set_defaults()
     {
       _logging_ = datatools::logger::PRIO_FATAL;
       _export_only_public_components_ = true;
-      _datapoint_default_interface_ = true;
+      _export_no_private_informations_ = true;
+      _export_no_getset_methods_ = true;
+      _export_no_mos_server_ = true;
+      // _datapoint_default_interface_ = true;
+      _model_merge_def_files_ = true;
+
+      return;
+    }
+
+    bool opcua_export_vire::has_model_def_filename_path_prefix() const
+    {
+      return !_model_def_filename_path_prefix_.empty();
+    }
+
+    void opcua_export_vire::set_model_def_filename_path_prefix(const std::string & p_)
+    {
+      _model_def_filename_path_prefix_ = p_;
+      return;
+    }
+
+    void opcua_export_vire::set_model_merge_def_files(bool merge_)
+    {
+      _model_merge_def_files_ = merge_;
       return;
     }
 
@@ -90,11 +133,11 @@ namespace vire {
 
     // static
     vire::utility::rw_access_type
-    opcua_export_vire::translate_rw_access(const has_info_interface & with_info_, bool strict_)
+    opcua_export_vire::translate_rw_access(const has_infos_interface & with_infos_, bool strict_)
     {
       vire::utility::rw_access_type rw_access = vire::utility::RW_READABLE;
-      if (!(with_info_.get_info() == boost::none)) {
-        const Info & info = with_info_.get_info().get();
+      if (with_infos_.get_infos().size() > 0) {
+        const Info & info = with_infos_.get_infos().front();
         if (info.config != boost::none) {
           if (info.config.get()) {
             if (strict_) {
@@ -222,14 +265,32 @@ namespace vire {
       return;
     }
 
-    bool opcua_export_vire::is_datapoint_default_interface() const
+    // bool opcua_export_vire::is_datapoint_default_interface() const
+    // {
+    //   return _datapoint_default_interface_;
+    // }
+
+    // void opcua_export_vire::set_datapoint_default_interface(bool ddi_)
+    // {
+    //   _datapoint_default_interface_ = ddi_;
+    //   return;
+    // }
+
+    void opcua_export_vire::set_export_no_private_informations(bool x_)
     {
-      return _datapoint_default_interface_;
+      _export_no_private_informations_ = x_;
+      return;
     }
 
-    void opcua_export_vire::set_datapoint_default_interface(bool ddi_)
+    void opcua_export_vire::set_export_no_getset_methods(bool x_)
     {
-      _datapoint_default_interface_ = ddi_;
+      _export_no_getset_methods_ = x_;
+      return;
+    }
+
+    void opcua_export_vire::set_export_no_mos_server(bool x_)
+    {
+      _export_no_mos_server_ = x_;
       return;
     }
 
@@ -260,12 +321,54 @@ namespace vire {
       return;
     }
 
+    std::string opcua_export_vire::get_model_name_suffix()
+    {
+      // return model_name_suffix();
+      return "";
+    }
+
     void opcua_export_vire::process(const vire::mos::OPCUA & server_)
     {
       DT_THROW_IF(_export_path_.empty(), std::logic_error, "Missing export path!");
 
       boost::filesystem::path base_dir = _export_path_;
       _process_server("", base_dir, server_);
+
+      // std::cerr << "EXPORT PATH : " << _export_path_ << std::endl;
+
+      if (! _model_merge_def_files_) {
+        // std::clog << "List of model definition files:" << std::endl;
+        boost::filesystem::path fmdfl_path = _export_path_;
+        fmdfl_path /= model_list_of_definition_filenames();
+        std::ofstream fmodel_definition_filenames_list(fmdfl_path.string().c_str());
+        for (std::list<std::string>::const_iterator i = _model_def_filenames_list_.begin();
+             i != _model_def_filenames_list_.end();
+             i++) {
+          const std::string & filename = *i;
+          // std::clog << " * model_definition_filename: '" << filename << "'" << std::endl;
+          std::string rel_path = filename;
+          if (has_model_def_filename_path_prefix()) {
+            rel_path = boost::algorithm::replace_first_copy(filename,
+                                                            _export_path_,
+                                                            _model_def_filename_path_prefix_);
+          }
+          fmodel_definition_filenames_list  << rel_path << std::endl;
+        }
+        fmodel_definition_filenames_list.close();
+      } else {
+        // std::cerr << "MERGING MODEL DEFINITION FILES..." << std::endl;
+        datatools::multi_properties merger_def("name", "type");
+        for (std::list<std::string>::const_iterator i = _model_def_filenames_list_.begin();
+             i != _model_def_filenames_list_.end();
+             i++) {
+          std::string model_def_filename = *i;
+          // std::cerr << "MERGING MODEL DEFINITION FILE '" << model_def_filename << "'..." << std::endl;
+          merger_def.read(model_def_filename);
+        }
+        boost::filesystem::path fmerge_path = _export_path_;
+        fmerge_path /= merged_models_definition_filename();
+        merger_def.write(fmerge_path.string());
+      }
 
       return;
     }
@@ -282,9 +385,10 @@ namespace vire {
         datapoint_model_name = base_name_ + '.' + datapoint_model_base_name;
       }
       boost::filesystem::create_directory(base_dir);
-      boost::filesystem::path datapoint_model_file_path = base_dir / get_models_definition_filename();
+      boost::filesystem::path datapoint_model_file_path = base_dir / model_definition_filename();
       device_entry_type cdp_desc;
       cdp_desc.name = datapoint_model_name + get_model_name_suffix();
+      cdp_desc.name = datapoint_model_name;
       cdp_desc.model_type = "device";
       cdp_desc.class_id = "vire::device::base_device_model";
       cdp_desc.config.set_description("Device model configuration parameters");
@@ -316,7 +420,7 @@ namespace vire {
                         cdp_desc.class_id,
                         cdp_desc.config);
       datapoint_def.write(datapoint_model_file_path.string());
-
+      _model_def_filenames_list_.push_back(datapoint_model_file_path.string());
       return;
     }
 
@@ -332,7 +436,7 @@ namespace vire {
         datapoint_model_name = base_name_ + '.' + datapoint_model_base_name;
       }
       boost::filesystem::create_directory(base_dir);
-      boost::filesystem::path datapoint_model_file_path = base_dir / get_models_definition_filename();
+      boost::filesystem::path datapoint_model_file_path = base_dir / model_definition_filename();
       device_entry_type sdp_desc;
       sdp_desc.name = datapoint_model_name + get_model_name_suffix();
       sdp_desc.model_type = "device";
@@ -396,6 +500,7 @@ namespace vire {
                         sdp_desc.class_id,
                         sdp_desc.config);
       datapoint_def.write(datapoint_model_file_path.string());
+      _model_def_filenames_list_.push_back(datapoint_model_file_path.string());
 
       return;
     }
@@ -412,7 +517,7 @@ namespace vire {
         device_model_name = base_name_ + '.' + device_model_base_name;
       }
       boost::filesystem::create_directory(base_dir);
-      boost::filesystem::path device_model_file_path = base_dir / get_models_definition_filename();
+      boost::filesystem::path device_model_file_path = base_dir / model_definition_filename();
       device_entry_type sdev_desc;
       sdev_desc.name = device_model_name + get_model_name_suffix();
       sdev_desc.model_type = "device";
@@ -462,6 +567,7 @@ namespace vire {
                      sdev_desc.class_id,
                      sdev_desc.config);
       device_def.write(device_model_file_path.string());
+      _model_def_filenames_list_.push_back(device_model_file_path.string());
 
       return;
     }
@@ -478,7 +584,7 @@ namespace vire {
         device_model_name = base_name_ + '.' + device_model_base_name;
       }
       boost::filesystem::create_directory(base_dir);
-      boost::filesystem::path device_model_file_path = base_dir / get_models_definition_filename();
+      boost::filesystem::path device_model_file_path = base_dir / model_definition_filename();
       device_entry_type cdev_desc;
       cdev_desc.name = device_model_name + get_model_name_suffix();
       cdev_desc.model_type = "device";
@@ -518,6 +624,7 @@ namespace vire {
                      cdev_desc.class_id,
                      cdev_desc.config);
       device_def.write(device_model_file_path.string());
+      _model_def_filenames_list_.push_back(device_model_file_path.string());
 
       return;
     }
@@ -526,6 +633,7 @@ namespace vire {
                                             const boost::filesystem::path & base_dir_,
                                             const OPCUA & server_)
     {
+      DT_LOG_DEBUG(_logging_, "Processing server '" << base_name_ << "'...");
       boost::filesystem::path base_dir = base_dir_;
       std::string server_model_base_name = server_.name;
       if (has_model_name()) {
@@ -537,8 +645,9 @@ namespace vire {
       if (! base_name_.empty()) {
         server_model_name = base_name_ + '.' + server_model_base_name;
       }
+      // std::cerr << "DEVEL: CREATING DIRECTORY : " << base_dir << std::endl;
       boost::filesystem::create_directory(base_dir);
-      boost::filesystem::path server_model_file_path = base_dir / get_models_definition_filename();
+      boost::filesystem::path server_model_file_path = base_dir / model_definition_filename();
       device_entry_type svr_desc;
       svr_desc.name = server_model_name + get_model_name_suffix();
       svr_desc.model_type = "device";
@@ -572,7 +681,10 @@ namespace vire {
       server_def.add(svr_desc.name + "@" + svr_desc.model_type,
                      svr_desc.class_id,
                      svr_desc.config);
-      server_def.write(server_model_file_path.string());
+      if (!_export_no_mos_server_) {
+        server_def.write(server_model_file_path.string());
+        _model_def_filenames_list_.push_back(server_model_file_path.string());
+      }
 
       return;
     }
@@ -582,7 +694,8 @@ namespace vire {
                                           const boost::filesystem::path & base_dir_,
                                           datatools::properties & with_devices_config_)
     {
-     // Record data about embedded (simple/compound) device instances:
+      DT_LOG_DEBUG(_logging_, "Scanning devices in component '" << base_name_ << "'...");
+      // Record data about embedded (simple/compound) device instances:
       std::vector<std::string> embedded_device_labels;
       std::vector<std::string> embedded_device_class_ids;
       std::vector<int>         embedded_device_mults;
@@ -594,7 +707,7 @@ namespace vire {
         // Check if device is published:
         if (! is_published(sdevice, sdevice.name) && is_export_only_public_components()) {
           // We don't export this simple device component which is part of the non public interface:
-          std::cerr << "DEVEL: opcua_export_vire::_scan_devices:   --> DON'T EXPORT" << std::endl;
+          DT_LOG_DEBUG(_logging_,"Don't export simple device '" << sdevice.name << "'.");
           continue;
         }
 
@@ -618,7 +731,7 @@ namespace vire {
         // Check if device is published:
         if (! is_published(cdevice, cdevice.name) && is_export_only_public_components()) {
           // We don't export this compound device component which is part of the non public interface:
-          std::cerr << "DEVEL: opcua_export_vire::_scan_devices:   --> DON'T EXPORT" << std::endl;
+          DT_LOG_DEBUG(_logging_,"Don't export compound device '" << cdevice.name << "'.");
           continue;
         }
 
@@ -676,10 +789,12 @@ namespace vire {
                                              const boost::filesystem::path & base_dir_,
                                              datatools::properties & device_config_)
     {
+      DT_LOG_DEBUG(_logging_, "Scanning datapoints in component '" << base_name_ << "'...");
       // Record data about embedded (simple/compound) datapoint instances:
       std::vector<std::string> embedded_datapoint_labels;
       std::vector<std::string> embedded_datapoint_class_ids;
       std::vector<int>         embedded_datapoint_mults;
+      std::set<std::string>    embedded_datapoints;
 
       // Scan simple datapoints:
       for (const auto & sdatapoint : device_with_datapoints_.get_simple_datapoints()) {
@@ -688,7 +803,7 @@ namespace vire {
         // Check if simple DP is published:
         if (! is_published(sdatapoint, sdatapoint.name) && is_export_only_public_components()) {
           // We don't export this simple datapoint component which is part of the non public interface:
-          std::cerr << "DEVEL: opcua_export_vire::_scan_datapoints:   --> DON'T EXPORT" << std::endl;
+          DT_LOG_DEBUG(_logging_,"Don't export simple datapoint '" << sdatapoint.name << "'.");
           continue;
         }
 
@@ -697,22 +812,26 @@ namespace vire {
 
         // Record the daughter device instance:
         embedded_datapoint_labels.push_back(sdatapoint.name);
+        // embedded_datapoints.insert(sdatapoint.name);
         embedded_datapoint_class_ids.push_back(base_name_ + '.' + sdatapoint.name);
         int nb_instances = -1;
         if (sdatapoint.multiplicity) {
           nb_instances = sdatapoint.multiplicity.get();
         }
         embedded_datapoint_mults.push_back(nb_instances);
-      }
+      } // End of scan simple datapoints.
 
       // Scan compound datapoints:
       for (const auto & cdatapoint : device_with_datapoints_.get_compound_datapoints()) {
         DT_LOG_DEBUG(_logging_, "Scanning compound datapoint '" << cdatapoint.name << "'");
+        DT_LOG_DEBUG(_logging_, "Export only public components = " << std::boolalpha << is_export_only_public_components());
 
         // Check if compound DP is published:
         if (! is_published(cdatapoint, cdatapoint.name) && is_export_only_public_components()) {
           // We don't export this compound datapoint component which is part of the non public interface:
-          std::cerr << "DEVEL: opcua_export_vire::_scan_datapoints:   --> DON'T EXPORT" << std::endl;
+          if (datatools::logger::is_debug(_logging_)) {
+            DT_LOG_DEBUG(_logging_,"Don't export compound datapoint '" << cdatapoint.name << "'.");
+          }
           continue;
         }
 
@@ -727,15 +846,17 @@ namespace vire {
           nb_instances = cdatapoint.multiplicity.get();
         }
         embedded_datapoint_mults.push_back(nb_instances);
-      }
+      } // End of scan compound datapoints.
 
       // Build embedded datapoints:
       if (embedded_datapoint_labels.size() > 0) {
+        DT_LOG_DEBUG(_logging_, "Building embedded datapoints...");
         device_config_.store("embedded_devices.labels",
                              embedded_datapoint_labels,
                              "List of embedded datapoint devices");
-        for (int i = 0; i < (int) embedded_datapoint_labels.size(); i++) {
+        for (std::size_t i = 0; i < (int) embedded_datapoint_labels.size(); i++) {
           const std::string & embedded_datapoint_label = embedded_datapoint_labels[i];
+          DT_LOG_DEBUG(_logging_,"Build embedded datapoint '" << embedded_datapoint_label << "'...");
           int embedded_datapoint_mult = embedded_datapoint_mults[i];
           {
             // Embedded device model:
@@ -760,7 +881,7 @@ namespace vire {
             }
           }
         }
-      }
+      } // End build embedded datapoints.
 
       return;
     }
@@ -779,11 +900,13 @@ namespace vire {
       for (const auto & method : device_with_methods_.get_methods()) {
         DT_LOG_DEBUG(_logging_, "Scanning method '" << method.name << "'...");
 
-        // Check if compound DP is published:
+        // Check if method is published:
         bool public_method = is_published(method, method.name);
         if (! public_method && is_export_only_public_components()) {
           // We don't export this method component which is part of the non public interface:
-          std::cerr << "DEVEL: opcua_export_vire::_scan_methods:   --> DON'T EXPORT" << std::endl;
+          if (datatools::logger::is_debug(_logging_)) {
+            DT_LOG_DEBUG(_logging_,"Don't export method '" << method.name << "'.");
+          }
           continue;
         }
 
@@ -886,8 +1009,8 @@ namespace vire {
                                  | datatools::introspection::method::METHOD_XC_TYPE_ID
                                  | datatools::introspection::method::METHOD_XC_ARGUMENTS,
                                  "method.");
-     if (_logging_ >= datatools::logger::PRIO_DEBUG) {
-        method_port_config_.tree_dump(std::cerr, "Method port config: ", "[devel] ");
+      if (datatools::logger::is_debug(_logging_)) {
+        method_port_config_.tree_dump(std::cerr, "Method port config: ", "[debug] ");
       }
       return;
     }
@@ -977,16 +1100,42 @@ namespace vire {
       return;
     }
 
-    bool opcua_export_vire::is_published(const has_info_interface & with_info_, const std::string & name_) const
+    bool opcua_export_vire::is_special_published(const has_infos_interface & with_infos_,
+                                                 const std::string & name_) const
+    {
+      DT_LOG_DEBUG(get_logging(), "Process special publishing for object with name '" << name_ << "'");
+      bool published = true;
+      const std::type_info & ti = typeid(with_infos_);
+      if (published && ti == typeid(Method)) {
+        if (_export_no_getset_methods_ && name_ == "get") {
+          DT_LOG_DEBUG(get_logging(), "Found method with name '" << name_ << "'");
+          published = false;
+        }
+        if (_export_no_getset_methods_ && name_ == "set") {
+          DT_LOG_DEBUG(get_logging(), "Found method with name '" << name_ << "'");
+          published = false;
+        }
+      }
+      if (published && ti == typeid(CompoundDatapoint)) {
+        if (_export_no_private_informations_ && name_ == programs_informations_name()) {
+          DT_LOG_DEBUG(get_logging(), "Found compound datapoint with name '" << name_ << "'");
+          published = false;
+        }
+      }
+      return published;
+    }
+
+    bool opcua_export_vire::is_published(const has_infos_interface & with_infos_,
+                                         const std::string & name_) const
     {
       // Default is published:
       bool published = true;
-      if (with_info_.get_info()) {
-        const Info & info = with_info_.get_info().get();
+      if (published && with_infos_.get_infos().size() > 0) {
+        const Info & info = with_infos_.get_infos().front();
         if (info.scope_access) {
           // We found explicit "scope access" information:
           const ScopeAccess & scope_access = info.scope_access.get();
-          std::cerr << "DEVEL: opcua_export_vire::is_published: name='" << name_ << "': ScopeAccess = '" << scope_access << "'" << std::endl;
+          DT_LOG_DEBUG(get_logging(), "Name='" << name_ << "': ScopeAccess = '" << scope_access << "'");
           if (scope_access == SCOPE_ACCESS_INTERNAL) {
             published = false;
           } else if (scope_access == SCOPE_ACCESS_PROTECTED) {
@@ -994,7 +1143,11 @@ namespace vire {
           }
         }
       }
-      return published;
+      if (published && !is_special_published(with_infos_, name_)) {
+        DT_LOG_DEBUG(get_logging(), "Name='" << name_ << "' rejected by special published.");
+        published = false;
+      }
+     return published;
     }
 
   } // namespace mos

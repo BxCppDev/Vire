@@ -112,6 +112,20 @@ namespace vire {
       return out_;
     }
 
+    std::ostream & operator<<(std::ostream & out_, const Info & info_)
+    {
+      out_ << "(config=";
+      optional_print_yesno<Config>(info_.config, out_);
+      out_ << ";icd=";
+      optional_print_yesno<ICD>(info_.icd, out_);
+      out_<< ";name_space_level='";
+      optional_print_yesno<NameSpaceLevel>(info_.name_space_level, out_);
+      out_<< ";scope_access='";
+      optional_print_yesno<ScopeAccess>(info_.scope_access, out_);
+      out_ << "')";
+      return out_;
+    }
+
     void Info::tree_dump(std::ostream & out_,
                          const std::string & title_,
                          const std::string & indent_,
@@ -227,12 +241,32 @@ namespace vire {
       return unit;
     }
 
-    Instruction_set::~Instruction_set() {}
+    // virtual
+    const boost::optional<Info> & Variable::get_info() const
+    {
+      return info;
+    }
+
+    // virtual
+    const std::vector<Info> & Variable::get_infos() const
+    {
+      return infos;
+    }
+
+    // virtual
+    const std::vector<UserInfo> & Variable::get_userinfos() const
+    {
+      return userinfos;
+    }
+
+    Instruction_set::~Instruction_set()
+    {
+    }
 
     void Instruction_set::tree_dump(std::ostream & out_,
-                                const std::string & title_,
-                                const std::string & indent_,
-                                bool inherit_) const
+                                    const std::string & title_,
+                                    const std::string & indent_,
+                                    bool inherit_) const
     {
       if (! title_.empty()) {
         out_ << indent_ << title_ << std::endl;
@@ -313,6 +347,12 @@ namespace vire {
     const std::vector<Attribut> & BaseDevice::get_attributes() const
     {
       return attributes;
+    }
+
+    // virtual
+    const std::vector<Info> & BaseDevice::get_infos() const
+    {
+      return infos;
     }
 
     // virtual
@@ -415,6 +455,21 @@ namespace vire {
         info.get().tree_dump(out_, "", indent2.str());
       }
 
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Infos : " << infos.size() << std::endl;
+      {
+        unsigned int counter = 0;
+        for (const auto & info : infos) {
+          out_ << indent_ << datatools::i_tree_dumpable::skip_tag;
+          if (++counter == infos.size()) {
+            out_ << datatools::i_tree_dumpable::last_tag;
+          } else {
+            out_ << datatools::i_tree_dumpable::tag;
+          }
+          out_ << "Info : " << info << std::endl;
+        }
+      }
+
       out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "User infos : " << userinfos.size() << std::endl;
       {
@@ -508,9 +563,9 @@ namespace vire {
     }
 
     void CompoundDevice::tree_dump(std::ostream & out_,
-                                 const std::string & title_,
-                                 const std::string & indent_,
-                                 bool inherit_) const
+                                   const std::string & title_,
+                                   const std::string & indent_,
+                                   bool inherit_) const
     {
       this->BaseDevice::tree_dump(out_, title_, indent_, true);
 
@@ -624,9 +679,9 @@ namespace vire {
     }
 
     void CompoundDatapoint::tree_dump(std::ostream & out_,
-                                const std::string & title_,
-                                const std::string & indent_,
-                                bool inherit_) const
+                                      const std::string & title_,
+                                      const std::string & indent_,
+                                      bool inherit_) const
     {
       this->BaseDatapoint::tree_dump(out_, title_, indent_, true);
 
@@ -657,9 +712,9 @@ namespace vire {
     }
 
     void SimpleDatapoint::tree_dump(std::ostream & out_,
-                                const std::string & title_,
-                                const std::string & indent_,
-                                bool inherit_) const
+                                    const std::string & title_,
+                                    const std::string & indent_,
+                                    bool inherit_) const
     {
       this->BaseDatapoint::tree_dump(out_, title_, indent_, true);
 
@@ -740,6 +795,21 @@ namespace vire {
       }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Infos : " << infos.size() << std::endl;
+      {
+        unsigned int counter = 0;
+        for (const auto & info : infos) {
+          out_ << indent_ << datatools::i_tree_dumpable::skip_tag;
+          if (++counter == infos.size()) {
+            out_ << datatools::i_tree_dumpable::last_tag;
+          } else {
+            out_ << datatools::i_tree_dumpable::tag;
+          }
+          out_ << "Info : " << info << std::endl;
+        }
+      }
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Alarm methods : " << alarm_methods.size() << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
@@ -778,6 +848,12 @@ namespace vire {
     const boost::optional<Info> & BaseDatapoint::get_info() const
     {
       return info;
+    }
+
+    // virtual
+    const std::vector<Info> & BaseDatapoint::get_infos() const
+    {
+      return infos;
     }
 
     const boost::optional<Multiplicity> & BaseDatapoint::get_multiplicity() const
@@ -836,6 +912,21 @@ namespace vire {
         std::ostringstream indent2;
         indent2 << indent_ << datatools::i_tree_dumpable::skip_tag;
         info.get().tree_dump(out_, "", indent2.str());
+      }
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Infos : " << infos.size() << std::endl;
+      {
+        unsigned int counter = 0;
+        for (const auto & info : infos) {
+          out_ << indent_ << datatools::i_tree_dumpable::skip_tag;
+          if (++counter == infos.size()) {
+            out_ << datatools::i_tree_dumpable::last_tag;
+          } else {
+            out_ << datatools::i_tree_dumpable::tag;
+          }
+          out_ << "Info : " << info << std::endl;
+        }
       }
 
       out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
@@ -912,6 +1003,12 @@ namespace vire {
       return info;
     }
 
+    // virtual
+    const std::vector<Info> & Method::get_infos() const
+    {
+      return infos;
+    }
+
     void Method::tree_dump(std::ostream & out_,
                                 const std::string & title_,
                                 const std::string & indent_,
@@ -937,6 +1034,22 @@ namespace vire {
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Events : " << events.size() << std::endl;
+
+
+      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+           << "Infos : " << infos.size() << std::endl;
+      {
+        unsigned int counter = 0;
+        for (const auto & info : infos) {
+          out_ << indent_ << datatools::i_tree_dumpable::inherit_skip_tag(inherit_);
+          if (++counter == infos.size()) {
+            out_ << datatools::i_tree_dumpable::last_tag;
+          } else {
+            out_ << datatools::i_tree_dumpable::tag;
+          }
+          out_ << "Info : " << info << std::endl;
+        }
+      }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Info  : " ;

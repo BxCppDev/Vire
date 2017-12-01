@@ -34,8 +34,11 @@
 // This project:
 #include <vire/resource_files.h>
 #include <vire/mos/version.h>
+#include <vire/vire.h>
 
 namespace {
+
+  static bool _vireMosInit = false;
 
   void vire_mos_initialize_impl()
   {
@@ -102,13 +105,18 @@ namespace {
 namespace vire {
   namespace mos {
 
-    void initialize(int argc_, char * argv_[])
+    bool is_initialized()
     {
-      static bool _init = false;
-      if (! _init) {
+      return ::_vireMosInit;
+    }
+
+    void initialize(int argc_, char * argv_[], uint32_t flags_)
+    {
+      if (! ::_vireMosInit) {
         // Initialization code from Vire MOS itself:
+        ::vire::initialize(argc_,argv_, flags_);
         vire_mos_initialize_impl();
-        _init = true;
+        ::_vireMosInit = true;
       } else {
         DT_THROW_IF(true, std::logic_error,
                     "Attempt to initialize the already initialized Vire MOS library!");
@@ -118,13 +126,11 @@ namespace vire {
 
     void terminate()
     {
-      static bool _fini = false;
-      if (! _fini) {
-
+      if (::_vireMosInit) {
         // Termination code for Vire MOS:
+        ::_vireMosInit = false;
         vire_mos_terminate_impl();
-
-        _fini = true;
+        ::vire::terminate();
       } else {
         DT_THROW_IF(true, std::logic_error,
                     "Attempt to terminate the already terminated Vire MOS library!");

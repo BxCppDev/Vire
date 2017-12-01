@@ -51,12 +51,14 @@ struct app_config_params {
   std::string no_namespace_schema_loc;
   std::string output_vire_model_dir; //!< Name of the directory where to store Vire model definition files
   std::string server_model_name; //!< Name of the top level server model
+  std::string path_prefix; //!< Path prefix for the list of model definition files
+  bool merge_def_model_files = true; //!< Flag to merge all generated model definition files
   bool export_internals; //!< Flag to export non public (protected/internal) components
 };
 
 int main(int argc_, char * argv_[])
 {
-  vire::initialize(argc_, argv_, 0);
+  vire::mos::initialize(argc_, argv_, 0);
   int error_code = EXIT_SUCCESS;
    try {
     xercesc::XMLPlatformUtils::Initialize();
@@ -87,6 +89,13 @@ int main(int argc_, char * argv_[])
        po::value<std::string>(&cfg.output_vire_model_dir)
        ->value_name("dir"),
        "set the name of the output directory where to store device model definition files")
+
+      ("path-prefix,p",
+       po::value<std::string>(&cfg.path_prefix)
+       ->value_name("prefix"),
+       "set the path prefix for model definition filenames")
+
+      ("no-merge-def,m", "do not merge all model definition files")
 
       ("server-model-name,s",
        po::value<std::string>(&cfg.server_model_name)
@@ -131,6 +140,10 @@ int main(int argc_, char * argv_[])
       return(error_code);
     }
 
+    if (vm.count("no-merge-def")) {
+      cfg.merge_def_model_files = false;
+    }
+
     // Fetch the verbosity level:
     if (vm.count("logging-priority")) {
       const std::string & logging_label = vm["logging-priority"].as<std::string>();
@@ -154,9 +167,15 @@ int main(int argc_, char * argv_[])
                 "Missing input XML file '" << cfg.input_xml_filename << "'!");
 
     if (cfg.no_namespace_schema_loc.empty()) {
-      cfg.no_namespace_schema_loc = "@viremos:data/mos/xml/2.0.1/MOS_OPCUA.xsd";
+      cfg.no_namespace_schema_loc =
+        "@viremos:data/mos/xml/"
+        + vire::mos::version::get_xsd_version()
+        + "/MOS_OPCUA.xsd";
     }
     datatools::fetch_path_with_env(cfg.no_namespace_schema_loc);
+    DT_LOG_NOTICE(datatools::logger::PRIO_ALWAYS,
+                  "XSD dictionary file : '" << cfg.no_namespace_schema_loc << "'.");
+
     DT_THROW_IF(! boost::filesystem::exists(cfg.no_namespace_schema_loc),
                 std::runtime_error,
                 "Missing no namespace schema file '" << cfg.no_namespace_schema_loc << "'!");
@@ -164,6 +183,10 @@ int main(int argc_, char * argv_[])
     if (cfg.output_vire_model_dir.empty()) {
       cfg.output_vire_model_dir = "/tmp/${USER}";
     }
+    DT_LOG_NOTICE(datatools::logger::PRIO_ALWAYS,
+                  "Output Vire model directory : '" << cfg.output_vire_model_dir << "'.");
+
+
     datatools::fetch_path_with_env(cfg.output_vire_model_dir);
     if (! boost::filesystem::exists(cfg.output_vire_model_dir)) {
       if (!boost::filesystem::create_directories(cfg.output_vire_model_dir)) {
@@ -211,6 +234,8 @@ int main(int argc_, char * argv_[])
     to_vire_export.set_model_name(cfg.server_model_name);
     to_vire_export.set_logging(cfg.logging);
     to_vire_export.set_export_only_public_components(! cfg.export_internals);
+    to_vire_export.set_model_def_filename_path_prefix(cfg.path_prefix);
+    to_vire_export.set_model_merge_def_files(cfg.merge_def_model_files);
     to_vire_export.process(server);
 
   } catch (const xercesc::XMLException & error) {
@@ -232,7 +257,7 @@ int main(int argc_, char * argv_[])
   }
 
   xercesc::XMLPlatformUtils::Terminate();
-  vire::terminate();
+  vire::mos::terminate();
   return EXIT_SUCCESS;
 }
 
@@ -269,8 +294,7 @@ void scan_opcua_server(const vire::mos::OPCUA & server_)
       sdevice.tree_dump(std::clog, "Embedded simple device: ", "");
       if (sdevice.compound_datapoints.size()) {
         std::clog << "  Details about the " << sdevice.compound_datapoints.size() << " embedded compound datapoints: " << std::endl;
-        // for (const auto & cdatapoint : sdevice.compound_datapoints) {
-        for (int i = 0; i < sdevice.compound_datapoints.size(); i++) {
+        for (std::size_t i = 0; i < sdevice.compound_datapoints.size(); i++) {
           const auto & cdatapoint = sdevice.compound_datapoints[i];
           cdatapoint.tree_dump(std::clog, "Embedded compound datapoint: ", "  ");
           if (cdatapoint.simple_datapoints.size()) {

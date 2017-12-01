@@ -58,6 +58,8 @@
                                                     VIRE_MOS_VERSION >= \
                                                     VIRE_MOS_ENCODE_VERSION(major_,minor_,patch_))
 
+#define VIRE_MOS_XSD_VERSION "@VireMos_XSD_VERSION@"
+
 //----------------------------------------------------------------------
 // Runtime API
 namespace vire {
@@ -87,6 +89,9 @@ namespace vire {
 
       //! Return true if the named feature is available in Vire
       static bool has_feature(const std::string & feature_);
+
+      //! Return the full version number of Vire XSD dictionary as a string, e.g., '1.2.3'
+      static std::string get_xsd_version();
 
     };
 

@@ -290,12 +290,12 @@ namespace vire {
     {
       VIRE_MOS_BUILD_MANDATORY_VALUE(node_, "Name",         Name,         name_builder,          grab().name,          _logging);
       VIRE_MOS_BUILD_MANDATORY_VALUE(node_, "Type",         Type,         type_builder,          grab().type,          _logging);
-      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Unit",         Unit,         unit_builder,          grab().unit,         _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Unit",         Unit,         unit_builder,          grab().unit,          _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Access",       Access,       access_builder,        grab().access,        _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "DefaultValue", DefaultValue, default_value_builder, grab().default_value, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Description",  Description,  description_builder,   grab().description,   _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo,     userinfo_builder,      grab().userinfos, 0, _logging);
-     return;
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo,     userinfo_builder,      grab().userinfos, 0,  _logging);
+      return;
     }
 
     // base_hidf:
@@ -561,9 +561,10 @@ namespace vire {
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Sequence",     Sequence, sequence_builder, grab().sequences, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "EndDelimiter", EndDelimiter, end_delimiter_builder, grab().end_delimiters, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Event",        Event, event_builder, grab().events, 0, _logging);
-      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Info",         Info,         info_builder,          grab().info,          _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Info",         Info,     info_builder,          grab().info,          _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Info",         Info,     info_builder,      grab().infos,      0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Attribut",     Attribut, attribute_builder, grab().attributes, 0, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo, userinfo_builder, grab().userinfos, 0, _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo, userinfo_builder,  grab().userinfos,  0, _logging);
       return;
     }
 
@@ -584,6 +585,7 @@ namespace vire {
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "Method",       Method,       method_builder,       grab().methods,    0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "UserInfo",     UserInfo,     userinfo_builder,     grab().userinfos,  0, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Info",         Info,         info_builder,         grab().info,          _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "Info",         Info,         info_builder,         grab().infos,      0, _logging);
       return;
     }
 
@@ -683,6 +685,8 @@ namespace vire {
                                       simple_datapoint_builder, grab().simple_datapoints, 0, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Info", Info,
                                       info_builder, grab().info, _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "Info", Info,
+                                      info_builder, grab().infos, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "UserInfo", UserInfo,
                                       userinfo_builder, grab().userinfos, 0, _logging);
       return;
@@ -737,13 +741,14 @@ namespace vire {
 
     void opcua_builder::operator()(const xercesc::DOMNode * node_)
     {
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",       UserInfo,       userinfo_builder,        grab().userinfos, 0, _logging);
+      // VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "OPCUA",          OPCUA,          opcua_builder,           grab().opcuas, 0, _logging);
       VIRE_MOS_BUILD_MANDATORY_VALUE(node_, "Name",           Name,           name_builder,            grab().name, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "ServerPort",     ServerPort,     server_port_builder,     grab().server_port, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Attribut",       Attribut,       attribute_builder,       grab().attributes, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "FileName",       FileName,       filename_builder,        grab().filenames, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "CompoundDevice", CompoundDevice, compound_device_builder, grab().compound_devices, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "SimpleDevice",   SimpleDevice,   simple_device_builder,   grab().simple_devices, 0, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",       UserInfo,       userinfo_builder,        grab().userinfos, 0, _logging);
       return;
     }
 

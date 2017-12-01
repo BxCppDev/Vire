@@ -46,7 +46,8 @@ namespace vire {
     typedef unsigned long int hexBinary;
 
     //! Explicit hexadecimal value
-    struct HexaValue {
+    struct HexaValue
+    {
       hexBinary bits;
       friend std::ostream & operator<<(std::ostream & out_, const HexaValue & attr_);
     };
@@ -166,10 +167,13 @@ namespace vire {
 
     typedef std::string DefaultValue;
     typedef std::string Value;
-    typedef bool        Enable;
-    typedef std::string Name;
-    typedef int         Severity;
     typedef std::string Message;
+    typedef bool        Enable;
+    typedef int         Severity;
+    typedef std::string Name;
+    typedef std::string Mnemonic;
+    typedef std::string ResolutionDataChange;
+    typedef std::string ResolutionDataChangeMode;
     typedef int         Multiplicity;
     typedef int         StartNumberingMultiplicity;
     typedef std::string DataFrameStructureRef;
@@ -242,17 +246,20 @@ namespace vire {
       return;
     }
 
-    struct has_name_interface {
+    struct has_name_interface
+    {
       virtual const std::string & get_name() const = 0;
     };
 
-    struct Unit {
+    struct Unit
+    {
       std::string dimension;
       std::string unit;
     };
 
     // New in 2.0 (was bool typedef)
-    struct Asynchronous {
+    struct Asynchronous
+    {
       Enable         enable;
       TimeOut        timeout;
       EndInstruction end_instruction;
@@ -261,24 +268,33 @@ namespace vire {
 
     struct Info;
 
-    struct has_info_interface {
+    struct has_info_interface
+    {
       virtual const boost::optional<Info> & get_info() const = 0;
+    };
+
+    struct has_infos_interface
+    {
+      virtual const std::vector<Info> & get_infos() const = 0;
     };
 
     struct Attribut;
 
-    struct has_attributes_interface {
+    struct has_attributes_interface
+    {
       virtual const std::vector<Attribut> & get_attributes() const = 0;
     };
 
     struct UserInfo;
 
-    struct has_userinfos_interface {
+    struct has_userinfos_interface
+    {
       virtual const std::vector<UserInfo> & get_userinfos() const = 0;
     };
 
     //! \brief Description of an instruction
-    struct Instruction : public datatools::i_tree_dumpable
+    struct Instruction
+      : public datatools::i_tree_dumpable
     {
       Name                          name;
       boost::optional<Cmd>          cmd;
@@ -293,7 +309,8 @@ namespace vire {
     };
 
     //! \brief A set of instructions
-    struct Instruction_set : public datatools::i_tree_dumpable
+    struct Instruction_set
+      : public datatools::i_tree_dumpable
     {
       std::vector<Instruction>     instructions;
 
@@ -305,7 +322,8 @@ namespace vire {
     };
 
     //! \brief Base class for alarm and error objects
-    struct Base_ErrorAlarm : public datatools::i_tree_dumpable
+    struct Base_ErrorAlarm
+      : public datatools::i_tree_dumpable
     {
       Value                        value;
       boost::optional<Message>     message;
@@ -321,35 +339,51 @@ namespace vire {
     };
 
     //! \brief Undocumented
-    struct Error_LimitHigh : public Base_ErrorAlarm {
+    struct Error_LimitHigh
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Error_LimitLow : public Base_ErrorAlarm {
+    struct Error_LimitLow
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Error_Equal : public Base_ErrorAlarm {
+    struct Error_Equal
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Error_NotEqual : public Base_ErrorAlarm {
+    struct Error_NotEqual
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Alarm_LimitHigh : public Base_ErrorAlarm {
+    struct Alarm_LimitHigh
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Alarm_LimitLow : public Base_ErrorAlarm {
+    struct Alarm_LimitLow
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Alarm_Equal : public Base_ErrorAlarm {
+    struct Alarm_Equal
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Undocumented
-    struct Alarm_NotEqual : public Base_ErrorAlarm {
+    struct Alarm_NotEqual
+      : public Base_ErrorAlarm
+    {
     };
 
     //! \brief Generic alarm/error object
@@ -415,38 +449,10 @@ namespace vire {
     };
 
     //! \brief Object interface with type and optional unit support
-    struct has_type_interface {
+    struct has_type_interface
+    {
       virtual Type get_type() const = 0;
       virtual const boost::optional<Unit> & get_unit() const = 0;
-    };
-
-    //! \brief Description of a variable
-    struct Variable : public has_type_interface
-    {
-      Name                         name;
-      Type                         type;
-      boost::optional<Unit>        unit;
-      Multiplicity                 multiplicity;
-      boost::optional<Value>       value;
-      boost::optional<ArraySize>   array_size;
-      std::vector<ElementArray>    elements;
-      boost::optional<Description> description;
-      boost::optional<Historizing> historizing;
-      boost::optional<AccesLevel>  acces_level;
-      boost::optional<WriteMask>   write_mask;
-
-      virtual ~Variable();
-      virtual Type get_type() const;
-      virtual const boost::optional<Unit> & get_unit() const;
-
-    };
-
-    //! \brief Range with min/max directives
-    struct Range
-    {
-      boost::optional<Min> min;
-      boost::optional<Max> max;
-      friend std::ostream & operator<<(std::ostream & out_, const Range & r_);
     };
 
     //! \brief Optional informations
@@ -461,9 +467,50 @@ namespace vire {
                              const std::string & title_  = "",
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
+      friend std::ostream & operator<<(std::ostream & out_, const Info & info_);
     };
 
-    //! \brief Undocumented XXX
+    //! \brief Description of a variable
+    struct Variable
+      : public has_type_interface
+      , public has_userinfos_interface
+      , public has_infos_interface
+      , public has_info_interface
+    {
+      boost::optional<Info>        info;
+      std::vector<Info>            infos;
+      std::vector<UserInfo>        userinfos;
+      Name                         name;
+      Type                         type;
+      boost::optional<Unit>        unit;
+      Multiplicity                 multiplicity;
+      boost::optional<StartNumberingMultiplicity> start_numbering_multiplicity;
+      boost::optional<Value>       value;
+      boost::optional<ArraySize>   array_size;
+      std::vector<ElementArray>    elements;
+      boost::optional<Description> description;
+      boost::optional<Historizing> historizing;
+      boost::optional<AccesLevel>  acces_level;
+      boost::optional<WriteMask>   write_mask;
+
+      virtual ~Variable();
+      virtual Type get_type() const;
+      virtual const boost::optional<Unit> & get_unit() const;
+      virtual const boost::optional<Info> & get_info() const;
+      virtual const std::vector<Info> & get_infos() const;
+      virtual const std::vector<UserInfo> & get_userinfos() const;
+
+    };
+
+    //! \brief Range with min/max directives
+    struct Range
+    {
+      boost::optional<Min> min;
+      boost::optional<Max> max;
+      friend std::ostream & operator<<(std::ostream & out_, const Range & r_);
+    };
+
+    //! \brief Undocumented
     struct DefaultArgument
     {
       Value value;
@@ -487,9 +534,10 @@ namespace vire {
     };
 
     //! \brief Description of an argument
-    struct Argument : public has_name_interface,
-                      public has_type_interface,
-                      public has_userinfos_interface
+    struct Argument
+      : public has_name_interface
+      , public has_type_interface
+      , public has_userinfos_interface
     {
       Name  name;
       Type  type;
@@ -508,8 +556,9 @@ namespace vire {
 
     };
 
-    //! Base class for other data structures
-    struct base_hidf : public has_type_interface
+    //! \brief Base class for other data structures
+    struct base_hidf
+      : public has_type_interface
     {
       Name name;
       Type type;
@@ -525,23 +574,33 @@ namespace vire {
     };
 
     //! \brief Undocumented
-    struct Header : public base_hidf {
+    struct Header
+      : public base_hidf
+    {
     };
 
     //! \brief Undocumented
-    struct Id1 : public base_hidf {
+    struct Id1
+      : public base_hidf
+    {
     };
 
     //! \brief Undocumented
-    struct Id2 : public base_hidf {
+    struct Id2
+      : public base_hidf
+    {
     };
 
     //! \brief Undocumented
-    struct Data : public base_hidf {
+    struct Data
+      : public base_hidf
+    {
     };
 
     //! \brief Undocumented
-    struct Footer : public base_hidf {
+    struct Footer
+      : public base_hidf
+    {
     };
 
     //! \brief Undocumented
@@ -555,7 +614,8 @@ namespace vire {
     };
 
     //! \brief Undocumented
-    struct Frame_elementString : public has_type_interface
+    struct Frame_elementString
+      : public has_type_interface
     {
       Name name;
       Type type;
@@ -571,7 +631,8 @@ namespace vire {
     };
 
     //! \brief Undocumented
-    struct Frame_element : public has_type_interface
+    struct Frame_element
+      : public has_type_interface
     {
       Name  name;
       Type  type;
@@ -649,10 +710,12 @@ namespace vire {
     };
 
     //! \brief Description of a method
-    struct Method : public has_name_interface,
-                    public has_attributes_interface,
-                    public has_userinfos_interface,
-                    public has_info_interface
+    struct Method
+      : public has_name_interface
+      , public has_attributes_interface
+      , public has_userinfos_interface
+      , public has_infos_interface
+      , public has_info_interface
     {
       Name                           name;
       std::vector<Argument>          arguments;
@@ -661,12 +724,14 @@ namespace vire {
       std::vector<EndDelimiter>      end_delimiters;
       std::vector<Event>             events;
       boost::optional<Info>          info;
+      std::vector<Info>              infos;
       std::vector<Attribut>          attributes;
       std::vector<UserInfo>          userinfos;
 
       virtual const std::string & get_name() const;
       virtual const std::vector<Attribut> & get_attributes() const;
       virtual const boost::optional<Info> & get_info() const;
+      virtual const std::vector<Info> & get_infos() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
 
       virtual ~Method();
@@ -676,29 +741,34 @@ namespace vire {
                              bool inherit_ = false) const;
     };
 
-    struct has_common_interface  : public has_name_interface,
-                                   public has_attributes_interface
+    struct has_common_interface
+      : public has_name_interface
+      , public has_attributes_interface
     {
       virtual const boost::optional<Multiplicity> & get_multiplicity() const = 0;
     };
 
-    struct has_methods_interface {
+    struct has_methods_interface
+    {
       virtual const std::vector<Method> & get_methods() const = 0;
     };
 
     struct SimpleDatapoint;
     struct CompoundDatapoint;
 
-    struct has_datapoints_interface {
+    struct has_datapoints_interface
+    {
       virtual const std::vector<SimpleDatapoint> & get_simple_datapoints() const = 0;
       virtual const std::vector<CompoundDatapoint> & get_compound_datapoints() const = 0;
     };
 
     //! \brief Base description of a datapoint
-    struct BaseDatapoint : public has_common_interface,
-                           public has_userinfos_interface,
-                           public has_methods_interface,
-                           public has_info_interface
+    struct BaseDatapoint
+      : public has_common_interface
+      , public has_userinfos_interface
+      , public has_methods_interface
+      , public has_infos_interface
+      , public has_info_interface
     {
       Name                          name;
       boost::optional<Multiplicity> multiplicity;
@@ -706,6 +776,7 @@ namespace vire {
       std::vector<Attribut>         attributes;
       std::vector<Method>           methods;
       boost::optional<Info>         info;
+      std::vector<Info>             infos;
       std::vector<UserInfo>         userinfos;
 
       virtual const std::string & get_name() const;
@@ -713,6 +784,7 @@ namespace vire {
       virtual const std::vector<Attribut> & get_attributes() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
       virtual const boost::optional<Info> & get_info() const;
+      virtual const std::vector<Info> & get_infos() const;
       virtual const std::vector<Method> & get_methods() const;
 
       virtual ~BaseDatapoint();
@@ -723,8 +795,9 @@ namespace vire {
     };
 
     //! \brief Description of a simple datapoint
-    struct SimpleDatapoint : public BaseDatapoint,
-                             public has_type_interface
+    struct SimpleDatapoint
+      : public BaseDatapoint
+      , public has_type_interface
     {
       Type                          type;
       boost::optional<Id>           id;
@@ -743,8 +816,10 @@ namespace vire {
       boost::optional<Alarm>        alarm;
       std::vector<AlarmMethod>      alarm_methods;
       std::vector<Variable>         variables;
-      std::vector<Frame_element>    frame_elements;
-      std::vector<Frame_elementString> frame_element_strings;
+      std::vector<Frame_element>                frame_elements;
+      std::vector<Frame_elementString>          frame_element_strings;
+      boost::optional<ResolutionDataChange>     resolution_data_change;
+      boost::optional<ResolutionDataChangeMode> resolution_data_change_mode;
 
       virtual Type get_type() const;
       virtual const boost::optional<Unit> & get_unit() const;
@@ -757,8 +832,9 @@ namespace vire {
     };
 
     //! \brief Description of a compound datapoint
-    struct CompoundDatapoint : public BaseDatapoint,
-                               public has_datapoints_interface
+    struct CompoundDatapoint
+      : public BaseDatapoint
+      , public has_datapoints_interface
     {
       std::vector<CompoundDatapoint> compound_datapoints;
       std::vector<SimpleDatapoint>   simple_datapoints;
@@ -780,11 +856,13 @@ namespace vire {
     };
 
     //! \brief Base description of a device
-    struct BaseDevice : public datatools::i_tree_dumpable,
-                        public has_common_interface,
-                        public has_userinfos_interface,
-                        public has_datapoints_interface,
-                        public has_info_interface
+    struct BaseDevice
+      : public datatools::i_tree_dumpable
+      , public has_common_interface
+      , public has_userinfos_interface
+      , public has_datapoints_interface
+      , public has_infos_interface
+      , public has_info_interface
     {
       Name                                   name;
       boost::optional<Multiplicity>          multiplicity;
@@ -795,13 +873,15 @@ namespace vire {
       std::vector<Attribut>                  attributes;
       std::vector<CompoundDatapoint>         compound_datapoints;
       std::vector<SimpleDatapoint>           simple_datapoints;
-      boost::optional<Info>                  info;
       std::vector<UserInfo>                  userinfos;
+      boost::optional<Info>                  info;
+      std::vector<Info>                      infos;
 
       virtual const std::string & get_name() const;
       virtual const boost::optional<Multiplicity> & get_multiplicity() const;
       virtual const std::vector<Attribut> & get_attributes() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
+      virtual const std::vector<Info> & get_infos() const;
       virtual const boost::optional<Info> & get_info() const;
 
       virtual const std::vector<SimpleDatapoint> & get_simple_datapoints() const;
@@ -817,14 +897,16 @@ namespace vire {
     struct SimpleDevice;
     struct CompoundDevice;
 
-    struct has_devices_interface {
+    struct has_devices_interface
+    {
       virtual const std::vector<SimpleDevice> & get_simple_devices() const = 0;
       virtual const std::vector<CompoundDevice> & get_compound_devices() const = 0;
     };
 
     //! \brief Description of a simple device
-    struct SimpleDevice : public BaseDevice,
-                          public has_methods_interface
+    struct SimpleDevice
+      : public BaseDevice
+      , public has_methods_interface
     {
       boost::optional<Plugins>             plugins;
       boost::optional<Instruction_set>     instruction_set;
@@ -843,8 +925,9 @@ namespace vire {
     };
 
     //! \brief Description of a compound device
-    struct CompoundDevice : public BaseDevice,
-                            public has_devices_interface
+    struct CompoundDevice
+      : public BaseDevice
+      , public has_devices_interface
     {
       std::vector<CompoundDevice> compound_devices;
       std::vector<SimpleDevice>   simple_devices;
@@ -860,12 +943,14 @@ namespace vire {
     };
 
     //! \brief Description of an OPCUA server
-    struct OPCUA : public datatools::i_tree_dumpable,
-                   public has_name_interface,
-                   public has_attributes_interface,
-                   public has_devices_interface,
-                   public has_userinfos_interface
+    struct OPCUA
+      : public datatools::i_tree_dumpable
+      , public has_name_interface
+      , public has_attributes_interface
+      , public has_devices_interface
+      , public has_userinfos_interface
     {
+      std::vector<UserInfo>         userinfos;
       Name                          name; //!< Name of the OPCUA server
       // std::vector<OPCUA>            opcuas; //!< Added in 0.2 but not supported yet
       boost::optional<ServerPort>   server_port;
@@ -873,7 +958,6 @@ namespace vire {
       std::vector<FileName>         filenames;
       std::vector<CompoundDevice>   compound_devices;
       std::vector<SimpleDevice>     simple_devices;
-      std::vector<UserInfo>         userinfos;
 
       virtual const std::string & get_name() const;
       virtual const std::vector<Attribut> & get_attributes() const;
