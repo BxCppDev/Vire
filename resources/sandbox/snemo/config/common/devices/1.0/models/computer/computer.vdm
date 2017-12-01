@@ -1,0 +1,30 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of computer devices/ports
+#@key_label  "name"
+#@meta_label "type"
+
+
+##########################################################################
+[name="computer_blade_1U@device" type="vire::device::base_rackable_model"]
+
+#@config Parameters describing a generic computer blade (1U)
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type : string = "inout"
+
+# #@description Format of the rackable
+# format : string = "19inch"
+
+#@description Height of the blade
+height : integer = 1
+
+# #@description Width of the blade (inches)
+# width : integer = 19
+
+
+# end of computer.vdm
