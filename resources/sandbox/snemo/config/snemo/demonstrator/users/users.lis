@@ -1,0 +1,133 @@
+# Format: datatools::multi_properties
+
+#@description Vire users table
+#@key_label "uid"
+#@meta_label "type"
+
+[uid="0" type="vire::user::user"]
+
+
+aux.email : string = "admin@myexperiment.org"
+
+
+aux.type : string = "human"
+
+
+
+#@description Display name
+display_name : string = "Administrator"
+
+
+
+#@description Name
+name : string = "admin"
+
+
+
+#@description Short description
+terse_description : string = "This is a mock Vire user"
+
+
+[uid="2000" type="vire::user::user"]
+
+
+aux.email : string = "johndoe@myexperiment.org"
+
+
+aux.phone : string = "(+00) 1 23 45 67 89"
+
+
+aux.type : string = "human"
+
+
+
+#@description Display name
+display_name : string = "John Doe"
+
+
+
+#@description Name
+name : string = "johndoe"
+
+
+
+#@description Short description
+terse_description : string = "This is a mock Vire user"
+
+
+[uid="2001" type="vire::user::user"]
+
+
+aux.type : string = "robot"
+
+
+
+#@description Display name
+display_name : string = "HV monitor"
+
+
+
+#@description Name
+name : string = "hvmonitor"
+
+
+
+#@description Short description
+terse_description : string = "This is a mock Vire robot user"
+
+
+[uid="2002" type="vire::user::user"]
+
+
+aux.email : string = "foo@myexperiment.org"
+
+
+aux.phone : string = "(+00) 9 87 65 43 21"
+
+
+aux.type : string = "human"
+
+
+
+#@description Display name
+display_name : string = "Foo user"
+
+
+
+#@description Name
+name : string = "foo"
+
+
+
+#@description Short description
+terse_description : string = "This is a mock Vire user"
+
+
+[uid="2003" type="vire::user::user"]
+
+
+aux.email : string = "bar@myexperiment.org"
+
+
+aux.phone : string = "(+00) 6 19 82 73 54"
+
+
+aux.type : string = "human"
+
+
+
+#@description Display name
+display_name : string = "Bar user"
+
+
+
+#@description Name
+name : string = "bar"
+
+
+
+#@description Short description
+terse_description : string = "This is a mock Vire user"
+
+
+# end
