@@ -17,24 +17,24 @@ logging.priority : string = "fatal"
 #@description Type of device
 type      : string  = "generic"
 
+#@description Virtual device
+virtual : boolean = true
+
 ####################
 # Embedded devices #
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[2] = "Detector" "CMS"
+embedded_devices.labels : string[2] = "Detector" "CMS" # "Electronics"
 
 #@description The device model associated to the Detector
-embedded_devices.model.Detector  : string = "sndemo.detector"
-# embedded_devices.instance.Detector : string = "vire::device::single_instance=[slot=(1:0)]"
+embedded_devices.model.Detector    : string = "sndemo.detector"
 
 #@description The device model associated to the CMS
-embedded_devices.model.CMS       : string = "sndemo.cms"
-embedded_devices.instance.CMS : string = "vire::device::single_instance=[slot=(1:0)]"
+embedded_devices.model.CMS         : string = "sndemo.cms"
 
-# #@description The device model associated to the Electronics
-# embedded_devices.model.Electronics  : string = "sndemo.electronics"
-# # embedded_devices.instance.Electronics : string = "vire::device::single_instance=[slot=(1:0)]"
+#@description The device model associated to the Electronics
+embedded_devices.model.Electronics : string = "sndemo.electronics"
 
 ########################
 # Auxiliary properties #

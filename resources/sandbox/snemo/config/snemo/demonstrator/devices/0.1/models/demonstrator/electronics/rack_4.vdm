@@ -14,22 +14,36 @@
 #@parameter Logging priority threshold
 logging.priority : string = "trace"
 
-###################
-# Embedded crates #
-###################
+#@description Rack format
+format : string = "42U"
 
-#@description Maximum number of crates
-max_number_of_crates : integer = 4
+#@description Width of the rack (inches) and embedded rackable
+width : integer = 19
 
-#@description List of embedded crates
-crates.slot_0.model  : string = "sndemo.tracker_crate"
-crates.slot_0.label  : string = "TrackerHVCrate_0"
-crates.slot_1.model  : string = "sndemo.tracker_crate"
-crates.slot_1.label  : string = "TrackerHVCrate_1"
-crates.slot_2.model  : string = "sndemo.tracker_crate"
-crates.slot_2.label  : string = "TrackerHVCrate_2"
-crates.slot_3.model  : string = "sndemo.tracker_hv_ps_crate"
-crates.slot_3.label  : string = "TrackerHVPS"
+#####################
+# Embedded rackable #
+#####################
+
+#@description Maximum number of rackable
+max_number_of_rackable : integer = 42
+
+#@description List of embedded rackable
+rackable.slot_4.model   : string = "sndemo.tracker_crate"
+rackable.slot_4.label   : string = "TrackerHVCrate_0"
+
+rackable.slot_14.model  : string = "sndemo.tracker_crate"
+rackable.slot_14.label  : string = "TrackerHVCrate_1"
+
+rackable.slot_24.model  : string = "sndemo.tracker_crate"
+rackable.slot_24.label  : string = "TrackerHVCrate_2"
+
+rackable.slot_34.model  : string = "sndemo.tracker_hv_ps_crate"
+rackable.slot_34.label  : string = "TrackerHVPS"
+
+rackable.slot_39.model  : string = "sndemo.rack_fan_crate"
+rackable.slot_39.label  : string = "RackFan"
+rackable.slot_40.model  : string = "sndemo.rack_ac_outlet_crate"
+rackable.slot_40.label  : string = "AC_Outlet"
 
 ########################
 # Auxiliary properties #

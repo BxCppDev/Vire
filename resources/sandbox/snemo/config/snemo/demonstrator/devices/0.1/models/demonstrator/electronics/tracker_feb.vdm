@@ -6,51 +6,6 @@
 #@meta_label "type"
 
 
-#########################################################################################
-[name="sndemo.tracker_feb.feast.input_channel@port" type="vire::device::base_port_model"]
-
-#@config Parameters describing the signal input port of the FEAST ship
-
-#@parameter Logging priority threshold
-logging.priority : string = "fatal"
-
-#@description Type of I/O
-io_type : string = "in"
-
-
-###########################################################################################
-[name="sndemo.tracker_feb.feast@device" type="vire::device::base_integrated_circuit_model"]
-
-#@config Parameters describing the FEAST ship
-
-#@parameter Logging priority threshold
-logging.priority : string = "fatal"
-
-#@description Type of device
-type : string = "chip_asic"
-
-####################
-# Embedded devices #
-####################
-
-#@description Manufacturer the board
-aux.manufacturer : string = "SuperNEMO Collaboration/LPC Caen"
-
-#@description Model of the board
-aux.model : string = "FEAST"
-
-#########
-# Ports #
-#########
-
-#@description List of ports
-ports.labels : string[1] = "Input"
-
-# Port model associated to the input signal ports:
-ports.model.Input    : string = "sndemo.tracker_feb.feast.input_channel"
-ports.instance.Input : string = "vire::device::regular_1d_instance=[nslots=54;first_slot=(1:0);step=(1)]"
-
-
 ###############################################################################################
 [name="sndemo.tracker_feb.ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
 
@@ -110,7 +65,7 @@ slot_width : integer = 1
 embedded_devices.labels : string[2] = "Feast" "ControlFPGA"
 
 # Device model associated to the embedded Feast ASICs:
-embedded_devices.model.Feast    : string = "sndemo.tracker_feb.feast"
+embedded_devices.model.Feast    : string = "feast_asic"
 embedded_devices.instance.Feast : string = "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
 
 # Device model associated to the embedded control FPGA:

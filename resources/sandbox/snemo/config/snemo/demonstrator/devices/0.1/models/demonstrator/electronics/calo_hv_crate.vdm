@@ -6,14 +6,19 @@
 #@meta_label "type"
 
 
-###########################################################################
-[name="sndemo.calo_hv_crate@device" type="vire::device::base_device_model"]
+#############################################################################
+[name="sndemo.calo_hv_crate@device" type="vire::device::base_rackable_model"]
 
 #@config Parameters describing the Calorimeter HV power supply crate
 
 #@parameter Logging priority threshold
 logging.priority : string = "trace"
 
+#@parameter Height of the crate
+height : integer = 8
+
+#@parameter Width of the crate
+width : integer =  19
 
 ########################
 # Auxiliary properties #
@@ -22,8 +27,8 @@ logging.priority : string = "trace"
 #@description Manufacturer the module
 aux.manufacturer : string = "CAEN"
 
-# #@description Model of the setup
-# aux.model        : string = ""
+#@description Model of the setup
+aux.model        : string = "SY4527"
 
 
 # end of calo_hv_crate.vdm

@@ -17,33 +17,42 @@ logging.priority : string = "trace"
 #@description Rack format
 format : string = "42U"
 
-###################
-# Embedded crates #
-###################
+#@description Width of the rack (inches) and embedded rackable
+width : integer = 19
 
-#@description Maximum number of crates
-max_number_of_crates : integer = 42
+#####################
+# Embedded rackable #
+#####################
 
-#@description List of embedded crates
-crates.slot_0.model  : string = "sndemo.ups_crate"
-crates.slot_0.label  : string = "UPS"
-crates.slot_2.model  : string = "sndemo.ethernet_switch_crate"
-crates.slot_2.label  : string = "EthernetSwitch"
-crates.slot_3.model  : string = "sndemo.pc_blade_crate"
-crates.slot_3.label  : string = "PC_CMS"
-crates.slot_4.model  : string = "sndemo.pc_blade_crate"
-crates.slot_4.label  : string = "PC_DAQ"
-crates.slot_5.model  : string = "sndemo.pc_blade_crate"
-crates.slot_5.label  : string = "PC_Frontend"
+#@description Maximum number of rackable
+max_number_of_rackable : integer = 42
 
-crates.slot_14.model  : string = "sndemo.xgt_crate"
-crates.slot_14.label  : string = "CaloCrate_2"
-crates.slot_24.model  : string = "sndemo.main_calo_crate"
-crates.slot_24.label  : string = "CaloCrate_1"
-crates.slot_40.model  : string = "sndemo.rack_fan_crate"
-crates.slot_40.label  : string = "RackFan"
-crates.slot_41.model  : string = "sndemo.rack_ac_outlet_crate"
-crates.slot_41.label  : string = "AC_Outlet"
+#@description List of embedded rackable
+rackable.slot_5.model  : string = "sndemo.ups_crate"
+rackable.slot_5.label  : string = "UPS"
+
+rackable.slot_8.model  : string = "sndemo.ethernet_switch_crate"
+rackable.slot_8.label  : string = "EthernetSwitch"
+
+rackable.slot_10.model  : string = "computer_blade_1U"
+rackable.slot_10.label  : string = "PC_CMS"
+
+rackable.slot_11.model  : string = "computer_blade_1U"
+rackable.slot_11.label  : string = "PC_DAQ"
+
+rackable.slot_12.model  : string = "computer_blade_1U"
+rackable.slot_12.label  : string = "PC_Frontend"
+
+rackable.slot_16.model  : string = "sndemo.xgt_crate"
+rackable.slot_16.label  : string = "CaloCrate_2"
+
+rackable.slot_28.model  : string = "sndemo.main_calo_crate"
+rackable.slot_28.label  : string = "CaloCrate_1"
+
+rackable.slot_39.model  : string = "sndemo.rack_fan_crate"
+rackable.slot_39.label  : string = "RackFan"
+rackable.slot_40.model  : string = "sndemo.rack_ac_outlet_crate"
+rackable.slot_40.label  : string = "AC_Outlet"
 
 ########################
 # Auxiliary properties #

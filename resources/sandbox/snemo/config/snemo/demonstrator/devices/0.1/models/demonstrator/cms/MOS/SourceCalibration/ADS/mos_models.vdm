@@ -1,0 +1,16 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@key_label "name"
+#@meta_label "type"
+
+[name="sndemo.mos.SourceCalibration.SOURCE_CALIBRATION_1.Source_Calibration@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple device
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDevice"
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)

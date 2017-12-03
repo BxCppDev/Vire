@@ -1,0 +1,34 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the top-level SuperNEMO demonstrator CMS coil
+#@key_label  "name"
+#@meta_label "type"
+
+
+######################################################################
+[name="sndemo.cms.coil@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator CMS coil
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type      : string  = "generic"
+
+#@description Virtual device
+virtual : boolean  = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[1] = "PS"
+
+#@description The device model associated to the PS
+embedded_devices.model.PS : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.model"
+
+
+# end of cms_coil.vdm

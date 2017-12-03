@@ -6,13 +6,16 @@
 #@meta_label "type"
 
 
-#################################################################################
-[name="sndemo.tracker_hv_ps_crate@device" type="vire::device::base_device_model"]
+###################################################################################
+[name="sndemo.tracker_hv_ps_crate@device" type="vire::device::base_rackable_model"]
 
 #@config Parameters describing the tracker HV main power supply + computer interface crate
 
 #@parameter Logging priority threshold
 logging.priority : string = "trace"
+
+#@parameter Height of the crate
+height : integer =  3
 
 ########################
 # Auxiliary properties #
@@ -21,14 +24,19 @@ logging.priority : string = "trace"
 #@description Manufacturer the module
 aux.manufacturer : string = "ACME"
 
-##############################################################################
-[name="sndemo.tracker_hv_crate@device" type="vire::device::base_device_model"]
+################################################################################
+[name="sndemo.tracker_hv_crate@device" type="vire::device::base_rackable_model"]
 
 #@config Parameters describing the tracker HV crate
 
 #@parameter Logging priority threshold
 logging.priority : string = "trace"
 
+#@parameter Height of the crate (U)
+height : integer =  8
+
+#@parameter Width of the crate (inch)
+width : integer =  19
 
 ########################
 # Auxiliary properties #

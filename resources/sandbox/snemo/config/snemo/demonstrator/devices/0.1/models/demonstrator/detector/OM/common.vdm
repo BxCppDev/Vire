@@ -1,0 +1,48 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to calorimeter optical modules
+#@key_label  "name"
+#@meta_label "type"
+
+
+#####################################################################
+[name="om_fiber_input_pin@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the signal input LED fiber port of the SuperNEMO calorimeter optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of I/O
+io_type : string  = "in"
+
+#@description Format of the port
+format : string  = "optical_fiber"
+
+
+###################################################################
+[name="pmt_hv_input_pin@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the HV input port of the SuperNEMO calorimeter optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of I/O
+io_type : string  = "in"
+
+
+####################################################################
+[name="pmt_sig_ouput_pin@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the signal output port of the SuperNEMO calorimeter optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of I/O
+io_type : string  = "out"
+
+
+# end of common.vdm

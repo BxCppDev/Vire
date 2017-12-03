@@ -1,0 +1,13 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator coil
+#@key_label  "category"
+#@meta_label "type"
+
+
+################################
+[category="coil.dc" type="1600"]
+inherits : string   = "module.dc"
+
+# end of coil.vdc

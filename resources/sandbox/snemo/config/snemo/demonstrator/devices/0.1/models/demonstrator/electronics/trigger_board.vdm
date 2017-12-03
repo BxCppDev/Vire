@@ -28,8 +28,8 @@ aux.manufacturer : string = "Altera"
 aux.model        : string = "Cyclone III"
 
 
-#####################################################################################
-[name="sndemo.trigger_board@device" type="vire::device::base_electronics_rack_model"]
+#######################################################################################
+[name="sndemo.trigger_board@device" type="vire::device::base_electronics_module_model"]
 
 #@config Parameters describing the Trigger Board
 

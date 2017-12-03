@@ -1,0 +1,68 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the top-level SuperNEMO demonstrator CMS
+#@key_label  "name"
+#@meta_label "type"
+
+
+################################################################################
+[name="sndemo.cms.calorimeter.hv@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator CMS calorimeter HV
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+# #@description Unique identifier of the device model
+# model_key : integer = 0
+
+#@description Type of device
+type      : string  = "generic"
+
+#@description Virtual device
+virtual : boolean  = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[2] = "PS_0" "PS_1"
+
+#@description The device model associated to the PS_0
+embedded_devices.model.PS_0 : string = "sndemo.mos.Calorimeter.HV.PS_0.CALO_HVPS_1"
+
+#@description The device model associated to the PS_1
+embedded_devices.model.PS_1 : string = "sndemo.mos.Calorimeter.HV.PS_1.CALO_HVPS_2"
+
+
+#############################################################################
+[name="sndemo.cms.calorimeter@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator CMS calorimeter
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+# #@description Unique identifier of the device model
+# model_key : integer = 0
+
+#@description Type of device
+type      : string  = "generic"
+
+#@description Virtual device
+virtual : boolean  = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[1] = "HV"
+
+#@description The device model associated to the HV
+embedded_devices.model.HV : string = "sndemo.cms.calorimeter.hv"
+
+
+# end of cms_calorimeter.vdm

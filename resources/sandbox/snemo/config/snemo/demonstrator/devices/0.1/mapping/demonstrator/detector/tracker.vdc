@@ -1,0 +1,133 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator tracker
+#@key_label  "category"
+#@meta_label "type"
+
+
+###################################
+[category="tracker.dc" type="1266"]
+inherits : string    = "module.dc"
+
+
+#############################################
+[category="tracker_submodule.dc" type="1200"]
+extends : string    = "tracker.dc"
+by      : string[1] = "side"
+
+
+###########
+# Tracker #
+###########
+
+##########################################
+[category="tracker_volume.dc" type="1201"]
+inherits : string    = "tracker_submodule.dc"
+
+
+######################################
+[category="drift_cell.dc" type="1203"]
+extends : string    = "tracker_volume.dc"
+by      : string[2] = "layer" "row"
+
+
+##################################################
+[category="drift_cell_anodic_wire.dc" type="1210"]
+inherits : string = "drift_cell.dc"
+
+
+####################################################
+[category="drift_cell_cathodic_ring.dc" type="1211"]
+extends : string    = "drift_cell.dc"
+by      : string[1] = "position"
+
+
+##########################################################
+[category="drift_cell_anode_signal_output.pc" type="1298"]
+inherits : string = "drift_cell_anodic_wire.dc"
+
+
+############################################################
+[category="drift_cell_cathode_signal_output.pc" type="1299"]
+inherits : string = "drift_cell_cathodic_ring.dc"
+
+
+############
+# X - wall #
+############
+
+######################################
+[category="xcalo_wall.dc" type="1234"]
+extends : string    = "tracker_submodule.dc"
+by      : string[1] = "wall"
+
+
+################################################
+[category="xcalo_optical_module.dc" type="1231"]
+extends : string    = "xcalo_wall.dc"
+by      : string[2] = "column" "row"
+
+
+#######################################
+[category="xcalo_block.dc" type="1232"]
+inherits : string   = "xcalo_optical_module.dc"
+
+
+#####################################
+[category="xcalo_pmt.dc" type="1235"]
+inherits : string   = "xcalo_optical_module.dc"
+
+
+#############################################
+[category="xcalo_om_hv_input.pc" type="1289"]
+inherits : string   = "xcalo_pmt.dc"
+
+
+##################################################
+[category="xcalo_om_signal_output.pc" type="1288"]
+inherits : string   = "xcalo_pmt.dc"
+
+
+###################################################
+[category="xcalo_om_li_fiber_input.pc" type="1287"]
+extends : string    = "xcalo_block.dc"
+by      : string[1] = "fiber"
+
+##############
+# Gamma veto #
+##############
+
+################################################
+[category="gveto_optical_module.dc" type="1251"]
+extends : string    = "tracker_submodule.dc"
+by      : string[2] = "wall" "column"
+
+
+#######################################
+[category="gveto_block.dc" type="1252"]
+inherits : string   = "gveto_optical_module.dc"
+
+
+#####################################
+[category="gveto_pmt.dc" type="1254"]
+inherits : string   = "gveto_optical_module.dc"
+
+
+#############################################
+[category="gveto_om_hv_input.pc" type="1279"]
+inherits : string   = "gveto_pmt.dc"
+
+
+##################################################
+[category="gveto_om_signal_output.pc" type="1278"]
+inherits : string   = "gveto_pmt.dc"
+
+
+###################################################
+[category="gveto_om_li_fiber_input.pc" type="1277"]
+extends : string    = "gveto_block.dc"
+by      : string[1] = "fiber"
+
+
+# end of tracker.vdc

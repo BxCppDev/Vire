@@ -28,7 +28,7 @@ virtual : boolean = true
 embedded_devices.labels : string[1] = "OM"
 
 #@description The device model associated to the optical modules
-embedded_devices.model.OM    : string = "sndemo.optical_module"
+embedded_devices.model.OM    : string = "sndemo.xcalo_optical_module"
 
 #@description The instantiation rule of the drift cells
 # Cells are positionned on a 2D rectangular grid with a
@@ -126,10 +126,10 @@ embedded_devices.labels : string[3] = "TrackingChamber" "GammaVeto" "XWall"
 #@description The device model associated to the tracking chamber
 embedded_devices.model.TrackingChamber : string = "sndemo.tracking_chamber"
 
-#@description The device model associated to the tracking chamber
-embedded_devices.model.GammaVeto       : string = "sndemo.optical_module"
+#@description The device model associated to the gamma veto
+embedded_devices.model.GammaVeto       : string = "sndemo.gveto_optical_module"
 
-#@description The device model associated to the tracking chamber
+#@description The device model associated to the X-wall
 embedded_devices.model.XWall           : string = "sndemo.tracker_xwall"
 
 #@description The instanciation policy of the GammaVeto

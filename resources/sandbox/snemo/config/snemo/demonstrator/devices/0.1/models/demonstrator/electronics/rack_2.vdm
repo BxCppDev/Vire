@@ -17,24 +17,30 @@ logging.priority : string = "trace"
 #@description Rack format
 format : string = "42U"
 
-###################
-# Embedded crates #
-###################
+#@description Width of the rack (inches) and embedded rackable
+width : integer = 19
 
-#@description Maximum number of crates
-max_number_of_crates : integer = 42
+#####################
+# Embedded rackable #
+#####################
 
-#@description List of embedded crates
-crates.slot_4.model   : string = "sndemo.calo_hv_crate"
-crates.slot_4.label   : string = "CaloHV_0"
-crates.slot_14.model  : string = "sndemo.calo_hv_crate"
-crates.slot_14.label  : string = "CaloHV_1"
-crates.slot_24.model  : string = "sndemo.main_calo_crate"
-crates.slot_24.label  : string = "CaloCrate_0"
-crates.slot_40.model  : string = "sndemo.rack_fan_crate"
-crates.slot_40.label  : string = "RackFan"
-crates.slot_41.model  : string = "sndemo.rack_ac_outlet_crate"
-crates.slot_41.label  : string = "AC_Outlet"
+#@description Maximum number of rackable
+max_number_of_rackable : integer = 42
+
+#@description List of embedded rackable
+rackable.slot_4.model   : string = "sndemo.calo_hv_crate"
+rackable.slot_4.label   : string = "CaloHV_0"
+
+rackable.slot_16.model  : string = "sndemo.calo_hv_crate"
+rackable.slot_16.label  : string = "CaloHV_1"
+
+rackable.slot_28.model  : string = "sndemo.main_calo_crate"
+rackable.slot_28.label  : string = "CaloCrate_0"
+
+rackable.slot_39.model  : string = "sndemo.rack_fan_crate"
+rackable.slot_39.label  : string = "RackFan"
+rackable.slot_40.model  : string = "sndemo.rack_ac_outlet_crate"
+rackable.slot_40.label  : string = "AC_Outlet"
 
 ########################
 # Auxiliary properties #

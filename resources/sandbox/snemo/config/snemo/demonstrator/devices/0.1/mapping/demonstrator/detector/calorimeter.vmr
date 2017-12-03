@@ -10,32 +10,41 @@
 [model="sndemo.calorimeter" policy="supersede"]
 
 #@description The mapping directives for the "Wall" device
-# Note: This has the effect to build the [1300:0.0-1] device identifiers.
 mapping.device.Wall : string = "[calorimeter_submodule.dc:side+0]"
 
 
-##################################################
-[model="sndemo.calo_main_wall" policy="supersede"]
+#############################################
+[model="sndemo.calo_wall" policy="supersede"]
 
 #@description The mapping directives for the "OM" device
-# Note: This has the effect to build the [1301:0.0-1.0-19.0-12] device identifiers.
 mapping.device.OM : string = "[calorimeter_optical_module.dc:column+0,row+0]"
 
 
-##################################################
-[model="sndemo.optical_module" policy="supersede"]
+#######################################################
+[model="sndemo.calo_optical_module" policy="supersede"]
+
+#@description The mapping directives for the "Block" port
+mapping.device.Block : string = "[calorimeter_block.dc]"
+
+#@description The mapping directives for the "PMT" port
+mapping.device.PMT   : string = "[calorimeter_pmt.dc]"
+
+
+############################################
+[model="sndemo.calo_pmt" policy="supersede"]
 
 #@description The mapping directives for the "HVInput" port
-# Note: This has the effect to build the [1399:0.0-1.0-19.0-12] port identifiers.
 mapping.port.HVInput : string = "[calorimeter_om_hv_input.pc]"
 
 #@description The mapping directives for the "Signal" port
-# Note: This has the effect to build the [1398:0.0-1.0-19.0-12] port identifiers.
 mapping.port.Signal  : string = "[calorimeter_om_signal_output.pc]"
 
+
+###################################################
+[model="sndemo.calo_block" policy="supersede"]
+
 #@description The mapping directives for the "LIFiber" port
-# Note: This has the effect to build the [1397:0.0-1.0-19.0-12.0-1] port identifiers.
-mapping.port.LIFiber : string = "[calorimeter_om_lifiber_input.pc:fiber+0]"
+mapping.port.LIFiber : string = "[calorimeter_om_li_fiber_input.pc:fiber+0]"
 
 
 # end of calorimeter.vmr

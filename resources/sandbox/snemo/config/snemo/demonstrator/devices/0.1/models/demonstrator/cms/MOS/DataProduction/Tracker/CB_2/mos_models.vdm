@@ -1,0 +1,84 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@key_label "name"
+#@meta_label "type"
+
+[name="sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate.status@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate.powerOn@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate.powerOff@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple device
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDevice"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "status"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.status : string = "sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate.status"
+
+
+
+#@description List of method ports
+ports.labels : string[2] = \
+ "powerOn" \
+ "powerOff"
+
+
+
+#@description Model of the embedded method port
+ports.model.powerOff : string = "sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate.powerOff"
+
+
+
+#@description Model of the embedded method port
+ports.model.powerOn : string = "sndemo.mos.DataProduction.Tracker.TRACKER_ELECTRONICS_CRATE_3.Electronics_Crate.powerOn"
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)

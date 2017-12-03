@@ -14,6 +14,12 @@
 #@parameter Logging priority threshold
 logging.priority : string = "trace"
 
+#@parameter Height of the crate
+height : integer =  8
+
+#@parameter Width of the crate
+width : integer =  19
+
 ####################
 # Embedded modules #
 ####################

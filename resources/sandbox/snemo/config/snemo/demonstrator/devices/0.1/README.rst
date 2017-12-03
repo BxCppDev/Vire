@@ -33,6 +33,9 @@ SuperNEMO Demonstrator Setup Device Model version 0.1
 	+-- Readout (device model: "sndemo.readout")
 	|   TODO
         +-- CMS (device model: "sndemo.cms")
+            +-- Coil (device model: "sndemo.cms.coil")
+            |   +-- PS (device model: "sndemo.cms.coil")
+            +-- Calorimeter (device model: "sndemo.cms.calorimeter")
 
 ..
 

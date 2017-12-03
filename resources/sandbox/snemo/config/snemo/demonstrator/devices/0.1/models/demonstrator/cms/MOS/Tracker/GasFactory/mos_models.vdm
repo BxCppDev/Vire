@@ -1,0 +1,982 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@key_label "name"
+#@meta_label "type"
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.status@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "boolean"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.Pressure@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.Temperature.Temp_Ch2@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.Temperature@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "Temp_Ch2"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Temp_Ch2 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.Temperature.Temp_Ch2"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.SetPoint_Ch1@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.SetPoint_Ch2@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.FlowStatus@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.KeyPress@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.FlowRate_Ch1@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.FlowRate_Ch2@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Range_Ch1@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Range_Ch2@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Scale_Ch2@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Status_Ch2@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[10] = \
+ "SetPoint_Ch1" \
+ "SetPoint_Ch2" \
+ "FlowStatus" \
+ "KeyPress" \
+ "FlowRate_Ch1" \
+ "FlowRate_Ch2" \
+ "Range_Ch1" \
+ "Range_Ch2" \
+ "Scale_Ch2" \
+ "Status_Ch2"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FlowRate_Ch1 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.FlowRate_Ch1"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FlowRate_Ch2 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.FlowRate_Ch2"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FlowStatus : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.FlowStatus"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.KeyPress : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.KeyPress"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Range_Ch1 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Range_Ch1"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Range_Ch2 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Range_Ch2"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Scale_Ch2 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Scale_Ch2"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SetPoint_Ch1 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.SetPoint_Ch1"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SetPoint_Ch2 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.SetPoint_Ch2"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Status_Ch2 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate.Status_Ch2"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[3] = \
+ "Pressure" \
+ "Temperature" \
+ "FlowRate"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FlowRate : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.FlowRate"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Pressure : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.Pressure"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Temperature : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP.Temperature"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.SensorTemp@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.SetPoint0@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.OperatingStatus@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.TempHighLimit@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.TempLowLimit@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[5] = \
+ "SensorTemp" \
+ "SetPoint0" \
+ "OperatingStatus" \
+ "TempHighLimit" \
+ "TempLowLimit"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.OperatingStatus : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.OperatingStatus"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SensorTemp : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.SensorTemp"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SetPoint0 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.SetPoint0"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.TempHighLimit : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.TempHighLimit"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.TempLowLimit : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30.TempLowLimit"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.Temperature.Temp_Ch0@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.Temperature.Temp_Ch1@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.Temperature@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Temp_Ch0" \
+ "Temp_Ch1"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Temp_Ch0 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.Temperature.Temp_Ch0"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Temp_Ch1 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.Temperature.Temp_Ch1"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "HaakeDL30" \
+ "Temperature"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.HaakeDL30 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.HaakeDL30"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Temperature : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG.Temperature"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[3] = \
+ "status" \
+ "BP" \
+ "FG"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.BP : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.BP"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FG : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.FG"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.status : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring.status"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP.FlowRate.SP1_Consign@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP.FlowRate.SC2_Consign@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP.FlowRate@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "SP1_Consign" \
+ "SC2_Consign"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SC2_Consign : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP.FlowRate.SC2_Consign"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SP1_Consign : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP.FlowRate.SP1_Consign"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "FlowRate"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FlowRate : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP.FlowRate"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.FG.HaakeDL30.S0_Consign@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.FG.HaakeDL30@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "S0_Consign"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.S0_Consign : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.FG.HaakeDL30.S0_Consign"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.FG@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "HaakeDL30"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.HaakeDL30 : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.FG.HaakeDL30"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "BP" \
+ "FG"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.BP : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.BP"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.FG : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration.FG"
+
+
+[name="sndemo.mos.Tracker.GAS_Factory_1.GAS_System@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple device
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDevice"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Monitoring" \
+ "Configuration"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Configuration : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Configuration"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Monitoring : string = "sndemo.mos.Tracker.GAS_Factory_1.GAS_System.Monitoring"
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)

@@ -24,6 +24,11 @@ by      : string[2] = "column" "row"
 
 
 ######################################################
+[category="calorimeter_block.dc"          type="1302"]
+inherits : string   = "calorimeter_optical_module.dc"
+
+
+######################################################
 [category="calorimeter_pmt.dc"            type="1304"]
 inherits : string   = "calorimeter_optical_module.dc"
 
@@ -40,7 +45,7 @@ inherits : string   = "calorimeter_pmt.dc"
 
 #########################################################
 [category="calorimeter_om_li_fiber_input.pc" type="1397"]
-extends : string    = "calorimeter_pmt.dc"
+extends : string    = "calorimeter_block.dc"
 by      : string[1] = "fiber"
 
 

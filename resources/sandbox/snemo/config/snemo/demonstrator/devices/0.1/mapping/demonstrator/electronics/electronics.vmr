@@ -1,0 +1,113 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of mapping rules for the SuperNEMO demonstrator module's electronics
+#@key_label  "model"
+#@meta_label "policy"
+
+
+##############################################
+[model="snemo.electronics" policy="supersede"]
+
+#@description The mapping directives for the "Rack0" device
+# Note: This has the effect to build the [21000:0] device identifier.
+mapping.device.Rack0 : string = "[rack.dc:rack=0]"
+
+#@description The mapping directives for the "Rack1" device
+# Note: This has the effect to build the [21000:1] device identifier.
+mapping.device.Rack1 : string = "[rack.dc:rack=1]"
+
+#@description The mapping directives for the "Rack2" device
+# Note: This has the effect to build the [21000:2] device identifier.
+mapping.device.Rack2 : string = "[rack.dc:rack=2]"
+
+#@description The mapping directives for the "Rack3" device
+# Note: This has the effect to build the [21000:3] device identifier.
+mapping.device.Rack3 : string = "[rack.dc:rack=3]"
+
+#@description The mapping directives for the "Rack4" device
+# Note: This has the effect to build the [21000:4] device identifier.
+mapping.device.Rack4 : string = "[rack.dc:rack=4]"
+
+#@description The mapping directives for the "Rack5" device
+# Note: This has the effect to build the [21000:5] device identifier.
+mapping.device.Rack5 : string = "[rack.dc:rack=5]"
+
+
+#########################################
+[model="snemo.rack_0" policy="supersede"]
+
+#@description The mapping directives for the "ADSMotors" device
+# Note: This has the effect to build the [22000:0.0] device identifier.
+mapping.device.ADSMotors : string = "[generic_crate.dc:crate=0]"
+
+#@description The mapping directives for the "ADSControl" device
+# Note: This has the effect to build the [22000:0.1] device identifier.
+mapping.device.ADSControl : string = "[generic_crate.dc:crate=1]"
+
+
+#########################################
+[model="snemo.rack_2" policy="supersede"]
+
+#@description The mapping directives for the "CaloHV_0" device
+# Note: This has the effect to build the [24000:2.0] device identifier.
+mapping.device.CaloHV_0 : string = "[calo_hv_crate.dc:crate=0]"
+
+#@description The mapping directives for the "CaloHV_1" device
+# Note: This has the effect to build the [24000:2.1] device identifier.
+mapping.device.CaloHV_1 : string = "[calo_hv_crate.dc:crate=1]"
+
+#@description The mapping directives for the "CaloCrate_0" device
+# Note: This has the effect to build the [23000:2.0] device identifier.
+mapping.device.CaloCrate_0 : string = "[calo_frontend_crate.dc:crate=0]"
+
+
+#########################################
+[model="snemo.rack_3" policy="supersede"]
+
+#@description The mapping directives for the "CaloCrate_1" device
+# Note: This has the effect to build the [23000:3.1] device identifier.
+mapping.device.CaloCrate_1 : string = "[calo_frontend_crate.dc:crate=1]"
+
+#@description The mapping directives for the "CaloCrate_2" device
+# Note: This has the effect to build the [23000:3.2] device identifier.
+mapping.device.CaloCrate_2 : string = "[calo_frontend_crate.dc:crate=2]"
+
+
+#########################################
+[model="snemo.rack_4" policy="supersede"]
+
+#@description The mapping directives for the "TrackerHVCrate_0" device
+# Note: This has the effect to build the [26000:4.0] device identifier.
+mapping.device.TrackerHVCrate_0 : string = "[tracker_hv_crate.dc:crate=0]"
+
+#@description The mapping directives for the "TrackerHVCrate_1" device
+# Note: This has the effect to build the [26000:4.1] device identifier.
+mapping.device.TrackerHVCrate_1 : string = "[tracker_hv_crate.dc:crate=1]"
+
+#@description The mapping directives for the "TrackerHVCrate_2" device
+# Note: This has the effect to build the [26000:4.2] device identifier.
+mapping.device.TrackerHVCrate_2 : string = "[tracker_hv_crate.dc:crate=2]"
+
+#@description The mapping directives for the "TrackerHVPS" device
+# Note: This has the effect to build the [22000:4.3] device identifier.
+mapping.device.TrackerHVPS : string = "[generic_crate.dc:crate=3]"
+
+
+#########################################
+[model="snemo.rack_5" policy="supersede"]
+
+#@description The mapping directives for the "TrackerCrate_0" device
+# Note: This has the effect to build the [25000:5.0] device identifier.
+mapping.device.TrackerCrate_0 : string = "[tracker_frontend_crate.dc:crate=0]"
+
+#@description The mapping directives for the "TrackerCrate_1" device
+# Note: This has the effect to build the [25000:5.1] device identifier.
+mapping.device.TrackerCrate_1 : string = "[tracker_frontend_crate.dc:crate=1]"
+
+#@description The mapping directives for the "TrackerCrate_2" device
+# Note: This has the effect to build the [25000:5.2] device identifier.
+mapping.device.TrackerCrate_2 : string = "[tracker_frontend_crate.dc:crate=2]"
+
+
+# end of electronics.vmr

@@ -34,7 +34,7 @@ aux.version      : string = ""
 aux.cms.id  : string = "10102"
 
 
-#####################################################################################
+############################################################################################
 [name="sndemo.calo_feb_ctrl_fpga_ethernet_socket@port" type="vire::device::base_port_model"]
 
 #@config Parameters describing the ethernet socket
@@ -49,8 +49,8 @@ io_type      : string  = "inout"
 format : string  = "Ethernet"
 
 
-#####################################################################################
-[name="calo_feb_ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
+############################################################################################
+[name="sndemo.calo_feb_ctrl_fpga@device" type="vire::device::base_integrated_circuit_model"]
 
 #@config Parameters describing the calorimeter FEB control FPGA
 
@@ -68,7 +68,7 @@ type      : string  = "chip_pld"
 ports.labels : string[1] = "Ethernet"
 
 # Port model associated to the Ethernet port:
-ports.model.Ethernet     : string = "calo_feb_ctrl_fpga_ethernet_socket"
+ports.model.Ethernet     : string = "sndemo.calo_feb_ctrl_fpga_ethernet_socket"
 
 # Auxiliary properties:
 
@@ -98,6 +98,21 @@ io_type      : string  = "in"
 
 #@description Format of the port
 format : string  = "lemo-coaxial-00"
+
+
+##################################################################################
+[name="sndemo.calo_feb_ethernet_socket@port" type="vire::device::base_port_model"]
+
+#@config Parameters describing the ethernet socket
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Type of I/O
+io_type      : string  = "inout"
+
+#@description Format of the port
+format : string  = "Ethernet"
 
 
 ##################################################################################
@@ -140,11 +155,11 @@ embedded_devices.model.CtrlFpga    : string = "sndemo.calo_feb_ctrl_fpga"
 ports.labels : string[2] = "Input" "Ethernet"
 
 # Port model associated to the input signal ports:
-ports.model.Input     : string = "calo_feb_input_channel"
+ports.model.Input     : string = "sndemo.calo_feb_input_channel"
 ports.instance.Input  : string = "vire::device::regular_1d_instance=[nslots=16;first_slot=(1:0);step=(1)]"
 
-# Port model associated to the Ethernet ports:
-ports.model.Ethernet  : string = "ethernet_socket"
+# Port model associated to the Ethernet port:
+ports.model.Ethernet  : string = "sndemo.calo_feb_ethernet_socket"
 
 #########
 # Links #

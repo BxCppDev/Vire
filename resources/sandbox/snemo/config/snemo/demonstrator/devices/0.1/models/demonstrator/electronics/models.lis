@@ -1,6 +1,8 @@
-@snemo:config/common/devices/1.0/models/electronics/network.vdm
+@snemo:config/common/devices/1.0/models/network/network.vdm
+@snemo:config/common/devices/1.0/models/computer/computer.vdm
 @snemo:config/common/devices/1.0/models/electronics/samlong.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/trigger_board.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/feast_asic.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_feb.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_control_board.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/electronics/tracker_crates.vdm

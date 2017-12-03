@@ -1,0 +1,187 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@key_label "name"
+#@meta_label "type"
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS.Monitoring.Current@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS.Monitoring.Voltage@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS.Monitoring@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Current" \
+ "Voltage"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Current : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.Monitoring.Current"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Voltage : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.Monitoring.Voltage"
+
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS.Control.Current@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS.Control.Voltage@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS.Control@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Current" \
+ "Voltage"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Current : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.Control.Current"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Voltage : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.Control.Voltage"
+
+
+[name="sndemo.mos.Coil.COIL_PS_1.COIL_PS@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple device
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDevice"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Monitoring" \
+ "Control"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Control : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.Control"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Monitoring : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.Monitoring"
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)

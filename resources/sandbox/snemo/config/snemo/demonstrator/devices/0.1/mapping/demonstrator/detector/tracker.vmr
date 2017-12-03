@@ -1,0 +1,134 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of mapping rules for the SuperNEMO detector tracker
+#@key_label  "model"
+#@meta_label "policy"
+
+
+###########################################
+[model="sndemo.tracker" policy="supersede"]
+
+#@description The mapping directives for the "Submodule" device
+mapping.device.Submodule : string = "[tracker_submodule.dc:side+0]"
+
+
+#####################################################
+[model="sndemo.tracker_submodule" policy="supersede"]
+
+#@description The mapping directives for the "TrackingChamber" device
+mapping.device.TrackingChamber : string = "[tracker_volume.dc]"
+
+#@description The mapping directives for the "GammaVeto" device
+mapping.device.GammaVeto : string = "[gveto_optical_module.dc:wall+0,column+0]"
+
+#@description The mapping directives for the "XWall" device
+mapping.device.XWall : string = "[xcalo_wall.dc:wall+0]"
+
+
+###########
+# Tracker #
+###########
+
+
+####################################################
+[model="sndemo.tracking_chamber" policy="supersede"]
+
+#@description The mapping directives for the "Cell" device
+mapping.device.Cell : string = "[drift_cell.dc:layer+0,row+0]"
+
+
+######################################################
+[model="sndemo.tracker_drift_cell" policy="supersede"]
+
+#@description The mapping directives for the "Anode" device
+mapping.device.Anode : string = "[drift_cell_anodic_wire.dc]"
+
+#@description The mapping directives for the "Cathode" device
+mapping.device.Cathode : string = "[drift_cell_cathodic_ring.dc:position+0]"
+
+
+############################################################
+[model="sndemo.tracker_drift_cell_anode" policy="supersede"]
+
+#@description The mapping directives for the "SignalHV" port
+mapping.port.SignalHV : string = "[drift_cell_anode_signal_output.pc]"
+
+
+##############################################################
+[model="sndemo.tracker_drift_cell_cathode" policy="supersede"]
+
+#@description The mapping directives for the "Signal" port
+mapping.port.Signal : string = "[drift_cell_cathode_signal_output.pc]"
+
+
+##############
+# Gamma veto #
+##############
+
+########################################################
+[model="sndemo.gveto_optical_module" policy="supersede"]
+
+#@description The mapping directives for the "Block" device
+mapping.device.Block : string = "[gveto_block.dc]"
+
+#@description The mapping directives for the "PMT" device
+mapping.device.PMT   : string = "[gveto_pmt.dc]"
+
+
+#############################################
+[model="sndemo.gveto_pmt" policy="supersede"]
+
+#@description The mapping directives for the "HVInput" port
+mapping.port.HVInput : string = "[gveto_om_hv_input.pc]"
+
+#@description The mapping directives for the "Signal" port
+mapping.port.Signal  : string = "[gveto_om_signal_output.pc]"
+
+
+##############################################
+[model="sndemo.gveto_block" policy="supersede"]
+
+#@description The mapping directives for the "LIFiber" port
+mapping.port.LIFiber : string = "[gveto_om_li_fiber_input.pc]"
+
+
+############
+# X - wall #
+############
+
+#################################################
+[model="sndemo.tracker_xwall" policy="supersede"]
+
+#@description The mapping directives for the "OM" device
+mapping.device.OM : string = "[xcalo_optical_module.dc:column+0,row+0]"
+
+
+#######################################################
+[model="sndemo.xcalo_optical_module" policy="supersede"]
+
+#@description The mapping directives for the "Block" device
+mapping.device.Block : string = "[xcalo_block.dc]"
+
+#@description The mapping directives for the "PMT" device
+mapping.device.PMT   : string = "[xcalo_pmt.dc]"
+
+
+############################################
+[model="sndemo.xcalo_pmt" policy="supersede"]
+
+#@description The mapping directives for the "HVInput" port
+mapping.port.HVInput : string = "[xcalo_om_hv_input.pc]"
+
+#@description The mapping directives for the "Signal" port
+mapping.port.Signal  : string = "[xcalo_om_signal_output.pc]"
+
+
+##############################################
+[model="sndemo.xcalo_block" policy="supersede"]
+
+#@description The mapping directives for the "LIFiber" port
+mapping.port.LIFiber : string = "[xcalo_om_li_fiber_input.pc]"
+
+
+# end of tracker.vmr

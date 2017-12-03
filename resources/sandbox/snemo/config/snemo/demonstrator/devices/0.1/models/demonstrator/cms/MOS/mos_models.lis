@@ -1,0 +1,15 @@
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/DataProduction/Tracker/CB_2/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/DataProduction/Tracker/CB_1/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/DataProduction/Tracker/Crate_0/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/DataProduction/Calorimeter/Crate_1/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/DataProduction/Calorimeter/Crate_2/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/DataProduction/Calorimeter/Crate_0/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Tracker/GasFactory/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Tracker/HV/PS_0/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Tracker/HV/PS_2/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Tracker/HV/PS_1/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Coil/PS/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/SourceCalibration/ADS/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Calorimeter/LightInjectionSystem/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Calorimeter/HV/PS_0/mos_models.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/MOS/Calorimeter/HV/PS_1/mos_models.vdm

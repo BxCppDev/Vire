@@ -1,0 +1,773 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@key_label "name"
+#@meta_label "type"
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.Test@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "boolean"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.Status@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.Trip@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.TripExt@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.TripInt@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.V0Set@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.V1Set@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.VMon@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.I0Set@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.I1Set@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.IMon@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.PDWn@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.RUp@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.SVMax@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "float"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[13] = \
+ "Status" \
+ "Trip" \
+ "TripExt" \
+ "TripInt" \
+ "V0Set" \
+ "V1Set" \
+ "VMon" \
+ "I0Set" \
+ "I1Set" \
+ "IMon" \
+ "PDWn" \
+ "RUp" \
+ "SVMax"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.I0Set : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.I0Set"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.I1Set : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.I1Set"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.IMon : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.IMon"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.PDWn : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.PDWn"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.RUp : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.RUp"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.SVMax : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.SVMax"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Status : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.Status"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Trip : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.Trip"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.TripExt : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.TripExt"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.TripInt : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.TripInt"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.V0Set : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.V0Set"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.V1Set : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.V1Set"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.VMon : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel.VMon"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description The instantiation of the embedded datapoint device
+embedded_devices.instance.channel : string = "vire::device::regular_1d_instance=[nslots=32;first_slot=(1:0);step=(1)]"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "channel"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.channel : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board.channel"
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.StartChannel@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[2] = \
+ "board" \
+ "channel"
+
+
+
+#@description Argument's access mode
+method.arguments.board.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.board.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.board.data.type : string = "int16"
+
+
+
+#@description Description of the argument
+method.arguments.board.description : string = "Board number : -1 = All boards"
+
+
+
+#@description Argument's access mode
+method.arguments.channel.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.channel.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.channel.data.type : string = "int16"
+
+
+
+#@description Description of the argument
+method.arguments.channel.description : string = "Channel number : -1 = All Channels"
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.StopChannel@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[2] = \
+ "board" \
+ "channel"
+
+
+
+#@description Argument's access mode
+method.arguments.board.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.board.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.board.data.type : string = "int16"
+
+
+
+#@description Argument's access mode
+method.arguments.channel.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.channel.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.channel.data.type : string = "int16"
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.SetVoltageChannel@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[3] = \
+ "board" \
+ "channel" \
+ "voltage"
+
+
+
+#@description Argument's access mode
+method.arguments.board.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.board.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.board.data.type : string = "int16"
+
+
+
+#@description Argument's access mode
+method.arguments.channel.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.channel.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.channel.data.type : string = "int16"
+
+
+
+#@description Argument's access mode
+method.arguments.voltage.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.voltage.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.voltage.data.type : string = "float"
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.SetRampChannel@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[4] = \
+ "board" \
+ "channel" \
+ "rampUp" \
+ "rampDwn"
+
+
+
+#@description Argument's access mode
+method.arguments.board.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.board.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.board.data.type : string = "int16"
+
+
+
+#@description Argument's access mode
+method.arguments.channel.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.channel.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.channel.data.type : string = "int16"
+
+
+
+#@description Argument's access mode
+method.arguments.rampDwn.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.rampDwn.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.rampDwn.data.type : string = "float"
+
+
+
+#@description Argument's access mode
+method.arguments.rampUp.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.rampUp.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.rampUp.data.type : string = "float"
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple device
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDevice"
+
+
+
+#@description The instantiation of the embedded datapoint device
+embedded_devices.instance.board : string = "vire::device::regular_1d_instance=[nslots=13;first_slot=(1:0);step=(1)]"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Test" \
+ "board"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Test : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.Test"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.board : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.board"
+
+
+
+#@description List of method ports
+ports.labels : string[4] = \
+ "StartChannel" \
+ "StopChannel" \
+ "SetVoltageChannel" \
+ "SetRampChannel"
+
+
+
+#@description Model of the embedded method port
+ports.model.SetRampChannel : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.SetRampChannel"
+
+
+
+#@description Model of the embedded method port
+ports.model.SetVoltageChannel : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.SetVoltageChannel"
+
+
+
+#@description Model of the embedded method port
+ports.model.StartChannel : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.StartChannel"
+
+
+
+#@description Model of the embedded method port
+ports.model.StopChannel : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS.StopChannel"
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)

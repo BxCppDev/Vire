@@ -1,0 +1,13 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator shielding
+#@key_label  "category"
+#@meta_label "type"
+
+
+#####################################
+[category="shielding.dc" type="1800"]
+inherits : string   = "module.dc"
+
+# end of shielding.vdc

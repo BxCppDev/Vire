@@ -1,0 +1,31 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator electronics rack 1 for tht Light Injection System
+#@key_label  "name"
+#@meta_label "type"
+
+
+##############################################################################
+[name="sndemo.rack_1@device" type="vire::device::base_electronics_rack_model"]
+
+#@config Parameters describing the electronics rack 1 (LIS)
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Rack format
+format : string = "42U"
+
+#@description Width of the rack (inches) and embedded rackable
+width : integer = 19
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+# end of rack_1.vdm

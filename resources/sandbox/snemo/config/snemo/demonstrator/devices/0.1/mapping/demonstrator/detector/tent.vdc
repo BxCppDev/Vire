@@ -1,0 +1,13 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator tent
+#@key_label  "category"
+#@meta_label "type"
+
+
+################################
+[category="tent.dc" type="1700"]
+inherits : string   = "module.dc"
+
+# end of tent.vdc

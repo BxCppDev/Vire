@@ -30,34 +30,67 @@ logging.priority : string = "fatal"
 io_type      : string  = "out"
 
 
-################################################################################
-[name="sndemo.tracker_drift_cell@device" type="vire::device::base_device_model"]
-
-#@config Parameters describing the SuperNEMO calorimeter optical module
+######################################################################################
+[name="sndemo.tracker_drift_cell_anode@device" type="vire::device::base_device_model"]
 #
-#    +--------------------+
-#    |                    o-> Anode signal/HV output/input
-#    |  Drift cell        o-> Cathode signal output 0
-#    |                    o-> Cathode signal output 1
-#    +--------------------+
+#    +---------------+
+#    |  Drift cell   o<-> Anode signal output/HV input
+#    |    anode      |
+#    +---------------+
 #
-
-#@parameter Logging priority threshold
-logging.priority : string = "fatal"
 
 #########
 # Ports #
 #########
 
 #@description List of ports
-ports.labels : string[2] = "AnodeSignalHV" "CathodeSignal"
+ports.labels : string[1] = "SignalHV"
 
 # Port model associated to the input high voltage ports:
-ports.model.AnodeSignalHV    : string = "sndemo.drift_cell_anode_signal_hv_pin"
+ports.model.SignalHV  : string = "sndemo.drift_cell_anode_signal_hv_pin"
+
+
+########################################################################################
+[name="sndemo.tracker_drift_cell_cathode@device" type="vire::device::base_device_model"]
+#
+#    +--------------------+
+#    |  Drift cell        o-> Cathode signal output 0
+#    |    cathode         o-> Cathode signal output 1
+#    +--------------------+
+#
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[1] = "Signal"
 
 # Port model associated to the input LI fibers:
-ports.model.CathodeSignal    : string = "sndemo.drift_cell_cathode_signal_pin"
-ports.instance.CathodeSignal : string = "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
+ports.model.Signal    : string = "sndemo.drift_cell_cathode_signal_pin"
+
+
+################################################################################
+[name="sndemo.tracker_drift_cell@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO calorimeter optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+###########
+# Devices #
+###########
+
+#@description List of devices
+embedded_devices.labels : string[2] = "Anode" "Cathode"
+
+# Device model associated to the anode:
+embedded_devices.model.Anode    : string = "sndemo.tracker_drift_cell_anode"
+
+# Device model associated to the cathode:
+embedded_devices.model.Cathode    : string = "sndemo.tracker_drift_cell_cathode"
+embedded_devices.instance.Cathode : string = "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
 
 ########################
 # Auxiliary properties #

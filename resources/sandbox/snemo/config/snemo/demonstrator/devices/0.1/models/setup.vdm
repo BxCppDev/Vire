@@ -37,8 +37,4 @@ aux.manufacturer : string = "SuperNEMO Collaboration"
 aux.model        : string = "urn:snemo:demonstrator"
 
 
-#@description Version of the setup
-aux.version      : string = "1.0"
-
-
 # end of setup.vdm

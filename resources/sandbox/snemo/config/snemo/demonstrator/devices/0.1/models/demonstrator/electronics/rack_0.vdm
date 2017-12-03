@@ -1,0 +1,48 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator electronics rack 0
+#@key_label  "name"
+#@meta_label "type"
+
+
+##############################################################################
+[name="sndemo.rack_0@device" type="vire::device::base_electronics_rack_model"]
+
+#@config Parameters describing the electronics rack 0
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+#@description Rack format
+format : string = "42U"
+
+#@description Width of the rack (inches) and embedded rackable
+width : integer = 19
+
+######################
+# Embedded rackables #
+######################
+
+#@description Maximum number of rackable
+max_number_of_rackable : integer = 42
+
+# List of embedded rackable:
+rackable.slot_4.model  : string = "sndemo.ads_motors_crate"
+rackable.slot_4.label  : string = "ADSMotors"
+rackable.slot_12.model  : string = "sndemo.ads_control_crate"
+rackable.slot_12.label  : string = "ADSControl"
+
+rackable.slot_39.model  : string = "sndemo.rack_fan_crate"
+rackable.slot_39.label  : string = "RackFan"
+rackable.slot_40.model  : string = "sndemo.rack_ac_outlet_crate"
+rackable.slot_40.label  : string = "AC_Outlet"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer the module
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+# end of rack_0.vdm

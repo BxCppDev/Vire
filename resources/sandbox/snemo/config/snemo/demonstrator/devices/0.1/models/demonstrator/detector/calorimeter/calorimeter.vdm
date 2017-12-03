@@ -6,8 +6,8 @@
 #@meta_label "type"
 
 
-############################################################################
-[name="sndemo.calo_main_wall@device" type="vire::device::base_device_model"]
+#######################################################################
+[name="sndemo.calo_wall@device" type="vire::device::base_device_model"]
 
 #@config Parameters describing the SuperNEMO demonstrator calorimeter main wall
 
@@ -15,7 +15,7 @@
 logging.priority : string = "fatal"
 
 #@description Type of the model
-type      : string  = "generic"
+type : string  = "generic"
 
 #@parameter Virtual device
 virtual : boolean = true
@@ -28,7 +28,7 @@ virtual : boolean = true
 embedded_devices.labels      : string[1] = "OM"
 
 #@description The device model associated to the optical modules
-embedded_devices.model.OM    : string = "sndemo.optical_module"
+embedded_devices.model.OM    : string = "sndemo.calo_optical_module"
 
 #@description The instantiation rule of the optical modules
 # Optical modules are positionned on a 2D rectangular grid
@@ -78,7 +78,7 @@ virtual : boolean = true
 embedded_devices.labels : string[1] = "Wall"
 
 #@description The device model associated to the calorimeter walls
-embedded_devices.model.Wall : string = "sndemo.calo_main_wall"
+embedded_devices.model.Wall : string = "sndemo.calo_wall"
 
 #@description The instanciation policy of the calorimeter walls
 embedded_devices.instance.Wall : string = \

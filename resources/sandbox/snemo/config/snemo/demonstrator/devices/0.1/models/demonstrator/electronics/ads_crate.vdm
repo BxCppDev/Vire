@@ -1,0 +1,18 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the SuperNEMO demonstrator electronics calorimeter crates
+#@key_label  "name"
+#@meta_label "type"
+
+
+########################################################################################
+[name="sndemo.ads_crate@device" type="vire::device::base_electronics_crate_model"]
+
+#@config Parameters describing the automatic deployment system (ADS) crate
+
+#@parameter Logging priority threshold
+logging.priority : string = "trace"
+
+
+# end of ads_crates.vdm

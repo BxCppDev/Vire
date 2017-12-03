@@ -1,0 +1,704 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@key_label "name"
+#@meta_label "type"
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.Port@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.BoxType@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.ConnectionType@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.Trigger@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.AddressCard@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "string"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[5] = \
+ "Port" \
+ "BoxType" \
+ "ConnectionType" \
+ "Trigger" \
+ "AddressCard"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.AddressCard : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.AddressCard"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.BoxType : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.BoxType"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.ConnectionType : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.ConnectionType"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Port : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.Port"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Trigger : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box.Trigger"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.Heigth@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.Width@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.LedNumber@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.N_pulses@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.Repetition@device" type="vire::device::base_datapoint_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDatapoint"
+
+
+
+#@description Layout of the parameter
+data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+data.type : string = "int32"
+
+
+
+#@description Datapoint R/W access mode
+rw_access : string = "ro"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[5] = \
+ "Heigth" \
+ "Width" \
+ "LedNumber" \
+ "N_pulses" \
+ "Repetition"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Heigth : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.Heigth"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.LedNumber : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.LedNumber"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.N_pulses : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.N_pulses"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Repetition : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.Repetition"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Width : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led.Width"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS compound datapoint
+aux.vire.mos.device.flavor : string = "vire::mos::CompoundDatapoint"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[2] = \
+ "Box" \
+ "Led"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Box : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Box"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Led : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring.Led"
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.StartPulse@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[4] = \
+ "NumLED" \
+ "heigth" \
+ "width" \
+ "Return"
+
+
+
+#@description Argument's access mode
+method.arguments.NumLED.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.NumLED.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.NumLED.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.NumLED.description : string = "range [1,20] "
+
+
+
+#@description Argument's access mode
+method.arguments.Return.access : string = "output"
+
+
+
+#@description Layout of the parameter
+method.arguments.Return.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.Return.data.type : string = "string"
+
+
+
+#@description Argument's access mode
+method.arguments.heigth.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.heigth.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.heigth.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.heigth.description : string = "range [1,1023] "
+
+
+
+#@description Argument's access mode
+method.arguments.width.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.width.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.width.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.width.description : string = "range [1,7] "
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.StartPulseSeq@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[6] = \
+ "NumLED" \
+ "heigth" \
+ "width" \
+ "n_pulse" \
+ "repetition" \
+ "Return"
+
+
+
+#@description Argument's access mode
+method.arguments.NumLED.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.NumLED.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.NumLED.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.NumLED.description : string = "range [1,20] "
+
+
+
+#@description Argument's access mode
+method.arguments.Return.access : string = "output"
+
+
+
+#@description Layout of the parameter
+method.arguments.Return.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.Return.data.type : string = "string"
+
+
+
+#@description Argument's access mode
+method.arguments.heigth.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.heigth.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.heigth.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.heigth.description : string = "range [1,1023] "
+
+
+
+#@description Argument's access mode
+method.arguments.n_pulse.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.n_pulse.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.n_pulse.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.n_pulse.description : string = "range [1,65635] "
+
+
+
+#@description Argument's access mode
+method.arguments.repetition.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.repetition.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.repetition.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.repetition.description : string = "range [1,65635] "
+
+
+
+#@description Argument's access mode
+method.arguments.width.access : string = "input"
+
+
+
+#@description Layout of the parameter
+method.arguments.width.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.width.data.type : string = "int32"
+
+
+
+#@description Description of the argument
+method.arguments.width.description : string = "range [1,7] "
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.StopPulse@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[1] = "Return"
+
+
+
+#@description Argument's access mode
+method.arguments.Return.access : string = "output"
+
+
+
+#@description Layout of the parameter
+method.arguments.Return.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.Return.data.type : string = "string"
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.GetVersion@port" type="vire::device::base_method_port_model"]
+
+
+
+#@description List of method's arguments
+method.arguments : string[1] = "version"
+
+
+
+#@description Argument's access mode
+method.arguments.version.access : string = "output"
+
+
+
+#@description Layout of the parameter
+method.arguments.version.data.layout : string = "scalar"
+
+
+
+#@description Type of the parameter
+method.arguments.version.data.type : string = "string"
+
+
+
+#@description Constness of the method
+method.constness : boolean = 1
+
+
+[name="sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight@device" type="vire::device::base_device_model"]
+
+#@config Device model configuration parameters
+
+
+
+#@description OPCUA MOS simple device
+aux.vire.mos.device.flavor : string = "vire::mos::SimpleDevice"
+
+
+
+#@description List of embedded datapoint devices
+embedded_devices.labels : string[1] = "Monitoring"
+
+
+
+#@description The model of the embedded datapoint device
+embedded_devices.model.Monitoring : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.Monitoring"
+
+
+
+#@description List of method ports
+ports.labels : string[4] = \
+ "StartPulse" \
+ "StartPulseSeq" \
+ "StopPulse" \
+ "GetVersion"
+
+
+
+#@description Model of the embedded method port
+ports.model.GetVersion : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.GetVersion"
+
+
+
+#@description Model of the embedded method port
+ports.model.StartPulse : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.StartPulse"
+
+
+
+#@description Model of the embedded method port
+ports.model.StartPulseSeq : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.StartPulseSeq"
+
+
+
+#@description Model of the embedded method port
+ports.model.StopPulse : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight.StopPulse"
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)

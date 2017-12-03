@@ -1,0 +1,14 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator source frame
+#@key_label  "category"
+#@meta_label "type"
+
+
+############################################
+[category="source_submodule.dc" type="1100"]
+inherits : string  = "module.dc"
+
+
+# end of source_frame.vdc

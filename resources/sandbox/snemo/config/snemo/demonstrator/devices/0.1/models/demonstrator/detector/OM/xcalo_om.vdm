@@ -1,0 +1,98 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device models related to calorimeter optical modules
+#@key_label  "name"
+#@meta_label "type"
+
+
+#########################################################################
+[name="sndemo.xcalo_block@device" type="vire::device::base_device_model"]
+
+
+#@config Parameters describing the SuperNEMO demonstrator X-wall PMT
+#
+#    +---------+
+#    |         |
+#    |  Block  o<- Light injection (LI) fiber 0
+#    |         o<- Light injection (LI) fiber 1
+#    |         |
+#    +---------+
+#
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[1] =  "LIFiber"
+
+# Port model associated to the input LI fibers:
+ports.model.LIFiber    : string = "om_fiber_input_pin"
+ports.instance.LIFiber : string = "vire::device::regular_1d_instance=[nslots=2;first_slot=(1:0);step=(1)]"
+
+
+#######################################################################
+[name="sndemo.xcalo_pmt@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator X-wall PMT
+#
+#    +---------+
+#    |         |
+#    |  PMT    o<- High voltage (HV) input
+#    |         o-> Signal output
+#    |         |
+#    +---------+
+#
+
+#########
+# Ports #
+#########
+
+#@description List of ports
+ports.labels : string[2] = "HVInput" "Signal"
+
+# Port model associated to the input high voltage ports:
+ports.model.HVInput    : string = "pmt_hv_input_pin"
+
+# Port model associated to the output signal ports:
+ports.model.Signal     : string = "pmt_sig_ouput_pin"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+##################################################################################
+[name="sndemo.xcalo_optical_module@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO X-wall optical module
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[2] = "Block" "PMT"
+
+#@description The device model associated to the calorimeter
+embedded_devices.model.Block : string = "sndemo.xcalo_block"
+
+#@description The device model associated to the calorimeter
+embedded_devices.model.PMT   : string = "sndemo.xcalo_pmt"
+
+########################
+# Auxiliary properties #
+########################
+
+#@description Manufacturer
+aux.manufacturer : string = "SuperNEMO Collaboration"
+
+
+# end of xcalo_om.vdm

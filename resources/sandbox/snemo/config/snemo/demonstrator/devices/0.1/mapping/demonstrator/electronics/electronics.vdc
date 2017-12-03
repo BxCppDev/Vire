@@ -1,0 +1,97 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of device categories for the SuperNEMO Demonstrator electronics
+#@key_label  "category"
+#@meta_label "type"
+
+
+########################################
+[category="electronics.dc" type="20000"]
+
+#@config The category associated to the SuperNEMO demonstrator electronics
+
+#@description The module number
+inherits : string = "module.dc"
+
+
+##################################
+[category="rack.dc" type="21000"]
+
+#@config The category associated to the SuperNEMO demonstrator electronics rack
+
+# #@description The module number
+# inherits : string = "module.dc"
+
+#@description The crate number
+addresses : string[1] = "rack"
+
+
+##########################################
+[category="generic_crate.dc" type="22000"]
+
+#@config The category associated to a generic rackable electronics crate
+
+extends : string = "rack.dc"
+
+by : string[1] = "crate"
+
+
+################################################
+[category="calo_frontend_crate.dc" type="23000"]
+
+#@config The category associated to a rackable calorimeter frontend electronics crate
+
+extends : string = "rack.dc"
+
+by : string[1] = "crate"
+
+
+##########################################
+[category="calo_hv_crate.dc" type="24000"]
+
+#@config The category associated to a rackable calorimeter HV crate
+
+extends : string = "rack.dc"
+
+by : string[1] = "crate"
+
+
+###################################################
+[category="tracker_frontend_crate.dc" type="25000"]
+
+#@config The category associated to a rackable tracker frontend electronics crate
+
+extends : string = "rack.dc"
+
+by : string[1] = "crate"
+
+
+#############################################
+[category="tracker_hv_crate.dc" type="26000"]
+
+#@config The category associated to a rackable tracker HV crate
+
+extends : string = "rack.dc"
+
+by : string[1] = "crate"
+
+
+
+###########################################
+[category="rack_fan_crate.dc" type="27000"]
+
+#@config The category associated to a rack fan crate
+
+inherits : string = "rack.dc"
+
+
+#################################################
+[category="rack_ac_outlet_crate.dc" type="28000"]
+
+#@config The category associated to a rack fan crate
+
+inherits : string = "rack.dc"
+
+
+# end of electronics.vdc
