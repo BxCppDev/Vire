@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ******************************************************************************************* -->
-<!-- **** file :       *** -->
-<!-- **** description :                    *** -->
+<!-- **** file :                                                                             *** -->
+<!-- **** description :                                                                      *** -->
 <!-- **** author      : panazol@lapp.in2p3.fr                                                *** -->
 <!-- **** date        : 14/01/15                                                             *** -->
 <!-- ******************************************************************************************* -->
-
-
 
 <!-- .......................................................................... -->
 <OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd">
@@ -14,45 +12,45 @@
 <Name>MOS_server</Name>
 
 	<SimpleDevice>
-	
+
 		<Name>CalibrationLight</Name>
 
 		<Plugins>
-			<Location>/MOS/plugins/libPlugin_PulserLib.so</Location> 
+			<Location>/MOS/plugins/libPlugin_PulserLib.so</Location>
 			<Name>ptr_Plugin</Name>
 		</Plugins>
 <!-- .......................................................................... -->
 
 
-		
+
 		<!-- .......................................................................... -->
 		<Instruction_set>
-		
+
 			<Instruction>
 				<Name>Start</Name>
 				<Cmd>-c -l %1 -h %2 -w %3</Cmd>
 			</Instruction>
-		
+
 			<Instruction>
 				<Name>StartSeq</Name>
 				<Cmd>-q -l %1 -h %2 -w %3 -n %4 -r %5</Cmd>
 			</Instruction>
-		
+
 			<Instruction>
 				<Name>Stop</Name>
 				<Cmd>-s</Cmd>
 			</Instruction>
-		
+
 			<Instruction>
 				<Name>GetLedNumber</Name>
 				<Cmd>GetLedNumber</Cmd>
 			</Instruction>
-			
+
 			<Instruction>
 				<Name>GetHeight</Name>
 				<Cmd>GetHeight</Cmd>
 			</Instruction>
-			
+
 			<Instruction>
 				<Name>GetWidth</Name>
 				<Cmd>GetWidth</Cmd>
@@ -105,24 +103,24 @@
 
 		<!-- .......................................................................... -->
 		<HardwareConfig>
-		
+
 			<NameHardwareConfig>Init</NameHardwareConfig>
-			
-			<!-- Address is not used because serial connection 
+
+			<!-- Address is not used because serial connection
 			<Argument>
 				<Name>Address</Name>
 				<Type>string</Type>
 				<Access>Input</Access>
-				<DefaultValue>192.168.1.200</DefaultValue> 
+				<DefaultValue>192.168.1.200</DefaultValue>
 			</Argument> -->
-			
+
 			<Argument>
 				<Name>Port</Name>
 				<Type>string</Type>
 				<Access>Input</Access>
 				<DefaultValue>1</DefaultValue> <!-- here serial port  -->
 			</Argument>
-			
+
 			<Argument>
 				<Name>BoxType</Name>
 				<Type>string</Type>
@@ -159,7 +157,7 @@
 		<!-- .......................................................................... -->
 		<Method>
 			<Name>StartPulse</Name>
-			
+
 			<Argument>
 				<Name>NumLED</Name>
 				<Type>int32</Type>
@@ -171,7 +169,7 @@
 				</Range>
 				<Description>range [1,20] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>heigth</Name>
 				<Type>int32</Type>
@@ -183,7 +181,7 @@
 				</Range>
 				<Description>range [1,1023] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>width</Name>
 				<Type>int32</Type>
@@ -195,12 +193,12 @@
 				</Range>
 				<Description>range [1,7] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>Return</Name>
 				<Type>string</Type>
 				<Access>Output</Access>
-			</Argument>	                    
+			</Argument>
 			<DeviceInstruction>
 				<Value>Start</Value>
 			</DeviceInstruction>
@@ -215,7 +213,7 @@
 		<!-- .......................................................................... -->
 		<Method>
 			<Name>StartPulseSeq</Name>
-			
+
 			<Argument>
 				<Name>NumLED</Name>
 				<Type>int32</Type>
@@ -227,7 +225,7 @@
 				</Range>
 				<Description>range [1,20] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>heigth</Name>
 				<Type>int32</Type>
@@ -239,7 +237,7 @@
 				</Range>
 				<Description>range [1,1023] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>width</Name>
 				<Type>int32</Type>
@@ -251,7 +249,7 @@
 				</Range>
 				<Description>range [1,7] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>n_pulse</Name>
 				<Type>int32</Type>
@@ -263,7 +261,7 @@
 				</Range>
 				<Description>range [1,65635] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>repetition</Name>
 				<Type>int32</Type>
@@ -275,7 +273,7 @@
 				</Range>
 				<Description>range [1,65635] </Description>
 			</Argument>
-			
+
 			<Argument>
 				<Name>Return</Name>
 				<Type>string</Type>
@@ -289,9 +287,9 @@
 			</Event>
 		</Method>
 		<!-- .......................................................................... -->
-		
-		
-		
+
+
+
 		<!-- .......................................................................... -->
 		<Method>
 			<Name>StopPulse</Name>
@@ -308,9 +306,9 @@
 			</Event>
 		</Method>
 		<!-- .......................................................................... -->
-		
-		
-		
+
+
+
 		<!-- .......................................................................... -->
 		<Method>
 			<Name>GetVersion</Name>
@@ -324,33 +322,33 @@
 			</DeviceInstruction>
 		</Method>
 		<!-- .......................................................................... -->
-		
-		
-		
-		<!-- .......................................................................... -->	
+
+
+
+		<!-- .......................................................................... -->
 		<CompoundDatapoint>
 			<Name>0_ProgramInformations</Name>
-			
+
 			<Attribut>
 				<Name>DeviceModelName</Name>
 				<Value>SNEMO/LIGHT_INJECTION/LIGHT_INJECTIONModel.xml</Value>
 			</Attribut>
-			
+
 			<Attribut>
 				<Name>DeviceModelVersion</Name>
 				<Value>1.0.0</Value>
 			</Attribut>
-			
+
 			<Attribut>
 				<Name>DeviceModelDate</Name>
 				<Value>10-06-2016</Value>
 			</Attribut>
-			
+
 			<Attribut>
 				<Name>DeviceModelAuthor</Name>
 				<Value>PANAZOL Jean-luc : LE NOBLET Thibaud</Value>
 			</Attribut>
-			
+
 			<Attribut>
 				<Name>DeviceModelDescription</Name>
 				<Value></Value>
@@ -365,21 +363,21 @@
                 	</Attribut>
 		</CompoundDatapoint>
 		<!-- .......................................................................... -->
-		
-		
-		
+
+
+
 		<!-- .......................................................................... -->
 		<CompoundDatapoint>
-			<Name>Monitoring</Name>                
+			<Name>Monitoring</Name>
 			<CompoundDatapoint>
-				
+
 				<Name>Box</Name>
-				<!-- .......................................................................... -->              
+				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>Port</Name>                
+					<Name>Port</Name>
 					<Type>int32</Type>
 					<MonitoringRate>900</MonitoringRate>
-					<Historizing>0</Historizing>			            
+					<Historizing>0</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -388,14 +386,14 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
-				<!-- .......................................................................... 
+
+				<!-- ..........................................................................
 				     not used because serial link
 				<SimpleDatapoint>
-					<Name>Address</Name>                
+					<Name>Address</Name>
 					<Type>string</Type>
 					<MonitoringRate>900</MonitoringRate>
-					<Historizing>0</Historizing>				            
+					<Historizing>0</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -404,13 +402,13 @@
 					</Method>
 				</SimpleDatapoint> -->
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>BoxType</Name>                
+					<Name>BoxType</Name>
 					<Type>int32</Type>
 					<MonitoringRate>900</MonitoringRate>
-					<Historizing>0</Historizing>					            
+					<Historizing>0</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -419,13 +417,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>ConnectionType</Name>                
+					<Name>ConnectionType</Name>
 					<Type>string</Type>
 					<MonitoringRate>900</MonitoringRate>
-					<Historizing>0</Historizing>					            
+					<Historizing>0</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -434,13 +432,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>Trigger</Name>                
+					<Name>Trigger</Name>
 					<Type>string</Type>
 					<MonitoringRate>900</MonitoringRate>
-					<Historizing>0</Historizing>					            
+					<Historizing>0</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -449,13 +447,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>AddressCard</Name>                
+					<Name>AddressCard</Name>
 					<Type>string</Type>
 					<MonitoringRate>900</MonitoringRate>
-					<Historizing>0</Historizing>					            
+					<Historizing>0</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -463,21 +461,21 @@
 						</DeviceInstruction>
 					</Method>
 				</SimpleDatapoint>
-		
+
 			</CompoundDatapoint>
 			<!-- .......................................................................... -->
-			
-			
-			
+
+
+
 			<!-- .......................................................................... -->
 			<CompoundDatapoint>
 				<Name>Led</Name>
-				<!-- .......................................................................... -->             
+				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>Heigth</Name>                
+					<Name>Heigth</Name>
 					<Type>int32</Type>
 					<MonitoringRate>1</MonitoringRate>
-					<Historizing>1</Historizing>						            
+					<Historizing>1</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -486,13 +484,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>Width</Name>                
+					<Name>Width</Name>
 					<Type>int32</Type>
 					<MonitoringRate>1</MonitoringRate>
-					<Historizing>1</Historizing>					            
+					<Historizing>1</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -501,13 +499,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>LedNumber</Name>                
+					<Name>LedNumber</Name>
 					<Type>int32</Type>
 					<MonitoringRate>1</MonitoringRate>
-					<Historizing>1</Historizing>				            
+					<Historizing>1</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -516,13 +514,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>N_pulses</Name>                
+					<Name>N_pulses</Name>
 					<Type>int32</Type>
 					<MonitoringRate>1</MonitoringRate>
-					<Historizing>1</Historizing>		            
+					<Historizing>1</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -531,13 +529,13 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 				<!-- .......................................................................... -->
 				<SimpleDatapoint>
-					<Name>Repetition</Name>                
+					<Name>Repetition</Name>
 					<Type>int32</Type>
 					<MonitoringRate>1</MonitoringRate>
-					<Historizing>1</Historizing>	            
+					<Historizing>1</Historizing>
 					<Method>
 						<Name>get</Name>
 						<DeviceInstruction>
@@ -546,7 +544,7 @@
 					</Method>
 				</SimpleDatapoint>
 				<!-- .......................................................................... -->
-				
+
 			</CompoundDatapoint>
 		</CompoundDatapoint>
 	</SimpleDevice>
