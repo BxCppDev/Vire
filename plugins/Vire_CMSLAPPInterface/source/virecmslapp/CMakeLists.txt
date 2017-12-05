@@ -36,18 +36,6 @@ message(STATUS "[Vire_CMSLAPPInterface] _VireCmsLappProtobufLibrary_cpp_SOURCES=
 #
 set(Vire_CMSLAPPInterface_Plugin_HEADERS
   vire/cmslapp/version.h.in
-  vire/cmslapp/connection_request.h
-  vire/cmslapp/connection_request-serial.ipp
-  vire/cmslapp/connection_success.h
-  vire/cmslapp/connection_success-serial.ipp
-  vire/cmslapp/connection_failure.h
-  vire/cmslapp/connection_failure-serial.ipp
-  vire/cmslapp/disconnection_request.h
-  vire/cmslapp/disconnection_request-serial.ipp
-  vire/cmslapp/disconnection_success.h
-  vire/cmslapp/disconnection_success-serial.ipp
-  vire/cmslapp/disconnection_failure.h
-  vire/cmslapp/disconnection_failure-serial.ipp
   vire/cmslapp/pubsub_support.h
   ${_VireCmsLappProtobufLibrary_cpp_HEADERS}
 )
@@ -64,13 +52,6 @@ set(Vire_CMSLAPPInterface_Plugin_PRIVATE_HEADERS
 
 set(Vire_CMSLAPPInterface_Plugin_SOURCES
   vire/cmslapp/version.cc
-  vire/cmslapp/connection_request.cc
-  vire/cmslapp/connection_success.cc
-  vire/cmslapp/connection_failure.cc
-  vire/cmslapp/disconnection_request.cc
-  vire/cmslapp/disconnection_success.cc
-  vire/cmslapp/disconnection_failure.cc
-  vire/cmslapp/the_serializable.cc
   vire/cmslapp/pubsub_support.cc
   ${_VireCmsLappProtobufLibrary_cpp_SOURCES}
 )
@@ -141,8 +122,7 @@ install(TARGETS Vire_CMSLAPP DESTINATION ${CMAKE_INSTALL_LIBDIR}/${VIRE_PLUGINLI
 #  )
 # - List of test programs:
 set(Vire_CMSLAPP_TESTS
-  testing/test_connection_request.cxx
-  # testing/test_connection_failure.cxx
+  testing/test-cmslapp-version.cxx
   )
 
 set(_virecmslapp_TEST_ENVIRONMENT "VIRE_RESOURCE_FILES_DIR=${VIRE_DATAROOTDIR}/resources")

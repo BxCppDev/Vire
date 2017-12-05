@@ -18,12 +18,7 @@ else()
 endif()
 
 set(protobufList
-  vire/cmslapp/ConnectionRequest.proto
-  vire/cmslapp/ConnectionSuccess.proto
-  vire/cmslapp/ConnectionFailure.proto
-  vire/cmslapp/DisconnectionRequest.proto
-  vire/cmslapp/DisconnectionSuccess.proto
-  vire/cmslapp/DisconnectionFailure.proto
+  vire/cmslapp/ErrorCode.proto
   )
 
 message( STATUS "protobufList             = '${protobufList}'")

@@ -1,4 +1,4 @@
-//! \file test_connection_request.cxx
+//! \file test-cmslapp-version.cxx
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -33,7 +33,7 @@
 #include <jsontools/iofile.h>
 
 // This project:
-// #include <vire/vire.h>
+#include <vire/cmslapp/version.h>
 
 void test0();
 
@@ -61,28 +61,7 @@ void test0()
 {
   std::clog << "\ntest0: Entering..." << std::endl;
 
-  {
-    vire::cmslapp::connection_request  req;
-    vire::utility::instance_identifier sid;
-    sid.from_string("SuperNEMO-1.0");
-    req.set_setup_id(sid);
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Monitoring/Voltage/__dp_read__");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Monitoring/Current/__dp_read__");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Voltage/__dp_read__");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Voltage/__dp_write__");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_read__");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_write__");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/DAS/start");
-    req.add_requested_resource("SuperNEMO:/Demonstrator/CMS/DAS/stop");
-    req.tree_dump(std::clog, "connection request: ", "[info] ");
-
-    jsontools::store("test_connection_request.json", req);
-  }
-
-  {
-    vire::cmslapp::connection_request req;
-    jsontools::load("test_connection_request.json", req);
-  }
+  std::clog << "\ntest0: Vire/CMSLAPP version: " << VIRE_CMSLAPPInterface_LIB_VERSION << std::endl;
 
   std::clog << "\ntest0: Exiting." << std::endl;
   return;
