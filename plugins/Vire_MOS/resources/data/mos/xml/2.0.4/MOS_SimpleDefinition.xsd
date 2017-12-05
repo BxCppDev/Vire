@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xs1="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_4"
+    elementFormDefault="qualified">
+
+  <xs:element name="Id"              type="xs:string"  />
+
+  <xs:element name="FileName"        type="xs:string"  />
+
+  <xs:element name="ReadIdCollector" type="xs:string"  />
+
+  <xs:element name="Description"     type="xs:string"  />
+
+  <xs:element name="Historizing"     type="xs:boolean" />
+
+  <xs:element name="AccesLevel"      type="xs:integer" />
+
+  <xs:element name="WriteMask"       type="xs:integer" />
+
+  <xs:element name="NodeId"          type="xs:string"  />
+
+  <xs:element name="MethodId"        type="xs:string"  />
+
+  <xs:element name="ServerId"        type="xs:string"  />
+
+  <xs:element name="EndDelimiter"    type="HexaValue"  />
+
+  <xs:element name="Access">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="Input"  />
+        <xs:enumeration value="Output" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="ElementArray">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Pos"   />
+        <xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DefaultValue" type="xs:string" />
+
+  <xs:element name="Value"        type="xs:string" />
+
+  <xs:element name="Message"      type="xs:string" />
+
+  <xs:element name="Enable">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="false" />
+        <xs:enumeration value="true"  />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Severity" type="xs:integer" />
+
+  <xs:element name="Name"     type="xs:string"  />
+  <xs:element name="Mnemonic" type="xs:string" />
+  <xs:element name="ResolutionDataChange" type="xs:string" />
+  <xs:element name="ResolutionDataChangeMode" type="xs:string" />
+
+  <xs:element name="Type">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="bool"       />
+        <xs:enumeration value="int8"       />
+        <xs:enumeration value="int16"      />
+        <xs:enumeration value="int32"      />
+        <xs:enumeration value="int64"      />
+        <xs:enumeration value="float"      />
+        <xs:enumeration value="double"     />
+        <xs:enumeration value="string"     />
+        <xs:enumeration value="xml"        />
+        <xs:enumeration value="byteString" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Multiplicity"               type="xs:integer" />
+
+  <xs:element name="StartNumberingMultiplicity" type="xs:integer" />
+
+  <xs:element name="DataFrameStructureRef" type="xs:string"  />
+
+  <xs:element name="Pos"                   type="xs:integer" />
+
+  <xs:element name="Nb"                    type="xs:integer" />
+
+  <xs:element name="Index"                 type="xs:integer" />
+
+  <xs:element name="ArraySize"             type="xs:integer" />
+
+  <xs:element name="UserInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Name"  />
+        <xs:element ref="Value" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Range">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Min" />
+        <xs:element minOccurs="0" ref="Max" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Min" type="xs:string" />
+
+  <xs:element name="Max" type="xs:string" />
+
+  <xs:element name="Info">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Config"         />
+        <xs:element minOccurs="0" ref="ICD"            />
+        <xs:element minOccurs="0" ref="NameSpaceLevel" />
+        <xs:element minOccurs="0" ref="ScopeAccess"    />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ScopeAccess">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="internal"  /> <!-- Unpublished method to be used only internally (MOS) to the CMS -->
+        <xs:enumeration value="protected" /> <!-- Published method to be used internally to the CMS              -->
+        <xs:enumeration value="external"  /> <!-- Published method to be used by actor external to the CMS       -->
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Config" type="xs:boolean" />
+
+  <xs:element name="ICD"    type="xs:boolean" />
+
+  <xs:element name="NameSpaceLevel">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="User"   />
+        <xs:enumeration value="Expert" />
+        <xs:enumeration value="Debug"  />
+        <xs:enumeration value="System" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="Sequence">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element                                     ref="NodeId"   />
+        <xs:element                                     ref="MethodId" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="DefautArgument" />
+        <xs:element minOccurs="0"                       ref="ServerId" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DefautArgument">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element               ref="Value" />
+        <xs:element               ref="Type" />
+        <xs:element minOccurs="0" ref="Description" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DataIdDescriptorRef" type="xs:string" />
+
+  <xs:element name="FileFSMRef"          type="xs:string" />
+
+  <xs:element name="Asynchronous">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Enable" />
+        <xs:element ref="TimeOut" />
+        <xs:element ref="EndInstruction" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TimeOut"        type="xs:integer" />
+
+  <xs:element name="EndInstruction" type="xs:string"  />
+
+  <xs:element name="Acknowledge">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="false" />
+        <xs:enumeration value="true"  />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="FileMapping" type="xs:string" />
+
+  <xs:element name="MonitoringRate">
+    <xs:simpleType>
+      <xs:restriction base="xs:integer">
+        <xs:enumeration value="1"    />
+        <xs:enumeration value="2"    />
+        <xs:enumeration value="3"    />
+        <xs:enumeration value="4"    />
+        <xs:enumeration value="5"    />
+        <xs:enumeration value="6"    />
+        <xs:enumeration value="7"    />
+        <xs:enumeration value="8"    />
+        <xs:enumeration value="9"    />
+        <xs:enumeration value="10"   />
+        <xs:enumeration value="15"   />
+        <xs:enumeration value="20"   />
+        <xs:enumeration value="30"   />
+        <xs:enumeration value="40"   />
+        <xs:enumeration value="50"   />
+        <xs:enumeration value="60"   />
+        <xs:enumeration value="70"   />
+        <xs:enumeration value="80"   />
+        <xs:enumeration value="90"   />
+        <xs:enumeration value="100"  />
+        <xs:enumeration value="120"  />
+        <xs:enumeration value="240"  />
+        <xs:enumeration value="360"  />
+        <xs:enumeration value="540"  />
+        <xs:enumeration value="600"  />
+        <xs:enumeration value="900"  />
+        <xs:enumeration value="1800" />
+        <xs:enumeration value="2700" />
+        <xs:enumeration value="3600" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="ServerPort" type="xs:integer" />
+
+  <xs:simpleType name="HexaValue">
+    <xs:restriction base="xs:hexBinary">
+      <xs:maxLength value="8" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xs1="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_4"
+    elementFormDefault="qualified">
+
+  <!-- __________________________________ -->
+  <!-- Author : PANAZOL jean-Luc          -->
+  <!-- Date   : 19/11/15                  -->
+  <!-- Name   : MOS_FSM.xsd               -->
+  <!--                                    -->
+  <!-- FSM dictionary schema for MOS      -->
+  <!-- __________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!-- This part is needed by file (XML) who define the OPCUA server (device)                     -->
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : NameFSM                                                                           -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name                     | Name of the transition that we want to add some instruction   -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   Argument (0..N)          | You can add some argument for this transition                 -->
+  <!--   DeviceInstruction (0..N) | define the instruction (action) to the hardware               -->
+  <!--   Sequence (0..N)          | define the list of calling basic methods                      -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="NameFSM" type="xs:string" />
+  <xs:element name="FSM">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="NameFSM" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Argument"          />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="DeviceInstruction" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Sequence"          />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!-- This part is needed by file who defined the FSM                                            -->
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : FSM_Definition                                                                    -->
+  <!--   Info : Root tag for FSM definition                                                       -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   TransitionFSM (0..N)    | define a new transition for the FSM                            -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="FSM_Definition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="TransitionFSM" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- __________________________________________________________________________________________ -->
+
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Name : TransitionFSM                                                                     -->
+  <!--   Info :                                                                                   -->
+  <!--   Date : 19/11/15                                                                          -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Mandatory :                                                                     -->
+  <!--   Name              | Name of the transition, so name of the method  in the OPCUA server   -->
+  <!-- __________________________________________________________________________________________ -->
+  <!--   Elements Optional :                                                                      -->
+  <!--   StateCondition (0..N) | State value needed to valid the call of this transition          -->
+  <!--   FinalCondition (0..1) | State value at the end of the transition                         -->
+  <!--   AutomaticChangeTransition (0..1)                                                         -->
+  <!--                         | if defined and value=false then change the "state" (finalState)  -->
+  <!--                         | at the end of transition automaticaly.                           -->
+  <!--                         | else the "state" don't change.                                   -->
+  <!-- __________________________________________________________________________________________ -->
+  <xs:element name="TransitionFSM">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Name" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="StateCondition" />
+        <xs:element minOccurs="0"                       ref="FinalTransition" />
+        <xs:element minOccurs="0"                       ref="AutomaticChangeTransition" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="StateCondition"            type="xs:string" />
+
+  <xs:element name="FinalTransition"           type="xs:string" />
+
+  <xs:element name="AutomaticChangeTransition" type="xs:string" />
+  <!-- __________________________________________________________________________________________ -->
+
+</xs:schema>
