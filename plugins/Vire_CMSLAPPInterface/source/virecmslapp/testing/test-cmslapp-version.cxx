@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmslapp/connection_request.h>
+#include <vire/cmslapp/version.h>
 
 // Standard library:
 #include <iostream>
@@ -29,11 +29,6 @@
 #include <datatools/exception.h>
 #include <datatools/properties.h>
 #include <datatools/utils.h>
-// - BxJsontools
-#include <jsontools/iofile.h>
-
-// This project:
-#include <vire/cmslapp/version.h>
 
 void test0();
 
