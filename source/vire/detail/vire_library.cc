@@ -270,7 +270,7 @@ namespace vire {
 #if VIRE_WITH_PLUGINS == 1
         // Register the Vire plugin path in the datatools' kernel:
         vire_lib_infos.store_string(datatools::library_info::keys::install_plugin_lib_dir(),
-                                    vire::get_plugin_resource_files_base_dir());
+                                    vire::get_plugin_dir());
         DT_LOG_TRACE(_logging_, "Vire plugin resource files dir is documented.");
 
         // If the 'VIRE_PLUGIN_LIB_DIR' environment variable is set, it will supersed

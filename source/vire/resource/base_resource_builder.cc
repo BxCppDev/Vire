@@ -30,7 +30,7 @@ namespace vire {
     base_resource_builder::base_resource_builder()
     {
       _logging_priority = datatools::logger::PRIO_FATAL;
-      _resource_manager_ = 0;
+      _resource_manager_ = nullptr;
       return;
     }
 
@@ -54,7 +54,7 @@ namespace vire {
 
     bool base_resource_builder::has_resource_manager() const
     {
-      return _resource_manager_ != 0;
+      return _resource_manager_ != nullptr;
     }
 
     void base_resource_builder::set_resource_manager(::vire::resource::manager & resource_manager_)

@@ -99,6 +99,7 @@ namespace vire {
 
     void client::set_setup_id(const ::vire::utility::instance_identifier & setup_id_)
     {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
       _setup_id_ = setup_id_;
       return;
     }
@@ -110,6 +111,7 @@ namespace vire {
 
     void client::set_server_infos(const server_infos & si_)
     {
+     DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
       _server_infos_ = si_;
       return;
     }
@@ -229,6 +231,10 @@ namespace vire {
                       "Invalid setup ID '" << sid_repr<< "'!");
           set_setup_id(sid);
         }
+      }
+
+      if (!has_server_info()) {
+        // XXX
       }
 
       DT_LOG_TRACE_EXITING(_logging_);

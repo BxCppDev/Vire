@@ -12,10 +12,7 @@
 #@config Parameters describing the SuperNEMO setup
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
-
-#@description Unique identifier of the device model
-model_key : integer = 0
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "setup"
@@ -25,18 +22,10 @@ type      : string  = "setup"
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[3] = "CaloRack" "TrackerRack" "Calo"
+embedded_devices.labels : string[1] = "Demonstrator"
 
 #@description The device model associated to the calorimeter rack
-embedded_devices.model.CaloRack    : string = "calo_rack"
-# embedded_devices.instance.CaloRack : string = "vire::device::single_instance=[slot=(1:0)]"
-
-#@description The device model associated to the tracker rack
-embedded_devices.model.TrackerRack    : string = "tracker_rack"
-# embedded_devices.instance.TrackerRack : string = "vire::device::single_instance=[slot=(1:1)]"
-
-#@description The device model associated to the calorimeter rack
-embedded_devices.model.Calo    : string = "calo_detector"
+embedded_devices.model.Demonstrator : string = "demonstrator"
 
 # Auxiliary properties:
 

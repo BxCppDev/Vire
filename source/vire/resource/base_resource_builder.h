@@ -84,7 +84,7 @@ namespace vire {
 
     private:
 
-      ::vire::resource::manager * _resource_manager_; //!< Handle to the resource manager
+      ::vire::resource::manager * _resource_manager_ = nullptr; //!< Handle to the resource manager
 
 #ifndef Q_MOC_RUN
       //! Reflection interface
@@ -104,10 +104,8 @@ DR_CLASS_INIT(vire::resource::base_resource_builder);
 
 #endif // VIRE_RESOURCE_BASE_RESOURCE_BUILDER_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

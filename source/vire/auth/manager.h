@@ -57,6 +57,8 @@ namespace vire {
 
       static const int DEFAULT_EXPIRE_AFTER = 90;
 
+      static const std::string & default_service_name();
+
       enum auth_status {
         AUTH_SUCCESS          = 0,
         AUTH_INVALID_LOGIN    = 1,
@@ -79,6 +81,15 @@ namespace vire {
 
       //! Return a const handle to the users service
       const vire::user::manager & get_users() const;
+
+      //! Check the existence of a credentials table path
+      bool has_users_service_name() const;
+
+      //! Set the users manager service name
+      void set_users_service_name(const std::string &);
+
+      //! Return the users manager service name
+      const std::string & get_users_service_name() const;
 
       //! Check the existence of a credentials table path
       bool has_credentials_table_path() const;
@@ -198,11 +209,12 @@ namespace vire {
       bool _initialized_ = false; //!< Initialization flag
 
       // Configuration attributes:
-      const vire::user::manager * _users_ = nullptr; //!< Users service
+      std::string _users_service_name_;         //!< Name of the users services
       std::string _credentials_table_path_;     //!< Path to the credentials table storage
       bool        _dont_load_tables_ = false;   //!< Flag to load tables at initialization
       bool        _dont_store_tables_ = false;  //!< Flag to store tables at reset
       bool        _dont_backup_tables_ = false; //!< Flag to not backup tables
+      const vire::user::manager * _users_ = nullptr; //!< Users service
 
       // Working data:
       std::map<std::string, credentials> _credentials_; //!< Dictionary of credentials

@@ -76,55 +76,40 @@ namespace {
 
 namespace vire {
 
-  int initialize(int argc_, char * argv_[], uint32_t flags_)
+  bool is_initialized()
   {
-    int error_code = EXIT_SUCCESS;
-    try {
-      if (! ::_vireInit) {
-        // Wrap Bayeux initialization because we need resources from various Bayeux's modules:
-        ::bayeux::initialize(argc_,argv_, flags_);
-        // Initialization code from Vire itself:
-        vire_initialize_impl();
-        ::_vireInit = true;
-      } else {
-        DT_THROW_IF(true, std::logic_error,
-                    "Attempt to initialize the already initialized Vire library!");
-        error_code = EXIT_FAILURE; // unavailable
-      }
-    } catch (std::exception & error) {
-      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire initialization failed: " << error.what());
-      error_code = EXIT_FAILURE;
-    } catch (...) {
-      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire initialization failed: " << "Unexpected error!");
-      error_code = EXIT_FAILURE;
-    }
-    return error_code;
+    return ::_vireInit;
   }
 
-  int terminate()
+  void initialize(int argc_, char * argv_[], uint32_t flags_)
   {
-    int error_code = EXIT_SUCCESS;
-    try {
-      if (::_vireInit) {
-        // Termination code for Vire:
-        vire_terminate_impl();
+    if (! ::_vireInit) {
+      // Wrap Bayeux initialization because we need resources from various Bayeux's modules:
+      ::bayeux::initialize(argc_,argv_, flags_);
+      // Initialization code from Vire itself:
+      vire_initialize_impl();
+      ::_vireInit = true;
+    } else {
+      DT_THROW_IF(true, std::logic_error,
+                  "Attempt to initialize the already initialized Vire library!");
+    }
+    return;
+  }
 
-        // Wrap Bayeux termination:
-        ::bayeux::terminate();
-        ::_vireInit = false;
-      } else {
+  void terminate()
+  {
+    if (::_vireInit) {
+      // Termination code for Vire:
+      ::_vireInit = false;
+      vire_terminate_impl();
+
+      // Wrap Bayeux termination:
+      ::bayeux::terminate();
+    } else {
         DT_THROW(std::logic_error,
                  "Attempt to terminate the already terminated Vire library!");
-        error_code = EXIT_FAILURE;
-      }
-    } catch (std::exception & error) {
-      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire termination failed: " << error.what());
-      error_code = EXIT_FAILURE;
-    } catch (...) {
-      DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Vire termination failed: " << "Unexpected error!");
-      error_code = EXIT_FAILURE;
     }
-    return error_code;
+    return;
   }
 
 } // namespace vire

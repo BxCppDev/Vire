@@ -1,7 +1,7 @@
 //! \file  vire/device/base_electronics_crate_model.h
 //! \brief Base class for an electronics crate model
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -26,7 +26,7 @@
 #include <string>
 
 // This project:
-#include <vire/device/base_device_model.h>
+#include <vire/device/base_rackable_model.h>
 
 namespace vire {
 
@@ -56,7 +56,8 @@ namespace vire {
      *
      *
      */
-    class base_electronics_crate_model : public base_device_model
+    class base_electronics_crate_model
+      : public base_rackable_model
     {
     public:
 
@@ -80,16 +81,7 @@ namespace vire {
       void set_max_number_of_modules(uint32_t);
 
       //! Return the max number of modules
-      uint32_t get_max_number_of_modules();
-
-      //! Check if the crate has a known format
-      bool has_format() const;
-
-      //! Return the format
-      const std::string & get_format() const;
-
-      //! Set the format
-      void set_format(const std::string &);
+      uint32_t get_max_number_of_modules() const;
 
       //! Check if there is a module at given slot
       bool has_module(uint32_t module_slot_) const;
@@ -130,8 +122,7 @@ namespace vire {
 
     private:
 
-      std::string _format_; //!< Format of the crate
-      uint32_t    _max_number_of_modules_; //!< Maximum number of modules
+      uint32_t    _max_number_of_modules_;  //!< Maximum number of modules
       indexed_labels_dict_type _module_labels_; //!< List of module labels by slot index
 
       //! Registration of a system factory

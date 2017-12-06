@@ -40,7 +40,8 @@ namespace vire {
   namespace user {
 
     //! \brief User manager
-    class manager : public ::datatools::base_service
+    class manager
+      : public ::datatools::base_service
     {
     public:
 
@@ -49,6 +50,8 @@ namespace vire {
 
       //! Default value for standard user minimum GID
       static const int32_t DEFAULT_STANDARD_GROUP_MIN_GID = 1000;
+
+      static const std::string & default_service_name();
 
       /// \brief Setup flags
       enum setup_flags {

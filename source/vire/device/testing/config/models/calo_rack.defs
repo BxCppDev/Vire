@@ -12,7 +12,7 @@
 #@config Parameters describing the Calorimeter Control Board Frontend FPGAs
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -38,7 +38,7 @@ aux.cms.id  : string = "10201"
 #@config Parameters describing the Calorimeter Control Board Control FPGA
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -64,7 +64,7 @@ aux.cms.id  : string = "10202"
 #@config Parameters describing the Calorimeter Crate Control Board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Format of the board
 format : string = "VME-6U-extended"
@@ -108,7 +108,7 @@ aux.cms.id  : string = "10200"
 #@config Parameters describing the Trigger Board Control FPGA
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -134,7 +134,7 @@ aux.cms.id  : string = "10301"
 #@config Parameters describing the Trigger Board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Format of the board
 format : string = "VME-6U-extended"
@@ -174,7 +174,7 @@ aux.cms.id  : string = "10300"
 #@config Parameters describing the Main Calorimeter Frontend Electronics Crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 ####################
 # Embedded modules #
@@ -237,7 +237,7 @@ aux.cms.id  : string = "10400"
 #@config Parameters describing the Xcalo/Gveto Calorimeter Frontend Electronics Crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 ####################
 # Embedded modules #
@@ -286,22 +286,22 @@ aux.cms.id  : string = "10401"
 #@config Parameters describing the Calorimeter Frontend Electronics Rack
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 ###################
 # Embedded crates #
 ###################
 
-#@description Maximum number of crates
-max_number_of_crates : integer = 3
+#@description Maximum number of rackable crates
+max_number_of_rackable : integer = 3
 
 #@description List of embedded crates
-crates.slot_0.model  : string = "main_calo_crate"
-crates.slot_0.label  : string = "Crate_0"
-crates.slot_1.model  : string = "main_calo_crate"
-crates.slot_1.label  : string = "Crate_1"
-crates.slot_2.model  : string = "xgveto_calo_crate"
-crates.slot_2.label  : string = "Crate_2"
+rackable.slot_0.model  : string = "main_calo_crate"
+rackable.slot_0.label  : string = "Crate_0"
+rackable.slot_1.model  : string = "main_calo_crate"
+rackable.slot_1.label  : string = "Crate_1"
+rackable.slot_2.model  : string = "xgveto_calo_crate"
+rackable.slot_2.label  : string = "Crate_2"
 
 # Auxiliary properties:
 

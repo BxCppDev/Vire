@@ -19,17 +19,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <vire/utility/rw_access-reflect.h>
-
-#include <vire/logging/simple_logging_service-reflect.h>
-
-#include <vire/user/user-reflect.h>
-#include <vire/user/group-reflect.h>
-#include <vire/user/manager-reflect.h>
-
-#include <vire/auth/manager-reflect.h>
-
-#include <vire/device/space-reflect.h>
-#include <vire/device/slot-reflect.h>
+#include <vire/utility/the_introspectable-inc.h>
+#include <vire/logging/the_introspectable-inc.h>
+#include <vire/user/the_introspectable-inc.h>
+#include <vire/auth/the_introspectable-inc.h>
+#include <vire/device/the_introspectable-inc.h>
 
 // end

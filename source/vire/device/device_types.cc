@@ -48,6 +48,7 @@ namespace {
       ("generic",                vire::device::TYPE_GENERIC)
       ("setup",                  vire::device::TYPE_SETUP)
       ("rack",                   vire::device::TYPE_RACK)
+      ("rackable",               vire::device::TYPE_RACKABLE)
       ("crate",                  vire::device::TYPE_CRATE)
       ("module",                 vire::device::TYPE_MODULE)
       ("module_board",           vire::device::TYPE_MODULE_BOARD)

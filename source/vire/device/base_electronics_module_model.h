@@ -33,7 +33,8 @@ namespace vire {
   namespace device {
 
     //! \brief Base class for electronics module/board models
-    class base_electronics_module_model : public base_device_model
+    class base_electronics_module_model
+      : public base_device_model
     {
     public:
 

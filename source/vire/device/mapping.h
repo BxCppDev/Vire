@@ -24,6 +24,7 @@
 // Standard library:
 #include <string>
 #include <map>
+#include <vector>
 #include <stack>
 #include <set>
 #include <memory>
@@ -50,7 +51,8 @@ namespace vire {
     class base_device_model;
 
     //! \brief The mapping class for the devices in a setup
-    class mapping : public datatools::i_tree_dumpable
+    class mapping
+      : public datatools::i_tree_dumpable
     {
     public:
 
@@ -188,7 +190,15 @@ namespace vire {
 
     protected:
 
-      typedef std::stack<const mapping_info *> info_stack_type;
+      // typedef std::stack<const mapping_info *> info_stack_type;
+      typedef std::vector<const mapping_info *> minfo_stack_type;
+      typedef std::vector<std::string> path_stack_type;
+
+      struct info_stack_type
+      {
+        minfo_stack_type stack;
+        path_stack_type  path;
+      };
 
       //! Set default attributes' values
       void _set_defaults();

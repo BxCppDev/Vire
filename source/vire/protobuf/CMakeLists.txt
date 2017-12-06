@@ -67,6 +67,13 @@ set(protobufList
   vire/cms/ResourceStatusChange.proto
   vire/cms/DeviceStatusChange.proto
 
+  vire/cms/ConnectionRequest.proto
+  vire/cms/ConnectionSuccess.proto
+  vire/cms/ConnectionFailure.proto
+  vire/cms/DisconnectionRequest.proto
+  vire/cms/DisconnectionSuccess.proto
+  vire/cms/DisconnectionFailure.proto
+
   )
 message( STATUS "[info] protobufList = '${protobufList}'")
 

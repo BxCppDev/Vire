@@ -35,6 +35,7 @@ namespace vire {
       case CATEGORY_SERVER: return "server";
       case CATEGORY_CLIENT: return "client";
       case CATEGORY_SUBCONTRACTOR: return "subcontractor";
+      case CATEGORY_SYSTEM: return "system";
       default:
         break;
       }
@@ -47,6 +48,7 @@ namespace vire {
       if (label_ == category_label(CATEGORY_SERVER)) return CATEGORY_SERVER;
       if (label_ == category_label(CATEGORY_CLIENT)) return CATEGORY_CLIENT;
       if (label_ == category_label(CATEGORY_SUBCONTRACTOR)) return CATEGORY_SUBCONTRACTOR;
+      if (label_ == category_label(CATEGORY_SYSTEM)) return CATEGORY_SYSTEM;
       return CATEGORY_INVALID;
     }
 
@@ -66,6 +68,8 @@ namespace vire {
         out << ".client";
       } else if (category_ == CATEGORY_SUBCONTRACTOR) {
         out << ".subcontractor";
+      } else if (category_ == CATEGORY_SYSTEM) {
+        out << ".system";
       }
       if (!id_.empty()) {
         out << '.' << id_;
@@ -149,6 +153,11 @@ namespace vire {
     bool actor::is_subcontractor() const
     {
       return _category_ == CATEGORY_SUBCONTRACTOR;
+    }
+
+    bool actor::is_system() const
+    {
+      return _category_ == CATEGORY_SYSTEM;
     }
 
     datatools::properties & actor::grab_metadata()

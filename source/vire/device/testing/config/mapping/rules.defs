@@ -137,9 +137,17 @@ mapping.device.Feb_17     : string = "[tracker_frontend_board.dc:board=18]"
 mapping.device.Feb_18     : string = "[tracker_frontend_board.dc:board=19]"
 
 
+#####################################
+[model="detector" policy="supersede"]
+
+mapping.device.CalorimeterSubmodule0 : string = "[calo_detector.dc:side=0]"
+mapping.device.CalorimeterSubmodule1 : string = "[calo_detector.dc:side=1]"
+
+
 ##########################################
 [model="calo_detector" policy="supersede"]
 
-mapping.device.OM  : string = "[calo_om.dc:row+0,column+0]"
+mapping.device.OM : string = "[calo_om.dc:row+0,column+0]"
 
-# end
+
+# end of rules.defs

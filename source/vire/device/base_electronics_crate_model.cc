@@ -1,6 +1,6 @@
 //! \file vire/device/base_electronics_crate_model.cc
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -39,6 +39,7 @@ namespace vire {
       set_type(TYPE_CRATE);
       set_allow_embedded_devices(true);
       _max_number_of_modules_ = 0;
+      base_rackable_model::_set_defaults();
       return;
     }
 
@@ -55,6 +56,25 @@ namespace vire {
       }
       return;
     }
+
+    // bool base_electronics_crate_model::has_height() const
+    // {
+    //   return _height_ > 0;
+    // }
+
+    // void base_electronics_crate_model::set_height(uint32_t height_)
+    // {
+    //   DT_THROW_IF(is_initialized(),
+    //               std::logic_error,
+    //               "Crate model '" << get_name() << "' is already initialized !");
+    //   _height_ = height_;
+    //   return;
+    // }
+
+    // uint32_t base_electronics_crate_model::get_height() const
+    // {
+    //   return _height_;
+    // }
 
     bool base_electronics_crate_model::has_max_number_of_modules() const
     {
@@ -73,29 +93,29 @@ namespace vire {
       return;
     }
 
-    uint32_t base_electronics_crate_model::get_max_number_of_modules()
+    uint32_t base_electronics_crate_model::get_max_number_of_modules() const
     {
       return _max_number_of_modules_;
     }
 
-    bool base_electronics_crate_model::has_format() const
-    {
-      return ! _format_.empty();
-    }
+    // bool base_electronics_crate_model::has_format() const
+    // {
+    //   return ! _format_.empty();
+    // }
 
-    const std::string & base_electronics_crate_model::get_format() const
-    {
-      return _format_;
-    }
+    // const std::string & base_electronics_crate_model::get_format() const
+    // {
+    //   return _format_;
+    // }
 
-    void base_electronics_crate_model::set_format(const std::string & format_)
-    {
-      DT_THROW_IF(is_initialized(),
-                  std::logic_error,
-                  "Crate model '" << get_name() << "' is already initialized !");
-      _format_ = format_;
-      return;
-    }
+    // void base_electronics_crate_model::set_format(const std::string & format_)
+    // {
+    //   DT_THROW_IF(is_initialized(),
+    //               std::logic_error,
+    //               "Crate model '" << get_name() << "' is already initialized !");
+    //   _format_ = format_;
+    //   return;
+    // }
 
     bool base_electronics_crate_model::has_module(uint32_t module_slot_id_) const
     {
@@ -150,7 +170,7 @@ namespace vire {
                     "Crate model '" << get_name() << "' already has a module at slot '" << islot << "' !");
       }
       if (has_format() && module->has_format()) {
-        DT_THROW_IF(_format_ != module->get_format(),
+        DT_THROW_IF(get_format() != module->get_format(),
                     std::logic_error,
                     "Crate model '" << get_name() << "' :  Attempt to embed a module module with incompatible format ('"
                     << module->get_format()
@@ -207,23 +227,36 @@ namespace vire {
     {
       _module_labels_.clear();
       _max_number_of_modules_ = 0;
-      _format_.clear();
+      // _height_ = 0;
+      // _format_.clear();
+      base_rackable_model::_rackable_reset();
       return;
     }
 
     void base_electronics_crate_model::_crate_initialize(const datatools::properties & config_,
                                                          model_repository & models_)
     {
-      if (! has_format()) {
-        if (config_.has_key("format")) {
-          std::string cf = config_.fetch_string("format");
-          set_format(cf);
-        }
-      }
+      base_rackable_model::_rackable_initialize(config_, models_);
+      // if (! has_format()) {
+      //   if (config_.has_key("format")) {
+      //     std::string cf = config_.fetch_string("format");
+      //     set_format(cf);
+      //   }
+      // }
+
+      // if (!has_height()) {
+      //   if (config_.has_key("height")) {
+      //     int32_t n = config_.fetch_positive_integer("height");
+      //     DT_THROW_IF ((n < 0), std::domain_error,
+      //                  "Invalid height '" << n << "' !");
+      //     uint32_t height = n;
+      //     set_height(height);
+      //   }
+      // }
 
       if (!has_max_number_of_modules()) {
         if (config_.has_key("max_number_of_modules")) {
-          int32_t n = config_.fetch_integer("max_number_of_modules");
+          int32_t n = config_.fetch_positive_integer("max_number_of_modules");
           DT_THROW_IF ((n < 1 || n > 64), std::domain_error,
                        "Invalid number of modules '" << n << "' !");
           uint32_t mnom = n;
@@ -280,13 +313,16 @@ namespace vire {
                                                  const std::string& indent_,
                                                  bool inherit_) const
     {
-      this->base_device_model::tree_dump(out_, title_, indent_, true);
+      this->base_rackable_model::tree_dump(out_, title_, indent_, true);
+
+      // out_ << indent_ << i_tree_dumpable::tag
+      //      << "Format : '" << _format_ << "'" << std::endl;
+
+      // out_ << indent_ << i_tree_dumpable::tag
+      //      << "Height : " << _height_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Format : '" << _format_ << "'" << std::endl;
-
-      out_ << indent_ << i_tree_dumpable::tag
-           << "Max. number of modules : '" << _max_number_of_modules_ << "'" << std::endl;
+           << "Max. number of modules : " << _max_number_of_modules_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
            << "Modules : ";
@@ -297,13 +333,8 @@ namespace vire {
       out_ << indent_
            << i_tree_dumpable::inherit_skip_tag(inherit_)
            << i_tree_dumpable::tag
-           << "Number of slots : "
+           << "Number of available slots : "
            << _max_number_of_modules_ << std::endl;
-
-      out_ << indent_
-           << i_tree_dumpable::inherit_skip_tag(inherit_)
-           << i_tree_dumpable::tag
-           << "Format : '" << _format_ << "'" << std::endl;
 
       out_ << indent_
            << i_tree_dumpable::inherit_skip_tag(inherit_)

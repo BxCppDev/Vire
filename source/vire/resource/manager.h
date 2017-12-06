@@ -25,6 +25,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <memory>
 
 // Third party:
 // - Boost:
@@ -47,7 +48,8 @@ namespace vire {
     class role;
 
     //! \brief Resource and role management service
-    class manager : public ::datatools::base_service
+    class manager
+      : public ::datatools::base_service
     {
     public:
 
@@ -62,6 +64,8 @@ namespace vire {
       //! Type alias for a set of resource identifiers (RIDs)
       typedef std::set<int32_t> set_of_resource_ids;
 
+      static const std::string & default_service_name();
+
       //! Return the default universe role name
       static const std::string & default_universe_role_name();
 
@@ -71,7 +75,14 @@ namespace vire {
       //! Destructor
       virtual ~manager();
 
-      // =============== Initialization/termination methods ===============
+      //! Check if the name of the device manager service is set
+      bool has_devices_service_name() const;
+
+      //! Set the name of the device manager service
+      void set_devices_service_name(const std::string &);
+
+      //! Return the name of the device manager service
+      const std::string & get_devices_service_name() const;
 
       //! Set the path of the roles table path
       void set_roles_table_path(const std::string &);
@@ -132,8 +143,6 @@ namespace vire {
       //! Build resources from a device manager
       void build_resources_from_devices(const vire::device::manager & device_manager_,
                                         uint32_t flags_ = 0);
-
-      // =============== Usage methods ===============
 
       //! Check the initialization flag
       virtual bool is_initialized() const;
@@ -257,8 +266,6 @@ namespace vire {
       //! Fetch the identifier of a valid resource from a textual representation
       bool fetch_resource_id(const std::string & repr_, int32_t & resource_id_) const;
 
-      // =============== Protected/private methods ===============
-
     protected:
 
       //! Set default attribute values
@@ -289,15 +296,16 @@ namespace vire {
       bool _initialized_; //!< Initialization flag
 
       // Configuration parameters:
-      std::string _roles_table_path_;   //!< Path to the blessed roles table storage
-      bool        _dont_load_tables_;   //!< Flag to load tables at initialization
-      bool        _dont_store_tables_;  //!< Flag to store tables at reset
-      bool        _dont_backup_tables_; //!< Flag to backup tables
+      std::string _roles_table_path_;     //!< Path to the blessed roles table storage
+      bool        _dont_load_tables_;     //!< Flag to load tables at initialization
+      bool        _dont_store_tables_;    //!< Flag to store tables at reset
+      bool        _dont_backup_tables_;   //!< Flag to backup tables
+      std::string _devices_service_name_; //!< Device manager service name
 
       // Working data:
       // PIMPL-ized data structure:
       struct data;
-      boost::scoped_ptr<data> _data_; //!< Pimpl-ized internal data
+      std::unique_ptr<data> _data_; //!< Pimpl-ized internal data
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(manager);
@@ -320,10 +328,8 @@ DR_CLASS_INIT(vire::resource::manager);
 
 #endif // VIRE_RESOURCE_MANAGER_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

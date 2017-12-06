@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "ConnectionSuccessStub";
+package vire.cms;
+
+import "vire/utility/BasePayload.proto";
+import "vire/cms/ResourceStatusRecord.proto";
+
+message ConnectionSuccess {
+
+  vire.utility.BasePayload _base = 1; // Base class
+
+  repeated vire.cms.ResourceStatusRecord resource_snapshots = 100; // List of resource status snapshots
+
+}

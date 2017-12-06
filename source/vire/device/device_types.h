@@ -40,6 +40,7 @@ namespace vire {
       TYPE_GENERIC                =    0, //!< Generic device
       TYPE_SETUP                  =    1, //!< Generic setup
       TYPE_RACK                   = 1100, //!< Generic rack
+      TYPE_RACKABLE               = 1150, //!< Generic rackable
       TYPE_CRATE                  = 1200, //!< Generic crate
       TYPE_MODULE                 = 1300, //!< Generic module
       TYPE_MODULE_BOARD           = 1310, //!< Generic board

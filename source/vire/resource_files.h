@@ -40,12 +40,20 @@ namespace vire {
     unknown_resource_exception(const std::string& msg) : std::runtime_error(msg) {}
   };
 
+  //! Return URL, i.e. a path, to the  base directory where plugin DLL are installed
+  //! \param overriden_env_ If set this flag trigger the search for the
+  //!        environment variable VIRE_RESOURCE_FILES_DIR as a directory path on the filesystem
+  //!        as an alternative base directory for resources in place of the
+  //!        standard installation path
+  std::string get_plugin_lib_dir(bool overriden_env_ = false);
+
   //! Return URL, i.e. a path, to the  base directory where resource files are installed
   //! \param overriden_env_ If set this flag trigger the search for the
   //!        environment variable VIRE_RESOURCE_FILES_DIR as a directory path on the filesystem
   //!        as an alternative base directory for resources in place of the
   //!        standard installation path
   std::string get_resource_files_dir(bool overriden_env_ = false);
+
 
   //! Return URL, i.e. a path, to named resource
   //! By default the encoded resource root, determined at compile time
@@ -56,10 +64,6 @@ namespace vire {
   //!        resource root.
   //! \param overriden_env_ flag to allow path overriding by the VIRE_RESOURCE_FILES_DIR environment variable.
   std::string get_resource_file(const std::string & rname_, bool overriden_env_ = false);
-
-  //! Return URL, i.e. a path, to the  base directory where plugin DLL files are installed
-  std::string get_plugin_resource_files_base_dir(bool overriden_env_ = false);
-
 
   //! Return URL, i.e. a path, to the  base directory where a given plugin's resource files are installed
   //! \param plugin_name_ name of the plugin

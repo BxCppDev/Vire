@@ -54,6 +54,19 @@ list(APPEND VireLibrary_HEADERS
   cms/device_status_change.h
   cms/device_status_change-serial.ipp
 
+  cms/connection_request.h
+  cms/connection_request-serial.ipp
+  cms/connection_success.h
+  cms/connection_success-serial.ipp
+  cms/connection_failure.h
+  cms/connection_failure-serial.ipp
+  cms/disconnection_request.h
+  cms/disconnection_request-serial.ipp
+  cms/disconnection_success.h
+  cms/disconnection_success-serial.ipp
+  cms/disconnection_failure.h
+  cms/disconnection_failure-serial.ipp
+
   )
 
 list(APPEND VireLibrary_PRIVATE_HEADERS

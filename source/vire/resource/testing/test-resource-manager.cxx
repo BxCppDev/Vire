@@ -11,7 +11,6 @@
 // Third party:
 // - Boost:
 #include <boost/cstdint.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/filesystem.hpp>
 // - Bayeux/datatools:
 #include <datatools/io_factory.h>
@@ -33,7 +32,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
     std::clog << "Test program for the 'vire::resource::manager' class."
               << std::endl;
 
-    boost::filesystem::remove("roles.def");
+    boost::filesystem::remove("_roles.def");
     test_manager_1();
 
     std::clog << "The end." << std::endl;
@@ -141,6 +140,7 @@ void test_manager_1()
     xfoo.set_functional_resource_selector_handle(h_ers);
     xfoo.initialize_simple();
     xfoo.tree_dump(std::clog, xfoo.get_display_name());
+    mgr.add_role(xfoo);
   }
 
 
@@ -163,6 +163,6 @@ void test_manager_1()
     }
   }
 
-  boost::filesystem::remove("_roles.def");
+  //boost::filesystem::remove("_roles.def");
   return;
 }

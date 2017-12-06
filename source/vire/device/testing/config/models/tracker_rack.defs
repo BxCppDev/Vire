@@ -12,7 +12,7 @@
 #@config Parameters describing the Calorimeter Control Board Frontend FPGAs
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -38,7 +38,7 @@ aux.cms.id  : string = "10702"
 #@config Parameters describing the Tracker Control Board Control FPGA
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -64,7 +64,7 @@ aux.cms.id  : string = "10701"
 #@config Parameters describing the Tracker Crate Control Board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Format of the board
 format : string = "VME-6U-extended"
@@ -104,7 +104,7 @@ embedded_devices.model.CtrlFpga    : string = "tracker_cb_ctrl_fpga"
 #@config Parameters describing the tracker frontend electronics crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Maximum number of modules
 max_number_of_modules : integer = 21
@@ -161,20 +161,20 @@ aux.cms.id  : string = "10800"
 #@config Parameters describing the calorimeter frontend electronics rack
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
-#@description Maximum number of crates
-max_number_of_crates : integer = 3
+#@description Maximum number of rackable crates
+max_number_of_rackable : integer = 3
 
 #@description List of embedded crates
-crates.slot_0.model  : string = "tracker_crate"
-crates.slot_0.label  : string = "Crate_0"
-crates.slot_1.model  : string = "tracker_crate"
-crates.slot_1.label  : string = "Crate_1"
-crates.slot_2.model  : string = "tracker_crate"
-crates.slot_2.label  : string = "Crate_2"
+rackable.slot_0.model  : string = "tracker_crate"
+rackable.slot_0.label  : string = "Crate_0"
+rackable.slot_1.model  : string = "tracker_crate"
+rackable.slot_1.label  : string = "Crate_1"
+rackable.slot_2.model  : string = "tracker_crate"
+rackable.slot_2.label  : string = "Crate_2"
 
 #@description Unique key for CMS
 aux.cms.id  : string = "10900"
 
-#
+# end

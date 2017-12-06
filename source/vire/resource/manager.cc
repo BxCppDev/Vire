@@ -62,6 +62,13 @@ namespace vire {
     struct resource_tag_path {};
     struct resource_tag_name {};
 
+    // static
+    const std::string & manager::default_service_name()
+    {
+      static std::string _name("resources");
+      return _name;
+    }
+
     //! Multi index container of resources
     typedef boost::multi_index_container<
       resource,
@@ -147,9 +154,10 @@ namespace vire {
     {
       data();
       ~data();
+      const vire::device::manager * devices = nullptr;
       resource_set resources; //!< Set of resources
       role_set     roles;     //!< Set of roles
-      boost::scoped_ptr<std::set<int32_t> > cached_resource_ids; //!< Cached set of resource ids
+      std::unique_ptr<std::set<int32_t> > cached_resource_ids; //!< Cached set of resource ids
     };
 
     manager::data::data()
@@ -162,6 +170,7 @@ namespace vire {
       cached_resource_ids.reset();
       roles.clear();
       resources.clear();
+      devices = nullptr;
       return;
     }
 
@@ -565,6 +574,24 @@ namespace vire {
       return;
     }
 
+    bool manager::has_devices_service_name() const
+    {
+      return !_devices_service_name_.empty();
+    }
+
+    void manager::set_devices_service_name(const std::string & n_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Resource manager is already initialized!");
+      _devices_service_name_ = n_;
+      return;
+    }
+
+    const std::string & manager::get_devices_service_name() const
+    {
+      return _devices_service_name_;
+    }
+
     bool manager::is_initialized() const
     {
       return _initialized_;
@@ -578,6 +605,7 @@ namespace vire {
 
       this->::datatools::base_service::common_initialize(config_);
 
+      DT_LOG_DEBUG(get_logging_priority(), "Parsing configuration parameters...");
       bool do_build_cache = false;
       bool do_build_from_devices = false;
       // bool do_build_from_services = false;
@@ -596,34 +624,47 @@ namespace vire {
         do_build_universe_role = config_.fetch_boolean("build_universe_role");
       }
 
-      // if (do_build_from_services) {
-      //    uint32_t dev_flags = 0;
-      //         build_resources_from_services(service_mgr, dev_flags);
-      // }
-
       if (do_build_from_devices) {
-        std::string device_manager_name;
-        if (config_.has_key("devices_service")) {
-          device_manager_name = config_.fetch_string("devices_service");
+        DT_LOG_DEBUG(get_logging_priority(), "About to build resources from devices definitions.");
+        if (!has_devices_service_name()) {
+          if (config_.has_key("devices_service_name")) {
+            std::string  device_manager_name = config_.fetch_string("devices_service_name");
+            set_devices_service_name(device_manager_name);
+          }
         }
-        if (device_manager_name.empty()) {
-          // Automatically pickup the first device manager from the service manager:
-          datatools::find_service_name_with_id(service_dict_,
-                                               "vire::device::manager",
-                                               device_manager_name);
-        }
-        DT_THROW_IF(device_manager_name.empty(),
+        // if (has_devices_service_name()) {
+        //   // Automatically pickup the first device manager from the service manager:
+        //   datatools::find_service_name_with_id(service_dict_,
+        //                                        "vire::device::manager",
+        //                                        get_devices_service_name());
+        // }
+        DT_THROW_IF(!has_devices_service_name(),
                     std::logic_error,
                     "No device manager service name is set!");
-        datatools::service_dict_type::const_iterator found =
-          service_dict_.find(device_manager_name);
-        DT_THROW_IF(found == service_dict_.end(),
-                    std::logic_error,
-                    "No device manager found in the service manager!");
         const vire::device::manager & device_mgr
-          = dynamic_cast<const vire::device::manager &>(found->second->get_service_handle().get());
+          = datatools::get<vire::device::manager>(service_dict_,
+                                                  get_devices_service_name());
+
+        // datatools::service_dict_type::const_iterator found =
+        //   service_dict_.find(device_manager_name);
+        // DT_THROW_IF(found == service_dict_.end(),
+        //             std::logic_error,
+        //             "No device manager found in the service manager!");
+        // const vire::device::manager & device_mgr
+        //   = dynamic_cast<const vire::device::manager &>(found->second->get_service_handle().get());
         uint32_t dev_flags = 0;
         build_resources_from_devices(device_mgr, dev_flags);
+        DT_LOG_DEBUG(get_logging_priority(), "Number of resources : " << get_number_of_resources());
+       }
+
+      if (datatools::logger::is_debug(get_logging_priority())) {
+        std::set<int32_t> resource_ids;
+        build_set_of_resource_ids_from_path_regexp(".*", resource_ids);
+        for (auto rid : resource_ids) {
+          const resource & res = get_resource_by_id(rid);
+          std::cerr << "DEVEL: Resource [" << rid << "] : " << res.get_path() << std::endl;
+          DT_LOG_DEBUG(get_logging_priority(), "Resource [" << rid << "] : " << res.get_path() );
+        }
       }
 
       // Specific actions:
@@ -652,18 +693,19 @@ namespace vire {
       }
 
       // Checks:
-      if (!has_roles_table_path()) {
-        set_roles_table_path("~/.vire/cms/server/roles.defs");
-        // set_roles_table_path("roles.defs");
-      }
-      // DT_THROW_IF(!has_roles_table_path(), std::logic_error,
-      //             "Missing roles table path!");
+      // if (!has_roles_table_path()) {
+      //   // set_roles_table_path("~/.vire/cms/server/roles.defs");
+      //   // set_roles_table_path("roles.defs");
+      // }
+      DT_THROW_IF(!has_roles_table_path(), std::logic_error,
+                  "Missing roles table path!");
 
       if (do_build_universe_role) {
         _do_build_universe_role();
       }
 
       // Initialization:
+      datatools::fetch_path_with_env(_roles_table_path_);
       if (boost::filesystem::exists(_roles_table_path_)) {
         if (is_load_tables()) {
           DT_LOG_DEBUG(get_logging_priority(), "Loading roles table...");
@@ -708,6 +750,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::string source = source_;
       datatools::fetch_path_with_env(source);
+      DT_LOG_DEBUG(get_logging_priority(), "Source = '" << source << "'");
       datatools::multi_properties roles_table("id", "type", "Vire roles table");
       roles_table.read(source);
       std::vector<std::string> id_keys;
@@ -1074,7 +1117,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
       try {
         devices_to_resources_builder d2r_builder;
-        datatools::logger::priority d2r_builder_logging = datatools::logger::PRIO_FATAL;
+        datatools::logger::priority d2r_builder_logging = get_logging_priority();
         d2r_builder.set_logging_priority(d2r_builder_logging);
         d2r_builder.set_device_manager(device_manager_);
         d2r_builder.set_resource_manager(*this);

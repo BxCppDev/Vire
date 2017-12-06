@@ -96,9 +96,10 @@ namespace vire {
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Communication manager is already initialized!");
-      DT_THROW_IF(!a_.is_valid(),
-                  std::logic_error,
-                  "Invalid actor!");
+      if (!a_.is_valid()) {
+        a_.tree_dump(std::cerr, "Actor: ", "[error] ");
+        DT_THROW(std::logic_error, "Invalid actor!");
+      }
       _actor_ = a_;
       return;
     }
@@ -347,6 +348,26 @@ namespace vire {
                   "Communication manager is already initialized!");
 
       this->::datatools::base_service::common_initialize(config_);
+
+      if (! has_actor()) {
+        std::string actor_setup_name;
+        std::string actor_id;
+        std::string actor_category_repr;
+        if (config_.has_key("actor.setup_name")) {
+          actor_setup_name = config_.fetch_string("actor.setup_name");
+        }
+        if (config_.has_key("actor.id")) {
+          actor_id = config_.fetch_string("actor.id");
+        }
+        if (config_.has_key("actor.category")) {
+          actor_category_repr = config_.fetch_string("actor.category");
+        }
+        actor::category_type cat = actor::category(actor_category_repr);
+        actor a;
+        a.set_name(actor::build_name(cat, actor_setup_name, actor_id));
+        a.set_category(cat);
+        set_actor(a);
+      }
 
       _at_init_();
 

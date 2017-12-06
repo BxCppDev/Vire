@@ -12,7 +12,7 @@
 #@config Parameters describing the FEAST ship
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_asic"
@@ -38,7 +38,7 @@ aux.cms.id  : string = "10601"
 #@config Parameters describing the tracker FEB control FPGA
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -64,7 +64,7 @@ aux.cms.id  : string = "10602"
 #@config Parameters describing the signal input port of the tracker FEB
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of I/O
 io_type      : string  = "in"
@@ -79,7 +79,7 @@ format : string  = "ACME"
 #@config Parameters describing the calorimeter frontend board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Format of the board
 format : string = "VME-6U-extended"

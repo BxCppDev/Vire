@@ -47,6 +47,7 @@ list(APPEND VireLibrary_HEADERS
   device/base_integrated_circuit_model.h
   device/base_electronics_module_model.h
   device/base_electronics_crate_model.h
+  device/base_rackable_model.h
   device/base_electronics_rack_model.h
   device/base_firmware_model.h
   device/base_datapoint_model.h
@@ -87,6 +88,7 @@ list(APPEND VireLibrary_SOURCES
   device/physical_link.cc
   device/base_integrated_circuit_model.cc
   device/base_electronics_module_model.cc
+  device/base_rackable_model.cc
   device/base_electronics_crate_model.cc
   device/base_electronics_rack_model.cc
   device/base_firmware_model.cc
@@ -110,5 +112,6 @@ list(APPEND VireLibrary_TESTS
   device/testing/test-device-base_electronics_module_model.cxx
   device/testing/test-device-base_integrated_circuit_model.cxx
   device/testing/test-device-manager.cxx
+  device/testing/test-device-manager_2.cxx
   device/testing/test-device-link_end_info.cxx
 )

@@ -156,7 +156,18 @@ namespace vire {
       if (!has_data_description()) {
         datatools::properties dd_config;
         config_.export_and_rename_starting_with(dd_config, "data.", "");
-        _dd_.initialize(dd_config);
+        // XXX
+        dd_config.tree_dump(std::cerr, "Data description params: ", "[DEVEL] ");
+        if (dd_config.size()) {
+          try {
+            _dd_.initialize(dd_config);
+          } catch (std::logic_error & error) {
+            DT_LOG_ERROR(datatools::logger::PRIO_ALWAYS,
+                         "Invalid data description for datapoit model '" << get_name() << "': "
+                         << error.what());
+            throw error;
+          }
+        }
       }
 
       if (config_.has_key("standard_interface")) {

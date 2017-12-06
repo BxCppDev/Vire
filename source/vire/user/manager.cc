@@ -42,6 +42,13 @@ namespace vire {
     const int32_t manager::DEFAULT_STANDARD_USER_MIN_UID;
     const int32_t manager::DEFAULT_STANDARD_GROUP_MIN_GID;
 
+    // static
+    const std::string & manager::default_service_name()
+    {
+      static const std::string _n("users");
+      return _n;
+    }
+
     manager::manager(uint32_t flags_)
       : datatools::base_service("Users", "User manager service", "")
     {
@@ -876,6 +883,7 @@ namespace vire {
                   "Missing user groups table path!");
 
       // Initialization:
+      datatools::fetch_path_with_env(_users_table_path_);
       if (boost::filesystem::exists(_users_table_path_)) {
         if (is_load_tables()) {
           DT_LOG_DEBUG(get_logging_priority(), "Loading user table...");
@@ -886,6 +894,7 @@ namespace vire {
         DT_LOG_DEBUG(get_logging_priority(), "No user table file '" << _users_table_path_ << "' exists!");
       }
 
+      datatools::fetch_path_with_env(_groups_table_path_);
       if (boost::filesystem::exists(_groups_table_path_)) {
         if (is_load_tables()) {
           DT_LOG_DEBUG(get_logging_priority(), "Loading group table...");
@@ -927,7 +936,8 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::string source = source_;
       datatools::fetch_path_with_env(source);
-      datatools::multi_properties users_table("uid", "type", "Vire users table");
+      DT_LOG_DEBUG(get_logging_priority(), "User table path = '" << source << "'" );
+       datatools::multi_properties users_table("uid", "type", "Vire users table");
       users_table.read(source);
       std::vector<std::string> uid_keys;
       users_table.ordered_keys(uid_keys);
@@ -956,6 +966,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::string source = source_;
       datatools::fetch_path_with_env(source);
+      DT_LOG_DEBUG(get_logging_priority(), "Group table path = '" << source << "'" );
       datatools::multi_properties groups_table("gid", "type", "Vire user groups table");
       groups_table.read(source);
       std::vector<std::string> gid_keys;

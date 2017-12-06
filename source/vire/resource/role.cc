@@ -21,7 +21,7 @@
 
 // Third party:
 // - Boost:
-#include <boost/scoped_ptr.hpp>
+// #include <boost/scoped_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/exception.h>
 #include <datatools/factory.h>
@@ -86,7 +86,8 @@ namespace vire {
       return;
     }
 
-    role::role(const role & role_) : ::datatools::enriched_base(role_)
+    role::role(const role & role_)
+      : ::datatools::enriched_base(role_)
     {
       _initialized_ = false;
       _resource_manager_ = nullptr;

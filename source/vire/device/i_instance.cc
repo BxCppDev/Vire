@@ -20,6 +20,9 @@
 // Ourselves:
 #include <vire/device/i_instance.h>
 
+// Standard library:
+#include <memory>
+
 // Third party:
 // - Boost:
 #include <boost/algorithm/string/trim.hpp>
@@ -36,7 +39,7 @@ namespace vire {
 
     const i_instance & default_instance()
     {
-      static boost::scoped_ptr<single_instance> _ptr;
+      static std::unique_ptr<single_instance> _ptr;
       if (!_ptr) {
         _ptr.reset(new single_instance);
         _ptr->grab_slot().make_dimension_0(true);
@@ -51,7 +54,8 @@ namespace vire {
 
     i_instance::~i_instance()
     {
-      DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_ENTERING(get_logging());
+      DT_LOG_TRACE_EXITING(get_logging());
       return;
     }
 

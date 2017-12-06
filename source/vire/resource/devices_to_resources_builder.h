@@ -41,7 +41,8 @@ namespace vire {
     class manager;
 
     //! \brief Builder of resources from a device dictionary
-    class devices_to_resources_builder : public base_resource_builder
+    class devices_to_resources_builder
+      : public base_resource_builder
     {
     public:
 

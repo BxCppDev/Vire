@@ -28,11 +28,14 @@
 //! Main namespace for the Vire library
 namespace vire {
 
+  //! Check if the Vire library is initialized
+  bool is_initialized();
+
   //! Initialize special resources of the Vire library
-  int initialize(int argc_ = 0, char * argv_[] = 0, uint32_t flags_ = 0);
+  void initialize(int argc_ = 0, char * argv_[] = 0, uint32_t flags_ = 0);
 
   //! Terminate special resources of the Vire library
-  int terminate();
+  void terminate();
 
 } // namespace vire
 

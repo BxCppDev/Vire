@@ -187,10 +187,10 @@ namespace vire {
 
       // Configuration:
       const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
-      actor                           _actor_;      //!< Actor
-      vire::utility::model_identifier _transport_type_id_; //!< Default transport type identifier associated to the domains
-      vire::utility::model_identifier _encoding_type_id_;  //!< Default encoding type identifier associated to the domains
-      std::set<std::string>           _subcontractors_; //!< Set of subcontractors
+      actor                           _actor_;               //!< Actor
+      vire::utility::model_identifier _transport_type_id_;   //!< Default transport type identifier associated to the domains
+      vire::utility::model_identifier _encoding_type_id_;    //!< Default encoding type identifier associated to the domains
+      std::set<std::string>           _subcontractors_;      //!< Set of subcontractors
 
       domain_builder   _domain_maker_; //!< Domain builder
       std::unique_ptr<plug_factory> _factory_; //!< Plug factory

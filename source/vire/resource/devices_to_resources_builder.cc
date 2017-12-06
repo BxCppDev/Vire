@@ -117,22 +117,22 @@ namespace vire {
 
     void devices_to_resources_builder::build_resources()
     {
-      DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       const ::vire::device::manager & device_manager = *_device_manager_;
       const ::vire::device::mapping & device_mapping = *_device_mapping_;
       ::vire::resource::manager & resource_manager   = _grab_resource_manager();
 
       std::set<std::string> dev_paths;
       device_mapping.build_paths(dev_paths, 0);
+      DT_LOG_DEBUG(get_logging_priority(), "dev_paths = " << dev_paths.size() << "");
       for (std::set<std::string>::const_iterator ipath = dev_paths.begin();
            ipath != dev_paths.end();
            ipath++) {
         const std::string & the_path = *ipath;
+        DT_LOG_DEBUG(get_logging_priority(), "Path '" << the_path << "'");
         const vire::device::mapping_info & minfo = device_mapping.get_mapping_info(the_path);
         if (minfo.is_device()) {
-          std::cerr << "*** DEVEL *** devices_to_resources_builder::build_resources: "
-                    << "Mapping info: '" << the_path << "' (device)"
-                    << std::endl;
+          DT_LOG_DEBUG(get_logging_priority(), "Mapping info: '" << the_path << "' (device)");
           if (minfo.has_logical_device()) {
             const vire::device::logical_device & log_dev = minfo.get_logical_device();
             if (log_dev.has_model()) {
@@ -150,9 +150,7 @@ namespace vire {
                 if (dp_model.has_port(vire::device::base_datapoint_model::read_method_name())) {
                   dp_read_method = true;
                 }
-                std::cerr << "*** DEVEL *** devices_to_resources_builder::build_resources: "
-                          << "base_datapoint_model: dp_read_method=" << dp_read_method << ""
-                          << std::endl;
+                DT_LOG_DEBUG(get_logging_priority(), "base_datapoint_model: dp_read_method=" << dp_read_method << "");
                 if (dp_read_method) {
                   const vire::device::physical_port & dp_read_method_port
                     = dev_model.get_port(vire::device::base_datapoint_model::read_method_name());
@@ -185,9 +183,7 @@ namespace vire {
                 if (dp_model.has_port(vire::device::base_datapoint_model::write_method_name())) {
                   dp_write_method = true;
                 }
-                std::cerr << "*** DEVEL *** devices_to_resources_builder::build_resources: "
-                          << "base_datapoint_model: dp_write_method=" << dp_write_method << ""
-                          << std::endl;
+                DT_LOG_DEBUG(get_logging_priority(), "base_datapoint_model: dp_write_method=" << dp_write_method << "");
                 if (dp_write_method) {
                   const vire::device::physical_port & dp_write_method_port
                     = dev_model.get_port(vire::device::base_datapoint_model::write_method_name());
@@ -220,9 +216,7 @@ namespace vire {
             }
           }
         } else if (minfo.is_port()) {
-          std::cerr << "*** DEVEL *** devices_to_resources_builder::build_resources: "
-                    << "Mapping info: '" << the_path << "' (port)"
-                    << std::endl;
+          DT_LOG_DEBUG(get_logging_priority(), "Mapping info: '" << the_path << "' (port)");
           if (minfo.has_logical_port()) {
             const vire::device::logical_port & log_port = minfo.get_logical_port();
             if (log_port.has_model()) {
@@ -232,10 +226,8 @@ namespace vire {
               if (tport == tmodel) {
                 const vire::device::base_method_port_model & meth_model =
                   dynamic_cast<const vire::device::base_method_port_model &>(port_model);
-                std::cerr << "*** DEVEL *** devices_to_resources_builder::build_resources: "
-                          << "Method Port Model: '" << port_model.get_name() << "'"
-                          << std::endl;
-               // We found a method:
+                DT_LOG_DEBUG(get_logging_priority(), "Method Port Model: '" << port_model.get_name() << "'");
+                // We found a method:
                 // We create a new resource:
                 resource meth_resource;
                 meth_resource.set_id(resource_manager.candidate_resource_id());
@@ -273,7 +265,7 @@ namespace vire {
       // Add (hidden) dependency support...
       // Add local role support (expert/tag)...
 
-      DT_LOG_TRACE_EXITING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 

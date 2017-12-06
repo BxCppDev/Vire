@@ -20,9 +20,8 @@
 // Ourselves:
 #include <vire/cmsserver/utils.h>
 
-// Third party:
-// - Boost:
-#include <boost/scoped_ptr.hpp>
+// Standard Library:
+#include <memory>
 
 namespace vire {
 
@@ -30,7 +29,7 @@ namespace vire {
 
     datatools::logger::priority logging(datatools::logger::priority p_)
     {
-      static boost::scoped_ptr<datatools::logger::priority> _prio;
+      static std::unique_ptr<datatools::logger::priority> _prio;
       if (_prio.get() == nullptr) {
         _prio.reset(new datatools::logger::priority);
         *_prio = datatools::logger::PRIO_FATAL;
@@ -77,21 +76,21 @@ namespace vire {
       return _n;
     }
 
-    // const std::string & service::default_rabbitctrl_name()
-    // {
-    //   static const std::string _n("RabbitCtrl");
-    //   return _n;
-    // }
-
     const std::string & service::default_agenda_name()
     {
       static const std::string _n("Agenda");
       return _n;
     }
 
-    const std::string & service::default_pubsubctrl_name()
+    const std::string & service::default_pubsub_name()
     {
-      static const std::string _n("PubsubCtrl");
+      static const std::string _n("Pubsub");
+      return _n;
+    }
+
+    const std::string & service::default_control_name()
+    {
+      static const std::string _n("Control");
       return _n;
     }
 

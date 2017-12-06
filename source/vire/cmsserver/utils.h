@@ -62,7 +62,10 @@ namespace vire {
       static const std::string & default_agenda_name();
 
       /// Default name of the Pub/Sub controller service
-      static const std::string & default_pubsubctrl_name();
+      static const std::string & default_pubsub_name();
+
+      /// Default name of the control service
+      static const std::string & default_control_name();
 
       /// Default name of the communication service
       static const std::string & default_com_name();

@@ -26,11 +26,11 @@
 #include <sstream>
 #include <typeinfo>
 #include <stdexcept>
+#include <memory>
 
 // Third Party:
 // - Boost:
 #include <boost/cstdint.hpp>
-#include <boost/scoped_ptr.hpp>
 
 // Third Party:
 // - Bayeux/datatools:
@@ -79,6 +79,8 @@ namespace vire {
       //! Register of port model factory
       typedef base_port_model::factory_register_type port_factory_register_type;
 
+      static const std::string & default_service_name();
+
       //! Return the default name for the top-level device model
       static const std::string & default_top_level_name();
 
@@ -114,6 +116,12 @@ namespace vire {
 
       //! Return the version of the setup
       const std::string & get_setup_version() const;
+
+      //! Flag to propagate logging to devices
+      void set_propagate_logging_to_devices(bool);
+
+      //! Check the propagate logging to devices flag
+      bool is_propagate_logging_to_devices() const;
 
       //! Set the flag to preload all device models from the system factory
       void set_factory_preload_system_all(bool);
@@ -344,6 +352,7 @@ namespace vire {
 
       // Management:
       bool _initialized_; //!< Initialization flag
+      bool _propagate_logging_to_devices_ = false;
 
       // Configuration parameters:
       std::string _setup_label_;       //!< The label associated to the setup
@@ -357,8 +366,8 @@ namespace vire {
       datatools::multi_properties _external_mapping_rules_; //!< Mapping rules associated to device models
 
       // Internal working data and resources:
-      boost::scoped_ptr<device_factory_register_type> _device_factory_register_; //!< Handle to a register of device model factories
-      boost::scoped_ptr<port_factory_register_type>   _port_factory_register_;   //!< Handle to a register of port model factories
+      std::unique_ptr<device_factory_register_type> _device_factory_register_; //!< Handle to a register of device model factories
+      std::unique_ptr<port_factory_register_type>   _port_factory_register_;   //!< Handle to a register of port model factories
       model_pool_type          _models_;          //!< Dictionary of device/port model entries
       logical_device_dict_type _logical_devices_; //!< Dictionary of logical devices
       logical_port_dict_type   _logical_ports_;   //!< Dictionary of logical ports
@@ -385,10 +394,8 @@ DOCD_CLASS_DECLARATION(vire::device::manager)
 
 #endif // VIRE_DEVICE_MANAGER_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

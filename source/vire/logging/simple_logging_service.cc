@@ -182,9 +182,19 @@ namespace vire {
         if (_logfile_pattern_.empty()) {
           if (config_.has_key("logfile.pattern")) {
             std::string pattern = config_.fetch_string("logfile.pattern");
-            set_logfile_dir(pattern);
+            set_logfile_pattern(pattern);
           }
         }
+
+      if (_logfile_rotate_size_ == 0) {
+        if (config_.has_key("logfile.rotate_size")) {
+          unsigned int rotate_size = config_.fetch_positive_integer("logfile.rotate_size");
+          set_logfile_rotate_size(rotate_size);
+        }
+      }
+      if (_logfile_rotate_size_ == 0) {
+        set_logfile_rotate_size(DEFAULT_ROTATE_SIZE);
+      }
 
       }
 

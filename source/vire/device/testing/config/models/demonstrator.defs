@@ -12,10 +12,10 @@
 #@config Parameters describing the SuperNEMO demonstrator experiment
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of device
-type      : string  = "setup"
+type      : string  = "generic"
 
 ####################
 # Embedded devices #

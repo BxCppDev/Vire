@@ -23,10 +23,9 @@
 
 // Standard library:
 #include <string>
+#include <memory>
 
 // Third Party:
-// - Boost:
-#include <boost/scoped_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/base_service.h>
 #include <datatools/properties.h>
@@ -40,10 +39,13 @@ namespace vire {
   namespace logging {
 
     //! \brief Logging management class
-    class simple_logging_service : public ::datatools::base_service
+    class simple_logging_service
+      : public ::datatools::base_service
     {
 
     public:
+
+      static const unsigned int DEFAULT_ROTATE_SIZE = 10000;
 
       //! Default constructor
       simple_logging_service();
@@ -127,7 +129,7 @@ namespace vire {
 
       // Private implementation (PIMPL):
       struct work_type;
-      boost::scoped_ptr<work_type> _work_; //!< Private logging
+      std::unique_ptr<work_type> _work_; //!< Private logging
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(simple_logging_service);

@@ -151,4 +151,4 @@ extends : string = "calo_detector.dc"
 by : string[2] = "row" "column"
 
 
-# end
+# end of categories.defs

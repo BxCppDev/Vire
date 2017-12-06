@@ -199,8 +199,6 @@ namespace vire {
       std::string _key_;                     ///< Session key
       std::string _description_;             ///< Description of the session
       int32_t     _role_id_;                 ///< Role identifier
-      // int32_t     _uid_;                  ///< User identifier
-      // int32_t     _gid_;                  ///< Group identifier
       boost::posix_time::time_period _when_; ///< Session time period
       std::string _usecase_id_;              ///< Usecase identifier
       cardinalities_request_type _special_functional_cardinalities_;    ///< Special cardinality request on functional resource tokens

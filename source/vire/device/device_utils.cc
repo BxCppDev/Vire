@@ -372,7 +372,11 @@ namespace vire {
            << _config_.size()
            << " parameter" << (_config_.size() > 1 ? "s" : "")
            << std::endl;
-
+      {
+        std::ostringstream indent2ss;
+        indent2ss << indent_ << i_tree_dumpable::skip_tag;
+        _config_.tree_dump(out_, "", indent2ss.str());
+      }
       out_ << indent_ << i_tree_dumpable::tag
            << "Status : ";
       if (is_created()) {

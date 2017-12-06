@@ -56,6 +56,13 @@ namespace vire {
       return _name;
     }
 
+    // static
+    const std::string & manager::default_service_name()
+    {
+      static std::string _name("devices");
+      return _name;
+    }
+
     void manager::set_setup_label(const std::string & label_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Manager is already initialized !");
@@ -119,6 +126,17 @@ namespace vire {
     bool manager::is_factory_preload_system_all() const
     {
       return _factory_preload_system_all_;
+    }
+
+    void manager::set_propagate_logging_to_devices(bool p_)
+    {
+      _propagate_logging_to_devices_ = p_;
+      return;
+    }
+
+    bool manager::is_propagate_logging_to_devices() const
+    {
+      return _propagate_logging_to_devices_;
     }
 
     void manager::set_force_initialization_at_load(bool b_)
@@ -375,15 +393,15 @@ namespace vire {
       // Parse logging and other parameters:
       // DT_LOG_NOTICE(datatools::logger::PRIO_ALWAYS,
       //               "Logging priority : '" << datatools::logger::get_priority_label(get_logging_priority()) << "'.");
-      config_.tree_dump(std::cerr, "Manager config: ", "[devel] ");
+      // config_.tree_dump(std::cerr, "Manager config: ", "[devel] ");
       // datatools::logger::priority p = get_logging_priority();
       // set_logging_priority(datatools::logger::PRIO_UNDEFINED);
       this->::datatools::base_service::common_initialize(config_);
       // if (p != datatools::logger::PRIO_UNDEFINED) {
       //   set_logging_priority(p);
       // }
-      DT_LOG_NOTICE(datatools::logger::PRIO_ALWAYS,
-                    "Logging priority : '" << datatools::logger::get_priority_label(get_logging_priority()) << "'.");
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "Logging priority : '" << datatools::logger::get_priority_label(get_logging_priority()) << "'.");
 
       // Documentation for this setup
       if (_setup_label_.empty()) {
@@ -423,11 +441,30 @@ namespace vire {
         set_force_initialization_at_load(config_.fetch_boolean("force_initialization_at_load"));
       }
 
+      if (config_.has_key("propagate_logging_to_devices")) {
+        set_propagate_logging_to_devices(config_.fetch_boolean("propagate_logging_to_devices"));
+      }
+
       if (config_.has_key("mapping_requested")) {
         set_mapping_requested(config_.fetch_boolean("mapping_requested"));
       }
 
-      DT_LOG_DEBUG(get_logging_priority(), "Mapping is requested.");
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "setup_label = " << _setup_label_);
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "setup_version = " << _setup_version_);
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "setup_description = " << _setup_description_);
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "factory_preload_system_only = " << _factory_preload_system_only_.size());
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "factory_preload_system_all = " << _factory_preload_system_all_);
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "force_initialization_at_load = " << _force_initialization_at_load_);
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "propagate_logging_to_devices = " << _propagate_logging_to_devices_);
+      DT_LOG_DEBUG(get_logging_priority(),
+                   "mapping_requested = " << _mapping_requested_);
 
       if (is_mapping_requested()) {
 
@@ -473,7 +510,8 @@ namespace vire {
             }
           */
         }
-      }
+
+      } // end of mapping requested
 
       // Property prefixes to be preserved in device models:
       std::vector<std::string> preserved_property_prefixes;
@@ -522,7 +560,8 @@ namespace vire {
       // Build model entries :
       DT_LOG_DEBUG(get_logging_priority(), "Building models...");
       {
-        // By definition list files:
+       DT_LOG_DEBUG(get_logging_priority(), "Using model definition list files...");
+       // By definition list files:
         std::string model_defs_listfiles_key("models.definition_listfiles");
         if (config_.has_key(model_defs_listfiles_key)) {
           std::vector<std::string> model_defs_listfiles;
@@ -537,6 +576,7 @@ namespace vire {
 
       {
         // By definition files:
+        DT_LOG_DEBUG(get_logging_priority(), "Using model definition files...");
         std::string model_defs_files_key("models.definition_files");
         if (config_.has_key(model_defs_files_key)) {
           std::vector<std::string> model_defs_files;
@@ -550,9 +590,10 @@ namespace vire {
       }
 
       if (is_mapping_requested()) {
+        DT_LOG_DEBUG(get_logging_priority(), "Mapping is requested...");
         // Push external mapping rules in device models configuration section:
         if (! _external_mapping_rules_.empty()) {
-          DT_LOG_NOTICE(get_logging_priority(), "Loading external mapping rules...");
+          DT_LOG_DEBUG(get_logging_priority(), "Loading external mapping rules...");
           std::vector<std::string> model_names;
           _external_mapping_rules_.keys(model_names);
           for (int i = 0; i < (int) model_names.size(); i++) {
@@ -584,7 +625,7 @@ namespace vire {
               model_entry & dme = found->second;
               DT_THROW_IF(!dme.is_device_model(), std::logic_error,
                           "Model '" <<  model_name << "' is not a device model!");
-              datatools::properties * target_mapping_config = 0;
+              datatools::properties * target_mapping_config = nullptr;
               if (dme.is_initialized()) {
                 // If device model is already initialized, push the mapping rules inside the associated logical:
                 DT_THROW_IF(!dme.grab_device_model_handle_plain().get().has_logical(), std::logic_error,
@@ -611,7 +652,10 @@ namespace vire {
               if (model_mapping_policy == "merge") {
               }
               */
-              DT_LOG_NOTICE(get_logging_priority(), "Device model '" << model_name << "' is now enriched with external mapping rules...");
+              DT_LOG_DEBUG(get_logging_priority(), "Device model '" << model_name << "' is now enriched with external mapping rules...");
+              if (datatools::logger::is_debug(get_logging_priority())) {
+                target_mapping_config->tree_dump(std::cerr, "Mapping config for model '" + model_name + "'", "[debug] ");
+              }
             } else {
               DT_LOG_WARNING(get_logging_priority(), "Ignoring external mapping rules for non-existing model '" << model_name << "'!");
             }
@@ -626,6 +670,7 @@ namespace vire {
 
       // Mapping :
       if (is_mapping_requested()) {
+        _mapping_.set_logging_priority(get_logging_priority());
         _mapping_.set_manager(*this);
         _mapping_.set_mapping_manager(_mapping_manager_);
         _mapping_.set_top_level_name(default_top_level_name());
@@ -639,6 +684,19 @@ namespace vire {
 
       // Plugins:
       // ... nothing yet...
+
+      if (datatools::logger::is_debug(get_logging_priority())) {
+        DT_LOG_DEBUG(get_logging_priority(), "List of known models : " << _models_.size() << " : ");
+        for (const auto & p : _models_) {
+          DT_LOG_DEBUG(get_logging_priority(), "Model '" << p.first << "' : ");
+          p.second.tree_dump(std::cerr, "", "[debug] ");
+        }
+        DT_LOG_DEBUG(get_logging_priority(), "List of known device logicals : " << _logical_devices_.size() << " : ");
+        for (const auto & p : _logical_devices_) {
+          DT_LOG_DEBUG(get_logging_priority(), "Logical '" << p.first << "' : ");
+          p.second->tree_dump(std::cerr, "", "[debug] ");
+        }
+      }
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return datatools::SUCCESS;
@@ -713,7 +771,6 @@ namespace vire {
       return datatools::SUCCESS;
     }
 
-    // Constructor :
     manager::manager(uint32_t flags_)
     {
       _initialized_ = false;
@@ -737,7 +794,6 @@ namespace vire {
       return;
     }
 
-    // Destructor :
     manager::~manager()
     {
       if (_initialized_) this->reset();
@@ -1038,14 +1094,14 @@ namespace vire {
       new_entry.set_model_id(id_);
       new_entry.set_model_type(MODEL_DEVICE);
       new_entry.set_config(config_);
-      DT_LOG_TRACE(get_logging_priority(),
+      DT_LOG_DEBUG(get_logging_priority(),
                    "Creating the device model '" << name_ << "' of type '" << id_ << "'...");
       this->_create_device_model(new_entry);
-      DT_LOG_TRACE(get_logging_priority(), "Creating the device model '" << name_ << "'... done.");
+      DT_LOG_DEBUG(get_logging_priority(), "Creating the device model '" << name_ << "'... done.");
       if (_force_initialization_at_load_) {
-        DT_LOG_TRACE(get_logging_priority(), "Initializing the device model '" << name_ << "'...");
+        DT_LOG_DEBUG(get_logging_priority(), "Initializing the device model '" << name_ << "'...");
         this->_initialize_device_model(new_entry);
-        DT_LOG_TRACE(get_logging_priority(), "Initializing the device model '" << name_ << "'... done.");
+        DT_LOG_DEBUG(get_logging_priority(), "Initialization of the device model '" << name_ << "' is done.");
       }
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
@@ -1076,14 +1132,14 @@ namespace vire {
       new_entry.set_model_id(id_);
       new_entry.set_model_type(MODEL_PORT);
       new_entry.set_config(config_);
-      DT_LOG_TRACE(get_logging_priority(),
+      DT_LOG_DEBUG(get_logging_priority(),
                    "Creating the port model '" << name_ << "' of type '" << id_ << "'...");
       this->_create_port_model(new_entry);
-      DT_LOG_TRACE(get_logging_priority(), "Creating the port model '" << name_ << "'... done.");
+      DT_LOG_DEBUG(get_logging_priority(), "Creating the port model '" << name_ << "'... done.");
       if (_force_initialization_at_load_) {
-        DT_LOG_TRACE(get_logging_priority(), "Initializing the port model '" << name_ << "'...");
+        DT_LOG_DEBUG(get_logging_priority(), "Initializing the port model '" << name_ << "'...");
         this->_initialize_port_model(new_entry);
-        DT_LOG_TRACE(get_logging_priority(), "Initializing the port model '" << name_ << "'... done.");
+        DT_LOG_DEBUG(get_logging_priority(), "Initialization of the port model '" << name_ << "' is done.");
       }
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
@@ -1111,7 +1167,7 @@ namespace vire {
                    << entry_.get_model_id()
                    << "' for device model named '"
                    << entry_.get_name() << "' !");
-      DT_LOG_TRACE(get_logging_priority(), "Invoke factory for type id '" << entry_.get_model_id() << "'...");
+      DT_LOG_DEBUG(get_logging_priority(), "Invoke factory for type id '" << entry_.get_model_id() << "'...");
       typedef device_factory_register_type::factory_type FactoryType;
       const FactoryType & the_factory = _grab_device_factory_register().get(entry_.get_model_id());
       base_device_model * ptr = the_factory();
@@ -1174,6 +1230,13 @@ namespace vire {
         base_device_model & the_device = entry_.grab_device_model_handle_plain().grab();
         model_repository model_rep;
         model_rep.set_models(_models_);
+        DT_LOG_DEBUG(get_logging_priority(), "Running initialization...");
+
+        if (is_propagate_logging_to_devices()) {
+          if (datatools::logger::is_debug(get_logging_priority())) {
+            the_device.set_logging_priority(get_logging_priority());
+          }
+        }
         the_device.initialize(entry_.get_config(), model_rep);
         DT_LOG_DEBUG(get_logging_priority(), "Initialization done.");
         for (int i = 0; i < _auxiliary_property_prefixes_.size(); i++) {

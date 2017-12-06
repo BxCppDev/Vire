@@ -53,7 +53,8 @@ namespace vire {
         CATEGORY_INVALID       = 0, ///< Invalid actor category
         CATEGORY_SERVER        = 1, ///< Server actor category
         CATEGORY_CLIENT        = 2, ///< Server client category
-        CATEGORY_SUBCONTRACTOR = 3  ///< Server subcontractor category
+        CATEGORY_SUBCONTRACTOR = 3, ///< Server subcontractor category
+        CATEGORY_SYSTEM        = 4  ///< Private system user category
       };
 
       //! Return the label associated to a category type
@@ -108,6 +109,9 @@ namespace vire {
 
       //! Check subcontractor actor category
       bool is_subcontractor() const;
+
+      //! Check system actor category
+      bool is_system() const;
 
       //! Return the metadata
       datatools::properties & grab_metadata();

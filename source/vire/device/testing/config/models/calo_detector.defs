@@ -12,7 +12,7 @@
 #@config Parameters describing the signal input port of the optical module
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of I/O
 io_type      : string  = "out"
@@ -24,7 +24,7 @@ io_type      : string  = "out"
 #@config Parameters describing the HV input port of the optical module
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of I/O
 io_type      : string  = "in"
@@ -36,7 +36,7 @@ io_type      : string  = "in"
 #@config Parameters describing the light injection (LI) input port of the optical module
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #@description Type of I/O
 io_type      : string  = "in"
@@ -47,7 +47,7 @@ io_type      : string  = "in"
 #@config Parameters describing the calorimeter Optical Module
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 #########
 # Ports #
@@ -83,7 +83,7 @@ aux.version      : string = "1.0"
 #@config Parameters describing the calorimeter Detector
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "debug"
 
 ####################
 # Embedded devices #

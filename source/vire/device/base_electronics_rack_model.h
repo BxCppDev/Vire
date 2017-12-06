@@ -40,29 +40,27 @@ namespace vire {
      *        +-------------------------+
      *        |                         |
      *        |                         |
-     *     2  |         Crate 2         |
+     *     2  |        Rackable 2       |
      *        |                         |
      *        |                         |
-     *        |                         |
-     *        +-------------------------+
-     *        |                         |
-     *        |                         |
-     *     1  |         Crate 1         |
      *        |                         |
      *        |                         |
      *        |                         |
      *        +-------------------------+
      *        |                         |
+     *     1  |        Rackable 1       |
+     *        +-------------------------+
      *        |                         |
-     *     0  |         Crate 0         |
      *        |                         |
+     *     0  |        Rackable 0       |
      *  Slot  |                         |
      *        |                         |
      *        +-------------------------+
      *
      *
      */
-    class base_electronics_rack_model : public base_device_model
+    class base_electronics_rack_model
+      : public base_device_model
     {
     public:
 
@@ -78,14 +76,23 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      //! Check if a maximum number of crates is set
-      bool has_max_number_of_crates() const;
+      //! Check if a maximum number of rackable is set
+      bool has_max_number_of_rackable() const;
 
-      //! Set the max number of crates
-      void set_max_number_of_crates(uint32_t);
+      //! Set the max number of rackable
+      void set_max_number_of_rackable(uint32_t);
 
-      //! Return the max number of crates
-      uint32_t get_max_number_of_crates();
+      //! Return the max number of rackable
+      uint32_t get_max_number_of_rackable();
+
+      //! Check if a width is set
+      bool has_width() const;
+
+      //! Set the width of the rack
+      void set_width(uint32_t);
+
+      //! Return the width of the rackable
+      uint32_t get_width() const;
 
       //! Check if the rack has a known format
       bool has_format() const;
@@ -96,20 +103,20 @@ namespace vire {
       //! Set the format
       void set_format(const std::string &);
 
-      //! Check if there is a crate at given slot
-      bool has_crate(uint32_t crate_slot_) const;
+      //! Check if there is a rackable at given slot
+      bool has_rackable(uint32_t rackable_slot_) const;
 
-      //! Add a crate
+      //! Add a rackable
       physical_device &
-      add_crate(uint32_t crate_slot_,
-                 const base_device_model & crate_model_,
-                 const std::string & crate_label_ = "");
+      add_rackable(uint32_t rackable_slot_,
+                const base_device_model & rackable_model_,
+                const std::string & rackable_label_ = "");
 
-      //! Remove a crate
-      void remove_crate(uint32_t module_slot_);
+      //! Remove a rackable
+      void remove_rackable(uint32_t module_slot_);
 
-      //! Return a non mutable reference to an embedded crate by slot
-      const physical_device & get_crate(uint32_t crate_slot_);
+      //! Return a non mutable reference to an embedded rackable by slot
+      const physical_device & get_rackable(uint32_t rackable_slot_);
 
     protected:
 
@@ -136,8 +143,9 @@ namespace vire {
     private:
 
       std::string _format_; //!< Format of the rack
-      uint32_t    _max_number_of_crates_; //!< Maximum number of crates
-      indexed_labels_dict_type _crate_labels_; //!< List of crates labels by slot index
+      uint32_t    _width_; //!< Inner width of the rack
+      uint32_t    _max_number_of_rackable_; //!< Maximum number of rackable
+      indexed_labels_dict_type _rackable_labels_; //!< List of rackable labels by slot index
 
       //! Registration of a system factory
       VIRE_DEVICE_REGISTRATION_INTERFACE(base_electronics_rack_model);

@@ -1,6 +1,6 @@
 //! \file vire/device/testing/test-device-manager.cxx
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -45,10 +45,25 @@ int main( int argc_, char * argv_[])
   int error_code = EXIT_SUCCESS;
 
   try {
+    bool run_test0 = true;
+    bool run_test1 = true;
 
-    test0();
-    test1();
-
+    int iarg = 0;
+    while (iarg < argc_) {
+      std::string token(argv_[iarg]);
+      if (token == "--no-test0") {
+        run_test0 = false;
+      } else if (token == "--no-test1") {
+        run_test1 = false;
+      }
+      iarg++;
+    }
+    if (run_test0) {
+       test0();
+    }
+    if (run_test1) {
+      test1();
+    }
   } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL,
                  error.what());
@@ -67,7 +82,7 @@ void test0()
 
   // Device manager:
   vire::device::manager dev_mgr;
-  dev_mgr.set_logging_priority(datatools::logger::PRIO_TRACE);
+  dev_mgr.set_logging_priority(datatools::logger::PRIO_DEBUG);
   dev_mgr.set_name("devices");
   dev_mgr.set_display_name("Devices");
   dev_mgr.set_terse_description("The device manager of the experiment");
@@ -321,6 +336,7 @@ void test1()
   datatools::properties dev_mgr_config;
   std::string dev_mgr_config_filename = "${VIRE_BASE_SOURCE_DIR}/device/testing/config/test-device-manager.conf";
   datatools::fetch_path_with_env(dev_mgr_config_filename);
+  std::clog << "\nTest 1: Config file: " << dev_mgr_config_filename << std::endl;
   dev_mgr_config.read_configuration(dev_mgr_config_filename);
   dev_mgr.initialize_standalone(dev_mgr_config);
   dev_mgr.tree_dump(std::clog, "Virtual device manager: ");

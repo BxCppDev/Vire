@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "VireProtobuf.vire.cms";
+option java_outer_classname = "DisconnectionRequestStub";
+package vire.cms;
+
+import "vire/utility/BasePayload.proto";
+import "vire/utility/InstanceIdentifier.proto";
+
+message DisconnectionRequest {
+
+  vire.utility.BasePayload _base = 1; // Base class
+
+  vire.utility.InstanceIdentifier setup_id = 100; // The setup identifier
+
+}

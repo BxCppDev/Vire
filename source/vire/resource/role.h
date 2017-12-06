@@ -26,6 +26,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <memory>
 
 // Third party:
 // - Boost:
@@ -366,9 +367,9 @@ namespace vire {
       cuts::cut_handle_type _scope_resource_selector_handle_;         //!< Handle to the selector of public scope resources
 
       // Cached data:
-      boost::scoped_ptr<std::set<int32_t> > _cached_distributable_resource_ids_; //!< Cached enumerated set of distributable resource identifiers
-      boost::scoped_ptr<std::set<int32_t> > _cached_functional_resource_ids_;    //!< Cached enumerated set of functional resource identifiers
-      boost::scoped_ptr<std::set<int32_t> > _cached_scope_resource_ids_;         //!< Cached enumerated set of scope resource identifiers
+      std::unique_ptr<std::set<int32_t> > _cached_distributable_resource_ids_; //!< Cached enumerated set of distributable resource identifiers
+      std::unique_ptr<std::set<int32_t> > _cached_functional_resource_ids_;    //!< Cached enumerated set of functional resource identifiers
+      std::unique_ptr<std::set<int32_t> > _cached_scope_resource_ids_;         //!< Cached enumerated set of scope resource identifiers
 
       friend manager;
 

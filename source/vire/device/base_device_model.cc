@@ -243,17 +243,17 @@ namespace vire {
       _device_initialize(config_, models_);
 
       // Initialization:
-      DT_LOG_TRACE(get_logging_priority(), "Initialization is starting...");
+      DT_LOG_DEBUG(get_logging_priority(), "Initialization is starting...");
       _at_initialize(config_, models_);
-      DT_LOG_TRACE(get_logging_priority(), "Initialization done.");
+      DT_LOG_DEBUG(get_logging_priority(), "Initialization done.");
 
       // Post initialization:
-      DT_LOG_TRACE(get_logging_priority(), "Post-initialization is starting...");
+      DT_LOG_DEBUG(get_logging_priority(), "Post-initialization is starting...");
       _create_logical_();
       _logical_.grab().set_name(make_logical_name(this->get_name()));
 
       // Populate the logical:
-      DT_LOG_TRACE(get_logging_priority(), "Populating the logical device...");
+      DT_LOG_DEBUG(get_logging_priority(), "Populating the logical device...");
       for (physical_device_dict_type::iterator i = _embedded_physical_devices_.begin();
            i != _embedded_physical_devices_.end();
            i++) {
@@ -279,7 +279,7 @@ namespace vire {
         _logical_.grab().add_link(label, physical);
       }
       _logical_.grab().initialize();
-      DT_LOG_TRACE(get_logging_priority(), "Post-initialization done.");
+      DT_LOG_DEBUG(get_logging_priority(), "Post-initialization done.");
 
       _set_initialized_(true);
       DT_LOG_TRACE(get_logging_priority(), "Exiting.");
@@ -347,7 +347,10 @@ namespace vire {
 
       if (! has_type()) {
         if (config_.has_key("type")) {
-          set_type(get_device_type(config_.fetch_string("type")));
+          std::string type_label = config_.fetch_string("type");
+          set_type(get_device_type(type_label));
+          DT_LOG_DEBUG(get_logging_priority(),
+                       "Type = '" << type_label << "' in device model '" << get_name() << "'...");
         }
       }
 

@@ -1,7 +1,7 @@
 # - CMake build script for Vire library
 
 #-----------------------------------------------------------------------
-# Copyright 2015 François Mauger <mauger@lpccaen.in2p3.fr>
+# Copyright 2015-2017 François Mauger <mauger@lpccaen.in2p3.fr>
 #
 # This file is part of Vire.
 #
@@ -189,11 +189,11 @@ include(cms/Lists.cmake)
 # Communication service
 include(com/Lists.cmake)
 
+# CMS server kernel and utilities:
+include(cmsserver/Lists.cmake)
+
 # CMS client kernel and utilities:
 # include(cmsclient/Lists.cmake)
-
-# CMS server kernel and utilities:
-# include(cmsserver/Lists.cmake)
 
 list(APPEND VireLibrary_HEADERS
   )

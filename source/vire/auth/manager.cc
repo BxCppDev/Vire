@@ -44,6 +44,13 @@ namespace vire {
     // static
     const int manager::DEFAULT_EXPIRE_AFTER;
 
+    // static
+    const std::string & manager::default_service_name()
+    {
+      static const std::string _n("auth");
+      return _n;
+    }
+
     manager::auth_status manager::authenticate(const std::string & login_,
                                                const std::string & password_) const
     {
@@ -343,6 +350,26 @@ namespace vire {
       return;
     }
 
+    bool manager::has_users_service_name() const
+    {
+      return !_users_service_name_.empty();
+    }
+
+    void manager::set_users_service_name(const std::string & name_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Auth manager is already initialized!");
+      DT_THROW_IF(has_users(),  std::logic_error,
+                  "Auth manager already has a users manager service!");
+      _users_service_name_ = name_;
+      return;
+    }
+
+    const std::string & manager::get_users_service_name() const
+    {
+      return _users_service_name_;
+    }
+
     bool manager::is_initialized() const
     {
       return _initialized_;
@@ -359,20 +386,28 @@ namespace vire {
       this->::datatools::base_service::common_initialize(config_);
 
       if (!has_users()) {
-        std::string users_service_name;
-        if (config_.has_key("users_service_name")) {
-          users_service_name = config_.fetch_string("users_service_name");
+        if (_users_service_name_.empty()) {
+          std::string users_service_name;
+          if (config_.has_key("users_service_name")) {
+            users_service_name = config_.fetch_string("users_service_name");
+          } else {
+            users_service_name = vire::user::manager::default_service_name();
+          }
+          set_users_service_name(users_service_name);
         }
-        if (!users_service_name.empty()) {
+        if (!has_users_service_name()) {
           const vire::user::manager & userMgr
             = datatools::get<vire::user::manager>(service_dict_,
-                                                  users_service_name);
+                                                  _users_service_name_);
           set_users(userMgr);
         }
       }
 
+      DT_LOG_DEBUG(get_logging_priority(), "Credentials table path = " << _credentials_table_path_);
       if (_credentials_table_path_.empty()) {
+        DT_LOG_DEBUG(get_logging_priority(), "No credentials table path...");
         if (config_.has_key("credentials_table_path")) {
+          DT_LOG_DEBUG(get_logging_priority(), "Found key 'credentials_table_path'!");
           set_credentials_table_path(config_.fetch_string("credentials_table_path"));
         }
       }
@@ -396,6 +431,7 @@ namespace vire {
                   "Missing credentials table path!");
 
       // Initialization:
+      datatools::fetch_path_with_env(_credentials_table_path_);
       if (boost::filesystem::exists(_credentials_table_path_)) {
         if (is_load_tables()) {
           DT_LOG_DEBUG(get_logging_priority(), "Loading credentials table...");

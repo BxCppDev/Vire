@@ -29,9 +29,7 @@
 // Third party:
 // - Boost:
 #include <boost/cstdint.hpp>
-// #include <boost/serialization/access.hpp>
 // - Bayeux/datatools:
-// #include <datatools/i_serializable.h>
 #include <datatools/i_tree_dump.h>
 #include <datatools/factory_macros.h>
 #ifndef Q_MOC_RUN
@@ -57,15 +55,16 @@ namespace vire {
     //!
     //! An instance represents the positioning rule for a concrete (physical) object
     //! within the instantiation space of its mother (logical) object
-    //! An instance can represent a single positioning : a unique daughter object is positioned
-    //! in its mother.
-    //! An instance can represent the one dimensional replicated positioning of the same logical object
-    //! in its mother. Example: repeat 5 times the same model of a dining table in a refectory and arrange
-    //! them along a line.
-    //! An instance can represent the two dimensional replicated positioning of the same logical object
-    //! in its mother. Example: repeat 3x2=6 times the same model of an egg in a egg carton with 6 slots.
+    //! An instance can represent:
+    //! - a single positioning : a unique daughter object is positioned in its mother.
+    //! - the one dimensional replicated positioning of the same logical object
+    //!   in its mother. Example: repeat 5 times the same model of a dining table in a refectory and arrange
+    //!   them along a line.
+    //! - the two dimensional replicated positioning of the same logical object
+    //!   in its mother. Example: repeat 3x2=6 times the same model of an egg in a egg carton with 6 slots.
     //!
-    class i_instance : public datatools::i_tree_dumpable
+    class i_instance
+      : public datatools::i_tree_dumpable
     {
     public:
 
@@ -165,10 +164,8 @@ DR_CLASS_INIT(::vire::device::i_instance)
 
 #endif // VIRE_DEVICE_I_INSTANCE_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

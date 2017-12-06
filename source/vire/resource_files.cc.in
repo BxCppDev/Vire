@@ -79,6 +79,15 @@ namespace {
 
 namespace vire {
 
+  std::string get_plugin_lib_dir(bool overriden_env_)
+  {
+    boost::filesystem::path tmpPath(get_library_dir());
+    // std::cerr << "[devel] " << relative_path_to_plugin_lib_dir() << std::endl;
+    tmpPath /= relative_path_to_plugin_lib_dir();
+    boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);
+    return absPath.string();
+  }
+
   std::string get_resource_files_dir(bool /* overriden_env_ */)
   {
     boost::filesystem::path tmpPath(get_library_dir());
@@ -110,18 +119,21 @@ namespace vire {
     return fullpath;
   }
 
-  std::string get_plugin_resource_files_base_dir(bool overriden_env_)
-  {
-    boost::filesystem::path tmpPath(get_library_dir());
-    tmpPath /= relative_path_to_plugin_lib_dir();
-    boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);
-    return absPath.string();
-  }
+  // std::string get_plugin_resource_files_base_dir(const std::string & plugin_name_,
+  //                                                bool overriden_env_)
+  // {
+  //   boost::filesystem::path tmpPath(get_library_dir());
+  //   tmpPath /= get_resource_files_dir();
+  //   tmpPath /= "plugins";
+  //   tmpPath /= plugin_name_;
+  //   boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);
+  //   return absPath.string();
+  // }
 
   std::string get_plugin_resource_files_dir(const std::string & plugin_name_,
                                             bool overriden_env_)
   {
-    boost::filesystem::path tmpPath(get_plugin_resource_files_base_dir(overriden_env_));
+    boost::filesystem::path tmpPath(get_resource_files_dir(overriden_env_));
     tmpPath /= "plugins";
     tmpPath /= plugin_name_;
     boost::filesystem::path absPath = boost::filesystem::canonical(tmpPath);

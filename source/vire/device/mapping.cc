@@ -540,8 +540,8 @@ namespace vire {
 
       if (is_initialized()) {
         for (mapping_set_by_id::const_iterator i = _work_->dict.get<mapping_tag_id>().begin();
-           i != _work_->dict.get<mapping_tag_id>().end();
-           i++) {
+             i != _work_->dict.get<mapping_tag_id>().end();
+             i++) {
           mapping_set_by_id::const_iterator j = i;
           j++;
           out_ << indent << i_tree_dumpable::skip_tag;
@@ -598,13 +598,14 @@ namespace vire {
       if (_top_level_mapping_)  {
         _work_->dict.insert(setup_info);
       }
-      ancestors.push(&setup_info);
+      ancestors.stack.push_back(&setup_info);
+      ancestors.path.push_back(setup_path);
       _build_embedded_devices_mapping(*_top_level_logical_, ancestors);
       /*
-      bool build_mode_strict_mothership = true;
-      if (build_mode_strict_mothership) {
+        bool build_mode_strict_mothership = true;
+        if (build_mode_strict_mothership) {
         _build_embedded_devices_mapping(*_top_level_logical_, setup_id);
-      }
+        }
       */
 
       DT_LOG_TRACE(get_logging_priority(), "Exiting.");
@@ -640,14 +641,14 @@ namespace vire {
     {
       DT_LOG_TRACE(get_logging_priority(), "Entering...");
       /*
-      DT_THROW_IF(!mother_log_.has_model(), std::logic_error, "Port '" << port_name << "' has no port model!");
-      const base_device_model & mother_device_model = mother_log_.get_model();
-      const std::type_info & tmdm = typeid(mother_device_model);
-      const std::type_info & tbmpm = typeid(vire::device::base_method_port_model);
-      bool is_datapoint = false;
-      if (tmdm == tbmpm) {
+        DT_THROW_IF(!mother_log_.has_model(), std::logic_error, "Port '" << port_name << "' has no port model!");
+        const base_device_model & mother_device_model = mother_log_.get_model();
+        const std::type_info & tmdm = typeid(mother_device_model);
+        const std::type_info & tbmpm = typeid(vire::device::base_method_port_model);
+        bool is_datapoint = false;
+        if (tmdm == tbmpm) {
         is_datapoint = true;
-      }
+        }
       */
       // Map the ports of the logical device:
       for (logical_device::ports_dict_type::const_iterator i
@@ -699,8 +700,8 @@ namespace vire {
           // if (port_indexes.size() == 0) {
           //   std::cerr << "DEVEL: " << " ******* Port index vector is empty" << std::endl;
           // }
-          const geomtools::geom_id & mother_id = ancestors_.top()->get_mapping_id();
-          const std::string & mother_path = ancestors_.top()->get_path();
+          const geomtools::geom_id & mother_id = ancestors_.stack.back()->get_mapping_id();
+          const std::string & mother_path = ancestors_.path.back();
           _mapping_manager_->compute_id_from_info(port_id,
                                                   mother_id,
                                                   port_mapping_info,
@@ -788,7 +789,7 @@ namespace vire {
 
         std::string embedded_mapping_info;
         if (datatools::logger::is_debug(get_logging_priority())) {
-          DT_LOG_DEBUG(get_logging_priority(), "Mother logical auxiliaries: ");
+          DT_LOG_DEBUG(get_logging_priority(), "Auxiliaries for the mother logical '" << mother_log_.get_name() << "': ");
           mother_log_.get_auxiliaries().tree_dump(std::cerr, "", "[debug] ");
         }
         if (geomtools::mapping_utils::has_labelled_info(mother_log_.get_auxiliaries(),
@@ -805,7 +806,7 @@ namespace vire {
           DT_LOG_TRACE(get_logging_priority(),
                        "No device ID mapping info for embedded physical device '"
                        << embedded_name << "'");
-          continue;
+          //continue; // XXX
         }
         const logical_device & embedded_logical = embedded_phys.get_logical();
         DT_THROW_IF(!embedded_phys.has_instance(), std::logic_error,
@@ -822,8 +823,9 @@ namespace vire {
           {
             DT_LOG_TRACE(get_logging_priority(), "-> embedded child slot : " << item_slot);
           }
-          const geomtools::geom_id & mother_id = ancestors_.top()->get_mapping_id();
-          const std::string & mother_path = ancestors_.top()->get_path();
+          const geomtools::geom_id & mother_id = ancestors_.stack.back()->get_mapping_id();
+          DT_LOG_TRACE(get_logging_priority(), "ancestors.top : mother_id = " << mother_id);
+          const std::string & mother_path = ancestors_.path.back();
           geomtools::geom_id propagated_parent_id = mother_id;
 
           DT_LOG_NOTICE(get_logging_priority(),
@@ -849,31 +851,39 @@ namespace vire {
           DT_LOG_TRACE(get_logging_priority(),
                        "Embedded mapping info = '"
                        << embedded_mapping_info << "'");
-          _mapping_manager_->compute_id_from_info(embedded_id,
-                                                  mother_id,
-                                                  embedded_mapping_info,
-                                                  embedded_indexes);
+          if (! embedded_mapping_info.empty()) {
+            _mapping_manager_->compute_id_from_info(embedded_id,
+                                                    mother_id,
+                                                    embedded_mapping_info,
+                                                    embedded_indexes);
+          }
           DT_LOG_TRACE(get_logging_priority(), "embedded_id=" << embedded_id);
-          if (!_mapping_manager_->validate_id(embedded_id)) {
+          bool valid_embedded_id = false;
+          if (_mapping_manager_->validate_id(embedded_id)) {
+            valid_embedded_id = true;
+          }
+          if (!valid_embedded_id) {
             DT_LOG_TRACE(get_logging_priority(), "embedded_id=" << embedded_id << " is NOT validated by the ID manager!");
           } else {
             DT_LOG_TRACE(get_logging_priority(), "embedded_id = " << embedded_id << " IS validated by the ID manager...");
-            DT_LOG_TRACE(get_logging_priority(), "embedded mother_path   = '" << mother_path << "'");
-            // std::ostringstream embedded_path_oss;
-            // embedded_path_oss << mother_path;
-            // if (! boost::ends_with(mother_path, vire::utility::path::setup_separator())) {
-            //   embedded_path_oss << vire::utility::path::path_separator();
-            // }
-            // embedded_path_oss << embedded_name;
-            // DT_LOG_TRACE(get_logging_priority(), "Append name '" << embedded_name << "' to mother path = '" << mother_path << "'...");
-            // for (int iaddr = 0; iaddr < (int) embedded_indexes.size(); iaddr++) {
-            //   DT_LOG_TRACE(get_logging_priority(), "Append index #" << iaddr << " index=" << embedded_indexes.size() << " = [" << embedded_indexes[iaddr] << "]...");
-            //   embedded_path_oss << vire::utility::path::index_separator() << embedded_indexes[iaddr];
-            // }
-            std::string embedded_path;
-            vire::utility::path::build_child_with_indexes(mother_path, embedded_name, embedded_indexes, embedded_path);
-            DT_LOG_DEBUG(get_logging_priority(), "Add embedded device with path = '" << embedded_path << "'...");
-            mapping_info embedded_mi;
+          }
+          DT_LOG_TRACE(get_logging_priority(), "embedded mother_path   = '" << mother_path << "'");
+          // std::ostringstream embedded_path_oss;
+          // embedded_path_oss << mother_path;
+          // if (! boost::ends_with(mother_path, vire::utility::path::setup_separator())) {
+          //   embedded_path_oss << vire::utility::path::path_separator();
+          // }
+          // embedded_path_oss << embedded_name;
+          // DT_LOG_TRACE(get_logging_priority(), "Append name '" << embedded_name << "' to mother path = '" << mother_path << "'...");
+          // for (int iaddr = 0; iaddr < (int) embedded_indexes.size(); iaddr++) {
+          //   DT_LOG_TRACE(get_logging_priority(), "Append index #" << iaddr << " index=" << embedded_indexes.size() << " = [" << embedded_indexes[iaddr] << "]...");
+          //   embedded_path_oss << vire::utility::path::index_separator() << embedded_indexes[iaddr];
+          // }
+          std::string embedded_path;
+          vire::utility::path::build_child_with_indexes(mother_path, embedded_name, embedded_indexes, embedded_path);
+          DT_LOG_DEBUG(get_logging_priority(), "Attempt to add embedded device with path = '" << embedded_path << "'...");
+          mapping_info embedded_mi;
+          if (valid_embedded_id) {
             embedded_mi.set_mapping_id(embedded_id);
             embedded_mi.set_path(embedded_path);
             if (mother_id.is_valid()) {
@@ -882,7 +892,9 @@ namespace vire {
               mother_info._add_daughter_device_id_(embedded_id);
             }
             embedded_mi.set_logical_device(embedded_logical);
-            bool add_it = true;
+          }
+          bool add_it = true;
+          if (valid_embedded_id) {
             if (is_mode_only() || is_mode_excluded()) {
               // get the category associated to the embedded ID:
               const std::string & category
@@ -909,30 +921,48 @@ namespace vire {
                 }
               }
             }
+          }
+          ancestors_.path.push_back(embedded_path);
+          if (valid_embedded_id) {
             const mapping_info * ptr_mapping_info = &embedded_mi;
             if (add_it) {
               DT_LOG_TRACE(get_logging_priority(), "Adding embedded device ID = " << embedded_id << "...");
               std::pair<mapping_set::iterator,bool> insert_result = _work_->dict.insert(embedded_mi);
               DT_THROW_IF(insert_result.second != true, std::logic_error,
-                          "Could not insert embedded mapping info for ");
+                          "Could not insert embedded mapping info for ID=" << embedded_id);
               ptr_mapping_info = &*insert_result.first;
             }
-            ancestors_.push(ptr_mapping_info);
-
-            bool build_it = true;
-            if (has_max_depth()) {
-              if (_mapping_depth_ > _max_depth_) {
-                build_it = false;
-              }
+            ancestors_.stack.push_back(ptr_mapping_info);
+            DT_LOG_TRACE(get_logging_priority(), "Push ancestor mapping info = " << ptr_mapping_info->get_path() << "...");
+          }
+          bool build_it = true;
+          if (has_max_depth()) {
+            if (_mapping_depth_ > _max_depth_) {
+              build_it = false;
             }
-            if (build_it) {
-              _build_device_mapping(embedded_logical, ancestors_);
-              // _build_embedded_devices_mapping(embedded_logical, propagated_parent_id);
-            } else {
-              DT_LOG_TRACE(get_logging_priority(), "-> DO NOT TRAVERSE THE DEVICE TREE FURTHER.");
+          }
+          if (build_it) {
+            DT_LOG_TRACE(get_logging_priority(), "Built device mapping for '" << embedded_logical.get_name() << "'");
+            DT_LOG_TRACE(get_logging_priority(), "Ancestors stack:");
+            for (minfo_stack_type::const_iterator ianc = ancestors_.stack.begin();
+                 ianc != ancestors_.stack.end();
+                 ianc++) {
+              DT_LOG_TRACE(get_logging_priority(), "  Ancestors' ID = " << (*ianc)->get_mapping_id() << " with path '" << (*ianc)->get_path() << "'");
             }
-            ancestors_.pop();
-          } // embedded device ID valid
+            for (path_stack_type::const_iterator ianc = ancestors_.path.begin();
+                 ianc != ancestors_.path.end();
+                 ianc++) {
+              DT_LOG_TRACE(get_logging_priority(), "  Ancestors' path = '" << *ianc << "'");
+            }
+             _build_device_mapping(embedded_logical, ancestors_);
+            // _build_embedded_devices_mapping(embedded_logical, propagated_parent_id);
+          } else {
+            DT_LOG_TRACE(get_logging_priority(), "-> DO NOT TRAVERSE THE DEVICE TREE FURTHER.");
+          }
+          if (valid_embedded_id) {
+            ancestors_.stack.pop_back();
+          }
+          ancestors_.path.pop_back();
         } // for instantiated item in the physical embedded device
       } // for embedded devices
 
