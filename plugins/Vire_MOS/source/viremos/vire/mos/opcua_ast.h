@@ -1,6 +1,6 @@
 //! \file vire/mos/opcua_ast.h
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -255,7 +255,8 @@ namespace vire {
     {
       std::string dimension;
       std::string unit;
-    };
+      friend std::ostream & operator<<(std::ostream & out_, const Unit & unit_);
+   };
 
     // New in 2.0 (was bool typedef)
     struct Asynchronous
@@ -271,11 +272,10 @@ namespace vire {
     struct has_info_interface
     {
       virtual const boost::optional<Info> & get_info() const = 0;
-    };
-
-    struct has_infos_interface
-    {
-      virtual const std::vector<Info> & get_infos() const = 0;
+      bool is_config() const;
+      bool is_scope_internal() const;
+      bool is_scope_protected() const;
+      bool is_scope_external() const;
     };
 
     struct Attribut;
@@ -290,6 +290,9 @@ namespace vire {
     struct has_userinfos_interface
     {
       virtual const std::vector<UserInfo> & get_userinfos() const = 0;
+      std::vector<UserInfo>::const_iterator find_userinfo_name(const std::string &) const;
+      bool has_userinfo_name(const std::string &) const;
+      const std::string & get_userinfo_value(const std::string &) const;
     };
 
     //! \brief Description of an instruction
@@ -422,7 +425,8 @@ namespace vire {
       friend std::ostream & operator<<(std::ostream & out_, const UserInfo & uinfo_);
       struct has_name_predicate : datatools::i_predicate<UserInfo>
       {
-        has_name_predicate(const std::string & name_) : _name_(name_) {}
+        has_name_predicate(const std::string & name_)
+          : _name_(name_) {}
         bool operator()(const UserInfo & uinfo_) const {
           return uinfo_.name == _name_;
         }
@@ -437,7 +441,8 @@ namespace vire {
       Name  name;
       Value value;
       friend std::ostream & operator<<(std::ostream & out_, const Attribut & attr_);
-      struct has_name_predicate : datatools::i_predicate<Attribut>
+      struct has_name_predicate
+        : datatools::i_predicate<Attribut>
       {
         has_name_predicate(const std::string & name_) : _name_(name_) {}
         bool operator()(const Attribut & attr_) const {
@@ -462,6 +467,7 @@ namespace vire {
       boost::optional<ICD>            icd;
       boost::optional<NameSpaceLevel> name_space_level;
       boost::optional<ScopeAccess>    scope_access;
+      bool is_config() const;
       bool operator==(const Info & i_) const;
       virtual void tree_dump(std::ostream & out_ = std::clog,
                              const std::string & title_  = "",
@@ -474,11 +480,9 @@ namespace vire {
     struct Variable
       : public has_type_interface
       , public has_userinfos_interface
-      , public has_infos_interface
       , public has_info_interface
     {
       boost::optional<Info>        info;
-      std::vector<Info>            infos;
       std::vector<UserInfo>        userinfos;
       Name                         name;
       Type                         type;
@@ -497,7 +501,6 @@ namespace vire {
       virtual Type get_type() const;
       virtual const boost::optional<Unit> & get_unit() const;
       virtual const boost::optional<Info> & get_info() const;
-      virtual const std::vector<Info> & get_infos() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
 
     };
@@ -714,7 +717,6 @@ namespace vire {
       : public has_name_interface
       , public has_attributes_interface
       , public has_userinfos_interface
-      , public has_infos_interface
       , public has_info_interface
     {
       Name                           name;
@@ -724,14 +726,12 @@ namespace vire {
       std::vector<EndDelimiter>      end_delimiters;
       std::vector<Event>             events;
       boost::optional<Info>          info;
-      std::vector<Info>              infos;
       std::vector<Attribut>          attributes;
       std::vector<UserInfo>          userinfos;
 
       virtual const std::string & get_name() const;
       virtual const std::vector<Attribut> & get_attributes() const;
       virtual const boost::optional<Info> & get_info() const;
-      virtual const std::vector<Info> & get_infos() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
 
       virtual ~Method();
@@ -767,7 +767,6 @@ namespace vire {
       : public has_common_interface
       , public has_userinfos_interface
       , public has_methods_interface
-      , public has_infos_interface
       , public has_info_interface
     {
       Name                          name;
@@ -776,7 +775,6 @@ namespace vire {
       std::vector<Attribut>         attributes;
       std::vector<Method>           methods;
       boost::optional<Info>         info;
-      std::vector<Info>             infos;
       std::vector<UserInfo>         userinfos;
 
       virtual const std::string & get_name() const;
@@ -784,7 +782,6 @@ namespace vire {
       virtual const std::vector<Attribut> & get_attributes() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
       virtual const boost::optional<Info> & get_info() const;
-      virtual const std::vector<Info> & get_infos() const;
       virtual const std::vector<Method> & get_methods() const;
 
       virtual ~BaseDatapoint();
@@ -861,7 +858,6 @@ namespace vire {
       , public has_common_interface
       , public has_userinfos_interface
       , public has_datapoints_interface
-      , public has_infos_interface
       , public has_info_interface
     {
       Name                                   name;
@@ -875,14 +871,12 @@ namespace vire {
       std::vector<SimpleDatapoint>           simple_datapoints;
       std::vector<UserInfo>                  userinfos;
       boost::optional<Info>                  info;
-      std::vector<Info>                      infos;
 
       virtual const std::string & get_name() const;
       virtual const boost::optional<Multiplicity> & get_multiplicity() const;
       virtual const std::vector<Attribut> & get_attributes() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
-      virtual const std::vector<Info> & get_infos() const;
-      virtual const boost::optional<Info> & get_info() const;
+       virtual const boost::optional<Info> & get_info() const;
 
       virtual const std::vector<SimpleDatapoint> & get_simple_datapoints() const;
       virtual const std::vector<CompoundDatapoint> & get_compound_datapoints() const;

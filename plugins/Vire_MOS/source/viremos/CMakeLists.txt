@@ -40,7 +40,7 @@ set(VireMosPlugin_SOURCES
   vire/mos/export_utils.cc
   )
 
-set(VireMos_XSD_VERSION "2.0.3")
+set(VireMos_XSD_VERSION "2.0.4")
 
 # - Publish headers
 foreach(_hdrin ${VireMosPlugin_HEADERS})

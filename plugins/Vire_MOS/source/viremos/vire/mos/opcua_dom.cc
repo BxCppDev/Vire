@@ -213,6 +213,8 @@ namespace vire {
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Historizing",  Historizing,  historizing_builder,   grab().historizing,  _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "AccesLevel",   AccesLevel,   acces_level_builder,   grab().acces_level,  _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "WriteMask",    WriteMask,    write_mask_builder,    grab().write_mask,   _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Info",         Info,         info_builder,          grab().info,         _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo,     userinfo_builder,      grab().userinfos, 0,  _logging);
       return;
     }
 
@@ -555,16 +557,15 @@ namespace vire {
 
     void method_builder::operator()(const xercesc::DOMNode * node_)
     {
-      VIRE_MOS_BUILD_MANDATORY_VALUE(node_, "Name",         Name, name_builder, grab().name, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Argument",     Argument, argument_builder, grab().arguments, 0, _logging);
+      VIRE_MOS_BUILD_MANDATORY_VALUE(node_, "Name",         Name,         name_builder,      grab().name, _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Argument",     Argument,     argument_builder,  grab().arguments, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "DeviceInstruction", DeviceInstruction, device_instruction_builder, grab().device_instructions, 0, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Sequence",     Sequence, sequence_builder, grab().sequences, 0, _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Sequence",     Sequence,     sequence_builder,      grab().sequences, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "EndDelimiter", EndDelimiter, end_delimiter_builder, grab().end_delimiters, 0, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Event",        Event, event_builder, grab().events, 0, _logging);
-      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Info",         Info,     info_builder,          grab().info,          _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Info",         Info,     info_builder,      grab().infos,      0, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Attribut",     Attribut, attribute_builder, grab().attributes, 0, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo, userinfo_builder,  grab().userinfos,  0, _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Event",        Event,        event_builder,     grab().events, 0, _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Info",         Info,         info_builder,      grab().info,          _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "Attribut",     Attribut,     attribute_builder, grab().attributes, 0, _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo,     userinfo_builder,  grab().userinfos,  0, _logging);
       return;
     }
 
@@ -585,7 +586,6 @@ namespace vire {
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "Method",       Method,       method_builder,       grab().methods,    0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "UserInfo",     UserInfo,     userinfo_builder,     grab().userinfos,  0, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Info",         Info,         info_builder,         grab().info,          _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "Info",         Info,         info_builder,         grab().infos,      0, _logging);
       return;
     }
 
@@ -685,8 +685,6 @@ namespace vire {
                                       simple_datapoint_builder, grab().simple_datapoints, 0, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Info", Info,
                                       info_builder, grab().info, _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "Info", Info,
-                                      info_builder, grab().infos, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "UserInfo", UserInfo,
                                       userinfo_builder, grab().userinfos, 0, _logging);
       return;

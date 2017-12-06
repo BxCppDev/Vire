@@ -111,7 +111,7 @@
   <xs:element name="CompoundDevice">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info" />
+        <xs:element minOccurs="0"                       ref="Info" />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo" />
         <xs:element                                     ref="Name" />
         <xs:element minOccurs="0"                       ref="Multiplicity" />
@@ -189,7 +189,7 @@
   <xs:element name="SimpleDevice">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"                       />
+        <xs:element minOccurs="0"                       ref="Info"                       />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"                   />
         <xs:element                                     ref="Name"                       />
         <xs:element minOccurs="0"                       ref="Multiplicity"               />
@@ -245,7 +245,7 @@
   <xs:element name="CompoundDatapoint">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info" />
+        <xs:element minOccurs="0"                       ref="Info" />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo" />
         <xs:element                                     ref="Name"                       />
         <xs:element minOccurs="0"                       ref="Multiplicity"               />
@@ -363,7 +363,7 @@
   <xs:element name="SimpleDatapoint">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"                  />
+        <xs:element minOccurs="0"                       ref="Info"                  />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"              />
         <xs:element minOccurs="0"                       ref="Id"                    />
         <xs:element minOccurs="0"                       ref="AccesLevel"            />
@@ -462,7 +462,7 @@
   <xs:element name="Variable">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"          />
+        <xs:element minOccurs="0"                       ref="Info"          />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"      />
         <xs:element                                     ref="Name"          />
         <xs:element                                     ref="Type"          />
@@ -546,7 +546,7 @@
   <xs:element name="Method">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info"              />
+        <xs:element minOccurs="0"                       ref="Info"              />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="UserInfo"          />
         <xs:element                                     ref="Name"              />
         <xs:element minOccurs="0"                       ref="Mnemonic"          />

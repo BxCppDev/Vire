@@ -1,6 +1,6 @@
 // vire/mos/vire_mos.cc - Implementation of Vire MOS init/fini function
 //
-// Copyright (c) 2015 by Francois Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by Francois Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -113,8 +113,8 @@ namespace vire {
     void initialize(int argc_, char * argv_[], uint32_t flags_)
     {
       if (! ::_vireMosInit) {
-        // Initialization code from Vire MOS itself:
         ::vire::initialize(argc_,argv_, flags_);
+        // Initialization code from Vire MOS:
         vire_mos_initialize_impl();
         ::_vireMosInit = true;
       } else {

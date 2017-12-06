@@ -58,6 +58,9 @@ namespace vire {
       //! Return the standard suffix for model name
       static const std::string & model_name_suffix();
 
+      //! Return the standard name for preferred unit user info
+      static const std::string & preferred_unit_name();
+
       //! Return the name of the standard programs informations device
       static const std::string & programs_informations_name();
 
@@ -128,7 +131,7 @@ namespace vire {
       static datatools::introspection::data_type translate_type(Type type_);
 
       //! Translate MOS info to RW access type
-      static vire::utility::rw_access_type translate_rw_access(const has_infos_interface & with_infos_,
+      static vire::utility::rw_access_type translate_rw_access(const has_info_interface & with_info_,
                                                                bool strict_ = false);
 
       //! Translate a typed object to a datatools introspection data description
@@ -190,9 +193,9 @@ namespace vire {
                                   device_entry_type & common_model_desc_);
 
       // bool is_published(const has_info_interface & with_info_, const std::string & name_) const;
-      bool is_published(const has_infos_interface & with_infos_, const std::string & name_) const;
+      bool is_published(const has_info_interface & with_info_, const std::string & name_) const;
 
-      bool is_special_published(const has_infos_interface & with_infos_, const std::string & name_) const;
+      bool is_special_published(const has_info_interface & with_info_, const std::string & name_) const;
 
     private:
 

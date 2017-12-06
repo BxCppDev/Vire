@@ -2,7 +2,7 @@
 //! \brief   Provide system init for Vire MOS internals
 //! \details
 //
-// Copyright (c) 2015 by Francois Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by Francois Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -45,24 +45,6 @@ namespace vire {
   } // namespace mos
 
 } // namespace vire
-
-// //! Vire MOS initialization macro using main function arguments
-// #define VIRE_MOS_INIT_MAIN(Argc,Argv)   \
-//   VIRE_INIT_MAIN(Argc,Argv)     \
-//   ::vire::mos::initialize( Argc , Argv ); \
-//   /**/
-
-// //! Vire MOS initialization macro
-// #define VIRE_MOS_INIT()       \
-//   VIRE_INIT()         \
-//   ::vire::mos::initialize(0, 0);    \
-//   /**/
-
-// //! Vire MOS termination macro
-// #define VIRE_MOS_FINI()       \
-//   ::vire::mos::terminate();     \
-//   VIRE_FINI();          \
-//   /**/
 
 #endif // VIRE_MOS_VIRE_MOS_H
 

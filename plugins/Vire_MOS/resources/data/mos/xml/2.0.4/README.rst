@@ -20,12 +20,14 @@ History
 
 Release 2.0.4  (J.-L. Panazol)
 
-* TODO: Fix "Info" elements in MOS_OPCUA.xsd:
+* Fix "Info" elements in MOS_OPCUA.xsd:
 
   Change all records:
   <xs:element minOccurs="0" maxOccurs="unbounded" ref="Info" />
   in:
-  <xs:element minOccurs="0" ref="Info" />
+  <xs:element minOccurs="0"                       ref="Info" />
+
+  That make the "Info" elements an optional scalar attribute and not a vector.
 
 * TODO: MOS_Unit.xsd
 

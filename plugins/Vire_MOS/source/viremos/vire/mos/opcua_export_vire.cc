@@ -49,6 +49,13 @@ namespace vire {
   namespace mos {
 
     // static
+    const std::string & opcua_export_vire::preferred_unit_name()
+    {
+      static const std::string _name("preferred_unit");
+      return _name;
+    }
+
+    // static
     const std::string & opcua_export_vire::merged_models_definition_filename()
     {
       static const std::string _filename("mos_models.vdm");
@@ -133,11 +140,11 @@ namespace vire {
 
     // static
     vire::utility::rw_access_type
-    opcua_export_vire::translate_rw_access(const has_infos_interface & with_infos_, bool strict_)
+    opcua_export_vire::translate_rw_access(const has_info_interface & with_info_, bool strict_)
     {
       vire::utility::rw_access_type rw_access = vire::utility::RW_READABLE;
-      if (with_infos_.get_infos().size() > 0) {
-        const Info & info = with_infos_.get_infos().front();
+      if (with_info_.get_info()) {
+        const Info & info = with_info_.get_info().get();
         if (info.config != boost::none) {
           if (info.config.get()) {
             if (strict_) {
@@ -168,19 +175,24 @@ namespace vire {
       arg_layout = datatools::introspection::DATA_LAYOUT_SCALAR;
       dd_.set_layout(arg_layout);
 
-      // Special unit support:
-      bool with_unit = false;
-      std::string the_implicit_unit_symbol;
-      datatools::introspection::unit_info uinfo;
-      if (argument_.get_unit()) {
-        the_implicit_unit_symbol = argument_.get_unit().get().unit;
-        uinfo.set_unit_support(datatools::introspection::UNIT_SUPPORT_IMPLICIT_UNIT);
-        uinfo.set_implicit_unit_symbol(the_implicit_unit_symbol);
-        with_unit = true;
-      }
-
-      if (with_unit) {
-        dd_.set_unit_info(uinfo);
+      if (datatools::introspection::is_real(dd_.get_type())) {
+        // Special unit support:
+        bool with_unit = false;
+        std::string the_implicit_unit_symbol;
+        datatools::introspection::unit_info uinfo;
+        if (argument_.get_unit()) {
+          the_implicit_unit_symbol = argument_.get_unit().get().unit;
+          uinfo.set_unit_support(datatools::introspection::UNIT_SUPPORT_IMPLICIT_UNIT);
+          uinfo.set_implicit_unit_symbol(the_implicit_unit_symbol);
+          with_unit = true;
+          if (argument_.has_userinfo_name(preferred_unit_name())) {
+            const std::string & pu = argument_.get_userinfo_value(preferred_unit_name());
+            uinfo.set_preferred_unit_symbol(pu);
+          }
+        }
+        if (with_unit) {
+          dd_.set_unit_info(uinfo);
+        }
       }
 
       return;
@@ -215,19 +227,25 @@ namespace vire {
         dd_.set_vector_fixed_size(dp_array_size);
       }
 
-      // Special unit support:
-      bool with_unit = false;
-      std::string the_implicit_unit_symbol;
-      datatools::introspection::unit_info uinfo;
-      if (sdatapoint_.get_unit()) {
-        the_implicit_unit_symbol = sdatapoint_.get_unit().get().unit;
-        uinfo.set_unit_support(datatools::introspection::UNIT_SUPPORT_IMPLICIT_UNIT);
-        uinfo.set_implicit_unit_symbol(the_implicit_unit_symbol);
-        with_unit = true;
-      }
-
-      if (with_unit) {
-        dd_.set_unit_info(uinfo);
+      if (datatools::introspection::is_real(dd_.get_type())) {
+        // Special unit support:
+        bool with_unit = false;
+        std::string the_implicit_unit_symbol;
+        datatools::introspection::unit_info uinfo;
+        if (sdatapoint_.get_unit()) {
+          DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Datapoint unit : " << sdatapoint_.get_unit().get());
+          the_implicit_unit_symbol = sdatapoint_.get_unit().get().unit;
+          uinfo.set_unit_support(datatools::introspection::UNIT_SUPPORT_IMPLICIT_UNIT);
+          uinfo.set_implicit_unit_symbol(the_implicit_unit_symbol);
+          with_unit = true;
+          if (sdatapoint_.has_userinfo_name(preferred_unit_name())) {
+            const std::string & pu = sdatapoint_.get_userinfo_value(preferred_unit_name());
+            uinfo.set_preferred_unit_symbol(pu);
+          }
+        }
+        if (with_unit) {
+          dd_.set_unit_info(uinfo);
+        }
       }
       return;
     }
@@ -408,7 +426,7 @@ namespace vire {
                        base_dir,
                        cdp_desc.config);
 
-      if (_logging_ >= datatools::logger::PRIO_DEBUG) {
+      if (datatools::logger::is_debug(_logging_)) {
         cdp_desc.tree_dump(std::clog, "Compound datapoint '" + datapoint_model_name + "' :", "[debug]: ");
       }
 
@@ -1100,12 +1118,12 @@ namespace vire {
       return;
     }
 
-    bool opcua_export_vire::is_special_published(const has_infos_interface & with_infos_,
+    bool opcua_export_vire::is_special_published(const has_info_interface & with_info_,
                                                  const std::string & name_) const
     {
       DT_LOG_DEBUG(get_logging(), "Process special publishing for object with name '" << name_ << "'");
       bool published = true;
-      const std::type_info & ti = typeid(with_infos_);
+      const std::type_info & ti = typeid(with_info_);
       if (published && ti == typeid(Method)) {
         if (_export_no_getset_methods_ && name_ == "get") {
           DT_LOG_DEBUG(get_logging(), "Found method with name '" << name_ << "'");
@@ -1125,13 +1143,13 @@ namespace vire {
       return published;
     }
 
-    bool opcua_export_vire::is_published(const has_infos_interface & with_infos_,
+    bool opcua_export_vire::is_published(const has_info_interface & with_info_,
                                          const std::string & name_) const
     {
       // Default is published:
       bool published = true;
-      if (published && with_infos_.get_infos().size() > 0) {
-        const Info & info = with_infos_.get_infos().front();
+      if (published && with_info_.get_info()) {
+        const Info & info = with_info_.get_info().get();
         if (info.scope_access) {
           // We found explicit "scope access" information:
           const ScopeAccess & scope_access = info.scope_access.get();
@@ -1143,7 +1161,7 @@ namespace vire {
           }
         }
       }
-      if (published && !is_special_published(with_infos_, name_)) {
+      if (published && !is_special_published(with_info_, name_)) {
         DT_LOG_DEBUG(get_logging(), "Name='" << name_ << "' rejected by special published.");
         published = false;
       }
