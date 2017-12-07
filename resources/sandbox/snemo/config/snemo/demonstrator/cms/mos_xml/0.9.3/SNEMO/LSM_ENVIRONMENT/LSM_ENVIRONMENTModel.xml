@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ******************************************************************************************* -->
+<!-- **** file :       *** -->
+<!-- **** description :                    *** -->
+<!-- **** author      : panazol@lapp.in2p3.fr                                                *** -->
+<!-- **** date        : 14/01/15                                                             *** -->
+<!-- ******************************************************************************************* -->
+
+
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd">
+	<Name>MOS_server</Name>
+	<SimpleDevice>
+		<Name>LSM_Environment</Name>
+                <Interface>OPCUA_PLC_Emulation</Interface>
+
+                        <CompoundDatapoint>
+                                <Name>0_ProgramInformations</Name>
+                <Attribut>
+                        <Name>DeviceModelName</Name>
+                        <Value>SNEMO/LSM_ENVIRONMENT/LSM_ENVIRONMENTModel.xml</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelVersion</Name>
+                        <Value>1.0.0</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDate</Name>
+                        <Value>31-03-2016</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelAuthor</Name>
+                        <Value>Panazol Jean-luc</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDescription</Name>
+                        <Value></Value>
+                </Attribut>
+ 		<Attribut>
+                        <Name>InstanceName</Name>
+                        <Value>SNEMO/LSM_ENVIRONMENT/@Name@</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceDate</Name>
+                        <Value>@DateCreation@</Value>
+                </Attribut>
+                        </CompoundDatapoint>
+
+                        
+		<CompoundDatapoint>
+                                <Name>Monitoring</Name>
+				<CompoundDatapoint>
+                        	        <Name>Ventilation</Name>
+					<CompoundDatapoint>
+                        	        	<Name>Flow rate</Name>
+						<SimpleDatapoint>
+			                                <Name>flow rate input</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>flow rate output</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+					</CompoundDatapoint>
+					<CompoundDatapoint>
+                        	        	<Name>Temperature</Name>
+						<SimpleDatapoint>
+			                                <Name>Temperature ventilation Input</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>Laboratory temperature</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>Temperature SAS</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>Temperature ventilation Output</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+					</CompoundDatapoint>
+					<CompoundDatapoint>
+                        	        	<Name>Hygrometry</Name>
+						<SimpleDatapoint>
+			                                <Name>sensor</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+					</CompoundDatapoint>
+					<CompoundDatapoint>
+                        	        	<Name>Pressure</Name>
+						<SimpleDatapoint>
+			                                <Name>Absolute pression</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+					</CompoundDatapoint>
+					<CompoundDatapoint>
+                        	        	<Name>Program</Name>
+						<SimpleDatapoint>
+			                                <Name>last acquisition</Name>
+                			                <Type>bool</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>status</Name>
+                			                <Type>bool</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+					</CompoundDatapoint>
+				</CompoundDatapoint>
+				<CompoundDatapoint>
+                        	        <Name>Gaz</Name>
+						<CompoundDatapoint>
+                        	        		<Name>Air Frais</Name>
+							<SimpleDatapoint>
+			                        	        <Name>CO Air Frais</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>NO2 Air Frais</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>SAS</Name>
+							<SimpleDatapoint>
+			                        	        <Name>CO SAS</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>NO SAS</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>NO2 SAS</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>O2 SAS</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>ventilation</Name>
+							<SimpleDatapoint>
+			                        	        <Name>CO ventilation</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>NO2 ventilation</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>O2 ventilation</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>NO ventilation</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>EDW</Name>
+							<SimpleDatapoint>
+			                        	        <Name>EDW Salle Blanche</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>O2 EDW FR niv0</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>02 EDW FR niv1</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>02 EDW IT niv0</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>O2 EDW Local tech</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Salle controle</Name>
+							<SimpleDatapoint>
+			                        	        <Name>NO2 Salle controle</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                        	        <Name>O2 Salle controle</Name>
+                			        	        <Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<SimpleDatapoint>
+			                                <Name>O2 Annexe Ger</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>O2 Salle Ger</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>O2 Hall</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>O2 Nemo3</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+						<SimpleDatapoint>
+			                                <Name>O2 Salle TGV</Name>
+                			                <Type>float</Type>
+                                			<Historizing>1</Historizing>
+                        			</SimpleDatapoint>
+
+				</CompoundDatapoint>
+				<CompoundDatapoint>
+                        	        <Name>Air conditioning</Name>
+					<CompoundDatapoint>
+                        	        	<Name>Group1</Name>
+						<CompoundDatapoint>
+                        	        		<Name>Defaut</Name>
+							<SimpleDatapoint>
+			                                	<Name>Defaut debit d'eau</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut HP manuel</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut moteur etage1</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>etage1</Name>
+                			                	<Type>int32</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut moteur etage2</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>etage2</Name>
+                			                	<Type>int32</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut general</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut BP</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut gel/eau</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut erreur de communication</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Program</Name>
+							<SimpleDatapoint>
+			                                	<Name>status</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>taux de fonctionnement</Name>
+                			                	<Type>int16</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Temperature</Name>
+							<SimpleDatapoint>
+			                                	<Name>sensor_</Name>
+                			                	<Type>float</Type>
+								<Multiplicity>6</Multiplicity>
+								<StartNumberingMultiplicity>1</StartNumberingMultiplicity>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Pressure</Name>
+							<SimpleDatapoint>
+			                                	<Name>HP</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>BP</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+					</CompoundDatapoint>
+					<CompoundDatapoint>
+                        	        	<Name>Group2</Name>
+						<CompoundDatapoint>
+                        	        		<Name>Defaut</Name>
+							<SimpleDatapoint>
+			                                	<Name>Defaut debit d'eau</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut HP manuel</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut moteur etage1</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>etage1</Name>
+                			                	<Type>int32</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut moteur etage2</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>etage2</Name>
+                			                	<Type>int32</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut general</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut BP</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut gel/eau</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut erreur de communication</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Program</Name>
+							<SimpleDatapoint>
+			                                	<Name>status</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>taux de fonctionnement</Name>
+                			                	<Type>int16</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Temperature</Name>
+							<SimpleDatapoint>
+			                                	<Name>sensor_</Name>
+                			                	<Type>float</Type>
+								<Multiplicity>6</Multiplicity>
+								<StartNumberingMultiplicity>1</StartNumberingMultiplicity>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Pressure</Name>
+							<SimpleDatapoint>
+			                                	<Name>HP</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>BP</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+					</CompoundDatapoint>
+				</CompoundDatapoint>
+				<CompoundDatapoint>
+                        	        <Name>Anti-radon Factory</Name>
+						<CompoundDatapoint>
+                        	        		<Name>general</Name>
+							<SimpleDatapoint>
+			                                	<Name>Cooling air</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Temp SAS</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Defaut general</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Erreur de communication</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Status</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Dew point warning</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>Dew point</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>AC1</Name>
+							<SimpleDatapoint>
+			                                	<Name>temperature_</Name>
+                			                	<Type>float</Type>
+								<Multiplicity>2</Multiplicity>
+								<StartNumberingMultiplicity>1</StartNumberingMultiplicity>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>pressure</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>AC2</Name>
+							<SimpleDatapoint>
+			                                	<Name>temperature_</Name>
+                			                	<Type>float</Type>
+								<Multiplicity>2</Multiplicity>
+								<StartNumberingMultiplicity>1</StartNumberingMultiplicity>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>pressure</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Chiller</Name>
+							<SimpleDatapoint>
+			                                	<Name>pressure</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>temperature</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>coolant LP</Name>
+                			                	<Type>float</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Compressor</Name>
+							<SimpleDatapoint>
+			                                	<Name>status</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>load status</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>unload status</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>maintenance</Name>
+                			                	<Type>bool</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+							<SimpleDatapoint>
+			                                	<Name>running hour</Name>
+                			                	<Type>int32</Type>
+                                				<Historizing>1</Historizing>
+                        				</SimpleDatapoint>
+						</CompoundDatapoint>
+				</CompoundDatapoint>
+				<CompoundDatapoint>
+                        	        <Name>radon activity</Name>
+						<CompoundDatapoint>
+                        	        		<Name>SNemo</Name>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Salle Germanium</Name>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Laboratoire</Name>
+						</CompoundDatapoint>
+						<CompoundDatapoint>
+                        	        		<Name>Detecteur Joule</Name>
+						</CompoundDatapoint>
+				</CompoundDatapoint>
+				<CompoundDatapoint>
+                        	        <Name>power grid</Name>
+				</CompoundDatapoint>
+		</CompoundDatapoint>
+
+	</SimpleDevice>
+</OPCUA>
+

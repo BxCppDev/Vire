@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ******************************************************************************************* -->
+<!-- **** file :       									     *** -->
+<!-- **** description :   						                     *** -->
+<!-- **** author      : panazol@lapp.in2p3.fr                                                *** -->
+<!-- **** date        : 14/01/15                                                             *** -->
+<!-- **** date        : 06/02/17  : Test with Quasar OPCUA server                            *** -->
+<!-- ******************************************************************************************* -->
+
+
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/MOS_OPCUA.xsd">
+	<Name>CMS</Name>
+        <SimpleDevice>
+                <Name>CALO_HVPS</Name>
+                <!-- ========= Here define the plugin location for the Calorimeter HVPS (using QUASAR) =========================== -->
+        	<Plugins>
+        	        <Location>/tmp/SNEMO/Plugins/libSN_CALO_HVPS.so</Location>
+        	        <Name>make_protocole1</Name>
+        	</Plugins>
+
+                <!-- =========Here define instruction list for the device (Stop/Start/SetVoltage) =========================== -->
+                <Instruction_set>
+                        <Instruction>
+                                <Name>StartChannel</Name>
+                                <Cmd>StartChannel board:%1 channel:%2</Cmd>
+                                <Acknowledge>true</Acknowledge>
+                        </Instruction>
+                        <Instruction>
+                                <Name>StopChannel</Name>
+                                <Cmd>StopChannel board:%1 channel:%2</Cmd>
+                                <Acknowledge>true</Acknowledge>
+                        </Instruction>
+                        <Instruction>
+                                <Name>SetChannel</Name>
+                                <Cmd>SetChannel board:%1 channel:%2 voltage:%3</Cmd>
+                                <Acknowledge>true</Acknowledge>
+                        </Instruction>
+                        <Instruction>
+                                <Name>SetRamp</Name>
+                                <Cmd>SetRamp board:%1 channel:%2 rampUp:%3 rampDwn:%4</Cmd>
+                                <Acknowledge>true</Acknowledge>
+                        </Instruction>
+                </Instruction_set>
+
+                <!-- =========Here define init step : for this plugin we need to define the IP/Port Address of QUASAR OPUA server =========================== -->
+                <HardwareConfig>
+                        <NameHardwareConfig>Init</NameHardwareConfig>
+                        <Argument>
+                                <Name>Address</Name>
+                                <Type>string</Type>
+                                <Access>Input</Access>
+                                <DefaultValue>opc.tcp://lsmpc35.in2p3.fr:48035</DefaultValue>
+                        </Argument>
+                </HardwareConfig>
+                  
+                                
+                <!-- =========Here define the Methods in this OPCUA server =========================== -->
+		<Method>
+			<Name>StartChannel</Name>
+			<Argument>
+				<Name>board</Name>
+				<Type>int16</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+				<Description>Board number : -1 = All boards</Description>
+			</Argument>
+			<Argument>
+				<Name>channel</Name>
+				<Type>int16</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+				<Description>Channel number : -1 = All Channels</Description>
+			</Argument>
+			<DeviceInstruction>
+				<Value>StartChannel</Value>
+			</DeviceInstruction>
+		</Method>
+		<Method>
+			<Name>StopChannel</Name>
+			<Argument>
+				<Name>board</Name>
+				<Type>int16</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+			</Argument>
+			<Argument>
+				<Name>channel</Name>
+				<Type>int16</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+			</Argument>
+			<DeviceInstruction>
+				<Value>StopChannel</Value>
+			</DeviceInstruction>
+		</Method>
+		<Method>
+                                        
+			<Name>SetVoltageChannel</Name>
+			<Argument>
+				<Name>board</Name>
+				<Type>int16</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+			</Argument>
+			<Argument>
+				<Name>channel</Name>
+				<Type>int16</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+			</Argument>
+			<Argument>
+				<Name>voltage</Name>
+				<Type>float</Type>
+				<Access>Input</Access>
+				<DefaultValue>1</DefaultValue>
+			</Argument>
+			<DeviceInstruction>
+				<Value>SetChannel</Value>
+			</DeviceInstruction>
+		</Method>
+                <Method>
+                        <Name>SetRampChannel</Name>
+                        <Argument>
+                                <Name>board</Name>
+                                <Type>int16</Type>
+                                <Access>Input</Access>
+                                <DefaultValue>1</DefaultValue>
+                        </Argument>
+                        <Argument>
+                                <Name>channel</Name>
+                                <Type>int16</Type>
+                                <Access>Input</Access>
+                                <DefaultValue>1</DefaultValue>
+                        </Argument>
+                        <Argument>
+                                <Name>rampUp</Name>
+                                <Type>float</Type>
+                                <Access>Input</Access>
+                                <DefaultValue>20</DefaultValue>
+                        </Argument>
+                        <Argument>
+                                <Name>rampDwn</Name>
+                                <Type>float</Type>
+                                <Access>Input</Access>
+                                <DefaultValue>50</DefaultValue>
+                        </Argument>
+                        <DeviceInstruction>
+                                <Value>SetRamp</Value>
+                        </DeviceInstruction>
+                </Method>
+
+
+ 
+                <!-- =========Here define General informations  in this OPCUA server =========================== -->
+		<CompoundDatapoint>
+			<Name>0_ProgramInformations</Name>
+                	<Attribut>
+                	        <Name>DeviceModelName</Name>
+                	        <Value>SNEMO/CALORIMETER/CALO_HVPS/CALO_HVPS_Model.xml</Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>DeviceModelVersion</Name>
+                	        <Value>2.0.0</Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>DeviceModelDate</Name>
+                	        <Value>06-02-2017</Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>DeviceModelAuthor</Name>
+                	        <Value>Panazol Jean-luc</Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>DeviceModelDescription</Name>
+                	        <Value></Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>InstanceName</Name>
+                	        <Value>SNEMO/CALORIMETER/CALO_HVPS/CALO_HVPS_2.xml</Value>
+                	</Attribut>
+                	<Attribut>
+                	        <Name>InstanceDate</Name>
+                	        <Value>06-02-2017 14:49</Value>
+                	</Attribut>
+		</CompoundDatapoint>
+
+                <!-- =========Here define the datapoints in this OPCUA server =========================== -->
+		<CompoundDatapoint>
+                        <Name>board</Name>
+                        <Multiplicity>13</Multiplicity>
+                        <StartNumberingMultiplicity>0</StartNumberingMultiplicity>
+
+                        <CompoundDatapoint>
+                                <Name>channel</Name>
+                                <Multiplicity>32</Multiplicity>
+                                <StartNumberingMultiplicity>0</StartNumberingMultiplicity>
+				<SimpleDatapoint>
+                                        <Name>Status</Name>
+                                        <Type>int32</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>Trip</Name>
+                                        <Type>int32</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>TripExt</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>TripInt</Name>
+                                        <Type>int32</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>V0Set</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>V1Set</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>VMon</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>I0Set</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>I1Set</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>IMon</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>PDWn</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>RUp</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                                <SimpleDatapoint>
+                                        <Name>SVMax</Name>
+                                        <Type>float</Type>
+                                </SimpleDatapoint>
+                        </CompoundDatapoint>
+                </CompoundDatapoint>
+                <SimpleDatapoint>
+                                <Name>Test</Name>
+                                <Type>bool</Type>
+                </SimpleDatapoint>
+
+	</SimpleDevice>
+</OPCUA>

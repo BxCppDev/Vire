@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **********************************
+    Modification : 15/07/15
+    Author : PANAZOL Jean Luc
+    Description : change the name of the Methods in order to better correspond at real Name Server.
+	AddElement -> RegisterToNS
+	DeleteElement -> UnregisterToNS
+	GetElement -> GetElementsFromNS
+	GetAllElements -> GetAllElementsFromNS
+	ClearAllElements -> UnregisterAllToNS
+-->
+<OPCUA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://lappweb.in2p3.fr/~panazol/xsd/v2_0_0/dict_device.xsd">
+	<Name>MOS_Server</Name>
+	<SimpleDevice>
+		<Name>Repository</Name>
+		<Multiplicity>1</Multiplicity>
+		<Plugins> 
+			<Location>../plugins/libDNS.so</Location> 
+			<Name>make_protocole1</Name> 
+		</Plugins>
+		<Instruction_set>
+			<Instruction>
+				<Name>set</Name>
+				<Cmd>set</Cmd>
+			</Instruction>
+			<Instruction>
+				<Name>delete</Name>
+				<Cmd>del</Cmd>
+			</Instruction>
+			<Instruction>
+				<Name>deleteAll</Name>
+				<Cmd>delAll</Cmd>
+			</Instruction>
+			<Instruction>
+				<Name>getAll</Name>
+				<Cmd>getAll</Cmd>
+			</Instruction>
+
+			<Instruction>
+				<Name>get</Name>
+				<Cmd>get</Cmd>
+			</Instruction>
+		</Instruction_set>
+
+			<Method>
+				<Name>RegisterToNS</Name>
+				<Argument>
+					<Name>Name</Name>
+					<Type>string</Type>
+					<Access>Input</Access>
+					<DefaultValue>test</DefaultValue>
+				</Argument>
+				<Argument>
+					<Name>IP</Name>
+					<Type>string</Type>
+					<Access>Input</Access>
+					<DefaultValue>test2</DefaultValue>
+				</Argument>
+				<Argument>
+					<Name>Port</Name>
+					<Type>int32</Type>
+					<Access>Input</Access>
+					<DefaultValue>3</DefaultValue>
+				</Argument>
+				<DeviceInstruction>
+					<Value>set</Value>
+				</DeviceInstruction>
+			</Method>
+			<Method>
+				<Name>GetElementFromNS</Name>
+				<Argument>
+					<Name>Name</Name>
+					<Type>string</Type>
+					<Access>Input</Access>
+				</Argument>
+				<Argument>
+					<Name>IP</Name>
+					<Type>string</Type>
+					<Access>Output</Access>
+				</Argument>
+				<DeviceInstruction>
+					<Value>get</Value>
+				</DeviceInstruction>
+			</Method>
+			<Method>
+				<Name>UnregisterToNS</Name>
+				<Argument>
+					<Name>Name</Name>
+					<Type>string</Type>
+					<Access>Input</Access>
+				</Argument>
+				<DeviceInstruction>
+					<Value>delete</Value>
+				</DeviceInstruction>
+			</Method>
+			<Method>
+				<Name>UnregisterAllToNS</Name>
+				<DeviceInstruction>
+					<Value>deleteAll</Value>
+				</DeviceInstruction>
+			</Method>
+			<Method>
+				<Name>GetAllElementsFromNS</Name>
+				<Argument>
+					<Name>Info</Name>
+					<Type>string</Type>
+					<Access>Output</Access>
+				</Argument>
+				<DeviceInstruction>
+					<Value>getAll</Value>
+				</DeviceInstruction>
+			</Method>
+                      <CompoundDatapoint>
+                                <Name>0_ProgramInformations</Name>
+                <Attribut>
+                        <Name>DeviceModelName</Name>
+                        <Value>SNEMO/CMS/DNS/CMS_DNSModel.xml</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelVersion</Name>
+                        <Value>1.0.1</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDate</Name>
+                        <Value>15-07-2015</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelAuthor</Name>
+                        <Value>Panazol Jean-luc</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>DeviceModelDescription</Name>
+                        <Value></Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceName</Name>
+                        <Value>SNEMO/CMS/DNS/@Name@</Value>
+                </Attribut>
+                <Attribut>
+                        <Name>InstanceDate</Name>
+                        <Value>@DateCreation@</Value>
+                </Attribut>
+                        </CompoundDatapoint>
+
+	</SimpleDevice>
+
+</OPCUA>
