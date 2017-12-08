@@ -1,0 +1,55 @@
+# List of sections of configuration properties (datatools::multi_properties)
+
+#@description Vire roles table
+#@key_label "id"
+#@meta_label "type"
+
+[id="1000" type="vire::resource::role"]
+
+
+
+#@description The list of allowed user groups
+allowed_groups : integer[0] =
+
+
+
+#@description The list of allowed users
+allowed_users : integer[1] = 1243
+
+
+
+#@description Display name
+display_name : string = "Foo expert"
+
+
+
+#@description The list of resource path
+functional_resource.selector.resources : string[3] = \
+ "mysetup:/foo/bar_18" \
+ "mysetup:/foo/bar_6" \
+ "mysetup:/foo/bar_7"
+
+
+
+#@description Type of the functional resource selector
+functional_resource.selector_type_id : string = "vire::resource::enumerated_resource_selector"
+
+
+
+#@description Name
+name : string = "fooexpert"
+
+
+
+#@description The role path
+path : string = "mysetup:/foo/expert"
+
+
+
+#@description Short description
+terse_description : string = "The expert role for the foo"
+
+
+
+# End of list of sections of configuration properties (datatools::multi_properties)
+# end of roles.lis
