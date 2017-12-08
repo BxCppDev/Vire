@@ -6,6 +6,7 @@ Directories:
 
 * ``devices/`` :
 * ``resources/`` :
+* ``users/`` :
 * ``cms/`` :
 
 
