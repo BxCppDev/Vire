@@ -17,9 +17,9 @@ mapping.device.Detector : string = "[module.dc:module=0]"
 # # Note: This has the effect to build the [20000:0] device identifier.
 # mapping.device.Electronics : string = "[electronics.dc]"
 
-# #@description The mapping directives for the "CMS" device
-# # Note: This has the effect to build the [30000:0] device identifier.
-# mapping.device.CMS : string = "[cms]"
+#@description The mapping directives for the "CMS" device
+# Note: This has the effect to build the [100000:0] device identifier.
+mapping.device.CMS : string = "[cms.dc:system=0]"
 
 
 # end of demonstrator.vmr

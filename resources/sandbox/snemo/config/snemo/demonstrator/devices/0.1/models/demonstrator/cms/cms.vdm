@@ -15,7 +15,7 @@
 logging.priority : string = "fatal"
 
 #@description Type of device
-type      : string  = "generic"
+type    : string  = "generic"
 
 #@description Virtual device
 virtual : boolean  = true

@@ -1,0 +1,23 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of mapping rules for the SuperNEMO module
+#@key_label  "model"
+#@meta_label "policy"
+
+
+#######################################
+[model="sndemo.cms" policy="supersede"]
+
+#@description The mapping directives for the "Coil" device
+mapping.device.Coil : string = "[cms_device.dc:device=1]"
+
+
+############################################
+[model="sndemo.cms.coil" policy="supersede"]
+
+#@description The mapping directives for the "CMS" device
+mapping.device.PS : string = "[cms_device.dc:device=2]"
+
+
+# end of cms.vmr

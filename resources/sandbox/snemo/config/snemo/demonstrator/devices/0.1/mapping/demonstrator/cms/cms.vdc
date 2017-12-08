@@ -6,12 +6,37 @@
 #@meta_label "type"
 
 
-################################
-[category="cms.dc" type="10000"]
+#################################
+[category="cms.dc" type="100000"]
 
 #@config The device category associated to the SuperNEMO demonstrator CMS
 
-#@description The module number
-inherits : string = "module.dc"
+#@description CMS system number
+addresses : string[1] = "system"
 
-# end of detector.vdc
+
+########################################
+[category="cms_device.dc" type="110000"]
+
+#@config The device category associated to the CMS device
+
+#@description The device number
+extends : string = "cms.dc"
+
+#@description The device number
+by : string[1] = "device"
+
+
+######################################
+[category="cms_port.pc" type="120000"]
+
+#@config The port category associated to a device's port
+
+#@description The device number
+extends : string = "cms_device.dc"
+
+#@description The device number
+addresses : string[1] = "port"
+
+
+# end of cms.vdc
