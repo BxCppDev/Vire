@@ -27,6 +27,7 @@
 // - Boost:
 #include <boost/cstdint.hpp>
 #include <boost/optional.hpp>
+#include <boost/core/demangle.hpp>
 // - Xerces-C++:
 #include <xercesc/dom/DOMNode.hpp>
 // - Camp:
@@ -68,7 +69,8 @@ namespace vire {
 
     //! \brief Abstract generic builder with embedded object with templatized type
     template<class ValueType>
-    class base_generic_builder : public base_builder
+    class base_generic_builder
+      : public base_builder
     {
     public:
 
@@ -105,7 +107,8 @@ namespace vire {
     };
 
     //! \brief Boolean builder
-    class boolean_builder : public base_generic_builder<bool>
+    class boolean_builder
+      : public base_generic_builder<bool>
     {
     public:
 
@@ -139,7 +142,8 @@ namespace vire {
     };
 
     //! \brief Float builder
-    class float_builder : public base_generic_builder<float>
+    class float_builder
+      : public base_generic_builder<float>
     {
     public:
 
@@ -156,7 +160,8 @@ namespace vire {
     };
 
     //! \brief Double builder
-    class double_builder : public base_generic_builder<double>
+    class double_builder
+      : public base_generic_builder<double>
     {
     public:
 
@@ -191,7 +196,8 @@ namespace vire {
 
     //! \brief Array builder
     template<class ValueType, class Builder>
-    class vector_builder : public base_generic_builder<std::vector<ValueType> >
+    class vector_builder
+      : public base_generic_builder<std::vector<ValueType> >
     {
     public:
 
@@ -227,7 +233,8 @@ namespace vire {
 
     //! \brief Optional builder
     template<class ValueType, class Builder>
-    class optional_builder : public base_generic_builder<boost::optional<ValueType> >
+    class optional_builder
+      : public base_generic_builder<boost::optional<ValueType> >
     {
     public:
 
@@ -249,12 +256,12 @@ namespace vire {
       virtual void operator()(const xercesc::DOMNode * node_)
       {
         datatools::logger::priority logging = dynamic_cast<base_builder*>(this)->get_logging();
-        DT_LOG_DEBUG(logging, "Entering...")
-        {
-          ValueType dummy;
-          base_generic_builder<boost::optional<ValueType> >::grab() = dummy;
-          DT_LOG_DEBUG(logging, "dummy type = '" << typeid(dummy).name() << "'")
-        }
+        DT_LOG_DEBUG(logging, "Entering...");
+          {
+            ValueType dummy;
+            base_generic_builder<boost::optional<ValueType> >::grab() = dummy;
+            DT_LOG_DEBUG(logging, "Target C++ type (mangled) = '" << boost::core::demangle(typeid(dummy).name()) << "'");
+          }
         ValueType & t = base_generic_builder<boost::optional<ValueType> >::grab().get();
         Builder builder(t, logging);
         builder(node_);
@@ -265,7 +272,8 @@ namespace vire {
 
     //! \brief Generic builder with embedded object with templatized enumeration type
     template<class EnumType>
-    class enum_generic_builder : public base_generic_builder<EnumType>
+    class enum_generic_builder
+      : public base_generic_builder<EnumType>
     {
     public:
 
@@ -288,7 +296,7 @@ namespace vire {
       {
         datatools::logger::priority logging = dynamic_cast<base_builder*>(this)->get_logging();
         DT_LOG_DEBUG(logging, "Entering...")
-        std::string s;
+          std::string s;
         string_builder sbuilder(s);
         sbuilder(node_);
         DT_THROW_IF(s.empty(), std::logic_error, "Cannot parse a string for enumeration!");

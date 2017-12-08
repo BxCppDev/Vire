@@ -140,7 +140,9 @@ namespace vire {
 
     // static
     vire::utility::rw_access_type
-    opcua_export_vire::translate_rw_access(const has_info_interface & with_info_, bool strict_)
+    opcua_export_vire::translate_rw_access(const has_info_interface & with_info_,
+                                           bool strict_,
+                                           const datatools::logger::priority /* logging_ */)
     {
       vire::utility::rw_access_type rw_access = vire::utility::RW_READABLE;
       if (with_info_.get_info()) {
@@ -160,8 +162,13 @@ namespace vire {
 
     // static
     void opcua_export_vire::translate_data_description(const Argument & argument_,
-                                                       datatools::introspection::data_description & dd_)
+                                                       datatools::introspection::data_description & dd_,
+                                                       const datatools::logger::priority logging_)
     {
+      if (datatools::logger::is_debug(logging_)) {
+        DT_LOG_DEBUG(logging_, "Argument : ");
+        argument_.tree_dump(std::cerr, "", "[debug] ");
+      }
       dd_.reset();
 
       // Type:
@@ -194,14 +201,23 @@ namespace vire {
           dd_.set_unit_info(uinfo);
         }
       }
+      if (datatools::logger::is_debug(logging_)) {
+        DT_LOG_DEBUG(logging_, "Argument data description : ");
+        dd_.tree_dump(std::cerr, "", "[debug] ");
+      }
 
       return;
     }
 
     // static
     void opcua_export_vire::translate_data_description(const SimpleDatapoint & sdatapoint_,
-                                                       datatools::introspection::data_description & dd_)
+                                                       datatools::introspection::data_description & dd_,
+                                                       const datatools::logger::priority logging_)
     {
+      if (datatools::logger::is_debug(logging_)) {
+        DT_LOG_DEBUG(logging_, "SimpleDatapoint : ");
+        sdatapoint_.tree_dump(std::cerr, "", "[debug] ");
+      }
       dd_.reset();
 
       // Type:
@@ -233,7 +249,7 @@ namespace vire {
         std::string the_implicit_unit_symbol;
         datatools::introspection::unit_info uinfo;
         if (sdatapoint_.get_unit()) {
-          DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Datapoint unit : " << sdatapoint_.get_unit().get());
+          DT_LOG_DEBUG(logging_, "Datapoint unit : " << sdatapoint_.get_unit().get());
           the_implicit_unit_symbol = sdatapoint_.get_unit().get().unit;
           uinfo.set_unit_support(datatools::introspection::UNIT_SUPPORT_IMPLICIT_UNIT);
           uinfo.set_implicit_unit_symbol(the_implicit_unit_symbol);
@@ -246,6 +262,10 @@ namespace vire {
         if (with_unit) {
           dd_.set_unit_info(uinfo);
         }
+      }
+      if (datatools::logger::is_debug(logging_)) {
+        DT_LOG_DEBUG(logging_, "SimpleDatapoint data description : ");
+        dd_.tree_dump(std::cerr, "", "[debug] ");
       }
       return;
     }
@@ -472,7 +492,7 @@ namespace vire {
 
       // Data description:
       datatools::introspection::data_description dp_dd;
-      translate_data_description(sdatapoint_, dp_dd);
+      translate_data_description(sdatapoint_, dp_dd, get_logging());
       dp_dd.export_to_config(sdp_desc.config,
                              datatools::introspection::data_description::DD_XC_DEFAULT,
                              "data.");
@@ -975,7 +995,7 @@ namespace vire {
                                                   datatools::properties & method_port_config_)
     {
       // R/W access:
-      vire::utility::rw_access_type method_rw_access = translate_rw_access(method_, true);
+      vire::utility::rw_access_type method_rw_access = translate_rw_access(method_, true, get_logging());
       method_port_config_.store_string("rw_access",
                                        vire::utility::to_string(method_rw_access),
                                        "Method R/W access mode");
@@ -1004,7 +1024,7 @@ namespace vire {
         }
         // Data description:
         datatools::introspection::data_description arg_dd;
-        translate_data_description(arg, arg_dd);
+        translate_data_description(arg, arg_dd, get_logging());
 
         // Populate the argument:
         dt_arg.set_name(arg_name);

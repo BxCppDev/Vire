@@ -18,7 +18,7 @@ set(VireMosPlugin_HEADERS
   vire/mos/opcua_ast-reflect.h
   vire/mos/export_utils.h
   vire/mos/opcua_export_vire.h
-  vire/mos/opcua_xml.h
+  # vire/mos/opcua_xml.h
   )
 
 set(VireMosPlugin_PRIVATE_HEADERS

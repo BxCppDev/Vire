@@ -211,10 +211,10 @@ namespace vire {
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "ElementArray", ElementArray, element_array_builder, grab().elements, 0,  _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Description",  Description,  description_builder,   grab().description,  _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Historizing",  Historizing,  historizing_builder,   grab().historizing,  _logging);
-      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "AccesLevel",   AccesLevel,   acces_level_builder,   grab().acces_level,  _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "AccesLevel",   AccessLevel,  access_level_builder,  grab().access_level, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "WriteMask",    WriteMask,    write_mask_builder,    grab().write_mask,   _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_,  "Info",         Info,         info_builder,          grab().info,         _logging);
-      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo,     userinfo_builder,      grab().userinfos, 0,  _logging);
+      VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",     UserInfo,     userinfo_builder,      grab().userinfos, 0, _logging);
       return;
     }
 
@@ -377,12 +377,15 @@ namespace vire {
                                datatools::logger::priority prio_)
       : base_generic_builder<Unit>(unit_, prio_)
     {
+      DT_LOG_DEBUG(prio_, " ************** Entering...");
       return;
     }
 
     void unit_builder::operator()(const xercesc::DOMNode * node_)
     {
-      const std::string node_name =  xercesc::XMLString::transcode(node_->getNodeName());
+      DT_LOG_DEBUG(_logging, " ************** Entering...");
+      // _logging = datatools::logger::PRIO_DEBUG;
+      const std::string node_name = xercesc::XMLString::transcode(node_->getNodeName());
       DT_LOG_DEBUG(_logging, "Searching mandatory child node '" << "Unit" << "' from node '" << node_name << "'");
       const xercesc::DOMNodeList * node_children = node_->getChildNodes();
       int counter = 0;
@@ -545,7 +548,7 @@ namespace vire {
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_, "Enable",      Enable,      enable_builder,       grab().enable,      _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_, "Acknowledge", Acknowledge, acknowledge_builder,  grab().acknowledge, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_, "Cmd",         Cmd,         cmd_builder,          grab().cmd,         _logging);
-       return;
+      return;
     }
 
     // Method:
@@ -599,16 +602,16 @@ namespace vire {
 
     void simple_datapoint_builder::operator()(const xercesc::DOMNode * node_)
     {
-      base_datapoint_builder base_builder(dynamic_cast<BaseDatapoint &>(grab()));
+      base_datapoint_builder base_builder(dynamic_cast<BaseDatapoint &>(grab()), _logging);
       base_builder(node_);
       VIRE_MOS_BUILD_MANDATORY_VALUE (node_, "Type",       Type, type_builder, grab().type, _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Unit",       Unit, unit_builder, grab().unit, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Id",         Id, id_builder, grab().id, _logging);
-      VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "AccesLevel", AccesLevel, acces_level_builder, grab().acces_level, _logging);
+      VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "AccesLevel", AccessLevel, access_level_builder, grab().access_level, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "ArraySize",  ArraySize, array_size_builder, grab().array_size, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "MonitoringRate", MonitoringRate, monitoring_rate_builder, grab().monitoring_rate, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "DataFrameStructureRef", DataFrameStructureRef, data_frame_structure_ref_builder, grab().data_frame_structure_ref, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "DefaultValue", DefaultValue, default_value_builder, grab().default_value, _logging);
-      VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Unit",       Unit, unit_builder, grab().unit, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE    (node_, "ElementArray",   ElementArray, element_array_builder, grab().elements, 0, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Range",        Range, range_builder, grab().range, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Description",  Description, description_builder, grab().description, _logging);
@@ -633,7 +636,7 @@ namespace vire {
 
     void compound_datapoint_builder::operator()(const xercesc::DOMNode * node_)
     {
-      base_datapoint_builder base_builder(dynamic_cast<BaseDatapoint &>(grab()));
+      base_datapoint_builder base_builder(dynamic_cast<BaseDatapoint &>(grab()), _logging);
       base_builder(node_);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_, "CompoundDatapoint", CompoundDatapoint, compound_datapoint_builder, grab().compound_datapoints, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_, "SimpleDatapoint", SimpleDatapoint, simple_datapoint_builder, grab().simple_datapoints, 0, _logging);
@@ -657,14 +660,16 @@ namespace vire {
 
     // BaseDevice:
     base_device_builder::base_device_builder(BaseDevice & obj_,
-                                                 datatools::logger::priority prio_)
+                                             datatools::logger::priority prio_)
       : base_generic_builder<BaseDevice>(obj_, prio_)
     {
+      // DT_LOG_DEBUG(prio_, " ************** Entering...");
       return;
     }
 
     void base_device_builder::operator()(const xercesc::DOMNode * node_)
     {
+      // DT_LOG_DEBUG(_logging, " ************** Entering...");
       VIRE_MOS_BUILD_MANDATORY_VALUE (node_, "Name", Name,
                                       name_builder, grab().name, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE  (node_, "Multiplicity", Multiplicity,
@@ -693,15 +698,19 @@ namespace vire {
     // SimpleDevice:
     simple_device_builder::simple_device_builder(SimpleDevice & obj_,
                                                  datatools::logger::priority prio_)
-     : base_generic_builder<SimpleDevice>(obj_, prio_) // ase_device_builder(obj_, prio_)
+     : base_generic_builder<SimpleDevice>(obj_, prio_)
     {
+      // DT_LOG_DEBUG(prio_, " ************** Entering...");
       return;
     }
 
     void simple_device_builder::operator()(const xercesc::DOMNode * node_)
     {
-      base_device_builder base_builder(dynamic_cast<BaseDevice &>(grab()));
+      // DT_LOG_DEBUG(_logging, " ************** Entering...");
+      base_device_builder base_builder(dynamic_cast<BaseDevice &>(grab()), _logging);
+      // DT_LOG_DEBUG(_logging, " ************** Running base part...");
       base_builder(node_);
+      // DT_LOG_DEBUG(_logging, " ************** Base part is done.");
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_, "Plugins",             Plugins, plugins_builder, grab().plugins, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_, "Instruction_set",     Instruction_set, instruction_set_builder, grab().instruction_set, _logging);
       VIRE_MOS_BUILD_OPTIONAL_VALUE(node_, "DataIdDescriptorRef", DataIdDescriptorRef, data_id_descriptor_ref_builder, grab().data_id_descriptor_ref, _logging);
@@ -722,7 +731,7 @@ namespace vire {
 
     void compound_device_builder::operator()(const xercesc::DOMNode * node_)
     {
-      base_device_builder base_builder(dynamic_cast<BaseDevice &>(grab()));
+      base_device_builder base_builder(dynamic_cast<BaseDevice &>(grab()), _logging);
       base_builder(node_);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_, "CompoundDevice", CompoundDevice, compound_device_builder, grab().compound_devices, 0, _logging);
       VIRE_MOS_BUILD_VECTOR_VALUE(node_, "SimpleDevice",   SimpleDevice,   simple_device_builder,   grab().simple_devices,   0, _logging);
@@ -739,6 +748,7 @@ namespace vire {
 
     void opcua_builder::operator()(const xercesc::DOMNode * node_)
     {
+      DT_LOG_DEBUG(_logging, "Entering opcua_builder::operator()...");
       VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "UserInfo",       UserInfo,       userinfo_builder,        grab().userinfos, 0, _logging);
       // VIRE_MOS_BUILD_VECTOR_VALUE(node_,    "OPCUA",          OPCUA,          opcua_builder,           grab().opcuas, 0, _logging);
       VIRE_MOS_BUILD_MANDATORY_VALUE(node_, "Name",           Name,           name_builder,            grab().name, _logging);

@@ -18,7 +18,7 @@ History
 2.0.4
 ~~~~~
 
-Release 2.0.4  (J.-L. Panazol)
+Release 2.0.4  (J.-L. Panazol, 2017-12-08)
 
 * Fix "Info" elements in MOS_OPCUA.xsd:
 
@@ -27,7 +27,7 @@ Release 2.0.4  (J.-L. Panazol)
   in:
   <xs:element minOccurs="0"                       ref="Info" />
 
-  That make the "Info" elements an optional scalar attribute and not a vector.
+  That makes the "Info" element an optional scalar attribute and not a vector.
 
 * TODO: MOS_Unit.xsd
 

@@ -57,7 +57,7 @@ namespace vire {
     VIRE_MOS_DOM_BUILDER_ALIAS(read_id_collector_builder, string_builder);
     VIRE_MOS_DOM_BUILDER_ALIAS(description_builder, string_builder);
     VIRE_MOS_DOM_BUILDER_ALIAS(historizing_builder, boolean_builder);
-    VIRE_MOS_DOM_BUILDER_ALIAS(acces_level_builder, integer_builder);
+    VIRE_MOS_DOM_BUILDER_ALIAS(access_level_builder, integer_builder);
     VIRE_MOS_DOM_BUILDER_ALIAS(write_mask_builder, integer_builder);
     VIRE_MOS_DOM_BUILDER_ALIAS(file_name_builder, string_builder);
     VIRE_MOS_DOM_BUILDER_ALIAS(ip_address_builder, string_builder);
@@ -155,7 +155,7 @@ namespace vire {
     for (int inode = 0; inode < node_children->getLength(); inode++) {  \
       const xercesc::DOMNode * child_node = node_children->item(inode); \
       if (child_node->getNodeType() != xercesc::DOMNode::ELEMENT_NODE) continue; \
-      DT_LOG_TRACE((Logging),"Child node '" << xercesc::XMLString::transcode(child_node->getNodeName()) << "' from node '" << node_name << "'"); \
+      DT_LOG_DEBUG((Logging),"Inspecting child node '" << xercesc::XMLString::transcode(child_node->getNodeName()) << "' from node '" << node_name << "'"); \
       if (xercesc::XMLString::transcode(child_node->getNodeName()) == std::string(ValueName)) { \
         DT_LOG_DEBUG((Logging),"Found mandatory child node with name = '" << ValueName << "'"); \
         BuilderType builder(Target, Logging);                           \
@@ -183,23 +183,22 @@ namespace vire {
     for (int inode = 0; inode < node_children->getLength(); inode++) {  \
       const xercesc::DOMNode * child_node = node_children->item(inode); \
       if (child_node->getNodeType() != xercesc::DOMNode::ELEMENT_NODE) continue; \
-      DT_LOG_TRACE((Logging),"Child optional node '" << xercesc::XMLString::transcode(child_node->getNodeName()) << "' from node '" << node_name << "'"); \
+      DT_LOG_DEBUG((Logging),"Inspecting child node '" << xercesc::XMLString::transcode(child_node->getNodeName()) << "' from node '" << node_name << "'"); \
       if (xercesc::XMLString::transcode(child_node->getNodeName()) == std::string(ValueName)) { \
-        DT_LOG_DEBUG((Logging),"Found child node with name = '" << ValueName << "'"); \
+        DT_LOG_DEBUG((Logging),"Found child optional node with name = '" << ValueName << "'"); \
         optional_builder<ValueType, BuilderType> builder(Target, Logging); \
         try {                                                           \
           builder(child_node);                                          \
           counter++;                                                    \
           break;                                                        \
-        }                                                               \
-        catch (std::exception & error) {                                \
+        } catch (std::exception & error) {                              \
           DT_THROW(std::logic_error, "Cannot build optional value '" << BOOST_PP_STRINGIZE(ValueType) << "' from optional child node named '" << ValueName << "': \n\t" << error.what()); \
         }                                                               \
         counter++;                                                      \
       }                                                                 \
     }                                                                   \
     DT_THROW_IF(counter > 1, std::logic_error, "Too many values from optional child node named  '" << ValueName << "' !"); \
-    DT_LOG_DEBUG((Logging), "Optional child node '" << ValueName << "' from node '" << node_name << "' successful.\n"); \
+    DT_LOG_DEBUG((Logging), "Optional child node '" << ValueName << "' from node '" << node_name << "' successful with " << counter << " element.\n"); \
   }                                                                     \
   /**/
 
@@ -212,7 +211,7 @@ namespace vire {
     for (int inode = 0; inode < node_children->getLength(); inode++) {  \
       const xercesc::DOMNode * child_node = node_children->item(inode); \
       if (child_node->getNodeType() != xercesc::DOMNode::ELEMENT_NODE) continue; \
-      DT_LOG_TRACE((Logging),"Child node '" << xercesc::XMLString::transcode(child_node->getNodeName()) << "' from node '" << node_name << "'"); \
+      DT_LOG_DEBUG((Logging),"Inspecting child node '" << xercesc::XMLString::transcode(child_node->getNodeName()) << "' from node '" << node_name << "'"); \
       if (xercesc::XMLString::transcode(child_node->getNodeName()) == std::string(ValueName)) { \
         DT_LOG_DEBUG((Logging),"Found vector element child node with name = '" << ValueName << "'"); \
         vector_builder<ValueType, BuilderType> builder(Target, Logging); \
@@ -226,7 +225,7 @@ namespace vire {
       }                                                                 \
     }                                                                   \
     DT_THROW_IF(counter < Min, std::logic_error, "Invalid vector size from vector element child node named  '" << ValueName << "' !"); \
-    DT_LOG_DEBUG((Logging), "Vector element child nodes '" << ValueName << "' from node '" << node_name << "' successful.\n"); \
+    DT_LOG_DEBUG((Logging), "Vector element child nodes '" << ValueName << "' from node '" << node_name << "' successful with " << counter << " element(s).\n"); \
   }                                                                     \
   /**/
 

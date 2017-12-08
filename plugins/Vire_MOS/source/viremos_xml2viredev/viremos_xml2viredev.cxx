@@ -27,6 +27,7 @@
 // This project:
 #include <vire/mos/vire_mos_config.h>
 #include <vire/mos/vire_mos.h>
+#include <vire/version.h>
 #include <vire/mos/version.h>
 #include <vire/mos/opcua_ast.h>
 #include <vire/mos/opcua_dom.h>
@@ -38,6 +39,9 @@ void app_usage(std::ostream & out_,
 
 //! Print application version
 void app_version(std::ostream & out_);
+
+//! Print application status
+void app_status(std::ostream & out_);
 
 //! Raw scanning of the OPCUA server (developers only):
 void scan_opcua_server(const vire::mos::OPCUA & server_);
@@ -74,6 +78,8 @@ int main(int argc_, char * argv_[])
       ("help,h", "produce help message")
 
       ("version,v", "print version")
+
+      ("status", "print status")
 
       ("logging-priority,L",
        po::value<std::string>()
@@ -137,6 +143,11 @@ int main(int argc_, char * argv_[])
 
     if (vm.count("version")) {
       app_version(std::cout);
+      return(error_code);
+    }
+
+    if (vm.count("status")) {
+      app_status(std::cout);
       return(error_code);
     }
 
@@ -217,7 +228,7 @@ int main(int argc_, char * argv_[])
 
     // OPCUA server model:
     vire::mos::OPCUA server;
-    vire::mos::opcua_builder builder(server, datatools::logger::PRIO_FATAL);
+    vire::mos::opcua_builder builder(server, cfg.logging); //datatools::logger::PRIO_FATAL);
     builder(root_node);
     server.tree_dump(std::clog, "OPCUA: ");
     std::clog << std::endl;
@@ -276,6 +287,14 @@ void app_usage(std::ostream & out_,
   out_ << "Usage : viremos_xml2viredev [options...]" << std::endl;
   out_ << std::endl;
   out_ << opts_ << std::endl;
+  return;
+}
+
+void app_status(std::ostream & out_)
+{
+  out_ << "Vire version         : " << vire::version::get_version()<< std::endl;
+  out_ << "Vire MOS version     : " << vire::mos::version::get_version() << std::endl;
+  out_ << "Vire MOS XSD version : " << vire::mos::version::get_xsd_version() << std::endl;
   return;
 }
 

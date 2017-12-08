@@ -208,12 +208,17 @@ namespace vire {
 
       out_ << indent_<< datatools::i_tree_dumpable::tag
            << "Config: ";
-      optional_print_yesno<Config>(config, out_);
+      optional_print<Config>(config, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "ScopeAccess: ";
-      optional_print_yesno<ScopeAccess>(scope_access, out_);
+      optional_print<ScopeAccess>(scope_access, out_);
+      out_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Namespace level: ";
+      optional_print<NameSpaceLevel>(name_space_level, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::last_tag
@@ -763,20 +768,25 @@ namespace vire {
       this->BaseDatapoint::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Type  : " << type << std::endl;
+           << "Type : " << type << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Id   : '";
+           << "Unit : ";
+      optional_print<Unit>(unit, out_);
+      out_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Id : '";
       optional_print<Id>(id, out_);
       out_ << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Acces(s) level   : ";
-      optional_print<AccesLevel>(acces_level, out_);
+           << "Access level : ";
+      optional_print<AccessLevel>(access_level, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Array size   : ";
+           << "Array size : ";
       optional_print<ArraySize>(array_size, out_);
       out_ << std::endl;
 
@@ -784,7 +794,7 @@ namespace vire {
            << "Elements : " << elements.size() << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Monitoring rate   : ";
+           << "Monitoring rate : ";
       optional_print<MonitoringRate>(monitoring_rate, out_);
       out_ << std::endl;
 
@@ -794,49 +804,39 @@ namespace vire {
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Default value   : ";
+           << "Default value : ";
       optional_print_yesno<DefaultValue>(default_value, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Range   : ";
+           << "Range : ";
       optional_print_yesno<Range>(range, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Description   : ";
+           << "Description : ";
       optional_print<Description>(description, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Historizing   : ";
+           << "Historizing : ";
       optional_print_yesno<Historizing>(historizing, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Write mask   : ";
+           << "Write mask : ";
       optional_print_yesno<WriteMask>(write_mask, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "End delimiter   : ";
+           << "End delimiter : ";
       optional_print_yesno<EndDelimiter>(end_delimiter, out_);
       out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Alarm   : ";
+           << "Alarm : ";
       optional_print_yesno<Alarm>(alarm, out_);
       out_ << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Info   : ";
-      optional_print_yesno<Info>(info, out_);
-      out_ << std::endl;
-      if (info) {
-        std::ostringstream indent2;
-        indent2 << indent_ << datatools::i_tree_dumpable::skip_tag;
-        info.get().tree_dump(out_, "", indent2.str());
-      }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Alarm methods : " << alarm_methods.size() << std::endl;
@@ -905,6 +905,11 @@ namespace vire {
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Multiplicity   : '";
       optional_print<Multiplicity>(multiplicity, out_);
+      out_ << "'" << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Start numbering multiplicity   : '";
+      optional_print<StartNumberingMultiplicity>(start_numbering_multiplicity, out_);
       out_ << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
@@ -981,6 +986,55 @@ namespace vire {
     const std::vector<UserInfo> & Argument::get_userinfos() const
     {
       return userinfos;
+    }
+
+    void Argument::tree_dump(std::ostream & out_,
+                             const std::string & title_,
+                             const std::string & indent_,
+                             bool inherit_) const
+    {
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Name  : '" << name << "'" << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Type  : " << type << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Unit   : ";
+      optional_print_yesno<Unit>(unit, out_);
+      out_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Access: ";
+      optional_print_yesno<Access>(access, out_);
+      out_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Default value: ";
+      optional_print_yesno<DefaultValue>(default_value, out_);
+      out_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Description: ";
+      optional_print_yesno<Description>(description, out_);
+      out_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+           << "User infos : " << userinfos.size() << std::endl;
+      {
+        unsigned int counter = 0;
+        for (const auto & userinfo : userinfos) {
+          out_ << indent_ << datatools::i_tree_dumpable::inherit_skip_tag(inherit_);
+          if (++counter == userinfos.size()) {
+            out_ << datatools::i_tree_dumpable::last_tag;
+          } else {
+            out_ << datatools::i_tree_dumpable::tag;
+          }
+          out_ << "User info : " << userinfo << std::endl;
+        }
+      }
+
+      return;
     }
 
     Method::~Method()

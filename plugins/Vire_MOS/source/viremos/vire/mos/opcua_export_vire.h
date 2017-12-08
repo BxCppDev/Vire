@@ -132,15 +132,18 @@ namespace vire {
 
       //! Translate MOS info to RW access type
       static vire::utility::rw_access_type translate_rw_access(const has_info_interface & with_info_,
-                                                               bool strict_ = false);
+                                                               bool strict_ = false,
+                                                               const datatools::logger::priority = datatools::logger::PRIO_FATAL);
 
       //! Translate a typed object to a datatools introspection data description
       static void translate_data_description(const SimpleDatapoint & sdatapoint_,
-                                             datatools::introspection::data_description & dd_);
+                                             datatools::introspection::data_description & dd_,
+                                             const datatools::logger::priority = datatools::logger::PRIO_FATAL);
 
       //! Translate an argument to a datatools introspection data description
       static void translate_data_description(const Argument & argument_,
-                                             datatools::introspection::data_description & dd_);
+                                             datatools::introspection::data_description & dd_,
+                                             const datatools::logger::priority = datatools::logger::PRIO_FATAL);
 
     protected:
 

@@ -152,7 +152,7 @@ namespace vire {
 
     // Float:
     float_builder::float_builder(float & value_,
-                                     datatools::logger::priority prio_)
+                                 datatools::logger::priority prio_)
       : base_generic_builder<float>(value_, prio_)
     {
       return;
@@ -195,7 +195,7 @@ namespace vire {
 
     // Double:
     double_builder::double_builder(double & value_,
-                                     datatools::logger::priority prio_)
+                                   datatools::logger::priority prio_)
       : base_generic_builder<double>(value_, prio_)
     {
       return;

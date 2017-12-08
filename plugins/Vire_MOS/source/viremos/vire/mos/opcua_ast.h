@@ -184,7 +184,7 @@ namespace vire {
     typedef std::string ReadIdCollector;
     typedef std::string Description;
     typedef bool        Historizing;
-    typedef int         AccesLevel;
+    typedef int         AccessLevel;
     typedef int         WriteMask;
     typedef HexaValue   EndDelimiter;
     typedef HexaValue   Size;
@@ -224,6 +224,9 @@ namespace vire {
         if (typeid(opt_) == typeid(std::string)) {
           out_ << "'";
         }
+        if (typeid(opt_) == typeid(bool)) {
+          out_ << std::boolalpha;
+        }
         out_ << opt_.get();
         if (typeid(opt_) == typeid(std::string)) {
           out_ << "'";
@@ -253,10 +256,10 @@ namespace vire {
 
     struct Unit
     {
-      std::string dimension;
-      std::string unit;
+      std::string dimension; //!< Unit dimension
+      std::string unit;      //!< Unit symbol
       friend std::ostream & operator<<(std::ostream & out_, const Unit & unit_);
-   };
+    };
 
     // New in 2.0 (was bool typedef)
     struct Asynchronous
@@ -494,7 +497,7 @@ namespace vire {
       std::vector<ElementArray>    elements;
       boost::optional<Description> description;
       boost::optional<Historizing> historizing;
-      boost::optional<AccesLevel>  acces_level;
+      boost::optional<AccessLevel>  access_level;
       boost::optional<WriteMask>   write_mask;
 
       virtual ~Variable();
@@ -542,8 +545,8 @@ namespace vire {
       , public has_type_interface
       , public has_userinfos_interface
     {
-      Name  name;
-      Type  type;
+      Name                          name;
+      Type                          type;
       boost::optional<Unit>         unit;
       boost::optional<Access>       access;
       boost::optional<DefaultValue> default_value;
@@ -556,6 +559,10 @@ namespace vire {
       virtual Type get_type() const;
       virtual const boost::optional<Unit> & get_unit() const;
       virtual const std::vector<UserInfo> & get_userinfos() const;
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
 
     };
 
@@ -563,8 +570,8 @@ namespace vire {
     struct base_hidf
       : public has_type_interface
     {
-      Name name;
-      Type type;
+      Name                  name;
+      Type                  type;
       boost::optional<Unit> unit;
       boost::optional<Size> size;
       boost::optional<EndDelimiter> end_delimiter;
@@ -620,8 +627,8 @@ namespace vire {
     struct Frame_elementString
       : public has_type_interface
     {
-      Name name;
-      Type type;
+      Name                         name;
+      Type                         type;
       boost::optional<Unit>        unit;
       EndDelimiter end_delimiter;
 
@@ -637,12 +644,12 @@ namespace vire {
     struct Frame_element
       : public has_type_interface
     {
-      Name  name;
-      Type  type;
+      Name                  name;
+      Type                  type;
       boost::optional<Unit> unit;
-      Index index;
-      boost::optional<Pos> pos;
-      boost::optional<Nb>  nb;
+      Index                 index;
+      boost::optional<Pos>  pos;
+      boost::optional<Nb>   nb;
 
       virtual ~Frame_element();
       virtual Type get_type() const;
@@ -797,13 +804,13 @@ namespace vire {
       , public has_type_interface
     {
       Type                          type;
+      boost::optional<Unit>         unit;
       boost::optional<Id>           id;
-      boost::optional<AccesLevel>   acces_level;
+      boost::optional<AccessLevel>  access_level;
       boost::optional<ArraySize>    array_size;
       boost::optional<MonitoringRate> monitoring_rate;
       boost::optional<DataFrameStructureRef> data_frame_structure_ref;
       boost::optional<DefaultValue> default_value;
-      boost::optional<Unit>         unit;
       std::vector<ElementArray>     elements;
       boost::optional<Range>        range;
       boost::optional<Description>  description;
