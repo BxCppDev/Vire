@@ -13,7 +13,7 @@ by the user before a run.
 
 This system aims to :
 
-- describe the list of hardwar/firmawre/software devices used in the setup,
+- describe the list of hardware/firmawre/software devices used in the setup,
 - organize these devices in a hierarchy (parent/child relationship),
 - provide a naming scheme for all devices,
 - describe the model associated to each device,
