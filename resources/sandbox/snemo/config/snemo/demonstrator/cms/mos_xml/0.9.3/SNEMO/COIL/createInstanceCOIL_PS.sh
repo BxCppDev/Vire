@@ -5,7 +5,7 @@ usage() {
         echo "(script) ******************************"
         echo "(script) *   Error parameter missing    "
         echo "(script) *   Usage :                    "
-        echo "(script) *   ./createInstanceCOIL_PS.sh <Address> <Port> <Name>"
+        echo "(script) *   ./createInstanceCOIL_PS.sh <Address> <Port> <InstanceNumber>"
         echo "(script) *   <Address> --> (in)  : address of the \"PowerSupply\" board "
         echo "(script) *   <Port>    --> (in)  : port number of the \"PowerSupply\""
         echo "(script) *   <InstanceNumber>    -->  instance number allow to build the name of the xml file for this instance"

@@ -13,75 +13,77 @@
     <!-- =========Here define instruction list or this device =========================== -->
     <Instruction_set>
       <Instruction>
-	<Name>SetVoltageSource</Name>
-	<Cmd>SOURce:VOLTage</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>SetVoltageSource</Name>
+        <Cmd>SOURce:VOLTage</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
       <Instruction>
-	<Name>GetVoltageSource</Name>
-	<Cmd>SOURce:VOLTage?</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>GetVoltageSource</Name>
+        <Cmd>SOURce:VOLTage?</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
       <Instruction>
-	<Name>SetCurrentSource</Name>
-	<Cmd>SOURce:CURRent</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>SetCurrentSource</Name>
+        <Cmd>SOURce:CURRent</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
       <Instruction>
-	<Name>GetCurrentSource</Name>
-	<Cmd>SOURce:CURRent?</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>GetCurrentSource</Name>
+        <Cmd>SOURce:CURRent?</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
       <Instruction>
-	<Name>GetCurrent</Name>
-	<Cmd>MEASure:CURRent?</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>GetCurrent</Name>
+        <Cmd>MEASure:CURRent?</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
       <Instruction>
-	<Name>GetVoltage</Name>
-	<Cmd>MEASure:VOLTage?</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>GetVoltage</Name>
+        <Cmd>MEASure:VOLTage?</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
       <Instruction>
-	<Name>GetPower</Name>
-	<Cmd>MEASure:POWer?</Cmd>
-	<Acknowledge>true</Acknowledge>
+        <Name>GetPower</Name>
+        <Cmd>MEASure:POWer?</Cmd>
+        <Acknowledge>true</Acknowledge>
       </Instruction>
     </Instruction_set>
     <HardwareConfig>
       <NameHardwareConfig>Init</NameHardwareConfig>
       <Argument>
-	<Name>Address</Name>
-	<Type>string</Type>
-	<Access>Input</Access>
-	<DefaultValue>134.158.98.156</DefaultValue>
-	<!-- <DefaultValue>134.158.98.156</DefaultValue> -->
+        <Name>Address</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>134.158.98.156</DefaultValue>
+        <!-- <DefaultValue>134.158.98.156</DefaultValue> -->
       </Argument>
       <Argument>
-	<Name>Port</Name>
-	<Type>string</Type>
-	<Access>Input</Access>
-	<DefaultValue>8462</DefaultValue>
-	<!-- <DefaultValue>8462</DefaultValue>-->
+        <Name>Port</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>8462</DefaultValue>
+        <!-- <DefaultValue>8462</DefaultValue>-->
       </Argument>
       <Argument>
-	<Name>Connection</Name>
-	<Type>string</Type>
-	<Access>Input</Access>
-	<DefaultValue>client</DefaultValue>
+        <Name>Connection</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>client</DefaultValue>
       </Argument>
 
       <Argument>
-	<Name>Validity</Name>
-	<Type>string</Type>
-	<Access>Input</Access>
-	<DefaultValue>permanent</DefaultValue>
+        <Name>Validity</Name>
+        <Type>string</Type>
+        <Access>Input</Access>
+        <DefaultValue>permanent</DefaultValue>
       </Argument>
+
 
       <DeviceInstruction>
-	<Value>SetVoltageSource</Value>
+        <Value>SetVoltageSource</Value>
       </DeviceInstruction>
     </HardwareConfig>
+
 
     <CompoundDatapoint>
 
@@ -112,39 +114,41 @@
       </Attribut>
       <Attribut>
         <Name>InstanceDate</Name>
-        <Value>26-11-2015 13:21</Value>
+        <Value>08-12-2017  9:33</Value>
       </Attribut>
     </CompoundDatapoint>
 
 
     <!-- ===== Here define Datapoints (and compound the datapoints) or this device ========= -->
-    <CompoundDatapoint> 						<!-- Example : Here we group some datapoints into "monitoring" -->
-      <Name>Monitoring</Name> 			<!-- Mandatory : Name of the compound -->
-      <SimpleDatapoint>					<!-- Here we define on datapoint to describe the current -->
-	<Name>Current</Name> 			<!-- Mandatory : Name of the datapoint -->
-	<Type>float</Type>	 			<!-- Mandatory : The type of this datapoint -->
-	<MonitoringRate>1</MonitoringRate>
-	<Historizing>1</Historizing> 	<!-- Optional : We want to have an historic of the value (1) or not (0) -->
-	<Method> 			<!--For this datapoint (current), we want to add a method to get the value -->
-	  <Name>get</Name> 	<!-- Mandatory : Name of the method -->
-	  <Argument>
-	    <Name>retour</Name>
-	    <Type>float</Type>
-	    <Access>Output</Access>
-	  </Argument>
+    <CompoundDatapoint>                         <!-- Example : Here we group some datapoints into "monitoring" -->
+      <Name>Monitoring</Name>                   <!-- Mandatory : Name of the compound -->
+      <SimpleDatapoint>                         <!-- Here we define on datapoint to describe the current -->
+        <Name>Current</Name>                    <!-- Mandatory : Name of the datapoint -->
+        <Type>float</Type>                      <!-- Mandatory : The type of this datapoint -->
+	<Unit><electricCurrentUnit unit="A"/></Unit>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>    <!-- Optional : We want to have an historic of the value (1) or not (0) -->
+        <Method>                        <!-- For this datapoint (current), we want to add a method to get the value -->
+          <Name>get</Name>              <!-- Mandatory : Name of the method -->
+          <Argument>
+            <Name>retour</Name>
+            <Type>float</Type>
+            <Access>Output</Access>
+          </Argument>
 
-	  <DeviceInstruction> 	<!-- Mandatory : define the good instruction to call in the instruction list -->
-	    <Value>GetCurrent</Value>
-	  </DeviceInstruction>
-	  <EndDelimiter>0d</EndDelimiter>
-	</Method>
+          <DeviceInstruction>   <!-- Mandatory : define the good instruction to call in the instruction list -->
+            <Value>GetCurrent</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+        </Method>
       </SimpleDatapoint>
 
       <SimpleDatapoint>
-	<Name>Voltage</Name>
-	<Type>float</Type>
-	<MonitoringRate>1</MonitoringRate>
-	<Historizing>1</Historizing>
+        <Name>Voltage</Name>
+        <Type>float</Type>
+	<Unit><voltageUnit unit="V"/></Unit>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>
         <!--<Alarm>
             <Alarm_LimitHigh>
             <Value>3</Value>
@@ -154,104 +158,116 @@
             <Acknowledge>true</Acknowledge>
             </Alarm_LimitHigh>
             </Alarm>
-	-->
-	<Method>
-	  <Name>get</Name>
+        -->
+        <Method>
+          <Name>get</Name>
           <Argument>
             <Name>retour</Name>
             <Type>float</Type>
             <Access>Output</Access>
           </Argument>
 
-	  <DeviceInstruction>
-	    <Value>GetVoltage</Value>
-	  </DeviceInstruction>
-	  <EndDelimiter>0d</EndDelimiter>
-	</Method>
+          <DeviceInstruction>
+            <Value>GetVoltage</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+        </Method>
       </SimpleDatapoint>
     </CompoundDatapoint>
 
 
-    <CompoundDatapoint>						<!-- Example : Here we group others datapoints into "control" -->
+    <CompoundDatapoint> <!-- Example : Here we group others datapoints into "control" -->
       <Name>Control</Name>
       <SimpleDatapoint>
-	<Name>Current</Name>
-	<Type>float</Type>
-	<MonitoringRate>1</MonitoringRate>
-	<Historizing>1</Historizing>
-	<Method> 							<!-- Here a method with one parameter -->
-	  <Name>set</Name>		<!-- Mandatory : The name of the method -->
-	  <Argument>				<!-- Here we define the list of argument in/oiut of this method -->
-	    <Name>value_Current</Name>	<!-- Mandatory : The name of the argument -->
-	    <Type>float</Type>			<!-- Mandatory : The type of this argument -->
-	    <Access>Input</Access>		<!-- Mandatory : Input argument or Output argument -->
-	    <Description>Current (par exemple en mA)</Description><!-- Optional
-	    : Description of this argument -->
-	  </Argument>
-	  <DeviceInstruction> 			<!-- and of course we define the good instruction to do with method -->
-	    <Value>SetCurrentSource</Value>
-	  </DeviceInstruction>
-	  <EndDelimiter>0d</EndDelimiter>
-	  <Event>
-	    <Message>Method change the value of voltage !!!!</Message>
-	  </Event>
-	</Method>
-	<Method>
-	  <Info>
-	    <Config>true</Config>
-	  </Info>
-	  <Name>get</Name>
+        <Name>Current</Name>
+        <Type>float</Type>
+	<Unit><electricCurrentUnit unit="A"/></Unit>
+        <Info>
+          <Config>true</Config>
+        </Info>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>
+
+        <Method>                        <!-- Here a method with one parameter -->
+          <Name>set</Name>              <!-- Mandatory : The name of the method -->
+          <Argument>                    <!-- Here we define the list of argument in/out of this method -->
+            <Name>value_Current</Name>  <!-- Mandatory : The name of the argument -->
+            <Type>float</Type>                  <!-- Mandatory : The type of this argument -->
+            <Access>Input</Access>              <!-- Mandatory : Input argument or Output argument -->
+            <Description>Current (par exemple en mA)</Description><!-- Optional: Description of this argument -->
+          </Argument>
+          <DeviceInstruction>                   <!-- and of course we define the good instruction to do with method -->
+            <Value>SetCurrentSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+          <Event>
+            <Message>Change the value of voltage</Message>
+          </Event>
+        </Method>
+
+        <Method>
+          <Info>
+            <Config>true</Config>
+          </Info>
+          <Name>get</Name>
           <Argument>
             <Name>retour</Name>
             <Type>float</Type>
             <Access>Output</Access>
           </Argument>
 
-	  <DeviceInstruction>
-	    <Value>GetCurrentSource</Value>
-	  </DeviceInstruction>
-	  <EndDelimiter>0d</EndDelimiter>
-	</Method>
+          <DeviceInstruction>
+            <Value>GetCurrentSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+        </Method>
       </SimpleDatapoint>
 
       <SimpleDatapoint>
-	<Name>Voltage</Name>
-	<Type>float</Type>
-	<MonitoringRate>1</MonitoringRate>
-	<Historizing>1</Historizing>
-	<Method>
-	  <Name>set</Name>
-	  <Argument>
-	    <Name>value_Voltage</Name>
-	    <Type>float</Type>
-	    <Access>Input</Access>
-	    <Description>Voltage value (par exemple en mA)</Description>
-	  </Argument>
+        <Name>Voltage</Name>
+        <Type>float</Type>
+	<Unit><voltageUnit unit="V"/></Unit>
+        <Info>
+          <Config>true</Config>
+        </Info>
+        <MonitoringRate>1</MonitoringRate>
+        <Historizing>1</Historizing>
 
-	  <DeviceInstruction>
-	    <Value>SetVoltageSource</Value>
-	  </DeviceInstruction>
-	  <EndDelimiter>0d</EndDelimiter>
-	  <Event>
-	    <Message>Method change the value of voltage !!!!</Message>
-	  </Event>
-	</Method>
-	<Method>
-	  <Info>
-	    <Config>true</Config>
-	  </Info>
-	  <Name>get</Name>
+        <Method>
+          <Name>set</Name>
+          <Argument>
+            <Name>value_Voltage</Name>
+            <Type>float</Type>
+            <Access>Input</Access>
+            <Description>Voltage value (par exemple en mV)</Description>
+          </Argument>
+
+          <DeviceInstruction>
+            <Value>SetVoltageSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0d</EndDelimiter>
+          <Event>
+            <Message>Change the value of voltage</Message>
+          </Event>
+        </Method>
+
+        <Method>
+          <Info>
+            <Config>true</Config>
+          </Info>
+          <Name>get</Name>
           <Argument>
             <Name>retour</Name>
             <Type>float</Type>
             <Access>Output</Access>
           </Argument>
 
-	  <DeviceInstruction>
-	    <Value>GetVoltageSource</Value>
-	  </DeviceInstruction>
-	  <EndDelimiter>0D</EndDelimiter>
-	</Method>
+          <DeviceInstruction>
+            <Value>GetVoltageSource</Value>
+          </DeviceInstruction>
+          <EndDelimiter>0D</EndDelimiter>
+        </Method>
+
       </SimpleDatapoint>
     </CompoundDatapoint>
   </SimpleDevice>
