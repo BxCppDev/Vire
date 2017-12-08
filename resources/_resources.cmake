@@ -16,8 +16,6 @@ ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/users/au
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/users/users.lis
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/resources/roles.lis
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/resources/manager.conf
-${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices_launch.pdf
-${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices_launch.ps
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/clients/client-devel1.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/common/experiment.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/server/conf.d/devices.conf
@@ -130,7 +128,6 @@ ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/GAS_FACTORY/GAS_Factory_1.xml
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/GAS_FACTORY/GAS_FactoryModel.xml
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/COIL/PSType2Model.xml
-${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/COIL/COIL_PS_1.xml.bak
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/COIL/README.rst
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/COIL/createInstanceCOIL_PS.sh
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_xml/0.9.3/SNEMO/COIL/COIL_PS_1.xml
