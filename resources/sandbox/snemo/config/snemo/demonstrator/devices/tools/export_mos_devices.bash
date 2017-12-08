@@ -29,6 +29,9 @@ mos_devices_db=
 build_device_model_xmlfile=
 build_device_model_list=
 dry_run=false
+default_snemo_cms_mos_version="0.9.3"
+default_snemo_devices_version="0.1"
+default_vire_mos_xsd_version="2.0.4"
 
 which virequery > /dev/null 2>&1
 if [ $? -ne 0 ]; then
@@ -52,18 +55,19 @@ Usage:
 
 Options:
 
-  --help | -h
-  --debug
-  --print-status | -s
-  --work-dir | -W
-  --mos-version | -V
-  --devices-version | -D
-  --list-of-devices | -L
-  --build-device-model | -b
-  --build-all-device-models | -B
-  --install | -I
-  --mos-devices-db | -M
-  --dry-run
+  --help | -h                       Print this help then exit
+  --debug                           Switch on debug print
+  --work-dir | -W DIR               Set the working directory
+  --mos-version | -V VERSION        Use specific MOS version (default: ${default_snemo_cms_mos_version}
+  --devices-version | -D VERSION    Use specific setup version (default: ${default_snemo_devices_version}
+
+  --print-status | -s               Print status then exit
+  --list-of-devices | -L            List the supported devices
+  --build-device-model | -b         Build a specific device model
+  --build-all-device-models | -B    Build all device models
+  --install | -I                    Install all device models in the proper repository (with -B)
+  --mos-devices-db | -M FILE        Use a temporary MOS devices database file
+  --dry-run                         Do not perform the action.
 
 
 Example:
@@ -127,11 +131,11 @@ full_work_dir=$(pwd)
 cd ${opwd}
 
 if [ -z "${snemo_cms_mos_version}" ]; then
-    snemo_cms_mos_version="0.9.2"
+    snemo_cms_mos_version="${default_snemo_cms_mos_version}"
 fi
 
 if [ -z "${snemo_devices_version}" ]; then
-    snemo_devices_version="0.1"
+    snemo_devices_version="${default_snemo_devices_version}"
 fi
 
 if [ -z "${mos_devices_db}" ]; then
@@ -151,8 +155,9 @@ if [ ${debug} = true ]; then
 fi
 
 vire_version=$(virequery --version)
-vire_mos_xsd_version=2.0.3
+vire_mos_xsd_version=${default_vire_mos_xsd_version}
 vire_mos_xsd_dir="$(virequery --resourcedir)/plugins/Vire_MOS/data/mos/xml/${vire_mos_xsd_version}"
+vire_mos_xsd_dir="../../../../../../../../plugins/Vire_MOS/resources/data/mos/xml/${vire_mos_xsd_version}"
 
 snemo_cms_mos_xml_dir="../../cms/mos_xml/${snemo_cms_mos_version}"
 snemo_cms_mos_dev_launch="${snemo_cms_mos_xml_dir}/SNEMO/devices_launch.conf"
@@ -400,6 +405,14 @@ function build_all_device_models()
     fi
 
     if [ ${install} == true ]; then
+
+	if [ -d ${snemo_devices_cms_models_dir}/MOS ]; then
+    	    echo >&2 "[notice] Backuping MOS directory: ${snemo_devices_cms_models_dir}/MOS'..."
+	    if [ -d ${snemo_devices_cms_models_dir}/MOS.bak ]; then
+		rm -fr ${snemo_devices_cms_models_dir}/MOS.bak
+	    fi
+	    mv -f ${snemo_devices_cms_models_dir}/MOS ${snemo_devices_cms_models_dir}/MOS.bak
+	fi
 	mkdir -p ${snemo_devices_cms_models_dir}/MOS/
 	cp -f ${work_dir}/mos_models.lis ${snemo_devices_cms_models_dir}/MOS/
 	cd ${work_dir}/

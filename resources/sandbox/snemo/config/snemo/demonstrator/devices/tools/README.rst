@@ -14,7 +14,7 @@ Convert MOS device definition XML files to Vire device definition files:
    $ cd {...}/config/snemo/demonstrator/devices/tools
    $ ./export_mos_devices.bash --list-of-devices
    $ ./export_mos_devices.bash --build-device-model SNEMO/COIL/COIL_PS_1.xml
-   $ ./export_mos_devices.bash --build-all-device-models
+   $ ./export_mos_devices.bash --build-all-device-models --install
 
 ..
 

@@ -1,3 +1,5 @@
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/cms_coil.vdm
+@snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/cms_source_calibration.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/cms_tracker.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/cms_calorimeter.vdm
 @snemo:config/snemo/demonstrator/devices/0.1/models/demonstrator/cms/cms.vdm

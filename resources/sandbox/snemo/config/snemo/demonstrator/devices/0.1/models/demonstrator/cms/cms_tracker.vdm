@@ -6,16 +6,13 @@
 #@meta_label "type"
 
 
-################################################################################
+############################################################################
 [name="sndemo.cms.tracker.hv@device" type="vire::device::base_device_model"]
 
 #@config Parameters describing the SuperNEMO demonstrator CMS tracker HV
 
 #@parameter Logging priority threshold
 logging.priority : string = "fatal"
-
-# #@description Unique identifier of the device model
-# model_key : integer = 0
 
 #@description Type of device
 type      : string  = "generic"
@@ -31,13 +28,13 @@ virtual : boolean  = true
 embedded_devices.labels : string[3] = "PS_0" "PS_1" "PS_2"
 
 #@description The device model associated to the PS_0
-embedded_devices.model.PS_0 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_1"
+embedded_devices.model.PS_0 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_1.HVPS"
 
 #@description The device model associated to the PS_1
-embedded_devices.model.PS_1 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_2"
+embedded_devices.model.PS_1 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_2.HVPS"
 
 #@description The device model associated to the PS_2
-embedded_devices.model.PS_2 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_3"
+embedded_devices.model.PS_2 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_3.HVPS"
 
 
 #########################################################################
@@ -48,11 +45,8 @@ embedded_devices.model.PS_2 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_3"
 #@parameter Logging priority threshold
 logging.priority : string = "fatal"
 
-# #@description Unique identifier of the device model
-# model_key : integer = 0
-
 #@description Type of device
-type      : string  = "generic"
+type    : string  = "generic"
 
 #@description Virtual device
 virtual : boolean  = true
@@ -65,7 +59,7 @@ virtual : boolean  = true
 embedded_devices.labels : string[1] = "HV"
 
 #@description The device model associated to the HV
-embedded_devices.model.HV : string = "sndemo.cms.tracker.HV"
+embedded_devices.model.HV : string = "sndemo.cms.tracker.hv"
 
 
 # end of cms_tracker.vdm

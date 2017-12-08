@@ -1,0 +1,34 @@
+# -*- mode: conf-unix -*-
+# List of multi-properties (datatools::multi_properties)
+
+#@description Definitions of the top-level SuperNEMO demonstrator CMS source calibration system
+#@key_label  "name"
+#@meta_label "type"
+
+
+####################################################################################
+[name="sndemo.cms.source_calibration@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator CMS source calibration system
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type      : string  = "generic"
+
+#@description Virtual device
+virtual : boolean  = true
+
+####################
+# Embedded devices #
+####################
+
+#@description The list of embedded devices
+embedded_devices.labels : string[1] = "ADS"
+
+#@description The device model associated to the ADS
+embedded_devices.model.ADS : string = "sndemo.mos.SourceCalibration.SOURCE_CALIBRATION_1.Source_Calibration"
+
+
+# end of cms_source_calibration.vdm
