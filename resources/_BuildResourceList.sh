@@ -8,7 +8,7 @@ cat > ${resources_list_cmake} <<EOF
 list(APPEND Vire_RESOURCES
 EOF
 
-find ./ -type f | grep -v "/_" | grep -v "~$" | grep -v /.svn/ | grep -v "CMakeLists.txt" | grep -v "/\..*" | sed -e 's@^./@${PROJECT_SOURCE_DIR}/resources/@g' >> ${resources_list_cmake}
+find ./ -type f | grep -v "/_" | grep -v "~$" | grep -v "/#.*#$" | grep -v /.svn/ | grep -v "CMakeLists.txt" | grep -v "/\..*" | sed -e 's@^./@${PROJECT_SOURCE_DIR}/resources/@g' >> ${resources_list_cmake}
 
 cat >> ${resources_list_cmake} <<EOF
 )

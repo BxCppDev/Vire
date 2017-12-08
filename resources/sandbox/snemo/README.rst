@@ -11,3 +11,9 @@ official description of the SuperNEMO demonstrator experiment from the
 Falaise software environment.
 
 For now, we use it as a realistic use case for the Vire system.
+
+
+From the build directory:
+
+
+   $ ./BuildProducts/bin/vire_tests/vire-test-cmsserver-server
