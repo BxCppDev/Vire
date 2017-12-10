@@ -93,57 +93,6 @@ list(APPEND VireLibrary_TESTS
   testing/test-vire.cxx
   )
 
-# - Declare headers, sources and test programs
-#   specific to various topics:
-
-# if (VIRE_WITH_QT_GUI)
-#   set(VireLibrary_HEADERS_QT_TO_BE_MOCCED)
-#   find_package(Qt5Core    ${VIRE_QT5_VERSION} REQUIRED)
-#   find_package(Qt5Gui     ${VIRE_QT5_VERSION} REQUIRED)
-#   find_package(Qt5Widgets ${VIRE_QT5_VERSION} REQUIRED)
-#   find_package(Qt5Svg     ${VIRE_QT5_VERSION} REQUIRED)
-# endif()
-
-# #-----------------------------------------------------------------------
-# # BxJsontools support
-# #
-# message (STATUS "[info] Searching for BxJsontools...")
-# find_package(BxJsontools 0.3 REQUIRED CONFIG COMPONENTS manager)
-# if (BxJsontools_FOUND)
-#   message( STATUS "[info] Found the BxJsontools library:")
-#   message( STATUS "[info]   BxJsontools_VERSION           = '${BxJsontools_VERSION}'")
-#   message( STATUS "[info]   BxJsontools_INCLUDE_DIRS      = '${BxJsontools_INCLUDE_DIRS}'")
-#   message( STATUS "[info]   BxJsontools_LIBRARIES         = '${BxJsontools_LIBRARIES}'")
-# endif()
-
-# #-----------------------------------------------------------------------
-# # BxRabbitMQ support
-# #
-# message (STATUS "[info] Searching for BxRabbitMQ...")
-# find_package(BxRabbitMQ 0.4.1 REQUIRED CONFIG COMPONENTS manager)
-# if (BxRabbitMQ_FOUND)
-#   message( STATUS "[info] Found the BxRabbitMQ library:")
-#   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
-#   message( STATUS "[info]   BxRabbitMQ_INCLUDE_DIRS      = '${BxRabbitMQ_INCLUDE_DIRS}'")
-#   message( STATUS "[info]   BxRabbitMQ_LIBRARIES         = '${BxRabbitMQ_LIBRARIES}'")
-#   message( STATUS "[info]   BxRabbitMQ_MANAGER_LIBRARIES = '${BxRabbitMQ_MANAGER_LIBRARIES}'")
-# endif()
-
-# #-----------------------------------------------------------------------
-# # BxProtobuftools support
-# #
-# message (STATUS "[info] Searching for BxProtobuftools...")
-# find_package(BxProtobuftools 0.3 REQUIRED CONFIG)
-# if (BxProtobuftools_FOUND)
-#   message( STATUS "[info] Found the BxProtobuftools library:")
-#   message( STATUS "[info]   BxProtobuftools_VERSION      = '${BxProtobuftools_VERSION}'")
-#   message( STATUS "[info]   BxProtobuftools_DEFINITIONS  = '${BxProtobuftools_DEFINITIONS}'")
-#   message( STATUS "[info]   BxProtobuftools_INCLUDE_DIR  = '${BxProtobuftools_INCLUDE_DIR}'")
-#   message( STATUS "[info]   BxProtobuftools_INCLUDE_DIRS = '${BxProtobuftools_INCLUDE_DIRS}'")
-#   message( STATUS "[info]   BxProtobuftools_LIBRARY      = '${BxProtobuftools_LIBRARY}'")
-#   message( STATUS "[info]   BxProtobuftools_LIBRARIES    = '${BxProtobuftools_LIBRARIES}'")
-# endif()
-
 # -----------------------------------------------------------------------
 
 message (STATUS "[info] Adding subdirectory 'protobuf'...")
@@ -253,10 +202,6 @@ endif()
 #-----------------------------------------------------------------------
 # Build/Link Library
 #
-
-# find_package(Readline MODULE)
-# message (STATUS "[info] Readline_INCLUDE_DIR = '${Readline_INCLUDE_DIR}' ")
-# message (STATUS "[info] Readline_LIBRARIES   = '${Readline_LIBRARIES}' ")
 
 include_directories(${Readline_INCLUDE_DIR})
 include_directories(${BxJsontools_INCLUDE_DIRS})
@@ -407,20 +352,9 @@ if(VIRE_ENABLE_TESTING)
     #message( STATUS "[info] _vire_TEST_ENVIRONMENT='${_vire_TEST_ENVIRONMENT}'")
     set(_testname "vire-${_testname}")
     #message( STATUS "[info] _testname='${_testname}'")
-    # message( STATUS "[DEVEL] ************* BxJsontools_LIBRARY     = '${BxJsontools_LIBRARY}'")
-    # message( STATUS "[DEVEL] ************* BxProtobuftools_LIBRARY = '${BxProtobuftools_LIBRARY}'")
-    # message( STATUS "[DEVEL] ************* PROTOBUF_LIBRARIES      = '${PROTOBUF_LIBRARIES}'")
     add_executable(${_testname} ${_testsource})
     target_link_libraries(${_testname}
       Vire
-      # ${Vire_Boost_LIBRARIES}
-      # ${BxJsontools_LIBRARY}
-      # ${BxProtobuftools_LIBRARY}
-      # ${PROTOBUF_LIBRARIES}
-      # ${Readline_LIBRARIES}
-      # pthread
-      # b64
-      # crypt
       )
     set(_test_with_protobuf 0)
     string(SUBSTRING ${_testname} 0 19 _testname_prefix)
@@ -433,10 +367,6 @@ if(VIRE_ENABLE_TESTING)
       message( STATUS "[info] Special Protobuf support for test '${_testname}'...")
       include_directories(${PROTOBUF_INCLUDE_DIRS})
       include_directories(${VIRE_BUILD_PREFIX}/include/protobuf/cpp)
-      # target_link_libraries(${_testname}
-      # 	Vire_protobuf
-      # 	${PROTOBUF_LIBRARIES}
-      # 	)
     endif()
     # - On Apple, ensure dynamic_lookup of undefined symbols
     if(APPLE)

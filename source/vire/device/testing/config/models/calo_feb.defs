@@ -198,6 +198,7 @@ embedded_devices.instance.FeFpga  : string = "vire::device::regular_1d_instance=
 embedded_devices.model.CtrlFpga    : string = "calo_feb_ctrl_fpga"
 ### embedded_devices.instance.CtrlFpga : string = "vire::device::single_instance=[slot=(0)]"
 
+
 #########
 # Ports #
 #########
@@ -212,6 +213,18 @@ ports.instance.Input  : string = "vire::device::regular_1d_instance=[nslots=16;f
 # Port model associated to the Ethernet ports:
 ports.model.Ethernet  : string = "ethernet_socket"
 
+###########
+# Mapping #
+###########
+
+mapping.device.Samlong.auto_from_instance  : string = "calo_feb_fe_asic.dc"
+mapping.device.FeFpga.auto_from_instance   : string = "calo_feb_fe_fpga.dc"
+mapping.device.CtrlFpga.auto_from_instance : string = "calo_feb_ctrl_fpga.dc"
+mapping.port.Input.auto_from_instance      : string = "calo_feb_channel.pc"
+# mapping.device.Samlong  : string = "[calo_feb_fe_asic.dc:fe_asic+0]"
+# mapping.device.FeFpga   : string = "[calo_feb_fe_fpga.dc:fe_fpga+0]"
+# mapping.device.CtrlFpga : string = "[calo_feb_ctrl_fpga.dc]"
+# mapping.port.Input      : string = "[calo_feb_channel.pc:channel+0]"
 
 #########
 # Links #

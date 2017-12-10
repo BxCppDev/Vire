@@ -5,16 +5,6 @@ if (VIRE_WITH_JAVA)
   message( STATUS "[info] Build JAR file from Java sources...")
 endif()
 
-find_package(Java REQUIRED)
-include(UseJava)
-if(Java_FOUND)
-  message(STATUS "[info] Java_VERSION_STRING   : '${Java_VERSION_STRING}'")
-  message(STATUS "[info] Java_JAVAC_EXECUTABLE : '${Java_JAVAC_EXECUTABLE}'")
-  message(STATUS "[info] Java_JAR_EXECUTABLE   : '${Java_JAR_EXECUTABLE}'")
-else()
-  message( FATAL "[fatal] Could not find Java!")
-endif()
-
 configure_file(vire/version.java.in
   ${CMAKE_CURRENT_BINARY_DIR}/vire/version.java
   @ONLY)

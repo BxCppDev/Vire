@@ -1,5 +1,7 @@
-// vire/logging/the_introspectable-inc.h
+// vire/user/the_introspectable-inc.h
 
-#include <vire/logging/simple_logging_service-reflect.h>
+#include <vire/user/user-reflect.h>
+#include <vire/user/group-reflect.h>
+#include <vire/user/manager-reflect.h>
 
 // end

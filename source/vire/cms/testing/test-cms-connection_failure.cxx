@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmslapp/connection_failure.h>
+#include <vire/cms/connection_failure.h>
 
 // Standard library:
 #include <iostream>
@@ -62,17 +62,17 @@ void test0()
   std::clog << "\ntest0: Entering..." << std::endl;
 
   {
-    vire::cmslapp::connection_failure resp;
+    vire::cms::connection_failure resp;
     vire::utility::invalid_context_error err;
     err.set_code(666);
     err.set_message_format("Invalid testing context");
     resp.set_error(err);
-    resp.tree_dump(std::log, "Connection failure: ", "[info] ");
+    resp.tree_dump(std::clog, "Connection failure: ", "[info] ");
     jsontools::store("test_connection_failure.json", resp);
   }
 
   {
-    vire::cmslapp::connection_failure resp;
+    vire::cms::connection_failure resp;
     jsontools::load("test_connection_failure.json", resp);
   }
 

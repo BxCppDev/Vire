@@ -106,10 +106,10 @@ mapping.device.TriggerBoard : string = "[trigger_board.dc]"
 #####################################
 [model="calo_feb" policy="supersede"]
 
-mapping.device.Samlong      : string = "[calo_feb_fe_asic.dc:fe_asic+0]"
-mapping.device.FeFpga       : string = "[calo_feb_fe_fpga.dc:fe_fpga+0]"
-mapping.device.CtrlFpga     : string = "[calo_feb_ctrl_fpga.dc]"
-mapping.port.Input          : string = "[calo_feb_channel.pc:channel+0]"
+mapping.device.Samlong    : string = "[calo_feb_fe_asic.dc:fe_asic+0]"
+mapping.device.FeFpga     : string = "[calo_feb_fe_fpga.dc:fe_fpga+0]"
+mapping.device.CtrlFpga   : string = "[calo_feb_ctrl_fpga.dc]"
+mapping.port.Input        : string = "[calo_feb_channel.pc:channel+0]"
 
 
 ##########################################

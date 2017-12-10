@@ -39,4 +39,14 @@ extends : string = "cms_device.dc"
 addresses : string[1] = "port"
 
 
+########################################
+[category="cms_method.pc" type="120001"]
+
+#@config The port category associated to a device's method
+
+#@description A method is a specialization of a port
+inherits : string = "cms_port.pc"
+
+
+
 # end of cms.vdc

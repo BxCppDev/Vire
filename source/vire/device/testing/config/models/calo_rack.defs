@@ -85,7 +85,6 @@ embedded_devices.instance.FeFpga : string = "vire::device::regular_1d_instance=[
 
 # Device model associated to the embedded control FPGA:
 embedded_devices.model.CtrlFpga  : string = "calo_cb_ctrl_fpga"
-### embedded_devices.instance.CtrlFpga : string = "vire::device::single_instance=[slot=(0)]"
 
 # Auxiliary properties:
 
@@ -151,7 +150,6 @@ embedded_devices.labels : string[1] = "CtrlFpga"
 
 # Device model associated to the embedded control FPGA:
 embedded_devices.model.CtrlFpga    : string = "tb_ctrl_fpga"
-### embedded_devices.instance.CtrlFpga : string = "vire::device::single_instance=[slot=(0)]"
 
 # Auxiliary properties:
 
@@ -308,4 +306,4 @@ rackable.slot_2.label  : string = "Crate_2"
 #@description Unique key for CMS
 aux.cms.id  : string = "10500"
 
-#
+# end

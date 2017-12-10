@@ -13,11 +13,11 @@
 mapping.device.Coil : string = "[cms_device.dc:device=1]"
 
 
-############################################
-[model="sndemo.cms.coil" policy="supersede"]
+# ############################################
+# [model="sndemo.cms.coil" policy="supersede"]
 
-#@description The mapping directives for the "CMS" device
-mapping.device.PS : string = "[cms_device.dc:device=2]"
+# #@description The mapping directives for the "PS" device
+# mapping.device.PS : string = "[cms_device.dc:device=2]"
 
 
 # end of cms.vmr

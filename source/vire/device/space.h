@@ -98,10 +98,8 @@ DR_TYPE_INIT(::vire::device::space::dimension_type)
 
 #endif // VIRE_DEVICE_SPACE_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

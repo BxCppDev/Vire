@@ -28,10 +28,10 @@ virtual : boolean  = true
 embedded_devices.labels : string[2] = "PS_0" "PS_1"
 
 #@description The device model associated to the PS_0
-embedded_devices.model.PS_0 : string = "sndemo.mos.Calorimeter.HV.PS_0.CALO_HVPS_1.CALO_HVPS"
+embedded_devices.model.PS_0 : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_1.CALO_HVPS"
 
 #@description The device model associated to the PS_1
-embedded_devices.model.PS_1 : string = "sndemo.mos.Calorimeter.HV.PS_1.CALO_HVPS_2.CALO_HVPS"
+embedded_devices.model.PS_1 : string = "sndemo.mos.Calorimeter.HV.CALO_HVPS_2.CALO_HVPS"
 
 
 #############################################################################

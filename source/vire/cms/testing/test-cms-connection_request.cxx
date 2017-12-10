@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmslapp/connection_request.h>
+#include <vire/cms/connection_request.h>
 
 // Standard library:
 #include <iostream>
@@ -62,7 +62,7 @@ void test0()
   std::clog << "\ntest0: Entering..." << std::endl;
 
   {
-    vire::cmslapp::connection_request  req;
+    vire::cms::connection_request  req;
     vire::utility::instance_identifier sid;
     sid.from_string("SuperNEMO-1.0");
     req.set_setup_id(sid);
@@ -80,7 +80,7 @@ void test0()
   }
 
   {
-    vire::cmslapp::connection_request req;
+    vire::cms::connection_request req;
     jsontools::load("test_connection_request.json", req);
   }
 

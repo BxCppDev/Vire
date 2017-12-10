@@ -28,7 +28,7 @@ virtual : boolean  = true
 embedded_devices.labels : string[1] = "PS"
 
 #@description The device model associated to the PS
-embedded_devices.model.PS : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS.model"
+embedded_devices.model.PS : string = "sndemo.mos.Coil.COIL_PS_1.COIL_PS"
 
 
 # end of cms_coil.vdm

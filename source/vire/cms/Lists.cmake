@@ -104,7 +104,14 @@ list(APPEND VireLibrary_SOURCES
 
   cms/resource_status_change.cc
   cms/device_status_change.cc
-)
+
+  cms/connection_request.cc
+  cms/connection_success.cc
+  cms/connection_failure.cc
+  cms/disconnection_request.cc
+  cms/disconnection_success.cc
+  cms/disconnection_failure.cc
+  )
 
 list(APPEND VireLibrary_TESTS
   cms/testing/test-cms-utils.cxx
@@ -134,5 +141,8 @@ list(APPEND VireLibrary_TESTS
 
   cms/testing/test-cms-resource_status_change.cxx
   cms/testing/test-cms-device_status_change.cxx
+
+  cms/testing/test-cms-connection_request.cxx
+  cms/testing/test-cms-connection_failure.cxx
 
 )
