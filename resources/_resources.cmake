@@ -374,6 +374,7 @@ ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/demonstrator/electronics/electronics.vdc
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/demonstrator/demonstrator.vmr
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/demonstrator/cms/cms.vdc
+${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/demonstrator/cms/cms.vmr
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/setup.vmr
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/manager.conf
 )
