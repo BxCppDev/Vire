@@ -169,7 +169,7 @@ void test_path_1()
       "://a/b/c",
       "a/b/c/",
       "SuperNEMO://resume",
-      "SuperNEMO://Demonstrator/",
+      "SuperNEMO:/Demonstrator//Foo",
       "SuperNEMO://Demonstrator/CMS/calorimeter/HV/expert_action",
     };
     for (auto path : paths) {
@@ -189,12 +189,12 @@ void test_path_1()
     std::vector<std::string> paths = {
       "",
       "://a/b/c",
-      "a/b/c/",
-      "SuperNEMO://resume",
-      "SuperNEMO://Demonstrator/",
-      "SuperNEMO://Demonstrator/CMS/calorimeter/start",
-      "SuperNEMO://Demonstrator/CMS/calorimeter/Status/__dp_read__",
-      "SuperNEMO://Demonstrator/CMS/calorimeter/HV/expert_action",
+      "/a/b/c/",
+      "SuperNEMO:/resume",
+      "SuperNEMO:/Demonstrator/",
+      "SuperNEMO:/Demonstrator/CMS/calorimeter/start",
+      "SuperNEMO:/Demonstrator/CMS/calorimeter/Status/__dp_read__",
+      "SuperNEMO:/Demonstrator/CMS/calorimeter/HV/expert_action",
     };
     for (auto path : paths) {
       try {
@@ -236,10 +236,14 @@ void test_path_1()
   std::clog << std::endl;
   {
     std::vector<std::string> ppaths = {
+      "SuperNEMO:",
+      "SuperNEMO:/",
+      //"SuperNEMO://",
       "SuperNEMO:/Test",
       "Atlas:/Phase1",
       "SuperNEMO:/Demonstrator",
       "SuperNEMO:/Demonstrator/CMS",
+      //"SuperNEMO:/Demonstrator//CMS",
       "SuperNEMO:/Demonstrator/CMS/calorimeter",
       "SuperNEMO:/Demonstrator/CMS/calorimeter/HV",
       "SuperNEMO:/Demonstrator/Test",
@@ -247,6 +251,15 @@ void test_path_1()
       "SuperNEMO:/Demonstrator/CMS/calorimeter/HV/expert_action/foo",
     };
     std::string cpath = "SuperNEMO:/Demonstrator/CMS/calorimeter/HV/expert_action";
+    for (auto ppath : ppaths) {
+      if (vire::utility::path::validate_path(ppath)) {
+        std::clog << "Path '" << ppath << "' is valid." << std::endl;
+      }
+      if (vire::utility::path::is_root(ppath)) {
+        std::clog << "Path '" << ppath << "' is root." << std::endl;
+      }
+    }
+    std::clog << std::endl;
     for (auto ppath : ppaths) {
       if (vire::utility::path::validate_path(ppath) &&
           vire::utility::path::is_parent_of(ppath, cpath)) {

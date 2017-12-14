@@ -73,10 +73,14 @@ namespace vire {
       //! Return the address separator character
       static const char address_separator();
 
+      //! Check if the path is the root
+      static bool is_root(const std::string & path_);
+
       //! \brief Build the resource path from the setup and the list of path segments
       //!
       //! Format:
       //! \code
+      //! "Setup" + ":"
       //! "Setup" + ":" + '/'
       //! "Setup" + ":" + '/' + "LeafSegment"
       //! "Setup" + ":" + '/' + "Segment/LeafSegment"

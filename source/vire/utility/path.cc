@@ -69,6 +69,31 @@ namespace vire {
     }
 
     // static
+    bool path::is_root(const std::string & path_)
+    {
+      std::string setup;
+      std::vector<std::string> segments;
+      if (!extract(path_, setup, segments)) {
+        DT_THROW(std::logic_error, "Invalid path '" << path_ << "'!");
+      }
+      // std::cerr << "[devel] setup = '" << setup << "'" << std::endl;
+      // std::cerr << "[devel] segments = " << segments.size() << " " << std::endl;
+      if (segments.size() > 0) {
+        return false;
+      }
+      if (setup.empty()) {
+        return false;
+      }
+      return true;
+      // DT_THROW_IF(!validate_path(path_), std::logic_error,
+      //             "Invalid path '" << path_ << "'!");
+      // if (path_.back() == setup_separator()) {
+      //   return true;
+      // }
+      // return false;
+    }
+
+    // static
     bool path::build(const std::string & setup_,
                      const std::vector<std::string> & segments_,
                      std::string & path_)
@@ -85,13 +110,15 @@ namespace vire {
       if (!setup_.empty()) {
         opath << setup_ << path::setup_separator();
       }
-      opath << path::root_symbol();
-      for (std::size_t i = 0; i < segments_.size(); i++) {
-        if (! datatools::name_validation(segments_[i], nv_flags)) {
-          return false;
+      if (segments_.size()) {
+        opath << path::root_symbol();
+        for (std::size_t i = 0; i < segments_.size(); i++) {
+          if (! datatools::name_validation(segments_[i], nv_flags)) {
+            return false;
+          }
+          if (i > 0) opath << path_separator();
+          opath << segments_[i];
         }
-        if (i > 0) opath << path_separator();
-        opath << segments_[i];
       }
       path_ = opath.str();
       return true;
@@ -219,12 +246,14 @@ namespace vire {
         return false;
       }
       setup = path.substr(0, found_setup_sep);
+      // std::cerr << "[devel] path::extract: setup ='" << setup << "'" << std::endl;
       if (setup.empty()) {
         return false;
       }
       path = path.substr(found_setup_sep + 1);
       if (path.length() == 0) {
-        return false;
+        setup_ = setup;
+        return true;
       }
       if (path[0] != path::root_symbol()) {
         return false;
@@ -382,8 +411,10 @@ namespace vire {
       DT_THROW_IF(!validate_path(child_path_), std::logic_error,
                   "Invalid path '" << child_path_ << "'!");
       std::string ppath = parent_path_;
-      if (ppath.back() != path_separator()) {
-        ppath.push_back(path_separator());
+      if (ppath.back() != setup_separator()) {
+        if (ppath.back() != path_separator()) {
+          ppath.push_back(path_separator());
+        }
       }
       // std::clog << "[devel] parent path = '" << ppath << "'" << std::endl;
       std::size_t found = child_path_.find(ppath);
@@ -406,11 +437,11 @@ namespace vire {
                            bool direct_ )
     {
       DT_THROW_IF(!validate_path(child_path_), std::logic_error,
-                  "Invalid path '" << parent_path_ << "'!");
-      DT_THROW_IF(!validate_path(parent_path_), std::logic_error,
                   "Invalid path '" << child_path_ << "'!");
+      DT_THROW_IF(!validate_path(parent_path_), std::logic_error,
+                  "Invalid path '" << parent_path_ << "'!");
       if (child_path_ == parent_path_) return false;
-      return !is_parent_of(parent_path_, child_path_, direct_);
+      return is_parent_of(parent_path_, child_path_, direct_);
     }
 
     path::path()
