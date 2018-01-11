@@ -250,7 +250,6 @@ namespace vire {
 
     device_model_handle_type & model_entry::_grab_device_model_handle()
     {
-      // this->tree_dump(std::cerr, "model_entry::_grab_device_model_handle: ", "DEVEL: ");
       DT_THROW_IF(!is_device_model(), std::logic_error,
                   "Model entry '" << _name_ << "' is not a device model!");
       if (! _device_model_handle_) {

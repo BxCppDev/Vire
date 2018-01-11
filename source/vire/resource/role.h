@@ -1,7 +1,7 @@
 //! \file  vire/resource/role.h
 //! \brief Vire role with respect on resources
 //
-// Copyright (c) 2015-2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -31,7 +31,6 @@
 // Third party:
 // - Boost:
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/enriched_base.h>
 #include <datatools/handle.h>
@@ -42,6 +41,10 @@
 #include <cuts/i_cut.h>
 
 namespace vire {
+
+  namespace user {
+    class manager;
+  }
 
   namespace resource {
 
@@ -79,8 +82,6 @@ namespace vire {
 
       //! Assignment operator
       role & operator=(const role & role_);
-
-      // =============== Initialization/termination methods ===============
 
       //! Initialization
       void initialize_simple();
@@ -143,19 +144,38 @@ namespace vire {
       //! Set the resource manager
       void set_resource_manager(const manager & rmgr_);
 
+      //! Set the user manager
+      void set_user_manager(const vire::user::manager & umgr_);
+
+      //! Check if allowed users are defined
+      bool has_allowed_users() const;
+
+      //! Add allowed user
+      void add_allowed_user(const std::string & username_);
+
       //! Add allowed user
       void add_allowed_user(int32_t uid_);
 
       //! Remove allowed user
       void remove_allowed_user(int32_t uid_);
 
+      //! Remove allowed user
+      void remove_allowed_user(const std::string & username_);
+
+      //! Check if allowed groups are defined
+      bool has_allowed_groups() const;
+
       //! Add allowed group
       void add_allowed_group(int32_t gid_);
+
+      //! Add allowed group
+      void add_allowed_group(const std::string & groupame_);
 
       //! Remove allowed group
       void remove_allowed_group(int32_t gid_);
 
-      // =============== Usage methods ===============
+      //! Remove allowed group
+      void remove_allowed_group(const std::string & groupame_);
 
       //! Check initialization flag
       bool is_initialized() const;
@@ -207,6 +227,12 @@ namespace vire {
 
       //! Return a non mutable reference to the embedded distributable resource selector
       const cuts::i_cut & get_distributable_resource_selector() const;
+
+      //! Check if a user manager is referenced
+      bool has_user_manager() const;
+
+      //! Return the user manager
+      const vire::user::manager & get_user_manager() const;
 
       //! Check if a resource manager is referenced
       bool has_resource_manager() const;
@@ -286,8 +312,6 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      // =============== Utilities ===============
-
       //! Return the instance of the cut factory register
       static cuts::i_cut::factory_register_type & resource_selector_factory_register();
 
@@ -327,8 +351,6 @@ namespace vire {
         }
       };
 
-      // =============== Private/protected methods ===============
-
     protected:
 
       //! Set default attribute values
@@ -345,21 +367,20 @@ namespace vire {
       //! Build the scope selector from functional and distributable resource selector
       void _build_scope_selector();
 
-      // =============== Attributes ===============
-
     private:
 
       // Management:
-      bool                  _initialized_; //!< Initialization flag
+      bool _initialized_; //!< Initialization flag
 
       // External resources:
-      const manager *       _resource_manager_; //!< Handle to an external resource manager
+      const manager *             _resource_manager_ = nullptr; //!< Handle to an external resource manager
+      const vire::user::manager * _user_manager_ = nullptr;     //!< Handle to an external user manager
 
       // Configuration:
-      int32_t               _id_;             //!< Role unique identifier
-      std::string           _path_;           //!< Role unique path
-      std::set<int32_t>     _allowed_users_;  //!< Collection of allowed users
-      std::set<int32_t>     _allowed_groups_; //!< Collection of allowed groups
+      int32_t               _id_;           //!< Role unique identifier
+      std::string           _path_;         //!< Role unique path
+      std::set<int32_t>     _allowed_uids_; //!< Collection of allowed users
+      std::set<int32_t>     _allowed_gids_; //!< Collection of allowed groups
       cuts::cut_handle_type _functional_resource_selector_handle_;    //!< Handle to the selector of public functional resources
       cuts::cut_handle_type _distributable_resource_selector_handle_; //!< Handle to the selector of public distributable resources
 
@@ -367,9 +388,9 @@ namespace vire {
       cuts::cut_handle_type _scope_resource_selector_handle_;         //!< Handle to the selector of public scope resources
 
       // Cached data:
-      std::unique_ptr<std::set<int32_t> > _cached_distributable_resource_ids_; //!< Cached enumerated set of distributable resource identifiers
-      std::unique_ptr<std::set<int32_t> > _cached_functional_resource_ids_;    //!< Cached enumerated set of functional resource identifiers
-      std::unique_ptr<std::set<int32_t> > _cached_scope_resource_ids_;         //!< Cached enumerated set of scope resource identifiers
+      std::unique_ptr<std::set<int32_t>> _cached_distributable_resource_ids_; //!< Cached enumerated set of distributable resource identifiers
+      std::unique_ptr<std::set<int32_t>> _cached_functional_resource_ids_;    //!< Cached enumerated set of functional resource identifiers
+      std::unique_ptr<std::set<int32_t>> _cached_scope_resource_ids_;         //!< Cached enumerated set of scope resource identifiers
 
       friend manager;
 

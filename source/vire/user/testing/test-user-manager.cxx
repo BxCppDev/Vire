@@ -27,7 +27,6 @@
 
 // Third party:
 // - Boost:
-#include <boost/scoped_ptr.hpp>
 #include <boost/filesystem.hpp>
 // - Camp:
 #include <camp/enum.hpp>
@@ -37,6 +36,7 @@
 #include <camp/userobject.hpp>
 // - Bayeux/datatools:
 #include <datatools/io_factory.h>
+#include <datatools/properties.h>
 
 // This project:
 #include <vire/vire.h>
@@ -48,6 +48,7 @@
 void test_user_manager_0();
 void test_user_manager_1();
 void test_user_manager_2();
+void test_user_manager_3();
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -60,6 +61,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
     test_user_manager_0();
     test_user_manager_1();
     test_user_manager_2();
+    test_user_manager_3();
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -379,6 +381,22 @@ void test_user_manager_2()
 
   user_mgr_obj.call("reset");
 
+  std::clog << std::endl;
+
+  return;
+}
+
+void test_user_manager_3()
+{
+  std::clog << "\ntest_user_manager_3: SuperNEMO:" << std::endl;
+
+  vire::user::manager umgr;
+  datatools::properties umgr_config;
+  std::string umgr_config_filename = "@snemo:config/snemo/demonstrator/users/manager.conf";
+  datatools::fetch_path_with_env(umgr_config_filename);
+  umgr_config.read_configuration(umgr_config_filename);
+  umgr.initialize_standalone(umgr_config);
+  umgr.tree_dump(std::clog, umgr.get_display_name() + ": ");
   std::clog << std::endl;
 
   return;

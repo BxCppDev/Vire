@@ -82,7 +82,7 @@ void test0()
 
   // Device manager:
   vire::device::manager dev_mgr;
-  dev_mgr.set_logging_priority(datatools::logger::PRIO_DEBUG);
+  // dev_mgr.set_logging_priority(datatools::logger::PRIO_DEBUG);
   dev_mgr.set_name("devices");
   dev_mgr.set_display_name("Devices");
   dev_mgr.set_terse_description("The device manager of the experiment");

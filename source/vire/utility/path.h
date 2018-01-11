@@ -149,6 +149,17 @@ namespace vire {
       //! \endcode
       static bool dirs_to_segments(const std::string & dirs_, std::vector<std::string> & segments_);
 
+      //! \brief Build the directory path from a collection of segments
+      //!
+      //! Examples:
+      //! \code
+      //! { } -> "/"
+      //! { "way" } -> "/way"
+      //! { "way", "to" } -> "/way/to"
+      //! { "way", "to", "some", "deep", "item" } -> "/way/to/some/deep/item"
+      //! \endcode
+      static bool segments_to_dirs(const std::vector<std::string> & segments_, std::string & dirs_);
+
       //! Extract the setup name, the directory path and the leaf name of a resource path
       static bool extract(const std::string & path_,
                           std::string & setup_,

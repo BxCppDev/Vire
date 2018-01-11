@@ -12,7 +12,7 @@
 #@config Parameters describing a generic Ethernet socket
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of I/O
 io_type : string = "inout"
@@ -27,7 +27,7 @@ format : string = "Ethernet"
 #@config Parameters describing a PC blade
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Height of the blade
 height : integer = 1

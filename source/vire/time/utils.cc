@@ -23,10 +23,10 @@
 // Standard library:
 #include <cstddef>
 #include <sstream>
+#include <memory>
 
 // Third party:
 // - Boost:
-#include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/split.hpp>
 // - Bayeux/datatools:
@@ -41,7 +41,7 @@ namespace vire {
 
     const boost::posix_time::ptime & invalid_time()
     {
-      static boost::scoped_ptr<boost::posix_time::ptime> _it;
+      static std::unique_ptr<boost::posix_time::ptime> _it;
       if (_it.get() == nullptr) {
         _it.reset(new boost::posix_time::ptime(boost::posix_time::not_a_date_time));
       }
@@ -172,7 +172,7 @@ namespace vire {
 
     const boost::posix_time::time_duration & invalid_time_duration()
     {
-      static boost::scoped_ptr<boost::posix_time::time_duration> _itd;
+      static std::unique_ptr<boost::posix_time::time_duration> _itd;
       if (_itd.get() == nullptr) {
         _itd.reset(new boost::posix_time::time_duration(boost::posix_time::not_a_date_time));
       }
@@ -255,7 +255,7 @@ namespace vire {
 
     const boost::posix_time::time_period & invalid_time_interval()
     {
-      static boost::scoped_ptr<boost::posix_time::time_period> _iti;
+      static std::unique_ptr<boost::posix_time::time_period> _iti;
       if (_iti.get() == nullptr) {
         boost::gregorian::date d1(1970, 1, 31);
         boost::gregorian::date d2(1970, 1, 30);
@@ -335,7 +335,7 @@ namespace vire {
         boost::algorithm::trim(tok1);
         if (parse_start_stop) {
           if (tok1.length() == 0) {
-            tok1 =  "+infinity";
+            tok1 = "+infinity";
           }
           //std::cerr << "DEVEL: parse_time_interval: tok1='" << tok1 << "'" << std::endl;
           if (!parse_time(tok1, stop_time)) {
@@ -350,7 +350,7 @@ namespace vire {
         } else {
           boost::posix_time::time_duration period_duration;
           if (tok1.length() == 0) {
-            tok1 =  "+infinity";
+            tok1 = "+infinity";
           }
           // std::cerr << "DEVEL: parse_time_interval: duration tok1='" << tok1 << "'" << std::endl;
           if (!parse_time_duration(tok1, period_duration)) {
@@ -371,7 +371,7 @@ namespace vire {
     std::string to_string(const boost::posix_time::time_period & tp_)
     {
       std::ostringstream out;
-      out << '[' << to_string(tp_.begin()) << "/" << to_string(tp_.end()) << "°";
+      out << '[' << to_string(tp_.begin()) << "/" << to_string(tp_.end()) << "]";
       return out.str();
     }
 

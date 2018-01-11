@@ -12,7 +12,7 @@
 #@config Parameters describing the Calorimeter Control Board Frontend FPGAs
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -34,7 +34,7 @@ aux.model        : string = "Cyclone III"
 #@config Parameters describing the Calorimeter Control Board Control FPGA
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -56,7 +56,7 @@ aux.model        : string = "Cyclone III"
 #@config Parameters describing the Calorimeter Crate Control Board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Format of the board
 format : string = "VME-6U-extended"

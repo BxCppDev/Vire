@@ -37,6 +37,7 @@
 #include <vire/auth/utils.h>
 #include <vire/user/manager.h>
 
+void test_auth_manager_0(bool interactive_ = false);
 void test_auth_manager_1(bool interactive_ = false);
 
 int main(int /* argc_ */, char ** /* argv_ */)
@@ -50,7 +51,8 @@ int main(int /* argc_ */, char ** /* argv_ */)
     bool interactive = false;
     interactive = true;
 
-    test_auth_manager_1(interactive);
+    test_auth_manager_0(interactive);
+    // test_auth_manager_1(interactive);
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -63,6 +65,32 @@ int main(int /* argc_ */, char ** /* argv_ */)
   // boost::filesystem::remove("shadow");
   vire::terminate();
   return (error_code);
+}
+
+void test_auth_manager_0(bool interactive_)
+{
+  std::clog << "\ntest_auth_manager_0: SuperNEMO" << std::endl;
+
+  vire::user::manager userMgr;
+  datatools::properties umgr_config;
+  std::string umgr_config_filename = "@snemo:config/snemo/demonstrator/users/manager.conf";
+  datatools::fetch_path_with_env(umgr_config_filename);
+  umgr_config.read_configuration(umgr_config_filename);
+  userMgr.initialize_standalone(umgr_config);
+  userMgr.tree_dump(std::clog, userMgr.get_display_name() + ": ");
+  std::clog << std::endl;
+
+  vire::auth::manager authMgr;
+  datatools::properties amgr_config;
+  std::string amgr_config_filename = "@snemo:config/snemo/demonstrator/users/auth.conf";
+  datatools::fetch_path_with_env(amgr_config_filename);
+  amgr_config.read_configuration(amgr_config_filename);
+  authMgr.set_users(userMgr);
+  authMgr.initialize_standalone(amgr_config);
+  authMgr.tree_dump(std::clog, authMgr.get_display_name() + ": ");
+  std::clog << std::endl;
+
+  return;
 }
 
 void test_auth_manager_1(bool interactive_)
@@ -87,8 +115,8 @@ void test_auth_manager_1(bool interactive_)
   authMgr.set_terse_description("User authentication service");
   authMgr.set_credentials_table_path("shadow");
   authMgr.set_dont_load_tables(true);
-  authMgr.set_dont_store_tables(false);
-  authMgr.set_dont_backup_tables(false);
+  authMgr.set_dont_store_tables(true);
+  authMgr.set_dont_backup_tables(true);
   authMgr.set_users(userMgr);
   authMgr.set_logging_priority(datatools::logger::PRIO_DEBUG);
   authMgr.initialize_simple();

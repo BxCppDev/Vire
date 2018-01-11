@@ -12,7 +12,7 @@
 #@config Parameters describing the signal input port of the calorimeter FEB
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of I/O
 io_type : string  = "in"
@@ -27,7 +27,7 @@ format : string  = "analog"
 #@config Parameters describing the SAMLONG ship
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of device
 type : string  = "chip_asic"

@@ -216,11 +216,9 @@ namespace vire {
         DT_LOG_ERROR(get_logging(), "Spirit/Qi parser failed to extract a vector of strings!");
         return false;
       }
-      // std::cerr << "DEVEL: #tokens = " << mit.tokens.size() << "\n";
       if (mit.tokens.size()) {
         try {
           for (int i = 0; i < (int) mit.tokens.size(); i++) {
-            // std::cerr << "DEVEL: token = '" << mit.tokens[i] << "'\n";
             slot s;
             if (!s.from_string(mit.tokens[i])) {
               this->reset();

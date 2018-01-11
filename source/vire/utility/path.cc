@@ -199,6 +199,22 @@ namespace vire {
     }
 
     // static
+    bool path::segments_to_dirs(const std::vector<std::string> & segments_, std::string & dirs_)
+    {
+      std::ostringstream dirs_out;
+
+      if (segments_.size() == 0) {
+        dirs_out << root_symbol();
+      } else {
+        for (const std::string & seg : segments_) {
+          dirs_out << path_separator() << seg;
+        }
+      }
+      dirs_ = dirs_out.str();
+      return true;
+    }
+
+    // static
     bool path::dirs_to_segments(const std::string & dirs_, std::vector<std::string> & segments_)
     {
       segments_.clear();

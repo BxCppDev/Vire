@@ -1,6 +1,6 @@
 //! \file cms/testing/test-cms-image.cxx
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -50,28 +50,27 @@ int main( int argc_, char * argv_[])
       r.tree_dump(std::clog, "Resource '" + r.get_display_name() + "' : ");
       std::clog << std::endl;
 
-      vire::cms::image img(r);
-      img.set_timestamp(vire::time::now());
-      img.set_missing(true);
-      img.tree_dump(std::clog, "Image '"+ img.get_path() + "' : ");
-      std::clog << std::endl;
+    //   vire::cms::image img(r);
+    //   img.set_group("DAQ");
+    //   img.tree_dump(std::clog, "Image '"+ img.get_path() + "' : ");
+    //   std::clog << std::endl;
     }
 
-    {
-      std::string dpath = "SuperNEMO:/Demonstrator/CMS/DAQ";
-      std::string dname = vire::utility::path::to_address(dpath);
-      vire::device::logical_device d;
-      d.set_name(dname + ".log");
-      d.initialize();
-      d.tree_dump(std::clog, "Logical device '" + d.get_name() + "' : ");
-      std::clog << std::endl;
+    // {
+    //   std::string dpath = "SuperNEMO:/Demonstrator/CMS/DAQ";
+    //   std::string dname = vire::utility::path::to_address(dpath);
+    //   vire::device::logical_device d;
+    //   d.set_name(dname + ".log");
+    //   d.initialize();
+    //   d.tree_dump(std::clog, "Logical device '" + d.get_name() + "' : ");
+    //   std::clog << std::endl;
 
-      vire::cms::image img(dpath, d);
-      img.set_timestamp(vire::time::now());
-      img.set_disabled(true);
-      img.tree_dump(std::clog, "Image '" + img.get_path() + "' : ");
-      std::clog << std::endl;
-    }
+    //   vire::cms::image img(dpath, d);
+    //   img.set_timestamp(vire::time::now());
+    //   img.set_disabled(true);
+    //   img.tree_dump(std::clog, "Image '" + img.get_path() + "' : ");
+    //   std::clog << std::endl;
+    // }
 
   } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL, error.what());

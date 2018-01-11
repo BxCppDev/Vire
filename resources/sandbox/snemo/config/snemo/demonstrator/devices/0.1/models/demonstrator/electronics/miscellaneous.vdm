@@ -12,7 +12,7 @@
 #@config Parameters describing a PC blade
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Height of the blade
 height : integer = 1
@@ -24,7 +24,7 @@ height : integer = 1
 #@config Parameters describing the uninterruptible power supply (UPS)
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Height of the UPS crate
 height : integer = 3
@@ -36,7 +36,7 @@ height : integer = 3
 #@config Parameters describing the rack fan crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Height of the blade
 height : integer = 1
@@ -48,7 +48,7 @@ height : integer = 1
 #@config Parameters describing the rack AC outlet
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Height of the blade
 height : integer = 1

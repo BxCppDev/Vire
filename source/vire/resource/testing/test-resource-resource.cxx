@@ -7,10 +7,9 @@
 #include <exception>
 #include <vector>
 #include <map>
+#include <memory>
 
 // Third party:
-// - Boost:
-#include <boost/scoped_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/io_factory.h>
 

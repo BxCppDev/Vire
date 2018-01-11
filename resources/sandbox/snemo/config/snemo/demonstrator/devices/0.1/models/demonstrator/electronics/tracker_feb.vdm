@@ -49,7 +49,7 @@ format : string = "ACME"
 #@config Parameters describing the tracker frontend board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Format of the board
 format : string = "VME-6U-extended"

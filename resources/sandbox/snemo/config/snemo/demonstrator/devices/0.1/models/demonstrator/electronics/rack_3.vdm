@@ -12,7 +12,7 @@
 #@config Parameters describing the electronics rack 3
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Rack format
 format : string = "42U"

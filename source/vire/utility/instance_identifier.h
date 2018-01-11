@@ -27,8 +27,6 @@
 // Third party:
 // - Bayeux/datatools:
 #include <bayeux/datatools/version_id.h>
-// - BxJsontools:
-#include <bayeux/jsontools/i_jsonizable.h>
 
 // This project:
 #include <vire/utility/base_identifier.h>

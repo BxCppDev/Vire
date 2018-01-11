@@ -20,8 +20,6 @@
 #include <vire/resource/role.h>
 
 // Third party:
-// - Boost:
-// #include <boost/scoped_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/exception.h>
 #include <datatools/factory.h>
@@ -46,6 +44,9 @@
 #include <vire/resource/general_expression_resource_selector.h>
 #include <vire/resource/by_access_resource_selector.h>
 #include <vire/resource/manager.h>
+#include <vire/user/manager.h>
+#include <vire/user/user.h>
+#include <vire/user/group.h>
 
 namespace vire {
 
@@ -58,14 +59,16 @@ namespace vire {
     {
       this->datatools::enriched_base::operator=(role_);
       _initialized_ = role_._initialized_;
+      _resource_manager_ = role_._resource_manager_;
+      _user_manager_ = role_._user_manager_;
       _id_ = role_._id_;
       _path_ = role_._path_;
       _functional_resource_selector_handle_ = role_._functional_resource_selector_handle_;
       _distributable_resource_selector_handle_ = role_._distributable_resource_selector_handle_;
       _build_scope_selector();
       _resource_manager_ = role_._resource_manager_;
-      _allowed_users_ = role_._allowed_users_;
-      _allowed_groups_ = role_._allowed_groups_;
+      _allowed_uids_ = role_._allowed_uids_;
+      _allowed_gids_ = role_._allowed_gids_;
       if (_cached_scope_resource_ids_.get() != nullptr) {
         _cached_scope_resource_ids_.reset(new std::set<int32_t>(*_cached_scope_resource_ids_.get()));
       }
@@ -82,6 +85,7 @@ namespace vire {
     {
       _initialized_ = false;
       _resource_manager_ = nullptr;
+      _user_manager_ = nullptr;
       _set_defaults();
       return;
     }
@@ -113,7 +117,11 @@ namespace vire {
 
     bool role::is_valid() const
     {
-      return has_id() && has_path() && has_functional_resource_selector();
+      if (! has_id()) return false;
+      if (! has_path()) return false;
+      if (!has_functional_resource_selector() &&
+          !has_distributable_resource_selector()) return false;
+      return true;
     }
 
     bool role::has_id() const
@@ -132,10 +140,6 @@ namespace vire {
       DT_THROW_IF(is_initialized(),
                   std::logic_error,
                   "Role '" << get_name() << "' is already initialized!");
-      // if (has_id()) {
-      //   DT_THROW_IF(is_initialized(), std::logic_error,
-      //               "Role is already initialized with ID=[" << _id_ << "]!");
-      // }
       DT_THROW_IF(id_ == INVALID_ID,
                   std::logic_error,
                   "Invalid role ID [" << id_ << "]!");
@@ -452,6 +456,26 @@ namespace vire {
       return _distributable_resource_selector_handle_.get();
     }
 
+    bool role::has_user_manager() const
+    {
+      return _user_manager_ != nullptr;
+    }
+
+    void role::set_user_manager(const vire::user::manager & umgr_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Role '" << get_name() << "' is already initialized!");
+      _user_manager_ = &umgr_;
+      return;
+    }
+
+    const vire::user::manager & role::get_user_manager() const
+    {
+      DT_THROW_IF(!has_user_manager(), std::logic_error,
+                  "No user manager in role '" << get_name() << "'!");
+      return *_user_manager_;
+    }
+
     bool role::has_resource_manager() const
     {
       // DT_LOG_TRACE(get_logging_priority(), "Resource manager = [@" << _resource_manager_ << "]");
@@ -473,18 +497,39 @@ namespace vire {
       return *_resource_manager_;
     }
 
+    bool role::has_allowed_groups() const
+    {
+      return _allowed_gids_.size();
+    }
+
+    bool role::has_allowed_users() const
+    {
+      return _allowed_uids_.size();
+    }
+
     void role::add_allowed_user(int32_t uid_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(has_allowed_user(uid_), std::logic_error,
                   "Role '" << get_name() << "' already allows user with identifier [" << uid_ << "]!");
-      _allowed_users_.insert(uid_);
+      _allowed_uids_.insert(uid_);
+      return;
+    }
+
+    void role::add_allowed_user(const std::string & username_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
+      DT_THROW_IF(!has_user_manager(), std::logic_error, "Role '" << get_name() << "' has no user manager!");
+      DT_THROW_IF(!get_user_manager().has_user_by_name(username_), std::logic_error,
+                  "Role '" << get_name() << "' cannot add non-existing user '" << username_ << "'!");
+      const vire::user::user & u = get_user_manager().get_user_by_name(username_);
+      add_allowed_user(u.get_uid());
       return;
     }
 
     bool role::has_allowed_user(int32_t uid_) const
     {
-      return _allowed_users_.count(uid_) == 1;
+      return _allowed_uids_.count(uid_) == 1;
     }
 
     void role::remove_allowed_user(int32_t uid_)
@@ -492,7 +537,18 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(!has_allowed_user(uid_), std::logic_error,
                   "Role '" << get_name() << "' does not allow user with identifier [" << uid_ << "]!");
-      _allowed_users_.erase(uid_);
+      _allowed_uids_.erase(uid_);
+      return;
+    }
+
+    void role::add_allowed_group(const std::string & groupname_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
+      DT_THROW_IF(!has_user_manager(), std::logic_error, "Role '" << get_name() << "' has no user manager!");
+      DT_THROW_IF(!get_user_manager().has_group_by_name(groupname_), std::logic_error,
+                  "Role '" << get_name() << "' cannot add non-existing group '" << groupname_ << "'!");
+      const vire::user::group & g = get_user_manager().get_group_by_name(groupname_);
+      add_allowed_group(g.get_gid());
       return;
     }
 
@@ -501,13 +557,13 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(has_allowed_group(gid_), std::logic_error,
                   "Role '" << get_name() << "' already allows user group with identifier [" << gid_ << "]!");
-      _allowed_groups_.insert(gid_);
+      _allowed_gids_.insert(gid_);
       return;
     }
 
     bool role::has_allowed_group(int32_t gid_) const
     {
-      return _allowed_groups_.count(gid_) == 1;
+      return _allowed_gids_.count(gid_) == 1;
     }
 
     void role::remove_allowed_group(int32_t gid_)
@@ -515,18 +571,18 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(!has_allowed_group(gid_), std::logic_error,
                   "Role '" << get_name() << "' does not allow user group with identifier [" << gid_ << "]!");
-      _allowed_groups_.erase(gid_);
+      _allowed_gids_.erase(gid_);
       return;
     }
 
     const std::set<int32_t> & role::get_allowed_users() const
     {
-      return _allowed_users_;
+      return _allowed_uids_;
     }
 
     const std::set<int32_t> & role::get_allowed_groups() const
     {
-      return _allowed_groups_;
+      return _allowed_gids_;
     }
 
     void role::_set_defaults()
@@ -549,7 +605,7 @@ namespace vire {
     }
 
     void role::initialize(const datatools::properties & config_)
-    {
+     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Role '" << get_name() << "' is already initialized!");
 
@@ -715,30 +771,45 @@ namespace vire {
       DT_THROW_IF(! has_functional_resource_selector() && ! has_distributable_resource_selector(),
                   std::logic_error, "Sterile role ! At least one of the functional/distributable resource selectors is needed!");
 
-      // std::cerr << "DEVEL: role::initialize: _allowed_users_.size() = " << _allowed_users_.size() << std::endl;
-      if (_allowed_users_.size() == 0) {
-        if (config_.has_key("allowed_users")) {
+      // std::cerr << "DEVEL: role::initialize: _allowed_uids_.size() = " << _allowed_uids_.size() << std::endl;
+      //if (_allowed_uids_.size() == 0)
+      {
+        if (config_.has_key("allowed_uids")) {
           std::vector<int> uids;
-          config_.fetch("allowed_users", uids);
+          config_.fetch("allowed_uids", uids);
           for (auto uid : uids) {
             add_allowed_user(uid);
           }
         }
-      }
-
-      // std::cerr << "DEVEL: role::initialize: _allowed_groups_.size() = " << _allowed_groups_.size() << std::endl;
-      if (_allowed_groups_.size() == 0) {
-        if (config_.has_key("allowed_groups")) {
-          std::vector<int> gids;
-          config_.fetch("allowed_groups", gids);
-          for (auto gid : gids) {
-            add_allowed_group(gid);
+        if (config_.has_key("allowed_users")) {
+          std::vector<std::string> users;
+          config_.fetch("allowed_users", users);
+          for (auto u : users) {
+            add_allowed_user(u);
           }
         }
       }
 
-      DT_THROW_IF(_allowed_users_.size() + _allowed_groups_.size() == 0,
-                  std::logic_error, "Missing allowed user/group!");
+      //if (_allowed_gids_.size() == 0)
+      {
+        if (config_.has_key("allowed_gids")) {
+          std::vector<int> gids;
+          config_.fetch("allowed_gids", gids);
+          for (auto gid : gids) {
+            add_allowed_group(gid);
+          }
+        }
+        if (config_.has_key("allowed_groups")) {
+          std::vector<std::string> groups;
+          config_.fetch("allowed_groups", groups);
+          for (auto g : groups) {
+            add_allowed_group(g);
+          }
+        }
+      }
+
+      // DT_THROW_IF(_allowed_uids_.size() + _allowed_gids_.size() == 0,
+      //             std::logic_error, "Missing allowed user/group!");
 
       bool build_cache = false;
       if (config_.has_key("build_cache")) {
@@ -751,8 +822,6 @@ namespace vire {
       _build_scope_selector();
 
       if (build_cache) {
-        build_cached();
-        build_cached();
         build_cached();
       }
 
@@ -800,20 +869,20 @@ namespace vire {
       if (flags_ & ROLE_XC_ALLOWED_USERS) {
         if (devel) std::cerr << "DEVEL: " << "vire::resource::role::export_to_config: " << "ROLE_XC_ALLOWED_USERS..." << std::endl;
         std::vector<int> uids;
-        for (const auto uid : _allowed_users_) {
+        for (const auto uid : _allowed_uids_) {
           uids.push_back(uid);
         }
-        config_.store(prefix_ + "allowed_users", uids, "The list of allowed users");
+        config_.store(prefix_ + "allowed_uids", uids, "The list of allowed users");
         if (devel) std::cerr << "DEVEL: " << "vire::resource::role::export_to_config: " << "ROLE_XC_ALLOWED_USERS done." << std::endl;
       }
 
       if (flags_ & ROLE_XC_ALLOWED_GROUPS) {
         if (devel) std::cerr << "DEVEL: " << "vire::resource::role::export_to_config: " << "ROLE_XC_ALLOWED_GROUPS..." << std::endl;
         std::vector<int> gids;
-        for (const auto gid : _allowed_groups_) {
+        for (const auto gid : _allowed_gids_) {
           gids.push_back(gid);
         }
-        config_.store(prefix_ + "allowed_groups", gids, "The list of allowed user groups");
+        config_.store(prefix_ + "allowed_gids", gids, "The list of allowed user groups");
         if (devel) std::cerr << "DEVEL: " << "vire::resource::role::export_to_config: " << "ROLE_XC_ALLOWED_GROUPS done." << std::endl;
       }
 
@@ -853,8 +922,9 @@ namespace vire {
       _functional_resource_selector_handle_.reset();
       _distributable_resource_selector_handle_.reset();
       _resource_manager_ = nullptr;
-      _allowed_users_.clear();
-      _allowed_groups_.clear();
+      _user_manager_ = nullptr;
+      _allowed_uids_.clear();
+      _allowed_gids_.clear();
       this->datatools::enriched_base::clear();
       _set_defaults();
       return;
@@ -863,7 +933,7 @@ namespace vire {
     // static
     cuts::i_cut::factory_register_type & role::resource_selector_factory_register()
     {
-      static boost::scoped_ptr<cuts::i_cut::factory_register_type> _usfr;
+      static std::unique_ptr<cuts::i_cut::factory_register_type> _usfr;
       if (! _usfr) {
         _usfr.reset(new cuts::i_cut::factory_register_type);
         _usfr->set_label("resource/resource_selector_factory");
@@ -945,6 +1015,15 @@ namespace vire {
        }
 
        out_ << indent_ << i_tree_dumpable::tag
+            << "User manager : ";
+       if (has_user_manager()) {
+         out_ << '[' << _user_manager_ << ']';
+       } else {
+         out_ << "<none>";
+       }
+       out_ << std::endl;
+
+       out_ << indent_ << i_tree_dumpable::tag
             << "Resource manager : ";
        if (has_resource_manager()) {
          out_ << '[' << _resource_manager_ << ']';
@@ -954,18 +1033,18 @@ namespace vire {
        out_ << std::endl;
 
        out_ << indent_ << i_tree_dumpable::tag
-            << "Allowed users : ";
-       if (_allowed_users_.size()) {
-         out_ << '[' << _allowed_users_.size() << ']';
+            << "Allowed UIDs : ";
+       if (_allowed_uids_.size()) {
+         out_ << '[' << _allowed_uids_.size() << ']';
        } else {
          out_ << "<none>";
        }
        out_ << std::endl;
 
        out_ << indent_ << i_tree_dumpable::tag
-            << "Allowed groups : ";
-       if (_allowed_groups_.size()) {
-         out_ << '[' << _allowed_groups_.size() << ']';
+            << "Allowed GIDS : ";
+       if (_allowed_gids_.size()) {
+         out_ << '[' << _allowed_gids_.size() << ']';
        } else {
          out_ << "<none>";
        }

@@ -21,7 +21,9 @@
 #include <vire/resource/role.h>
 #include <vire/resource/manager.h>
 #include <vire/resource/enumerated_resource_selector.h>
+#include <vire/device/manager.h>
 
+void test_manager_0();
 void test_manager_1();
 
 int main(int /* argc_ */, char ** /* argv_ */)
@@ -33,7 +35,8 @@ int main(int /* argc_ */, char ** /* argv_ */)
               << std::endl;
 
     boost::filesystem::remove("_roles.def");
-    test_manager_1();
+    test_manager_0();
+    // test_manager_1();
 
     std::clog << "The end." << std::endl;
   }
@@ -48,6 +51,51 @@ int main(int /* argc_ */, char ** /* argv_ */)
   // boost::filesystem::remove("_roles.def");
   vire::terminate();
   return (error_code);
+}
+
+void test_manager_0()
+{
+  std::clog << "\ntest_manager_0: SuperNEMO..." << std::endl;
+
+  // Device manager:
+  vire::device::manager dev_mgr;
+
+  datatools::properties dev_mgr_config;
+  std::string dev_mgr_config_filename = "@snemo:config/snemo/demonstrator/devices/0.1/manager.conf";
+  datatools::fetch_path_with_env(dev_mgr_config_filename);
+  dev_mgr_config.read_configuration(dev_mgr_config_filename);
+  std::vector<std::string> only_from_paths;
+  only_from_paths.push_back("SuperNEMO:/Demonstrator/CMS");
+  dev_mgr_config.store("tree.debug", true);
+  dev_mgr_config.store("tree.only_from_paths", only_from_paths);
+  dev_mgr_config.tree_dump(std::clog, "Virtual device manager's configuration: ");
+  dev_mgr.initialize_standalone(dev_mgr_config);
+  {
+    boost::property_tree::ptree options;
+    options.put("title", "Virtual device manager: ");
+    options.put("tree.list_instances", true);
+    dev_mgr.print_tree(std::clog, options);
+    std::clog << std::endl;
+  }
+
+  uint32_t res_mgr_flags = 0;
+  res_mgr_flags |= vire::resource::manager::LOG_TRACE;
+  // res_mgr_flags |= vire::resource::manager::DONT_LOAD_TABLES;
+  res_mgr_flags |= vire::resource::manager::DONT_STORE_TABLES;
+  res_mgr_flags |= vire::resource::manager::DONT_BACKUP_TABLES;
+  vire::resource::manager res_mgr(res_mgr_flags);
+  res_mgr.set_name("ResourceManager");
+  res_mgr.set_display_name("The SuperNEMO resource manager");
+  res_mgr.set_terse_description("This is a mock SuperNEMO resource manager");
+  res_mgr.set_roles_table_path("@snemo:config/snemo/demonstrator/cms/common/roles.conf");
+  res_mgr.build_resources_from_devices(dev_mgr);
+  res_mgr.initialize_simple();
+  {
+    res_mgr.tree_dump(std::clog, res_mgr.get_display_name());
+    std::clog << std::endl;
+  }
+
+  return;
 }
 
 void test_manager_1()

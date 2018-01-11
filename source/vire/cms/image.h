@@ -42,6 +42,8 @@
 #include <vire/device/logical_device.h>
 #include <vire/resource/resource.h>
 #include <vire/cms/status.h>
+#include <vire/cms/image_status.h>
+#include <vire/cms/monitoring.h>
 #include <vire/cms/resource_status_record.h>
 #include <vire/time/utils.h>
 
@@ -55,21 +57,6 @@ namespace vire {
     {
     public:
 
-      /// Array of pointers to daughter images
-      typedef std::map<std::string, image *> daughter_dict_type;
-
-      /// Value type aliases
-      typedef boost::variant<bool,int32_t, double, std::string> value_type;
-      typedef std::map<uint32_t, value_type> values_dict_type;
-
-      enum value_timestamping_mode_type {
-        VALUE_TIMESTAMPING_INVALID  = 0, //!< Invalid value timestamping mode
-        VALUE_TIMESTAMPING_POLLING  = 1, //!< Instantaneous value timestamping mode (automated polling)
-        VALUE_TIMESTAMPING_ONCHANGE = 2  //!< On change value timestamping mode (Pub/Sub event driven sampling)
-      };
-
-    public :
-
       struct base_info
       {
         std::map<std::string, std::string> metadata;
@@ -80,7 +67,7 @@ namespace vire {
         void reset();
         bool is_valid() const;
         // Attributes:
-        const vire::resource::resource * res = nullptr;
+        const vire::resource::resource * res = nullptr; ///< Handle to resource description
       };
 
       struct device_info : public base_info
@@ -89,26 +76,18 @@ namespace vire {
         bool is_valid() const;
         // Attributes:
         std::string path;
-        const vire::device::logical_device * log = nullptr;
-      };
-
-      struct pubsub_info : public base_info
-      {
-        void reset();
-        bool is_valid() const;
-        // Attributes:
-        std::string domain;
-        std::string address;
+        const vire::device::logical_device * log = nullptr; ///< Handle to device description
       };
 
       //! Default constructor
       image();
 
-      //! Constructor
+      //! Constructor for a resource
       image(const vire::resource::resource &);
 
-      //! Constructor
-      image(const std::string & device_path_, const vire::device::logical_device & device_log_);
+      //! Constructor for a device
+      image(const std::string & device_path_,
+            const vire::device::logical_device & device_log_);
 
       //! Destructor
       virtual ~image();
@@ -124,15 +103,6 @@ namespace vire {
 
       /// Return the leaf name
       const std::string & get_leaf_name() const;
-
-      /// Check if the group is defined
-      bool has_group() const;
-
-      /// Return the group
-      const std::string & get_group() const;
-
-      /// Set the group
-      void set_group(const std::string &);
 
       /// Check if image is a device
       bool is_device() const;
@@ -152,116 +122,20 @@ namespace vire {
       //! Return the reference to the resource handler
       const vire::resource::resource & get_resource() const;
 
-      /// Check if the image has a parent
-      bool has_parent() const;
-
-      /// Set the parent record and register itself as a daughter of the parent record
-      void set_parent(image & parent_, const std::string & daughter_name_);
-
-      /// Return the parent
-      const image & get_parent() const;
-
-      /// Return the parent
-      image & grab_parent();
-
-      /// Add a daughter image
-      void add_daughter(image &);
-
-      /// Return the dictionary of daughter records
-      daughter_dict_type & grab_daughters();
-
-      /// Return the dictionary of daughter records
-      const daughter_dict_type & get_daughters() const;
-
       //! Reset the resource image
       void reset();
 
-      //! Check if timestamp is set
-      bool has_timestamp() const;
+      //! Return the non mutable status
+      const image_status & get_status() const;
 
-      //! Set the timestamp
-      void set_timestamp(const boost::posix_time::ptime &);
-
-      //! Return the timestamp
-      const boost::posix_time::ptime & get_timestamp() const;
-
-      //! Check if missing status is known
-      bool has_missing() const;
-
-      //! Check if the resource is present
-      bool is_present() const;
-
-      //! Check if the resource not present
-      bool is_missing() const;
-
-      //! Set the missing flag
-      void set_missing(bool);
-
-      //! Reset the missing flag
-      void reset_missing();
-
-      //! Check if disabled status is known
-      bool has_disabled() const;
-
-      //! Check if the resource is enabled
-      bool is_enabled() const;
-
-      //! Check if the resource is disabled
-      bool is_disabled() const;
-
-      //! Set the disabled flag
-      void set_disabled(bool);
-
-      //! Reset the disabled flag
-      void reset_disabled();
-
-      //! Check if pending status is known
-      bool has_pending() const;
-
-      //! Check if the resource is idle
-      bool is_idle() const;
-
-      //! Check if the resource is pending
-      bool is_pending() const;
-
-      //! Set the pending flag
-      void set_pending(bool);
-
-      //! Reset the pending flag
-      void reset_pending();
-
-      //! Check if failed status is known
-      bool has_failed() const;
-
-      //! Check if the resource has no failed
-      bool is_success() const;
-
-      //! Check if the resource is in failed status
-      bool is_failed() const;
-
-      //! Set the failed flag
-      void set_failed(bool);
-
-      //! Reset the failed flag
-      void reset_failed();
-
-      //! Check if Pub/Sub status is known
-      bool has_pubsub() const;
-
-      //! Check if the resource is pubsub
-      bool is_pubsub() const;
-
-      //! Set the pubsub flag
-      void set_pubsub(bool);
-
-      //! Reset the pubsub flag
-      void reset_pubsub();
+      //! Return the mutable status
+      image_status & grab_status();
 
       //! Apply a resource status record
       void update(const resource_status_record & record_);
 
-      //! Make all status bits indeterminate
-      void indeterminate_status();
+      // //! Make all status bits indeterminate
+      // void indeterminate_status();
 
       //! Check if image can store a value
       bool can_value() const;
@@ -302,58 +176,21 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      void start();
-
-      // apply_resource_change_event
-
-      // apply_device_change_event
-
-      // export to image log record...
-
     private:
 
       /// Set the leaf name
       void _set_leaf_name_(const std::string &);
 
-      void _at_start_();
-
     private:
 
       // Description:
-      std::string        _leaf_name_;        //!< Leaf name
       device_info        _device_;           //!< Device description
       resource_info      _resource_;         //!< Resource description
-      image *            _parent_ = nullptr; //!< Handle to the parent image
-      daughter_dict_type _daughters_;        //!< Dictionary of pointers to daughter records
-      std::string        _group_;            //!< Optional group
 
       // Internal data:
-      boost::posix_time::ptime    _timestamp_; //!< Last update timestamp (status or value)
-      boost::logic::tribool       _missing_  = boost::logic::indeterminate; //!< Missing flag
-      boost::logic::tribool       _disabled_ = boost::logic::indeterminate; //!< Disabled flag
-      boost::logic::tribool       _pending_  = boost::logic::indeterminate; //!< Pending flag
-      boost::logic::tribool       _failed_   = boost::logic::indeterminate; //!< Failed flag
-      boost::logic::tribool       _pubsub_   = boost::logic::indeterminate; //!< PubSub activation flag
+      std::string           _leaf_name_; //!< Leaf name
 
-      /**
-       *  Value timestamping: 'polling' mode
-       *
-       *                          +     +                             +
-       *              +     +     :     :           +                 :     +
-       *        +     :     :     :     :     +     :     +     +     :     :
-       *     ---:-----:-----:-----:-----:-----:-----:-----:-----:-----:-----:----------------> t
-       *
-       *  Value timestamping: 'on-change' mode
-       *
-       *                          +---------->:   +---->:
-       *                    +---->:           +-->:     :              +---->:
-       *        +---------->:     :           :   :     +------------->:     +------- - - - -
-       *     ---:-----------:-----:-----------:---:-----:--------------:-----:---------------> t
-       *
-       *
-       */
-      value_timestamping_mode_type _value_mode_;
-      values_dict_type             _values_; //! Current array of values
+      std::list<value_monitoring_record> _record_; //! Current array of value monitoring records
 
 #ifndef Q_MOC_RUN
       //! Reflection interface
@@ -362,7 +199,7 @@ namespace vire {
 
     };
 
-  } // namespace resource
+  } // namespace cms
 
 } // namespace vire
 

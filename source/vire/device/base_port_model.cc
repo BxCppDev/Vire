@@ -169,6 +169,8 @@ namespace vire {
 
       // Basic initialization:
       this->datatools::enriched_base::initialize(config_, false);
+      DT_LOG_DEBUG(get_logging_priority(), "Port model '" << get_name() << "'");
+      DT_LOG_DEBUG(get_logging_priority(), "-> logging= " << get_logging_priority() << "'");
 
       if (config_.has_key("virtual")) {
         set_virtual(config_.fetch_boolean("virtual"));
@@ -193,17 +195,17 @@ namespace vire {
       }
 
       // Initialization:
-      DT_LOG_TRACE(get_logging_priority(), "Initialization is starting...");
+      DT_LOG_DEBUG(get_logging_priority(), "Initialization is starting...");
       _at_initialize(config_);
-      DT_LOG_TRACE(get_logging_priority(), "Initialization done.");
+      DT_LOG_DEBUG(get_logging_priority(), "Initialization done.");
 
       // Post initialization:
-      DT_LOG_TRACE(get_logging_priority(), "Post-initialization is starting...");
+      DT_LOG_DEBUG(get_logging_priority(), "Post-initialization is starting...");
       _create_logical_();
       _logical_.grab().set_name(make_logical_name(this->get_name()));
       _logical_.grab().initialize();
       // ... populate the logical port... nothing here
-      DT_LOG_TRACE(get_logging_priority(), "Post-initialization done.");
+      DT_LOG_DEBUG(get_logging_priority(), "Post-initialization done.");
 
       _set_initialized_(true);
       DT_LOG_TRACE(get_logging_priority(), "Exiting.");

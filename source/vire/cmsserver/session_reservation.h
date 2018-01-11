@@ -28,7 +28,6 @@
 // This project:
 #include <vire/utility/comparison.h>
 #include <vire/cmsserver/session_info.h>
-#include <vire/cmsserver/process_info.h>
 
 namespace vire {
 
@@ -58,12 +57,6 @@ namespace vire {
       void set_sinfo(const session_info &);
 
       const session_info & get_sinfo() const;
-
-      bool has_pinfo() const;
-
-      void set_pinfo(const process_info &);
-
-      const process_info & get_pinfo() const;
 
       void set_start_macro(const std::string &);
 
@@ -120,7 +113,6 @@ namespace vire {
     private:
 
       session_info _sinfo_;       ///< Session information
-      process_info _pinfo_;       ///< Process information
       std::string  _start_macro_; ///< Start macro executed at session start
       std::string  _stop_macro_;  ///< Stop macro executed at session stop
 

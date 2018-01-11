@@ -32,6 +32,7 @@
 
 // This project:
 #include <vire/device/logical_device.h>
+#include <vire/device/instance_info.h>
 
 namespace vire {
 
@@ -44,6 +45,7 @@ namespace vire {
 
     //! \brief Information about a device
     class mapping_info
+      :  public instance_info
     {
     public:
 
@@ -62,21 +64,6 @@ namespace vire {
       //! Get the electronic identifier (MID)
       const geomtools::geom_id & get_mapping_id() const;
 
-      //! Check if there is a path
-      bool has_path() const;
-
-      //! Get path
-      const std::string & get_path() const;
-
-      //! Set the path
-      void set_path(const std::string & path_);
-
-      //! Check if the mapped object is a device
-      bool is_device() const;
-
-      //! Check if the mapped object is a port
-      bool is_port() const;
-
       //! Check if there is a parent device MID
       bool has_parent_device_id() const;
 
@@ -91,36 +78,6 @@ namespace vire {
 
       //! Get the set of MIDS of the daughter devices
       const std::set<geomtools::geom_id> & get_daughter_device_ids() const;
-
-      //! Check if there is a logical device or port
-      bool has_logical() const;
-
-      //! Check if there is a logical device
-      bool has_logical_device() const;
-
-      //! Check if there is a logical port
-      bool has_logical_port() const;
-
-      //! Set the logical device
-      void set_logical_device(const logical_device &);
-
-      //! Return a const reference to the logical device
-      const logical_device & get_logical_device() const;
-
-      //! Set the logical port
-      void set_logical_port(const logical_port &);
-
-      //! Return a const reference to the logical port
-      const logical_port & get_logical_port() const;
-
-      //! Check if there is a serial number
-      bool has_serial_number() const;
-
-      //! Set the serial number
-      void set_serial_number(const std::string &);
-
-      //! Return the serial number
-      const std::string & get_serial_number() const;
 
       //! Return validity status
       bool is_valid() const;
@@ -140,11 +97,6 @@ namespace vire {
       geomtools::geom_id _mapping_id_; //!< Unique identifier (MID) of the mapped object
       geomtools::geom_id _parent_device_id_; //!< Unique identifier (MID) of the mapped object's parent device
       std::set<geomtools::geom_id> _daughter_device_ids_; //!< Set of daughter device identifiers
-      std::string _path_; //!< Unique path of the mapped object
-      const logical_device * _logical_device_; //!< Handle to the logical device
-      const logical_port * _logical_port_; //!< Handle to the logical port
-      std::string _serial_number_; //!< Manufacturer's unique identifier of the physical device
-
 
       friend class mapping;
 
@@ -169,10 +121,8 @@ namespace vire {
 
 #endif // VIRE_DEVICE_MAPPING_INFO_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

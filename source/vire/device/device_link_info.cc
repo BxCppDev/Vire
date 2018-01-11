@@ -78,23 +78,23 @@ namespace vire {
                                  const std::string & to_repr_,
                                  const base_device_model & parent_device_model_)
     {
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Entering...");
+      // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Entering...");
       link_end_info from;
       link_end_info to;
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Parsing from...");
+      // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Parsing from...");
       if (!from.parse(from_repr_, parent_device_model_)) {
-        DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Exiting.");
+        // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Exiting.");
         return false;
       }
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Parsing to...");
+      // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Parsing to...");
       if (!to.parse(to_repr_, parent_device_model_)) {
-        DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Exiting.");
+        // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Exiting.");
         return false;
       }
       set_from(from);
       set_to(to);
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Ok.");
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Exiting.");
+      // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Ok.");
+      // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Exiting.");
       return true;
     }
 

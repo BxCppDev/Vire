@@ -30,16 +30,13 @@
 // Third party:
 // - Boost:
 #include <boost/cstdint.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/enriched_base.h>
 #include <datatools/properties.h>
 
 // This project:
 #include <vire/utility/rw_access.h>
-// #include <vire/resource/utils.h>
 #include <vire/resource/base_resource_instance.h>
-//#include <vire/device/device.h>
 
 namespace vire {
 
@@ -49,7 +46,8 @@ namespace vire {
     class manager;
 
     //! \brief Description of a resource
-    class resource : public datatools::enriched_base
+    class resource
+      : public datatools::enriched_base
     {
     public:
 

@@ -156,8 +156,10 @@ namespace vire {
       if (!has_data_description()) {
         datatools::properties dd_config;
         config_.export_and_rename_starting_with(dd_config, "data.", "");
-        // XXX
-        dd_config.tree_dump(std::cerr, "Data description params: ", "[DEVEL] ");
+        if (datatools::logger::is_debug(get_logging_priority())) {
+          DT_LOG_DEBUG(get_logging_priority(), "Data description params: ");
+          dd_config.tree_dump(std::cerr, "", "[debug] ");
+        }
         if (dd_config.size()) {
           try {
             _dd_.initialize(dd_config);
@@ -190,7 +192,6 @@ namespace vire {
 
       if (vire::utility::is_readable(_rw_access_)) {
         datatools::logger::priority old_logging = get_logging_priority();
-        set_logging_priority(datatools::logger::PRIO_DEBUG);
        _build_read_method(config_);
         set_logging_priority(old_logging);
       }

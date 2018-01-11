@@ -70,7 +70,7 @@ namespace vire {
       std::size_t found_invalid_char = login_.find_first_not_of(allowed);
       DT_THROW_IF(found_invalid_char != std::string::npos,
                   std::logic_error,
-                  "Invalid login!");
+                  "Invalid login '" << login_ << "'!");
       _login_ = login_;
       return;
     }
@@ -267,6 +267,7 @@ namespace vire {
       std::vector<std::string> tokens;
       boost::split(tokens, record_, boost::is_any_of(":"));
       if (tokens.size() != 9) {
+        std::cerr << "[devel] " << "Invalid number of tokens." << std::endl;
         return false;
       }
       try {
@@ -274,6 +275,7 @@ namespace vire {
         if (tokens[1].size() && tokens[1][0] == locksym) {
           _password_lock_ = true;
           set_password_encrypted(tokens[1].substr(1));
+          std::cerr << "[devel] " << "" << std::endl;
         } else {
           set_password_encrypted(tokens[1]);
         }
@@ -297,6 +299,7 @@ namespace vire {
         }
         // tokens[8] unused
       } catch (std::exception & error) {
+        std::cerr << "[devel] " << error.what() << std::endl;
         return false;
       }
       return true;

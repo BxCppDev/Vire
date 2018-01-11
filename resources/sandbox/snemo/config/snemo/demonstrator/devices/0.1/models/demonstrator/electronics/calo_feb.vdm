@@ -12,7 +12,7 @@
 #@config Parameters describing the SAMLONG ship
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -40,7 +40,7 @@ aux.cms.id  : string = "10102"
 #@config Parameters describing the ethernet socket
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of I/O
 io_type      : string  = "inout"
@@ -55,7 +55,7 @@ format : string  = "Ethernet"
 #@config Parameters describing the calorimeter FEB control FPGA
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of device
 type      : string  = "chip_pld"
@@ -91,7 +91,7 @@ aux.cms.id  : string = "10103"
 #@config Parameters describing the signal input port of the calorimeter FEB
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of I/O
 io_type      : string  = "in"
@@ -106,7 +106,7 @@ format : string  = "lemo-coaxial-00"
 #@config Parameters describing the ethernet socket
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of I/O
 io_type      : string  = "inout"
@@ -121,7 +121,7 @@ format : string  = "Ethernet"
 #@config Parameters describing the calorimeter frontend board
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Format of the board
 format : string = "VME-6U-extended"

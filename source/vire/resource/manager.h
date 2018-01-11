@@ -30,6 +30,7 @@
 // Third party:
 // - Boost:
 #include <boost/cstdint.hpp>
+#include <boost/noncopyable.hpp>
 // - Bayeux/datatools:
 #include <datatools/base_service.h>
 #include <datatools/properties.h>
@@ -50,6 +51,7 @@ namespace vire {
     //! \brief Resource and role management service
     class manager
       : public ::datatools::base_service
+      , private boost::noncopyable
     {
     public:
 

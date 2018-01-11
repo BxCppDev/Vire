@@ -66,8 +66,6 @@ namespace vire {
         }
       } else if (is_user_data<resource>()) {
         const resource & r = get_user_data<resource>();
-        // std::cerr << "DEVEL: general_expression_resource_selector::_accept: "
-        //           << "r='" << r.get_name() << "'" << std::endl;
         if (!has_path(r.get_path())) {
           result = cuts::SELECTION_REJECTED;
         }

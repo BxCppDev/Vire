@@ -45,7 +45,8 @@ namespace vire {
 
   namespace cmsserver {
 
-    //! \brief Description of a pool of resources addressed by identifiers
+    //! \brief Description of a pool of resources (addressed by identifiers)
+    //!        with their accounting informations.
     class resource_pool
       : public datatools::i_tree_dumpable
     {
@@ -63,10 +64,6 @@ namespace vire {
 
       //! Destructor
       virtual ~resource_pool();
-
-      // ----------------- Initialization/reset -----------------
-
-      void initialize();
 
       //! Reset
       void reset();
@@ -104,11 +101,6 @@ namespace vire {
                             const cardinalities_request_type & requested_cardinalities_,
                             cardinality_profile_type profile_ = CARD_ALL);
 
-      // ----------------- Usage -----------------
-
-      //! Check if the pool is built
-      bool is_initialized() const;
-
       //! Check if a resource belongs to the resource set
       bool has_resource(int32_t) const;
 
@@ -123,6 +115,9 @@ namespace vire {
 
       //! Add an unlimited resource ID
       void add_unlimited(int32_t);
+
+      //! Add a limited resource with initial number of tokens
+      void add_limited(int32_t rid_, std::size_t init_ = 0);
 
       //! Increment the number of tokens by some amount (limited resources only)
       void increment_limited_tokens(int32_t, std::size_t = 1);
@@ -185,13 +180,10 @@ namespace vire {
       //! Inequality test operator
       bool operator!=(const resource_pool &) const;
 
-      // ----------------- Attributes -----------------
-
     private:
 
-      bool                           _initialized_ = false; //!< Initialization flag
-      std::map<int32_t, std::size_t> _limited_tokens_;      //!< Accounting for limited resources
-      std::set<int32_t>              _unlimited_;           //!< List of unlimited resource identifiers
+      std::map<int32_t, std::size_t> _limited_tokens_; //!< Accounting for limited resources
+      std::set<int32_t>              _unlimited_;      //!< List of unlimited resource identifiers
 
     };
 

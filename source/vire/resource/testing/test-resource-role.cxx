@@ -6,10 +6,9 @@
 #include <string>
 #include <exception>
 #include <vector>
+#include <memory>
 
 // Third party:
-// - Boost:
-#include <boost/scoped_ptr.hpp>
 // - Bayeux/datatools:
 #include <datatools/io_factory.h>
 
@@ -52,7 +51,7 @@ void test_role_1()
   r.set_terse_description("The calorimeter HV expert role");
   r.grab_auxiliaries().store("emergency", "(+33)567 890 123");
   r.set_id(12);
-  r.set_path("SuperNEMO://Demonstrator/CMS/calorimeter/HV/expert");
+  r.set_path("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/expert");
   r.add_allowed_user(1243);
   r.add_allowed_user(1244);
   r.add_allowed_user(1267);
@@ -64,10 +63,10 @@ void test_role_1()
     vire::resource::enumerated_resource_selector & ers =
       dynamic_cast<vire::resource::enumerated_resource_selector &>(h_ers.grab());
     ers.set_name("hv_calo_current_selector");
-    ers.add_path("SuperNEMO://Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_0/current");
-    ers.add_path("SuperNEMO://Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_1/current");
-    ers.add_path("SuperNEMO://Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_2/current");
-    ers.add_path("SuperNEMO://Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_3/current");
+    ers.add_path("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_0/current");
+    ers.add_path("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_1/current");
+    ers.add_path("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_2/current");
+    ers.add_path("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_3/current");
     ers.initialize_simple();
   }
   r.set_functional_resource_selector_handle(h_ers);

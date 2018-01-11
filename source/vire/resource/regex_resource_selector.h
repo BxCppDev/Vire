@@ -21,9 +21,10 @@
 #ifndef VIRE_RESOURCE_REGEX_RESOURCE_SELECTOR_H
 #define VIRE_RESOURCE_REGEX_RESOURCE_SELECTOR_H
 
+// Standard library:
+#include <memory>
+
 // Third party:
-// - Boost:
-#include <boost/scoped_ptr.hpp>
 // - Bayeux/cuts:
 #include <cuts/i_cut.h>
 
@@ -35,7 +36,8 @@ namespace vire {
   namespace resource {
 
     //! \brief A selector of resources with explicit regex on resource paths (RIDs)
-    class regex_resource_selector : public base_resource_selector
+    class regex_resource_selector
+      : public base_resource_selector
     {
     public:
 
@@ -100,7 +102,7 @@ namespace vire {
 
       // Working data:
       struct work;
-      boost::scoped_ptr<work> _work_; //!< Internal working resources
+      std::unique_ptr<work> _work_; //!< Internal working resources
 
       // Macro to automate the registration of the cut :
       CUT_REGISTRATION_INTERFACE(regex_resource_selector);
@@ -113,10 +115,8 @@ namespace vire {
 
 #endif // VIRE_RESOURCE_REGEX_RESOURCE_SELECTOR_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

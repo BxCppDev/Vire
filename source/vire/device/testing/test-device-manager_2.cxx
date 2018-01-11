@@ -22,6 +22,8 @@
 
 // Standard library:
 #include <iostream>
+#include <string>
+#include <set>
 
 // Third party:
 // - Bayeux/datatools
@@ -68,9 +70,19 @@ void test0()
   std::string dev_mgr_config_filename = "@snemo:config/snemo/demonstrator/devices/0.1/manager.conf";
   datatools::fetch_path_with_env(dev_mgr_config_filename);
   dev_mgr_config.read_configuration(dev_mgr_config_filename);
+  std::vector<std::string> only_from_paths;
+  only_from_paths.push_back("SuperNEMO:/Demonstrator/CMS");
+  dev_mgr_config.store("tree.debug", true);
+  dev_mgr_config.store("tree.only_from_paths", only_from_paths);
+  dev_mgr_config.tree_dump(std::clog, "Virtual device manager's configuration: ");
   dev_mgr.initialize_standalone(dev_mgr_config);
-  dev_mgr.tree_dump(std::clog, "Virtual device manager: ");
-  std::clog << std::endl;
+  {
+    boost::property_tree::ptree options;
+    options.put("title", "Virtual device manager: ");
+    options.put("tree.list_instances", true);
+    dev_mgr.print_tree(std::clog, options);
+    std::clog << std::endl;
+  }
 
   // const vire::device::base_electronics_module_model & calo_feb =
   //   dev_mgr.get_device_model_as<vire::device::base_electronics_module_model>("calo_feb");

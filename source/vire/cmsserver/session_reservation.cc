@@ -44,14 +44,12 @@ namespace vire {
     bool session_reservation::is_valid() const
     {
       if (!has_sinfo()) return false;
-      if (!has_pinfo()) return false;
       return true;
     }
 
     void session_reservation::reset()
     {
       _sinfo_.reset();
-      _pinfo_.reset();
       _start_macro_.clear();
       _stop_macro_.clear();
       return;
@@ -73,22 +71,6 @@ namespace vire {
       return _sinfo_;
     }
 
-    bool session_reservation::has_pinfo() const
-    {
-      return _pinfo_.is_valid();
-    }
-
-    void session_reservation::set_pinfo(const process_info & pi_)
-    {
-      _pinfo_ = pi_;
-      return;
-    }
-
-    const process_info & session_reservation::get_pinfo() const
-    {
-      return _pinfo_;
-    }
-
     void session_reservation::set_start_macro(const std::string & sm_)
     {
       _start_macro_ = sm_;
@@ -107,7 +89,7 @@ namespace vire {
 
     void session_reservation::set_stop_macro(const std::string & sm_)
     {
-      _start_macro_ = sm_;
+      _stop_macro_ = sm_;
       return;
     }
 
@@ -135,11 +117,6 @@ namespace vire {
            << "Session info    : ";
       out_ << std::endl;
       _sinfo_.tree_dump(out_, "", indent_ + "|   ");
-
-      out_ << indent_ << i_tree_dumpable::tag
-           << "Process info    : ";
-      out_ << std::endl;
-      _pinfo_.tree_dump(out_, "", indent_ + "|   ");
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Start macro    : ";

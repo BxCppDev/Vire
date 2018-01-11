@@ -10,17 +10,18 @@ message( STATUS "[info] Define Vire dependencies")
 # - Boost
 # - GSL
 # - ROOT
-set(VIRE_BAYEUX_MIN_VERSION "3.1.0")
+set(VIRE_BAYEUX_MIN_VERSION "3.2.0")
 message( STATUS "[info] Searching Bayeux ${VIRE_BAYEUX_MIN_VERSION}...")
 find_package(Bayeux ${VIRE_BAYEUX_MIN_VERSION} REQUIRED NO_MODULE)
 if (Bayeux_FOUND)
   message( STATUS "[info] Bayeux ${Bayeux_VERSION} found.")
   message( STATUS "[info] BAYEUX_BOOST_VERSION    = '${BAYEUX_BOOST_VERSION}'")
-  # Trick because BayeuxConfig 3.1 does not provide the BAYEUX_BOOST_COMPONENTS variable:
+  # Trick because BayeuxConfig 3.2 does not provide the BAYEUX_BOOST_COMPONENTS variable:
   set(Vire_BAYEUX_VERSION ${Bayeux_VERSION})
-  set(BAYEUX_BOOST_COMPONENTS
-    "filesystem;system;serialization;iostreams;program_options;regex;thread"
-    )
+  # # Trick because BayeuxConfig 3.2 does not provide the BAYEUX_BOOST_COMPONENTS variable:
+  # set(BAYEUX_BOOST_COMPONENTS
+  #   "filesystem;system;serialization;iostreams;program_options;regex;thread"
+  #   )
   message( STATUS "[info] BAYEUX_BOOST_COMPONENTS = '${BAYEUX_BOOST_COMPONENTS}'")
   message( STATUS "[info] Bayeux_CMAKE_CONFIG_DIR = '${Bayeux_CMAKE_CONFIG_DIR}'")
 endif()

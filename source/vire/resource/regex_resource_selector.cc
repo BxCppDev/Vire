@@ -20,9 +20,12 @@
 // Ourselves
 #include <vire/resource/regex_resource_selector.h>
 
+// Standard library:
+#include <regex>
+
 // Third party:
 // - Boost:
-#include <boost/regex.hpp>
+// #include <boost/regex.hpp>
 
 // This project:
 #include <vire/resource/resource.h>
@@ -37,7 +40,8 @@ namespace vire {
 
     struct regex_resource_selector::work
     {
-      boost::scoped_ptr<boost::regex> hregex; ///< Regex handle
+      // std::unique_ptr<boost::regex> hregex; ///< Regex handle
+      std::unique_ptr<std::regex> hregex; ///< Regex handle
     };
 
     regex_resource_selector::regex_resource_selector(datatools::logger::priority logger_priority_)
@@ -114,7 +118,8 @@ namespace vire {
 
       // Initialize internal data:
       _work_.reset(new work);
-      _work_->hregex.reset(new boost::regex(_regex_paths_));
+      //_work_->hregex.reset(new boost::regex(_regex_paths_));
+      _work_->hregex.reset(new std::regex(_regex_paths_));
 
       _set_initialized(true);
       return;
@@ -133,7 +138,8 @@ namespace vire {
     bool regex_resource_selector::has_path(const std::string & rpath_) const
     {
       if (_work_.get() == 0) return false;
-      return boost::regex_match(rpath_, *_work_->hregex);
+      // return boost::regex_match(rpath_, *_work_->hregex);
+      return std::regex_match(rpath_, *_work_->hregex);
     }
 
     bool regex_resource_selector::has_regex_paths() const
@@ -153,8 +159,8 @@ namespace vire {
     }
 
     void regex_resource_selector::export_to_config(datatools::properties & config_,
-                                                        uint32_t flags_,
-                                                        const std::string & prefix_) const
+                                                   uint32_t flags_,
+                                                   const std::string & prefix_) const
     {
       this->cuts::i_cut::export_to_config(config_, flags_, prefix_);
 

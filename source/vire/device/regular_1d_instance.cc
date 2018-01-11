@@ -67,29 +67,18 @@ namespace vire {
                                   int32_t dcoord2_
                                   )
     {
-      // std::cerr << "DEVEL: regular_1d_instance::set: first_slot = " << first_slot_ << std::endl;
-      // std::cerr << "DEVEL: regular_1d_instance::set: nslots     = " << nslots_ << std::endl;
-      // std::cerr << "DEVEL: regular_1d_instance::set: dcoord0    = " << dcoord0_ << std::endl;
-      // std::cerr << "DEVEL: regular_1d_instance::set: dcoord1    = " << dcoord1_ << std::endl;
-      // std::cerr << "DEVEL: regular_1d_instance::set: dcoord2    = " << dcoord2_ << std::endl;
       DT_THROW_IF(!first_slot_.is_valid(), std::domain_error, "Invalid first slot " << first_slot_ << "!");
-      // std::cerr << "DEVEL: regular_1d_instance::set: first_slot = " << first_slot_ << std::endl;
       DT_THROW_IF(first_slot_.is_dimension_0(),
                   std::domain_error, "First slot " << first_slot_ << " with dimension 0 is not allowed!");
-      // std::cerr << "DEVEL: regular_1d_instance::set: first_slot = " << first_slot_ << std::endl;
       int d = static_cast<int>(_first_slot_.get_dimension());
-      // std::cerr << "DEVEL: regular_1d_instance::set: d : " << d << std::endl;
-      // std::cerr << "DEVEL: regular_1d_instance::set: first_slot = " << first_slot_ << std::endl;
       if (space::at_least_dimension_1(_first_slot_.get_dimension())) {
-        // std::cerr << "DEVEL: regular_1d_instance::set: At least DIM_1 : " << _first_slot_.get_dimension() << std::endl;
-        DT_THROW_IF(dcoord0_ == INVALID_DELTA_COORD, std::domain_error, "Invalid coordinate step on dimension index 0!");
+         DT_THROW_IF(dcoord0_ == INVALID_DELTA_COORD, std::domain_error, "Invalid coordinate step on dimension index 0!");
         DT_THROW_IF(_first_slot_.get_dimension() == space::DIM_1
                     && dcoord0_ == NO_DELTA_COORD, std::domain_error, "Null coordinate step for dimension 1 slot!");
         int32_t last_coord = _first_slot_.get_coordinate(0) + (nslots_ - 1) * dcoord0_;
         DT_THROW_IF(last_coord < 0, std::domain_error, "Invalid regular 1D instance!");
       }
       if (space::at_least_dimension_2(_first_slot_.get_dimension())) {
-        // std::cerr << "DEVEL: regular_1d_instance::set: At least DIM_2 : " << _first_slot_.get_dimension() << std::endl;
         DT_THROW_IF(dcoord1_ == INVALID_DELTA_COORD, std::domain_error, "Invalid coordinate step on dimension index 1!");
         DT_THROW_IF(_first_slot_.get_dimension() == space::DIM_2
                     && dcoord0_ == NO_DELTA_COORD
@@ -98,7 +87,6 @@ namespace vire {
         DT_THROW_IF(last_coord < 0, std::domain_error, "Invalid regular 1D instance!");
       }
       if (space::at_least_dimension_3(_first_slot_.get_dimension())) {
-        // std::cerr << "DEVEL: regular_1d_instance::set: At least DIM_3 : " << _first_slot_.get_dimension() << std::endl;
         DT_THROW_IF(dcoord2_ == INVALID_DELTA_COORD, std::domain_error, "Invalid coordinate step on dimension index 2!");
         DT_THROW_IF(_first_slot_.get_dimension() == space::DIM_3
                     && dcoord0_ == NO_DELTA_COORD
@@ -121,7 +109,6 @@ namespace vire {
       _coord_step_[slot::COORDINATE_INDEX_0] = INVALID_DELTA_COORD;
       _coord_step_[slot::COORDINATE_INDEX_1] = INVALID_DELTA_COORD;
       _coord_step_[slot::COORDINATE_INDEX_2] = INVALID_DELTA_COORD;
-
       return;
     }
 
@@ -133,8 +120,9 @@ namespace vire {
 
     regular_1d_instance::~regular_1d_instance()
     {
-      DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_ENTERING(get_logging());
       reset();
+      DT_LOG_TRACE_EXITING(get_logging());
       return;
     }
 
@@ -173,7 +161,7 @@ namespace vire {
 
     void regular_1d_instance::reset()
     {
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Entering for address = [@" << this << "]");
+      DT_LOG_TRACE(get_logging(), "Address = [@" << this << "]");
       _first_slot_.reset();
       _set_defaults();
       return;
@@ -186,7 +174,6 @@ namespace vire {
 
     size_t regular_1d_instance::get_number_of_items() const
     {
-      // DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
       return _number_of_slots_;
     }
 
@@ -275,7 +262,7 @@ namespace vire {
     // virtual
     bool regular_1d_instance::from_string(const std::string & from_)
     {
-      DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_ENTERING(get_logging());
       namespace qi = boost::spirit::qi;
       this->reset();
       uint32_t nslots = 0;
@@ -326,8 +313,8 @@ namespace vire {
         this->reset();
         return false;
       }
-      DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "Parsing was successful.");
-      DT_LOG_TRACE_EXITING(datatools::logger::PRIO_TRACE);
+      DT_LOG_DEBUG(get_logging(), "Parsing was successful.");
+      DT_LOG_TRACE_EXITING(get_logging());
       return true;
     }
 

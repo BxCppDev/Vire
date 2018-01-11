@@ -82,7 +82,6 @@ namespace vire {
 
     bool i_instance::is_singleton() const
     {
-      // DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
       return get_number_of_items() == 1;
     }
 
@@ -118,7 +117,6 @@ namespace vire {
                                 const std::string & indent_,
                                 bool inherit_) const
     {
-      // DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
       if (! title_.empty()) {
         out_ << indent_ << title_ << std::endl;
       }
@@ -162,9 +160,6 @@ namespace vire {
 
       out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Valid      = " << (is_valid() ? "<yes>" : "<no>" ) << std::endl;
-      // DT_LOG_TRACE(datatools::logger::PRIO_TRACE, "TEST A...");
-
-      // DT_LOG_TRACE_EXITING(datatools::logger::PRIO_TRACE);
       return;
     }
 
@@ -195,8 +190,6 @@ namespace vire {
       boost::trim(instance_id);
       std::getline(iss, from);
       boost::trim(from);
-      // std::cerr << "DEVEL: i_instance::create: instance_id = '" << instance_id << "'" << std::endl;
-      // std::cerr << "DEVEL: i_instance::create: from        = '" << from << "'" << std::endl;
       allocated = create(instance_id, from);
       return allocated;
     }

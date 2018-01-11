@@ -12,7 +12,7 @@
 #@config Parameters describing the Calorimeter HV power supply crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@parameter Height of the crate
 height : integer = 8

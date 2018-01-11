@@ -63,12 +63,12 @@ namespace vire {
                                             >
           >,
 
-        // The third key is the unique resource path:
+        // The second key is the unique resource path:
         boost::multi_index::ordered_unique<
           boost::multi_index::tag<mapping_tag_path>,
-          boost::multi_index::const_mem_fun<mapping_info,
+          boost::multi_index::const_mem_fun<instance_info,
                                             const std::string &,
-                                            &mapping_info::get_path
+                                            &instance_info::get_path
                                             >
           >
         >
@@ -102,7 +102,7 @@ namespace vire {
       _top_level_mapping_ = false;
       _max_depth_ = depth_no_limit();
       _port_mapping_ = true;
-      _link_mapping_ = true;
+      _link_mapping_ = false;
 
       // Working/internal data:
       _top_level_logical_ = nullptr;
@@ -251,16 +251,28 @@ namespace vire {
       return;
     }
 
-    void mapping::set_top_level_name(const std::string & name_)
+    void mapping::set_top_level_device_model_name(const std::string & name_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Mapping is already initialized !");
-      _top_level_name_ = name_;
+      _top_level_device_model_name_ = name_;
       return;
     }
 
-    const std::string & mapping::get_top_level_name() const
+    const std::string & mapping::get_top_level_device_model_name() const
     {
-      return _top_level_name_;
+      return _top_level_device_model_name_;
+    }
+
+    void mapping::set_top_level_device_instance_name(const std::string & name_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Mapping is already initialized !");
+      _top_level_device_instance_name_ = name_;
+      return;
+    }
+
+    const std::string & mapping::get_top_level_device_instance_name() const
+    {
+      return _top_level_device_instance_name_;
     }
 
     bool mapping::is_initialized() const
@@ -268,7 +280,7 @@ namespace vire {
       return _initialized_;
     }
 
-    void mapping::configure(const datatools::properties & config_)
+    void mapping::_configure(const datatools::properties & config_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Mapping is already initialized !");
 
@@ -276,14 +288,37 @@ namespace vire {
       datatools::logger::priority p = datatools::logger::extract_logging_configuration(config_);
       set_logging_priority(p);
 
+      if (config_.has_key("top_level_device_model_name")) {
+        set_top_level_device_model_name(config_.fetch_string("top_level_device_model_name"));
+      }
+
+      if (_top_level_device_model_name_.empty()) {
+        _top_level_device_model_name_ = _manager_->get_top_level_device_model_name();
+      }
+
+      if (config_.has_key("top_level_device_instance_name")) {
+        set_top_level_device_instance_name(config_.fetch_string("top_level_device_instance_name"));
+      }
+
+      if (_top_level_device_instance_name_.empty()) {
+        _top_level_device_instance_name_ = _manager_->get_setup_label() + vire::utility::path::setup_separator();
+      }
+
       if (config_.has_key("max_depth")) {
-        int md = config_.fetch_integer("max_depth");
-        DT_THROW_IF(md < 0, std::logic_error, "Invalid maximum mapping depth !");
+        int md = config_.fetch_positive_integer("max_depth");
         set_max_depth((unsigned int) md);
       }
 
       if (config_.has_key("top_level_mapping")) {
         _top_level_mapping_ = config_.fetch_boolean("top_level_mapping");
+      }
+
+      if (config_.has_key("port_mapping")) {
+        set_port_mapping(config_.fetch_boolean("port_mapping"));
+      }
+
+      if (config_.has_key("link_mapping")) {
+        set_link_mapping(config_.fetch_boolean("link_mapping"));
       }
 
       if (_excluded_categories_.size() == 0) {
@@ -309,23 +344,23 @@ namespace vire {
       return;
     }
 
-    void mapping::initialize()
+    void mapping::initialize(const datatools::properties & config_)
     {
       DT_LOG_TRACE(get_logging_priority(), "Entering...");
 
       DT_THROW_IF(is_initialized(), std::logic_error, "Mapping is already initialized !");
-
       DT_THROW_IF(! has_manager(), std::logic_error, "Missing device model manager !");
-
       DT_THROW_IF(! _manager_->is_initialized(), std::logic_error,
                   "Device manager is not initialized !");
-
       if (! has_mapping_manager()) {
         set_mapping_manager(_manager_->get_mapping_manager());
       }
+
+      _configure(config_);
+
       _work_.reset(new work);
 
-      build();
+      _top_build();
 
       _initialized_ = true;
       DT_LOG_TRACE(get_logging_priority(), "Exiting.");
@@ -341,11 +376,11 @@ namespace vire {
       _work_->dict.erase(_work_->dict.get<mapping_tag_id>().begin(),
                          _work_->dict.get<mapping_tag_id>().end());
       _work_.reset();
-      // _mapping_infos_.clear();
       _mapping_depth_ = 0;
-      _mapping_manager_ = 0;
-      _top_level_logical_ = 0;
-
+      _mapping_manager_ = nullptr;
+      _top_level_logical_ = nullptr;
+      _top_level_device_model_name_.clear();
+      _top_level_device_instance_name_.clear();
       _only_categories_.clear();
       _excluded_categories_.clear();
       _set_defaults();
@@ -443,21 +478,34 @@ namespace vire {
       return *found;
     }
 
-    void mapping::build(const std::string & setup_name_)
+    const logical_device & mapping::get_top_level_logical() const
+    {
+      DT_THROW_IF(_top_level_logical_ == nullptr,
+                  std::logic_error,
+                  "Cannot find the top-level device model with name '" << _top_level_device_model_name_
+                  << "' in the virtual device models manager !");
+      return *_top_level_logical_;
+    }
+
+    void mapping::_top_build()
     {
       DT_LOG_TRACE(get_logging_priority(), "Entering...");
 
-      std::string setup_name = setup_name_;
-      if (setup_name.empty()) {
-        setup_name = manager::default_top_level_name();
-      }
+      std::string setup_device_model_name = _top_level_device_model_name_;
+      // if (setup_device_model_name.empty()) {
+      //   setup_device_model_name = _top_level_device_model_name_;
+      // }
+      // if (setup_device_model_name.empty()) {
+      //   setup_device_model_name = _manager_->get_top_level_device_model_name();
+      // }
+      // set_top_level_device_model_name(setup_device_model_name);
 
-      if (_top_level_logical_ == 0) {
-        DT_THROW_IF(!_manager_->has_device_model(setup_name),
+      if (_top_level_logical_ == nullptr) {
+        DT_THROW_IF(!_manager_->has_device_model(setup_device_model_name),
                     std::logic_error,
-                    "Cannot find the top-level device model with name '" << setup_name
+                    "Cannot find the top-level device model with name '" << setup_device_model_name
                     << "' in the virtual device models manager !");
-        _top_level_logical_ = &(_manager_->get_device_model(setup_name).get_logical());
+        _top_level_logical_ = &(_manager_->get_device_model(setup_device_model_name).get_logical());
         DT_LOG_TRACE(get_logging_priority(), "Top level logical @ " << _top_level_logical_);
       }
 
@@ -467,33 +515,33 @@ namespace vire {
       return;
     }
 
-    void mapping::tree_dump(std::ostream& out_,
-                            const std::string& title_,
-                            const std::string& indent_,
-                            bool inherit_) const {
-      std::string indent;
-      if (!indent_.empty()) indent = indent_;
+    void mapping::print_tree(std::ostream & out_,
+                             const boost::property_tree::ptree & options_) const
+    {
+      datatools::i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+      bool print_ids_list = options_.get<bool>("list_ids", false);
 
-      if (!title_.empty()) out_ << indent << title_ << std::endl;
+      if (!popts.title.empty()) out_ << popts.indent << popts.title << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Logging priority : '"
            << datatools::logger::get_priority_label(get_logging_priority())
            << "'" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Max depth : [" << _max_depth_ << "]" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Manager : [@" << _manager_ << "]" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Top-level mapping : " << _top_level_mapping_ << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
-           << "Top-level name : '" << _top_level_name_ << "'" << std::endl;
+      out_ << popts.indent << i_tree_dumpable::tag
+           << "Top-level device model name : '" << _top_level_device_model_name_ << "'" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Only categories : ";
       if (_only_categories_.size()) {
         out_ << "<none>";
@@ -502,7 +550,7 @@ namespace vire {
       }
       out_ << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Excluded categories : ";
       if (_excluded_categories_.size()) {
         out_ << "<none>";
@@ -511,13 +559,13 @@ namespace vire {
       }
       out_ << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Port mapping : '" << _port_mapping_ << "'" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Link mapping : '" << _link_mapping_ << "'" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Top-level logical : ";
       if (_top_level_logical_) {
         out_ << "'" << _top_level_logical_->get_name() << "'";
@@ -526,10 +574,10 @@ namespace vire {
       }
       out_ << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Mapping ID manager : [@" << _mapping_manager_ << "]" << std::endl;
 
-      out_ << indent << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Device information dictionary : ";
       if (is_initialized()) {
         out_ << "[" << _work_->dict.size() << "]";
@@ -538,30 +586,32 @@ namespace vire {
       }
       out_ << std::endl;
 
-      if (is_initialized()) {
-        for (mapping_set_by_id::const_iterator i = _work_->dict.get<mapping_tag_id>().begin();
-             i != _work_->dict.get<mapping_tag_id>().end();
-             i++) {
-          mapping_set_by_id::const_iterator j = i;
-          j++;
-          out_ << indent << i_tree_dumpable::skip_tag;
-          if (j == _work_->dict.get<mapping_tag_id>().end()) {
-            out_ << i_tree_dumpable::last_tag;
-          } else {
-            out_ << i_tree_dumpable::tag;
+      if (print_ids_list) {
+        if (is_initialized()) {
+          for (mapping_set_by_id::const_iterator i = _work_->dict.get<mapping_tag_id>().begin();
+               i != _work_->dict.get<mapping_tag_id>().end();
+               i++) {
+            mapping_set_by_id::const_iterator j = i;
+            j++;
+            out_ << popts.indent << i_tree_dumpable::skip_tag;
+            if (j == _work_->dict.get<mapping_tag_id>().end()) {
+              out_ << i_tree_dumpable::last_tag;
+            } else {
+              out_ << i_tree_dumpable::tag;
+            }
+            const mapping_info & mi = *i;
+            out_ << "ID=" << mi.get_mapping_id() << " with path '" << mi.get_path() << "'";
+            if (mi.is_device()) {
+              out_ << " (as logical device named '" << mi.get_logical_device().get_name() << "')";
+            } else if (mi.is_port()) {
+              out_ << " (as logical port named '" << mi.get_logical_port().get_name() << "')";
+            }
+            out_ << std::endl;
           }
-          const mapping_info & mi = *i;
-          out_ << "ID=" << mi.get_mapping_id() << " with path '" << mi.get_path() << "'";
-          if (mi.is_device()) {
-            out_ << " (as logical device named '" << mi.get_logical_device().get_name() << "')";
-          } else if (mi.is_port()) {
-            out_ << " (as logical port named '" << mi.get_logical_port().get_name() << "')";
-          }
-          out_ << std::endl;
         }
       }
 
-      out_ << indent << i_tree_dumpable::inherit_tag(inherit_)
+      out_ << popts.indent << i_tree_dumpable::inherit_tag(popts.inherit)
            << "Initialized    : "
            << this->is_initialized()
            << std::endl;
@@ -583,23 +633,25 @@ namespace vire {
       // Dynamic LIFO collection of handles to mapping_info objects:
       info_stack_type ancestors;
       // Top level setup ID:
-      geomtools::geom_id setup_id;
-      setup_cat_info.create(setup_id);
-      setup_id.set_address(0);
-      DT_LOG_TRACE(_logging_priority_, "Setup ID = " << setup_id << ' '
-                   << (setup_id.is_valid() ? "[Valid]": "[Invalid]"));
-      std::string setup_path = _manager_->get_setup_label() + vire::utility::path::setup_separator();
-      mapping_info setup_info;
-      setup_info.set_mapping_id(setup_id);
-      setup_info.set_path(setup_path);
-      setup_info.set_logical_device(*_top_level_logical_);
+      geomtools::geom_id setup_root_id;
+      setup_cat_info.create(setup_root_id);
+      setup_root_id.set_address(0);
+      DT_LOG_DEBUG(_logging_priority_, "Setup root ID = " << setup_root_id << ' '
+                   << (setup_root_id.is_valid() ? "[Valid]": "[Invalid]"));
+      std::string setup_root_path = _top_level_device_instance_name_;
+      // _manager_->get_setup_label() + vire::utility::path::setup_separator();
+      DT_LOG_DEBUG(_logging_priority_, "Setup root path = '" << setup_root_path << "'");
+      mapping_info setup_root_info;
+      setup_root_info.set_mapping_id(setup_root_id);
+      setup_root_info.set_path(setup_root_path);
+      setup_root_info.set_logical_device(*_top_level_logical_);
 
       // Add setup mapping info :
       if (_top_level_mapping_)  {
-        _work_->dict.insert(setup_info);
+        _work_->dict.insert(setup_root_info);
       }
-      ancestors.stack.push_back(&setup_info);
-      ancestors.path.push_back(setup_path);
+      ancestors.stack.push_back(&setup_root_info);
+      ancestors.path.push_back(setup_root_path);
       _build_embedded_devices_mapping(*_top_level_logical_, ancestors);
       /*
         bool build_mode_strict_mothership = true;

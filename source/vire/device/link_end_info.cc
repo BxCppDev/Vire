@@ -159,7 +159,7 @@ namespace vire {
                               const base_device_model & parent_device_model_)
     {
       datatools::logger::priority logging = datatools::logger::PRIO_FATAL;
-      logging = datatools::logger::PRIO_DEBUG;
+      // logging = datatools::logger::PRIO_DEBUG;
       namespace qi = boost::spirit::qi;
       _ports_path_.clear();
       std::string::const_iterator str_iter = repr_.begin();
@@ -211,7 +211,9 @@ namespace vire {
                       << dev_model->get_name() << "'!");
           DT_LOG_DEBUG(logging, "Found port='" << name << "'");
           const physical_port & phys_port = dev_model->get_port(name);
-          phys_port.tree_dump(std::cerr, "Physical port: ", "[debug] ");
+          if (datatools::logger::is_debug(logging)) {
+            phys_port.tree_dump(std::cerr, "Physical port: ", "[debug] ");
+          }
           if (phys_port.has_instance()) {
             instance = &phys_port.get_instance();
             DT_LOG_DEBUG(logging, "Port instance = [@" << instance << "]"

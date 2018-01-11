@@ -44,7 +44,8 @@ namespace vire {
     class base_device_model;
 
     //! \brief The logical device
-    class logical_device : public datatools::enriched_base
+    class logical_device
+      : public datatools::enriched_base
     {
     public:
 
@@ -139,10 +140,20 @@ namespace vire {
       void reset();
 
       //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
+      //!
+      //! Supported options:
+      //! \code
+      //! {
+      //!   "title"    : "My title: ",
+      //!   "indent"   : "[debug] ",
+      //!   "inherit"  : true,
+      //!   "list_ports"  : true,
+      //!   "list_daughters"  : true,
+      //!   "list_links"  : true
+      //! }
+      //! \endcode
+      virtual void print_tree(std::ostream & out_ = std::clog,
+                              const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
 
     private:
 
@@ -160,10 +171,8 @@ namespace vire {
 
 #endif // VIRE_DEVICE_LOGICAL_DEVICE_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

@@ -35,15 +35,13 @@ int main(int /* argc_ */, char ** /* argv_ */)
 
     test_session_info_1();
 
-    test_session_info_2();
+    //  test_session_info_2();
 
     std::clog << "The end." << std::endl;
-  }
-  catch (std::exception & x) {
+  } catch (std::exception & x) {
     std::cerr << "error: " << x.what() << std::endl;
     error_code = EXIT_FAILURE;
-  }
-  catch (...) {
+  } catch (...) {
     std::cerr << "error: " << "unexpected error !" << std::endl;
     error_code = EXIT_FAILURE;
   }
@@ -59,17 +57,15 @@ void test_session_info_1()
   std::clog << "\ntest_session_info_1: basics" << std::endl;
 
   vire::cmsserver::session_info sinfo;
-  sinfo.tree_dump(std::clog, "Session info: ");
-  std::clog << std::endl;
-
-  sinfo.set_id(1000);
-  sinfo.set_key("Dummy");
-  sinfo.set_description("A dummy session info record");
-  sinfo.set_role_id(2014);
+  sinfo.set_key("Expert");
+  sinfo.set_description("An expert session info record");
+  sinfo.set_role_identifier("_universe_");
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
   boost::posix_time::time_period when(now, now + boost::posix_time::hours(2));
   sinfo.set_when(when);
-  sinfo.set_usecase_id("basic_shift");
+  sinfo.set_use_case_type_id("snemo::cms::basic_shell_use_case");
+  sinfo.grab_use_case_config().store("mode", "expert");
+  sinfo.grab_use_case_config().store("required_resources.single_root", "SuperNEMO:/Demonstrator/CMS/Coil");
   for (int resource_id = 1000; resource_id < 1004; resource_id++) {
     sinfo.set_special_functional_limited(resource_id, 2);
   }
@@ -79,7 +75,7 @@ void test_session_info_1()
   sinfo.initialize_simple();
   sinfo.tree_dump(std::clog, "Session info: ");
 
-  std::clog << std::endl;
+  std::clog  << std::endl;
   return;
 }
 
@@ -126,12 +122,10 @@ void test_session_info_2()
   vire::cmsserver::session_info sinfo;
 
   datatools::properties sicfg;
-  sicfg.store("id", 23);
   sicfg.store("key", "Dummy");
   sicfg.store("description", "A dummy session info record");
-  sicfg.store("role", "calo_hv2");
+  sicfg.store("role.name", "calo_hv2");
   sicfg.store("when", "(now ; 4 hour)");
-  sicfg.store("usecase", "Foo");
 
   std::vector<std::string> func_unset;
   func_unset.push_back("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_0/board_0/ch_0/current");
@@ -142,6 +136,9 @@ void test_session_info_2()
   dist_limited.push_back("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_1/board_0/ch_0/setpoint_voltage=1");
   dist_limited.push_back("SuperNEMO:/Demonstrator/CMS/calorimeter/HV/crate_1/board_0/ch_1/setpoint_voltage=1");
   sicfg.store("special_distributable_cardinalities.limited", dist_limited);
+
+  sicfg.store("use_case.type_id", "snemo::cms::foo_use_case");
+  sicfg.store("use_case.config_path", "@snemo:config/cms/server/use_cases/foo/foo_1.0.conf");
 
   sinfo.initialize(sicfg, umgr, rmgr);
   sinfo.tree_dump(std::clog, "Session info: ");

@@ -43,7 +43,8 @@ namespace vire {
   namespace auth {
 
     //! \brief Authentication manager
-    class manager : public ::datatools::base_service
+    class manager
+      : public ::datatools::base_service
     {
     public:
 

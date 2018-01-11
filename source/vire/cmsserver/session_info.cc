@@ -37,23 +37,16 @@ namespace vire {
     // Serialization implementation
     DATATOOLS_SERIALIZATION_IMPLEMENTATION(session_info, "vire::cmsserver::session_info")
 
-    // static
-    const int32_t session_info::INVALID_ID;
-    const int32_t session_info::ROOT_ID;
-    const int32_t session_info::MIN_BLESSED_ID;
-    const int32_t session_info::MAX_USER_ID;
-
-    void session_info::_set_defaults()
+    void session_info::_set_defaults_()
     {
-      _id_  = INVALID_ID;
-      _role_id_ = vire::resource::role::INVALID_ID;
-      vire::time::invalidate_time_interval(_when_);
+      _when_ = vire::time::invalid_time_interval();
       return;
     }
 
-    session_info::session_info() : _when_(vire::time::invalid_time_interval())
+    session_info::session_info()
+      : _when_(vire::time::invalid_time_interval())
     {
-      _set_defaults();
+      _set_defaults_();
       return;
     }
 
@@ -65,18 +58,17 @@ namespace vire {
 
     bool session_info::is_valid() const
     {
-      if (!has_id()) return false;
       if (!has_key()) return false;
-      if (!has_role_id()) return false;
+      if (!has_role_identifier()) return false;
       if (!has_when()) return false;
-      if (!has_usecase_id()) return false;
+      if (!has_use_case_type_id()) return false;
       return true;
     }
 
     void session_info::initialize_simple()
     {
       datatools::properties dummy_config;
-      _initialize(dummy_config);
+      _initialize_(dummy_config);
       return;
     }
 
@@ -84,7 +76,7 @@ namespace vire {
                                   const vire::resource::manager & resource_mgr_)
     {
       datatools::properties dummy_config;
-      _initialize(dummy_config, &user_mgr_, &resource_mgr_);
+      _initialize_(dummy_config, &user_mgr_, &resource_mgr_);
       return;
     }
 
@@ -92,20 +84,14 @@ namespace vire {
                                   const vire::user::manager & user_mgr_,
                                   const vire::resource::manager & resource_mgr_)
     {
-      _initialize(config_, &user_mgr_, &resource_mgr_);
+      _initialize_(config_, &user_mgr_, &resource_mgr_);
       return;
     }
 
-    void session_info::_initialize(const datatools::properties & config_,
-                                   const vire::user::manager * /* user_mgr_ */,
-                                   const vire::resource::manager * resource_mgr_)
-     {
-      if (!has_id()) {
-        if (config_.has_key("id")) {
-          int id = config_.fetch_integer("id");
-          set_id(id);
-        }
-      }
+    void session_info::_initialize_(const datatools::properties & config_,
+                                    const vire::user::manager * /* user_mgr_ */,
+                                    const vire::resource::manager * resource_mgr_)
+    {
 
       if (!has_key()) {
         if (config_.has_key("key")) {
@@ -121,27 +107,39 @@ namespace vire {
         }
       }
 
-      if (!has_role_id()) {
-        int32_t role_id = vire::resource::role::INVALID_ID;
-        if (role_id == vire::resource::role::INVALID_ID
-            && config_.has_key("role_id")) {
-          role_id = config_.fetch_integer("role_id");
-          if (resource_mgr_ != nullptr) {
+      if (!has_role_identifier()) {
+        if (resource_mgr_ != nullptr)  {
+
+          // Search the role by name:
+          if (_role_identifier_.empty() && config_.has_key("role.name")) {
+            const std::string & role_name = config_.fetch_string("role.name");
+            DT_THROW_IF(!resource_mgr_->has_role_by_name(role_name),
+                        std::logic_error,
+                        "Role '" << role_name << "' does not exist!");
+            set_role_identifier(role_name);
+          }
+
+          // Search the role by ID:
+          if (_role_identifier_.empty() && config_.has_key("role.id")) {
+            int role_id = config_.fetch_integer("role.id");
             DT_THROW_IF(!resource_mgr_->has_role_by_id(role_id),
                         std::logic_error,
-                        "Role with ID=[" << role_id << "] does not exist!");
+                        "Role ID " << role_id << " does not exist!");
+            std::string role_name = resource_mgr_->get_role_by_id(role_id).get_name();
+            set_role_identifier(role_name);
           }
+
+          // Search the role by path:
+          if (_role_identifier_.empty() && config_.has_key("role.path")) {
+            const std::string & role_path = config_.fetch_string("role.path");
+            DT_THROW_IF(!resource_mgr_->has_role_by_path(role_path),
+                        std::logic_error,
+                        "Role path '" << role_path << "' does not exist!");
+            std::string role_name = resource_mgr_->get_role_by_path(role_path).get_name();
+            set_role_identifier(role_name);
+          }
+
         }
-        if (resource_mgr_ != nullptr
-            && role_id == vire::resource::role::INVALID_ID
-            && config_.has_key("role")) {
-          const std::string & role_name = config_.fetch_string("role");
-          DT_THROW_IF(!resource_mgr_->has_role_by_name(role_name),
-                      std::logic_error,
-                      "Role '" << role_name << "' does not exist!");
-          role_id = resource_mgr_->get_role_by_name(role_name).get_id();
-        }
-        set_role_id(role_id);
       }
 
       if (!has_when()) {
@@ -153,11 +151,6 @@ namespace vire {
                       "Invalid time interval representation '" << when_repr << "'!");
           set_when(when);
         }
-      }
-
-      if (config_.has_key("usecase")) {
-        const std::string & usecase_id = config_.fetch_string("usecase");
-        set_usecase_id(usecase_id);
       }
 
       if (!has_special_functional_cardinalities()) {
@@ -174,61 +167,52 @@ namespace vire {
         wrapper.initialize(sdc_config, resource_mgr_);
       }
 
-      // if (!is_valid()) {
-      //   DT_THROW(std::logic_error, "Session info record is not valid!");
-      // }
+      if (! has_use_case_type_id()) {
+        if (config_.has_key("use_case.type_id")) {
+          const std::string & use_case_type_id = config_.fetch_string("use_case.type_id");
+          set_use_case_type_id(use_case_type_id);
+        }
+      }
+
+      if (! has_use_case_config()) {
+
+        datatools::properties use_case_cfg;
+        config_.export_and_rename_starting_with(use_case_cfg, "use_case.config.", "");
+        if (!use_case_cfg.empty()) {
+          set_use_case_config(use_case_cfg);
+        } else {
+          if (! has_use_case_config_path()) {
+            if (config_.has_key("use_case.config_path")) {
+              const std::string & use_case_config_path = config_.fetch_string("use_case.config_path");
+              set_use_case_config_path(use_case_config_path);
+            }
+          }
+        }
+
+      }
 
       return;
     }
 
     void session_info::reset()
     {
+      _use_case_type_id_.clear();
+      reset_use_case_config();
+      _use_case_config_path_.clear();
+      _key_.clear();
       _description_.clear();
+      vire::time::invalidate_time_interval(_when_);
+      _role_identifier_.clear();
       _special_functional_cardinalities_.clear();
       _special_distributable_cardinalities_.clear();
-      vire::time::invalidate_time_interval(_when_);
-      _set_defaults();
+      _set_defaults_();
       return;
     }
 
-    bool session_info::is_blessed() const
+    void session_info::set_key(const std::string & key_)
     {
-      return _id_ >= MIN_BLESSED_ID;
-    }
-
-    bool session_info::is_user() const
-    {
-      return _id_ <= MAX_USER_ID;
-    }
-
-    bool session_info::has_description() const
-    {
-      return !_description_.empty();
-    }
-
-    const std::string & session_info::get_description() const
-    {
-      return _description_;
-    }
-
-    bool session_info::has_id() const
-    {
-      return _id_ != INVALID_ID;
-    }
-
-    int32_t session_info::get_id() const
-    {
-      return _id_;
-    }
-
-    bool session_info::has_role_id() const
-    {
-      return _role_id_ != vire::resource::role::INVALID_ID;
-    }
-
-    int32_t session_info::get_role_id() const
-    {
-      return _role_id_;
+      _key_ = key_;
+      return;
     }
 
     bool session_info::has_key() const
@@ -241,9 +225,47 @@ namespace vire {
       return _key_;
     }
 
+    bool session_info::has_description() const
+    {
+      return !_description_.empty();
+    }
+
+    void session_info::set_description(const std::string & description_)
+    {
+      _description_ = description_;
+      return;
+    }
+
+    const std::string & session_info::get_description() const
+    {
+      return _description_;
+    }
+
+    bool session_info::has_role_identifier() const
+    {
+      return ! _role_identifier_.empty();
+    }
+
+    void session_info::set_role_identifier(const std::string & identifier_)
+    {
+      _role_identifier_ = identifier_;
+      return;
+    }
+
+    const std::string & session_info::get_role_identifier() const
+    {
+      return _role_identifier_;
+    }
+
     bool session_info::has_when() const
     {
       return vire::time::is_valid(_when_);
+    }
+
+    void session_info::set_when(const boost::posix_time::time_period & when_)
+    {
+      _when_ = when_;
+      return;
     }
 
     const boost::posix_time::time_period & session_info::get_when() const
@@ -251,14 +273,70 @@ namespace vire {
       return _when_;
     }
 
-    bool session_info::has_usecase_id() const
+    bool session_info::has_use_case_type_id() const
     {
-      return ! _usecase_id_.empty();
+      return ! _use_case_type_id_.empty();
     }
 
-    const std::string & session_info::get_usecase_id() const
+    void session_info::set_use_case_type_id(const std::string & use_case_type_id_)
     {
-      return _usecase_id_;
+      _use_case_type_id_ = use_case_type_id_;
+      return;
+    }
+
+    const std::string & session_info::get_use_case_type_id() const
+    {
+      return _use_case_type_id_;
+    }
+
+    bool session_info::has_use_case_config_path() const
+    {
+      return ! _use_case_config_path_.empty();
+    }
+
+    void session_info::set_use_case_config_path(const std::string & use_case_config_path_)
+    {
+      _use_case_config_path_ = use_case_config_path_;
+      return;
+    }
+
+    const std::string & session_info::get_use_case_config_path() const
+    {
+      return _use_case_config_path_;
+    }
+
+    bool session_info::has_use_case_config() const
+    {
+      if (_use_case_config_) return true;
+      return false;
+    }
+
+    const datatools::properties & session_info::get_use_case_config() const
+    {
+      DT_THROW_IF(!has_use_case_config(), std::logic_error,
+                  "No explicit use_case configuration is defined!");
+      return *_use_case_config_;
+    }
+
+    datatools::properties & session_info::grab_use_case_config()
+    {
+      if (!_use_case_config_) {
+        static datatools::properties empty_config;
+        _use_case_config_ = empty_config;
+      }
+      return *_use_case_config_;
+    }
+
+    void session_info::set_use_case_config(const datatools::properties & cfg_)
+    {
+      _use_case_config_ = cfg_;
+      return;
+    }
+
+    void session_info::reset_use_case_config()
+    {
+      _use_case_config_ = boost::none;
+      return;
     }
 
     bool session_info::has_special_functional_cardinalities() const
@@ -291,16 +369,16 @@ namespace vire {
       }
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "ID      : ";
-      if (has_id()) {
-        out_ << _id_;
+           << "Key         : ";
+      if (has_key()) {
+        out_ << "'" << _key_ << "'";
       } else {
         out_ << "<none>";
       }
       out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Description: ";
+           << "Description : ";
       if (has_description()) {
         out_ << "'" << _description_ << "'";
       } else {
@@ -309,16 +387,7 @@ namespace vire {
       out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Role ID : ";
-      if (has_role_id()) {
-        out_ << _role_id_;
-      } else {
-        out_ << "<none>";
-      }
-      out_ << std::endl;
-
-      out_ << indent_ << i_tree_dumpable::tag
-           << "When    : ";
+           << "When        : ";
       if (has_when()) {
         out_ << boost::posix_time::to_simple_string(_when_);
       } else {
@@ -327,9 +396,9 @@ namespace vire {
       out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Usecase ID : ";
-      if (has_usecase_id()) {
-        out_ << "'" << _usecase_id_ << "'";
+           << "Role ID     : ";
+      if (has_role_identifier()) {
+        out_ << "'" << _role_identifier_ << "'";
       } else {
         out_ << "<none>";
       }
@@ -353,45 +422,39 @@ namespace vire {
       }
       out_ << std::endl;
 
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Use case type ID : ";
+      if (has_use_case_type_id()) {
+        out_ << "'" << _use_case_type_id_ << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
+
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Explicit use case configuration : ";
+      if (!has_use_case_config()) {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
+      if (has_use_case_config()) {
+        std::ostringstream indentoss;
+        indentoss << indent_ << i_tree_dumpable::skip_tag;
+        boost::get(_use_case_config_).tree_dump(out_, "", indentoss.str());
+      }
+
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Use case configuration path : ";
+      if (!has_use_case_config_path()) {
+        out_ << "<none>";
+      } else {
+        out_ << "'" << _use_case_config_path_ << "'";
+      }
+      out_ << std::endl;
+
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
-           << "Valid   : " << std::boolalpha << is_valid() << std::endl;
+           << "Valid : " << std::boolalpha << is_valid() << std::endl;
 
-      return;
-    }
-
-    void session_info::set_id(int32_t id_)
-    {
-      _id_ = id_;
-      return;
-    }
-
-    void session_info::set_key(const std::string & key_)
-    {
-      _key_ = key_;
-      return;
-    }
-
-    void session_info::set_description(const std::string & description_)
-    {
-      _description_ = description_;
-      return;
-    }
-
-    void session_info::set_role_id(int32_t rid_)
-    {
-      _role_id_ = rid_;
-      return;
-    }
-
-    void session_info::set_when(const boost::posix_time::time_period & when_)
-    {
-      _when_ = when_;
-      return;
-    }
-
-    void session_info::set_usecase_id(const std::string & usecase_id_)
-    {
-      _usecase_id_ = usecase_id_;
       return;
     }
 

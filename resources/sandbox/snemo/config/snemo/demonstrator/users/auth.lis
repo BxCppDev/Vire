@@ -1,0 +1,5 @@
+# Format
+# login:password:password-last-change:password-min:password-max:password-warn:password-inact:password-expire
+foo:edazydiay:::::::
+bar:qsdfghjj:::::::
+baz:!zaeaqsdfghjj:::::::

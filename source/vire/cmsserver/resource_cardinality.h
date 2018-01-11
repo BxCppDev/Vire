@@ -56,8 +56,8 @@ namespace vire {
     /// Example:
     /// @code
     /// vire::cmsserver::cardinalities_request_type functional_needed_tokens;
-    /// functional_needed_tokens[1034] = 2;
-    /// functional_needed_tokens[1035] = 4;
+    /// functional_needed_tokens[1034] = 2; // 2 requested resource tokens
+    /// functional_needed_tokens[1035] = 4; // 4 requested resource tokens
     /// functional_needed_tokens[1036] = 0; // inhibit the resource
     ///
     /// vire::cmsserver::cardinalities_request_type distributable_needed_tokens;
@@ -67,17 +67,18 @@ namespace vire {
     /// distributable_needed_tokens[1056] = 3;
     /// @endcode
     ///
-    /// When initializing,  a process instantiates its  own session by
-    /// specifying not only the requested role (and thus the resources
-    /// implied by this  role) but also the number  of resource tokens
-    /// needed to fulfill its tasks.  As  a session contains a pool of
-    /// functional resources and a set of distributable resources, the
-    /// process will be able  to define two cardinalities_request_type
-    /// objects  in order  to specifically  set the  number of  tokens
-    /// associated  to some  resources to  some arbitrary  values.  By
-    /// default,  if   no  specific   request  is  defined   for  some
-    /// (functional or  distributable) resource, the number  of tokens
-    /// should be set to 1 for any limited resource.
+    /// When initializing, an use case specifies not only the requested
+    /// role (and  thus the resources  implied by this role)  but also
+    /// the number of resource tokens needed to fulfill its tasks.  As
+    /// a session contains a pool of functional resources and a set of
+    /// distributable resources,  the use case  will be able  to define
+    /// two   cardinalities_request_type    objects   in    order   to
+    /// specifically  set  the number  of  tokens  associated to  some
+    /// resources  to  some  arbitrary  values.   By  default,  if  no
+    /// specific   request  is   defined  for   some  (functional   or
+    /// distributable) resource, the number of tokens should be set to
+    /// 1 for any limited resource.
+
     struct resource_cardinality
     {
 

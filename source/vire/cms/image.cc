@@ -36,6 +36,8 @@ namespace vire {
 
   namespace cms {
 
+    // ================ INNER CLASSES ================ //
+
     void image::resource_info::reset()
     {
       res = nullptr;
@@ -61,10 +63,10 @@ namespace vire {
       return true;
     }
 
+    // ================ IMAGE ================ //
+
     image::image()
     {
-      _parent_    = nullptr;
-      _timestamp_ = vire::time::invalid_time();
       return;
     }
 
@@ -127,22 +129,6 @@ namespace vire {
       return;
     }
 
-    bool image::has_group() const
-    {
-      return !_group_.empty();
-    }
-
-    const std::string & image::get_group() const
-    {
-      return _group_;
-    }
-
-    void image::set_group(const std::string & group_)
-    {
-      _group_ = group_;
-      return;
-    }
-
     bool image::is_device() const
     {
       return _device_.is_valid();
@@ -177,6 +163,7 @@ namespace vire {
       return *_resource_.res;
     }
 
+    /*
     void image::add_daughter(image & img_)
     {
       DT_THROW_IF(is_resource(), std::logic_error, "Resource image '" << get_path() << "' cannot have daughters!");
@@ -221,160 +208,32 @@ namespace vire {
     {
       return _daughters_;
     }
+    */
 
     void image::reset()
     {
-      _values_.clear();
+      _record_.clear();
+      _leaf_name_.reset();
+      _leaf_name_.clear();
       reset_pubsub();
-      reset_missing();
-      reset_disabled();
-      reset_pending();
-      reset_failed();
-      vire::time::invalidate_time(_timestamp_);
-      _daughters_.clear();
-      _parent_ = nullptr;
       if (is_resource()) {
         reset_resource();
       }
       if (is_device()) {
         reset_device();
       }
-      _leaf_name_.clear();
       return;
     }
 
-    bool image::has_timestamp() const
-    {
-      return vire::time::is_valid(_timestamp_);
-    }
+    // const image_status & image::get_status() const
+    // {
+    //   return _status_;
+    // }
 
-    void image::set_timestamp(const boost::posix_time::ptime & t_)
-    {
-      _timestamp_ = t_;
-      return;
-    }
-
-    const boost::posix_time::ptime & image::get_timestamp() const
-    {
-      return _timestamp_;
-    }
-
-    bool image::has_missing() const
-    {
-      return _missing_;
-    }
-
-    bool image::is_present() const
-    {
-      if (!_missing_) {
-        return true;
-      }
-      return false;
-    }
-
-    bool image::is_missing() const
-    {
-      if (_missing_) {
-        return true;
-      }
-      return false;
-    }
-
-    void image::set_missing(bool m_)
-    {
-      _missing_ = m_;
-      return;
-    }
-
-    void image::reset_missing()
-    {
-      _missing_ = boost::logic::indeterminate;
-      return;
-    }
-
-    bool image::is_enabled() const
-    {
-      if (!_disabled_) {
-        return true;
-      }
-      return false;
-    }
-
-    bool image::is_disabled() const
-    {
-      if (_disabled_) {
-        return true;
-      }
-      return false;
-    }
-
-    void image::set_disabled(bool d_)
-    {
-      _disabled_ = d_;
-      return;
-    }
-
-    void image::reset_disabled()
-    {
-      _disabled_ = boost::logic::indeterminate;
-      return;
-    }
-
-    bool image::is_idle() const
-    {
-      if (!_pending_) {
-        return true;
-      }
-      return false;
-    }
-
-    bool image::is_pending() const
-    {
-      if (_pending_) {
-        return true;
-      }
-      return false;
-    }
-
-    void image::set_pending(bool p_)
-    {
-      _pending_ = p_;
-      return;
-    }
-
-    void image::reset_pending()
-    {
-      _pending_ = boost::logic::indeterminate;
-      return;
-    }
-
-    bool image::is_success() const
-    {
-      if (!_failed_) {
-        return true;
-      }
-      return false;
-    }
-
-    bool image::is_failed() const
-    {
-      if (_failed_) {
-        return true;
-      }
-      return false;
-    }
-
-    void image::set_failed(bool e_)
-    {
-      _failed_ = e_;
-      return;
-    }
-
-    void image::reset_failed()
-    {
-      _failed_ = boost::logic::indeterminate;
-      return;
-    }
+    // image_status & image::grab_status()
+    // {
+    //   return _status_;
+    // }
 
     bool image::is_pubsub() const
     {
@@ -396,14 +255,11 @@ namespace vire {
       return;
     }
 
-    void image::indeterminate_status()
-    {
-      reset_missing();
-      reset_disabled();
-      reset_pending();
-      reset_failed();
-      return;
-    }
+    // void image::indeterminate_status()
+    // {
+    //   _status_.indeterminate_flags();
+    //   return;
+    // }
 
     bool image::can_value() const
     {
@@ -484,22 +340,11 @@ namespace vire {
                   << record_.get_path()
                   << "' does not match the image's path '"
                   << get_path() << "'");
-      set_missing(record_.is_missing());
-      set_disabled(record_.is_disabled());
-      set_pending(record_.is_pending());
-      set_failed(record_.is_failed());
-      return;
-    }
-
-    void image::start()
-    {
-      _at_start_();
-      return;
-    }
-
-    void image::_at_start_()
-    {
-      if (can_value()) ;
+      // grab_status().set_timestamp(record_.get_timestamp());
+      // grab_status().set_missing(record_.is_missing());
+      // grab_status().set_disabled(record_.is_disabled());
+      // grab_status().set_pending(record_.is_pending());
+      // grab_status().set_failed(record_.is_failed());
       return;
     }
 
@@ -533,41 +378,8 @@ namespace vire {
       if (is_device()) {
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Group     : ";
-      if (has_group()) {
-        out_ << "'" << _group_ << "'";
-      } else {
-        out_ << "<none>";
-      }
-      out_ << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Timestamp : " << '[' << boost::posix_time::to_iso_string(_timestamp_) << ']'
-           << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Missing   : " << repr(_missing_)
-           << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Disabled  : " << repr(_disabled_)
-           << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Pending   : " << repr(_pending_)
-           << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Failed    : " << repr(_failed_)
-           << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Pub/Sub   : " << repr(_pubsub_)
-           << std::endl;
-
       out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
-           << "Value     : ";
+           << "Records     : ";
       if (has_value()) {
         out_ << "(size=" << get_values_size() << ")";
       } else {

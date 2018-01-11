@@ -12,7 +12,7 @@
 #@config Parameters describing the automatic deployment system (ADS) crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@parameter Height of the crate
 height : integer =  8
@@ -27,7 +27,7 @@ width : integer =  17
 #@config Parameters describing the automatic deployment system (ADS) crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@parameter Height of the crate (U)
 height : integer =  8

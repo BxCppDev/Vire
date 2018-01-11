@@ -1,54 +1,65 @@
+# -*- mode: conf-unix; -*-
 # List of sections of configuration properties (datatools::multi_properties)
 
 #@description Vire roles table
 #@key_label "id"
 #@meta_label "type"
 
+
+#######################################
 [id="1000" type="vire::resource::role"]
 
-
-
-#@description The list of allowed user groups
-allowed_groups : integer[0] =
-
-
-
-#@description The list of allowed users
-allowed_users : integer[1] = 1243
-
-
+#@description Name
+name : string = "monitorall"
 
 #@description Display name
-display_name : string = "Foo expert"
-
-
-
-#@description The list of resource path
-functional_resource.selector.resources : string[3] = \
- "mysetup:/foo/bar_18" \
- "mysetup:/foo/bar_6" \
- "mysetup:/foo/bar_7"
-
-
-
-#@description Type of the functional resource selector
-functional_resource.selector_type_id : string = "vire::resource::enumerated_resource_selector"
-
-
-
-#@description Name
-name : string = "fooexpert"
-
-
+display_name : string = "Monitor all"
 
 #@description The role path
-path : string = "mysetup:/foo/expert"
-
-
+path : string = "SuperNEMO:/Demonstrator/CMS/MonitorAll"
 
 #@description Short description
-terse_description : string = "The expert role for the foo"
+terse_description : string = "The role for monitoring all resources"
 
+# #@description The list of allowed user groups
+# allowed_groups : integer[0] =
+
+# #@description The list of allowed users
+# allowed_uids : integer[1] = 1243
+
+#@description Type of the functional resource selector
+functional_resource.selector_type_id : string = "vire::resource::by_access_resource_selector"
+
+#@description The list of resource path
+functional_resource.selector.access : string = "ro"
+
+
+#######################################
+[id="1001" type="vire::resource::role"]
+
+#@description Name
+name : string = "controlall"
+
+#@description Display name
+display_name : string = "Control all"
+
+#@description The role path
+path : string = "SuperNEMO:/Demonstrator/CMS/ControlAll"
+
+#@description Short description
+terse_description : string = "The role for control all resources"
+
+# #@description The list of allowed user groups
+# allowed_groups : integer[0] =
+
+# #@description The list of allowed users
+# allowed_uids : integer[1] = 1243
+
+#@description Type of the functional resource selector
+functional_resource.selector_type_id : string = "vire::resource::by_access_resource_selector"
+
+#@description The list of resource path
+functional_resource.selector.access : string = "rw"
 
 
 # End of list of sections of configuration properties (datatools::multi_properties)

@@ -34,13 +34,12 @@ namespace vire {
 
     mapping_info::mapping_info()
     {
-      _logical_device_ = nullptr;
-      _logical_port_   = nullptr;
       return;
     }
 
     mapping_info::~mapping_info()
     {
+      reset();
       return;
     }
 
@@ -58,32 +57,6 @@ namespace vire {
     const geomtools::geom_id & mapping_info::get_mapping_id() const
     {
       return _mapping_id_;
-    }
-
-    bool mapping_info::has_path() const
-    {
-      return ! _path_.empty();
-    }
-
-    const std::string & mapping_info::get_path() const
-    {
-      return _path_;
-    }
-
-    void mapping_info::set_path(const std::string & path_)
-    {
-      _path_ = path_;
-      return;
-    }
-
-    bool mapping_info::is_device() const
-    {
-      return _logical_device_ != nullptr;
-    }
-
-    bool mapping_info::is_port() const
-    {
-      return _logical_port_ != nullptr;
     }
 
     bool mapping_info::has_parent_device_id() const
@@ -119,75 +92,17 @@ namespace vire {
       return;
     }
 
-    bool mapping_info::has_logical() const
-    {
-      return has_logical_device() || has_logical_port();
-    }
-
-    bool mapping_info::has_logical_device() const
-    {
-      return _logical_device_ != 0;
-    }
-
-    bool mapping_info::has_logical_port() const
-    {
-      return _logical_port_ != 0;
-    }
-
-    void mapping_info::set_logical_device(const logical_device & l_)
-    {
-      _logical_device_ = &l_;
-    }
-
-    const logical_device & mapping_info::get_logical_device() const
-    {
-      DT_THROW_IF(! is_device(), std::logic_error, "Missing logical device !");
-      return *_logical_device_;
-    }
-
-    void mapping_info::set_logical_port(const logical_port & l_)
-    {
-      _logical_port_ = &l_;
-    }
-
-    const logical_port & mapping_info::get_logical_port() const
-    {
-      DT_THROW_IF(! is_port(), std::logic_error, "Missing logical port !");
-      return *_logical_port_;
-    }
-
-    bool mapping_info::has_serial_number() const
-    {
-      return ! _serial_number_.empty();
-    }
-
-    void mapping_info::set_serial_number(const std::string & sn_)
-    {
-      DT_THROW_IF(!is_device(), std::logic_error, "Only devices can have a serial number!");
-      _serial_number_ = sn_;
-      return;
-    }
-
-    const std::string & mapping_info::get_serial_number() const
-    {
-      return _serial_number_;
-    }
-
     bool mapping_info::is_valid() const
     {
+      if (!this->instance_info::is_valid()) return false;
       if (!_mapping_id_.is_valid()) return false;
-      if (! has_logical()) return false;
-      if (is_device() && !_logical_device_->is_initialized())  return false;
-      if (is_port() && !_logical_port_->is_initialized())  return false;
       return true;
     }
 
     void mapping_info::reset()
     {
       _mapping_id_.reset();
-      _parent_device_id_.reset();
-      _logical_device_ = 0;
-      _logical_port_   = 0;
+      this->instance_info::reset();
       return;
     }
 

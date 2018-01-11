@@ -41,6 +41,8 @@
 #include <vire/device/mapping_utils.h>
 #include <vire/device/logical_port.h>
 #include <vire/device/logical_device.h>
+#include <vire/utility/path.h>
+#include <vire/device/instance_tree_builder.h>
 
 namespace vire {
 
@@ -50,7 +52,7 @@ namespace vire {
     DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(manager, "vire::device::manager");
 
     // static
-    const std::string & manager::default_top_level_name()
+    const std::string & manager::default_top_level_device_model_name()
     {
       static std::string _name("setup");
       return _name;
@@ -61,6 +63,13 @@ namespace vire {
     {
       static std::string _name("devices");
       return _name;
+    }
+
+    vire::utility::instance_identifier manager::get_setup_id() const
+    {
+      vire::utility::instance_identifier iid;
+      iid.set(_setup_label_, _setup_version_);
+      return iid;
     }
 
     void manager::set_setup_label(const std::string & label_)
@@ -94,9 +103,20 @@ namespace vire {
       return _setup_version_;
     }
 
-    const std::string& manager::get_setup_description() const
+    const std::string & manager::get_setup_description() const
     {
       return _setup_description_;
+    }
+
+    void manager::set_top_level_device_model_name(const std::string & name_)
+    {
+      _top_level_device_model_name_ = name_;
+      return;
+    }
+
+    const std::string & manager::get_top_level_device_model_name() const
+    {
+      return _top_level_device_model_name_;
     }
 
     void manager::add_factory_preload_system_only(const std::string & id_)
@@ -445,6 +465,14 @@ namespace vire {
         set_propagate_logging_to_devices(config_.fetch_boolean("propagate_logging_to_devices"));
       }
 
+      if (config_.has_key("top_level_device_model_name")) {
+        set_top_level_device_model_name(config_.fetch_string("top_level_device_model_name"));
+      }
+
+      if (_top_level_device_model_name_.empty()) {
+        _top_level_device_model_name_ = default_top_level_device_model_name();
+      }
+
       if (config_.has_key("mapping_requested")) {
         set_mapping_requested(config_.fetch_boolean("mapping_requested"));
       }
@@ -523,6 +551,7 @@ namespace vire {
       // Default list of property prefixes to be preserved in device models:
       std::vector<std::string> default_preserved_property_prefixes;
       default_preserved_property_prefixes.push_back(geomtools::mapping_utils::mapping_prefix());
+      default_preserved_property_prefixes.push_back("tree.");
       // default_preserved_property_prefixes.push_back("visibility.");
       // default_preserved_property_prefixes.push_back("foo.");
       // default_preserved_property_prefixes.push_back("bar.");
@@ -667,20 +696,32 @@ namespace vire {
       _initialized_ = true;
 
       // Post-initialization:
+      _post_init_(config_);
 
-      // Mapping :
-      if (is_mapping_requested()) {
-        _mapping_.set_logging_priority(get_logging_priority());
-        _mapping_.set_manager(*this);
-        _mapping_.set_mapping_manager(_mapping_manager_);
-        _mapping_.set_top_level_name(default_top_level_name());
-        datatools::properties mapping_config;
-        config_.export_and_rename_starting_with(mapping_config, geomtools::mapping_utils::mapping_prefix(), "");
-        _mapping_.configure(mapping_config);
-        DT_LOG_DEBUG(get_logging_priority(), "Initializing the mapping...");
-        _mapping_.initialize();
-        DT_LOG_DEBUG(get_logging_priority(), "Mapping is built");
-      }
+      // // Mapping :
+      // if (is_mapping_requested()) {
+      //   _mapping_.set_logging_priority(get_logging_priority());
+      //   _mapping_.set_manager(*this);
+      //   _mapping_.set_mapping_manager(_mapping_manager_);
+      //   _mapping_.set_top_level_device_model_name(get_top_level_device_model_name());
+      //   _mapping_.set_top_level_device_instance_name(get_setup_label() + vire::utility::path::setup_separator());
+      //   datatools::properties mapping_config;
+      //   config_.export_and_rename_starting_with(mapping_config,
+      //                                           geomtools::mapping_utils::mapping_prefix(),
+      //                                           "");
+      //   if (datatools::logger::is_debug(get_logging_priority())) {
+      //     DT_LOG_DEBUG(get_logging_priority(), "Mapping configuration:");
+      //     mapping_config.tree_dump(std::cerr, "", "[debug] ");
+      //   }
+      //   // _mapping_.configure(mapping_config);
+      //   if (datatools::logger::is_debug(get_logging_priority())) {
+      //     DT_LOG_DEBUG(get_logging_priority(), "Mapping before initialization:");
+      //     _mapping_.tree_dump(std::cerr, "", "[debug] ");
+      //   }
+      //   DT_LOG_DEBUG(get_logging_priority(), "Initializing the mapping...");
+      //   _mapping_.initialize(mapping_config);
+      //   DT_LOG_DEBUG(get_logging_priority(), "Mapping is built");
+      // }
 
       // Plugins:
       // ... nothing yet...
@@ -723,6 +764,7 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(!_initialized_, std::logic_error, "Manager is not initialized !");
+      _pre_reset_();
       _initialized_ = false;
       size_t count = _models_.size();
       size_t initial_size = _models_.size();
@@ -743,9 +785,6 @@ namespace vire {
       }
       if (_models_.size() > 0) {
         DT_LOG_WARNING(get_logging_priority(), "There are some remaining models !");
-      }
-      if (_mapping_.is_initialized()) {
-        _mapping_.reset();
       }
       _mapping_manager_.reset();
       _logical_ports_.clear();
@@ -858,6 +897,77 @@ namespace vire {
       return _mapping_;
     }
 
+    const instance_tree & manager::get_tree() const
+    {
+      return _tree_;
+    }
+
+    void manager::_post_init_(const datatools::properties & config_)
+    {
+      _init_tree_(config_);
+      _init_mapping_(config_);
+      return;
+    }
+
+    void manager::_pre_reset_()
+    {
+      _reset_mapping_();
+      _reset_tree_();
+      return;
+    }
+
+    void manager::_init_tree_(const datatools::properties & config_)
+    {
+      instance_tree_builder builder;
+      datatools::properties builder_config;
+      config_.export_and_rename_starting_with(builder_config, "tree.", "");
+      builder.configure(builder_config);
+      builder.build(*this, _tree_);
+      return;
+    }
+
+    void manager::_reset_tree_()
+    {
+      _tree_.reset();
+      return;
+    }
+
+    void manager::_init_mapping_(const datatools::properties & config_)
+    {
+      // Mapping :
+      if (is_mapping_requested()) {
+        _mapping_.set_logging_priority(get_logging_priority());
+        _mapping_.set_manager(*this);
+        _mapping_.set_mapping_manager(_mapping_manager_);
+        _mapping_.set_top_level_device_model_name(get_top_level_device_model_name());
+        _mapping_.set_top_level_device_instance_name(get_setup_label() + vire::utility::path::setup_separator());
+        datatools::properties mapping_config;
+        config_.export_and_rename_starting_with(mapping_config,
+                                                geomtools::mapping_utils::mapping_prefix(),
+                                                "");
+        if (datatools::logger::is_debug(get_logging_priority())) {
+          DT_LOG_DEBUG(get_logging_priority(), "Mapping configuration:");
+          mapping_config.tree_dump(std::cerr, "", "[debug] ");
+        }
+        if (datatools::logger::is_debug(get_logging_priority())) {
+          DT_LOG_DEBUG(get_logging_priority(), "Mapping before initialization:");
+          _mapping_.tree_dump(std::cerr, "", "[debug] ");
+        }
+        DT_LOG_DEBUG(get_logging_priority(), "Initializing the mapping...");
+        _mapping_.initialize(mapping_config);
+        DT_LOG_DEBUG(get_logging_priority(), "Mapping is built");
+      }
+      return;
+    }
+
+    void manager::_reset_mapping_()
+    {
+      if (_mapping_.is_initialized()) {
+        _mapping_.reset();
+      }
+      return;
+    }
+
     void manager::dump_device_models(std::ostream & out_,
                                      const std::string & title_,
                                      const std::string & indent_) const
@@ -907,54 +1017,69 @@ namespace vire {
       return;
     }
 
-    void manager::tree_dump(std::ostream & out_,
-                            const std::string & title_,
-                            const std::string & indent_,
-                            bool inherit_) const
-    {
-      this->datatools::base_service::tree_dump(out_, title_, indent_, true);
+    // void manager::tree_dump(std::ostream & out_,
+    //                       const std::string & title_,
+    //                       const std::string & indent_,
+    //                       bool inherit_) const
+    // {
+    //   datatools::i_tree_dumpable::print_options popts;
+    //   popts.configure(options_)
+    //   return;
+    // }
 
-      out_ << indent_ << i_tree_dumpable::tag
+    void manager::print_tree(std::ostream & out_,
+                             const boost::property_tree::ptree & options_) const
+    {
+      datatools::i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+      bool tree_list     = options_.get<bool>("tree.list_instances", false);
+      // bool tree_full     = options_.get<bool>("tree.full_instances", false);
+      bool mapping_list  = options_.get<bool>("mapping.list_categories", false);
+      bool mapping_full  = options_.get<bool>("mapping.full_categories", false);
+      bool mapping_list_ids = options_.get<bool>("mapping.list_ids", false);
+      bool models_list   = options_.get<bool>("models.list", false);
+      bool models_full   = options_.get<bool>("models.full", false);
+      bool logicals_list = options_.get<bool>("logicals.list", false);
+      bool ports_list    = options_.get<bool>("ports.list", false);
+
+      this->datatools::base_service::tree_dump(out_, popts.title, popts.indent, true);
+
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Setup label       : '"
            << _setup_label_
            << "'" << std::endl;
 
-      out_ << indent_ << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Setup version     : '"
            << _setup_version_
            << "'" << std::endl;
 
-      out_ << indent_ << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Setup description : '"
            << _setup_description_
            << "'" << std::endl;
 
-      out_ << indent_ << i_tree_dumpable::tag
-           << "Logging priority : '"
-           << datatools::logger::get_priority_label(get_logging_priority())
-           << "'" << std::endl;
+      // out_ << popts.indent << i_tree_dumpable::tag
+      //      << "Logging priority : '"
+      //      << datatools::logger::get_priority_label(get_logging_priority())
+      //      << "'" << std::endl;
 
-      out_ << indent_ << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Factory preload system all : "
            << _factory_preload_system_all_
            << std::endl;
 
-      out_ << indent_ << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Force initialization : "
            << _force_initialization_at_load_
            << std::endl;
 
-      out_ << indent_ << i_tree_dumpable::tag
-           << "Mapping requested : "
-           << _mapping_requested_
-           << std::endl;
-
-      out_ << indent_ << i_tree_dumpable::tag
+      out_ << popts.indent << i_tree_dumpable::tag
            << "Auxiliary property prefixes : " << '[' << _auxiliary_property_prefixes_.size() << ']'
            << std::endl;
       for (int i = 0; i < _auxiliary_property_prefixes_.size(); i++) {
         const std::string & prefix = _auxiliary_property_prefixes_[i];
-        out_ << indent_ << i_tree_dumpable::skip_tag;
+        out_ << popts.indent << i_tree_dumpable::skip_tag;
         if (i < _auxiliary_property_prefixes_.size() - 1) {
           out_ << i_tree_dumpable::tag;
         } else {
@@ -965,27 +1090,27 @@ namespace vire {
       }
 
       if (_device_factory_register_) {
-        out_ << indent_ << i_tree_dumpable::tag
+        out_ << popts.indent << i_tree_dumpable::tag
              << "List of registered device model factories : " << std::endl;
         {
           std::ostringstream indent_oss;
-          indent_oss << indent_ << i_tree_dumpable::skip_tag;
+          indent_oss << popts.indent << i_tree_dumpable::skip_tag;
           _device_factory_register_->tree_dump(out_, "", indent_oss.str());
         }
       }
 
       if (_port_factory_register_) {
-        out_ << indent_ << i_tree_dumpable::tag
+        out_ << popts.indent << i_tree_dumpable::tag
              << "List of registered port model factories : " << std::endl;
         {
           std::ostringstream indent_oss;
-          indent_oss << indent_ << i_tree_dumpable::skip_tag;
+          indent_oss << popts.indent << i_tree_dumpable::skip_tag;
           _port_factory_register_->tree_dump(out_, "", indent_oss.str());
         }
       }
 
       {
-        out_ << indent_ << i_tree_dumpable::tag
+        out_ << popts.indent << i_tree_dumpable::tag
              << "Models : ";
         size_t sz = _models_.size();
         if (sz == 0) {
@@ -994,31 +1119,35 @@ namespace vire {
           out_ << '[' << _models_.size() << ']';
         }
         out_ << std::endl;
-        for (model_pool_type::const_iterator i = _models_.begin();
-             i != _models_.end();
-             ++i) {
-          const std::string & model_name = i->first;
-          const model_entry & comp_entry = i->second;
-          out_ << indent_ << i_tree_dumpable::skip_tag;
+        if (models_list) {
+          for (model_pool_type::const_iterator i = _models_.begin();
+               i != _models_.end();
+               ++i) {
+            const std::string & model_name = i->first;
+            const model_entry & comp_entry = i->second;
+            out_ << popts.indent << i_tree_dumpable::skip_tag;
 
-          std::ostringstream indent_oss;
-          indent_oss << indent_ << i_tree_dumpable::skip_tag;
-          model_pool_type::const_iterator j = i;
-          j++;
-          if (j == _models_.end()) {
-            out_ << i_tree_dumpable::last_tag;
-            indent_oss << i_tree_dumpable::last_skip_tag;
-          } else {
-            out_ << i_tree_dumpable::tag;
-            indent_oss << i_tree_dumpable::skip_tag;
+            std::ostringstream indent_oss;
+            indent_oss << popts.indent << i_tree_dumpable::skip_tag;
+            model_pool_type::const_iterator j = i;
+            j++;
+            if (j == _models_.end()) {
+              out_ << i_tree_dumpable::last_tag;
+              indent_oss << i_tree_dumpable::last_skip_tag;
+            } else {
+              out_ << i_tree_dumpable::tag;
+              indent_oss << i_tree_dumpable::skip_tag;
+            }
+            out_ << "Model : '" << model_name << "'" << std::endl;
+            if (models_full) {
+              comp_entry.tree_dump(out_, "", indent_oss.str());
+            }
           }
-          out_ << "Model : '" << model_name << "'" << std::endl;
-          comp_entry.tree_dump(out_, "", indent_oss.str());
         }
       }
 
-      {
-        out_ << indent_ << i_tree_dumpable::tag
+      if (logicals_list) {
+        out_ << popts.indent << i_tree_dumpable::tag
              << "Logical devices : ";
         size_t sz = _logical_devices_.size();
         if (sz == 0) {
@@ -1029,8 +1158,8 @@ namespace vire {
         out_ << std::endl;
       }
 
-      {
-        out_ << indent_ << i_tree_dumpable::tag
+      if (ports_list) {
+        out_ << popts.indent << i_tree_dumpable::tag
              << "Logical ports : ";
         size_t sz = _logical_ports_.size();
         if (sz == 0) {
@@ -1042,25 +1171,73 @@ namespace vire {
       }
 
       {
-        out_ << indent_ << i_tree_dumpable::tag
+        out_ << popts.indent << i_tree_dumpable::tag
+             << "Instance tree : "
+          // << _tree_.size() << " instance entries"
+             << std::endl;
+        boost::property_tree::ptree tree_options;
+        if (tree_list) {
+          tree_options.put("list_instances", true);
+          tree_options.put(datatools::i_tree_dumpable::base_print_options::indent_key(),
+                           popts.indent + tags::skip_item());
+
+          _tree_.print_tree(out_, tree_options);
+          // std::size_t count = 0;
+          // for (const auto & p : _tree_.get_instances()) {
+          //   count++;
+          //   out_ << popts.indent <<  i_tree_dumpable::tag;
+          //   if (count == _tree_.get_instances().size()) {
+          //     out_ << i_tree_dumpable::last_tag;
+          //   } else {
+          //     out_ << i_tree_dumpable::tag;
+          //   }
+          //   out_ << "Instance path : '" << p.first << "'";
+          //   out_ << std::endl;
+          // }
+        }
+      }
+
+      out_ << popts.indent << i_tree_dumpable::tag
+           << "Mapping requested : "
+           << _mapping_requested_
+           << std::endl;
+
+      if (_mapping_requested_) {
+        out_ << popts.indent << i_tree_dumpable::tag
              << "Mapping ID manager    : "
              << std::endl;
         std::ostringstream indent_oss;
-        indent_oss << indent_ << i_tree_dumpable::skip_tag;
-        _mapping_manager_.tree_dump(std::clog, "", indent_oss.str());
+        indent_oss << popts.indent << i_tree_dumpable::skip_tag;
+
+        boost::property_tree::ptree mapmgr_options;
+        mapmgr_options.put(datatools::i_tree_dumpable::base_print_options::indent_key(),
+                           popts.indent + datatools::i_tree_dumpable::tags::item(false, true));
+        if (mapping_list) {
+          mapmgr_options.put("list_categories", true);
+          if (mapping_full) {
+            mapmgr_options.put("full_categories", true);
+          }
+        }
+        _mapping_manager_.print_tree(out_, mapmgr_options);
       }
 
-      {
-        out_ << indent_ << i_tree_dumpable::tag
-             << "Mapping    : "
+      if (_mapping_requested_) {
+        out_ << popts.indent << i_tree_dumpable::tag
+             << "Mapping : " << _mapping_.get_number_of_entries() << " mapping entries"
              << std::endl;
+        boost::property_tree::ptree map_options;
         std::ostringstream indent_oss;
-        indent_oss << indent_ << i_tree_dumpable::skip_tag;
-        _mapping_.tree_dump(std::clog, "", indent_oss.str());
+        indent_oss << popts.indent << i_tree_dumpable::skip_tag;
+        map_options.put(datatools::i_tree_dumpable::base_print_options::indent_key(),
+                        popts.indent + datatools::i_tree_dumpable::tags::item(false, true));
+        if (mapping_list_ids) {
+          map_options.put("list_ids", true);
+        }
+        _mapping_.print_tree(std::clog, map_options);
       }
 
       {
-        out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
+        out_ << popts.indent << i_tree_dumpable::inherit_tag(popts.inherit)
              << "Initialized    : "
              << this->is_initialized()
              << std::endl;

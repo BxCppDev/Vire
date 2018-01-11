@@ -383,7 +383,14 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Auth manager is already initialized!");
 
+      if (datatools::logger::is_debug(get_logging_priority())) {
+        config_.tree_dump(std::cerr, "Auth manager config: ", "[debug] ");
+      }
       this->::datatools::base_service::common_initialize(config_);
+
+      //DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Name = '" << get_name() << "'");
+      //DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Logging priority = " << datatools::logger::get_priority_label(get_logging_priority()));
+      //DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Credentials table path = " << _credentials_table_path_);
 
       if (!has_users()) {
         if (_users_service_name_.empty()) {
@@ -394,6 +401,8 @@ namespace vire {
             users_service_name = vire::user::manager::default_service_name();
           }
           set_users_service_name(users_service_name);
+          DT_LOG_DEBUG(get_logging_priority(),
+                       "Users service name = '" << _users_service_name_ << "'");
         }
         if (!has_users_service_name()) {
           const vire::user::manager & userMgr
@@ -411,6 +420,7 @@ namespace vire {
           set_credentials_table_path(config_.fetch_string("credentials_table_path"));
         }
       }
+      DT_LOG_DEBUG(get_logging_priority(), "Credentials table path = " << _credentials_table_path_);
 
       if (config_.has_key("dont_load_tables")) {
         set_dont_load_tables(config_.fetch_boolean("dont_load_tables"));
@@ -431,8 +441,9 @@ namespace vire {
                   "Missing credentials table path!");
 
       // Initialization:
-      datatools::fetch_path_with_env(_credentials_table_path_);
-      if (boost::filesystem::exists(_credentials_table_path_)) {
+      std::string tmp_path = _credentials_table_path_;
+      datatools::fetch_path_with_env(tmp_path);
+      if (boost::filesystem::exists(tmp_path)) {
         if (is_load_tables()) {
           DT_LOG_DEBUG(get_logging_priority(), "Loading credentials table...");
           _load_credentials_table(_credentials_table_path_, 0);

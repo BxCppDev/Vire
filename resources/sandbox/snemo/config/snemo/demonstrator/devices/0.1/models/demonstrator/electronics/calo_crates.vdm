@@ -12,7 +12,7 @@
 #@config Parameters describing the main calorimeter frontend electronics crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@parameter Height of the crate
 height : integer =  8
@@ -78,7 +78,7 @@ modules.slot_20.label : string = "FEB_19"
 #@config Parameters describing the xcalo/gveto/trigger frontend electronics crate
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@parameter Height of the crate
 height : integer =  8

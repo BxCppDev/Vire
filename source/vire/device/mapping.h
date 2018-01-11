@@ -119,11 +119,17 @@ namespace vire {
       //! Return link mapping
       bool is_link_mapping() const;
 
-      //! Set the name of the top-level device
-      void set_top_level_name(const std::string &);
+      //! Set the name of the top-level device model
+      void set_top_level_device_model_name(const std::string &);
 
-      //! Returnt the name of the top-level device
-      const std::string & get_top_level_name() const;
+      //! Returnt the name of the top-level device model
+      const std::string & get_top_level_device_model_name() const;
+
+      //! Set the name of the top-level device model
+      void set_top_level_device_instance_name(const std::string &);
+
+      //! Returnt the name of the top-level device instance
+      const std::string & get_top_level_device_instance_name() const;
 
       //! Check if mapping should be built only for a specific set of categories
       bool is_mode_only() const;
@@ -140,23 +146,13 @@ namespace vire {
       //! Check initialization status
       bool is_initialized() const;
 
-      //! Configure the mapping algorithm
-      void configure(const datatools::properties & config_);
+    public:
 
       //! Initialization
-      void initialize();
+      void initialize(const datatools::properties & config_);
 
       //! Reset
       void reset();
-
-      //! Build the mapping
-      void build(const std::string & setup_ = "");
-
-      // //! Validate a mapping identifier
-      // bool validate_id(const geomtools::geom_id & id_) const;
-
-      // //! Validate a mapping path
-      // bool validate_path(const std::string & path_) const;
 
       //! Return the number of mapped entries
       std::size_t get_number_of_entries() const;
@@ -182,11 +178,22 @@ namespace vire {
       //! Return a mapping information record given its path
       const mapping_info & get_mapping_info(const std::string & path_) const;
 
+      //! Return a handle to the top-level logical device
+      const logical_device & get_top_level_logical() const;
+
       //! Smart print
-      virtual void tree_dump(std::ostream & out_         = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_               = false) const;
+      //!
+      //! Supported options:
+      //! \code
+      //! {
+      //!   "title"    : "My title: ",
+      //!   "indent"   : "[debug] ",
+      //!   "inherit"  : true,
+      //!   "list_ids" : true
+      //! }
+      //! \endcode
+      virtual void print_tree(std::ostream & out_ = std::clog,
+                              const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
 
     protected:
 
@@ -202,6 +209,12 @@ namespace vire {
 
       //! Set default attributes' values
       void _set_defaults();
+
+      //! Configure the mapping algorithm
+      void _configure(const datatools::properties & config_);
+
+      //! Build the mapping from the top-level
+      void _top_build();
 
       //! Build the mapping records
       void _build();
@@ -225,22 +238,23 @@ namespace vire {
 
       // Management:
       datatools::logger::priority  _logging_priority_;    //!< Logging priority threshold
-      bool                         _initialized_;         //!< Initialization flag
+      bool                         _initialized_ = false; //!< Initialization flag
 
       // Configuration attributes:
-      const manager *              _manager_;             //!< Handle to the device model manager
+      const manager *              _manager_ = nullptr;   //!< Handle to the device model manager
       bool                         _top_level_mapping_;   //!< Flag to activate the mapping of the top-level logical
-      unsigned int                 _max_depth_;           //!< Maximum mapping depth at build
-      std::string                  _top_level_name_;      //!< Name of the top-level device model
+      unsigned int                 _max_depth_ = 0;           //!< Maximum mapping depth at build
+      std::string                  _top_level_device_model_name_;    //!< Name of the top-level device model
+      std::string                  _top_level_device_instance_name_; //!< Name of the top-level device instance
       std::vector<std::string>     _only_categories_;     //!< List of device categories to be mapped
       std::vector<std::string>     _excluded_categories_; //!< List of device categories to be excluded from the mapping
-      bool                         _port_mapping_;        //!< Flag to activate the mapping of devices' internal ports
-      bool                         _link_mapping_;        //!< Flag to activate the mapping of devices' internal links
+      bool                         _port_mapping_ = true; //!< Flag to activate the mapping of devices' internal ports
+      bool                         _link_mapping_ = false; //!< Flag to activate the mapping of devices' internal links
 
       // Working/internal data:
-      const logical_device *    _top_level_logical_;  //!< Handle to the top-level logical device
-      const geomtools::id_mgr * _mapping_manager_;    //!< Mapping identifier (ID) manager
-      unsigned int              _mapping_depth_;      //!< Running depth at build
+      const logical_device *    _top_level_logical_ = nullptr;  //!< Handle to the top-level logical device
+      const geomtools::id_mgr * _mapping_manager_ = nullptr;    //!< Mapping identifier (ID) manager
+      unsigned int              _mapping_depth_ = 0;      //!< Running depth at build
 
       // PIMPL-ized working data with embedded dictionary of mapping info:
       struct work;
@@ -254,10 +268,8 @@ namespace vire {
 
 #endif // VIRE_DEVICE_MAPPING_H
 
-/*
-** Local Variables: --
-** mode: c++ --
-** c-file-style: "gnu" --
-** tab-width: 2 --
-** End: --
-*/
+// Local Variables: --
+// mode: c++ --
+// c-file-style: "gnu" --
+// tab-width: 2 --
+// End: --

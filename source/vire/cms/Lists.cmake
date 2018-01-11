@@ -2,7 +2,9 @@ list(APPEND VireLibrary_HEADERS
   cms/utils.h
   cms/status.h
   cms/status-reflect.h
-  cms/image.h
+  cms/monitoring.h
+  cms/image_status.h
+  #cms/image.h
   cms/resource_status_record.h
   cms/resource_status_record-serial.ipp
   cms/method_argument.h
@@ -75,7 +77,9 @@ list(APPEND VireLibrary_PRIVATE_HEADERS
 list(APPEND VireLibrary_SOURCES
   cms/utils.cc
   cms/status.cc
-  cms/image.cc
+  cms/monitoring.cc
+  cms/image_status.cc
+  #cms/image.cc
   cms/resource_status_record.cc
   cms/method_argument.cc
   #cms/experiment_image_registry.cc
@@ -115,7 +119,9 @@ list(APPEND VireLibrary_SOURCES
 
 list(APPEND VireLibrary_TESTS
   cms/testing/test-cms-utils.cxx
-  cms/testing/test-cms-image.cxx
+  cms/testing/test-cms-image_status.cxx
+  cms/testing/test-cms-monitoring.cxx
+  #cms/testing/test-cms-image.cxx
   cms/testing/test-cms-resource_status_record.cxx
 
   cms/testing/test-cms-invalid_resource_error.cxx

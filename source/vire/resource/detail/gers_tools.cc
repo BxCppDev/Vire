@@ -74,9 +74,9 @@ namespace vire {
                                         expression_ast & ast_)
       {
         datatools::command::returned_info rinfo;
-        std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::parse: "
-                  << "Entering..."
-                  << std::endl;
+        // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::parse: "
+        //           << "Entering..."
+        //           << std::endl;
         using boost::spirit::ascii::space;
 
         typedef std::string::const_iterator iterator_type;
@@ -90,16 +90,16 @@ namespace vire {
         if (r && iter == end) {
           printer(ast_);
           std::clog << std::endl;
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::parse: "
-                    << "Exiting: SUCCESS!"
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::parse: "
+          //           << "Exiting: SUCCESS!"
+          //           << std::endl;
           return rinfo;
         }
         // Error:
         std::string rest(iter, end);
-        std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::parse: "
-                  << "Exiting: FAILURE!"
-                  << std::endl;
+        // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::parse: "
+        //           << "Exiting: FAILURE!"
+        //           << std::endl;
         DT_COMMAND_RETURNED_ERROR(rinfo, datatools::command::CEC_COMMAND_INVALID_SYNTAX,
                                   "Parsing failed at '" << rest << "'!");
         return rinfo;
@@ -112,17 +112,17 @@ namespace vire {
                                             cuts::cut_handle_type & hcut_)
       {
         datatools::command::returned_info rinfo;
-        std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::build_cut: "
-                  << "Entering..."
-                  << std::endl;
+        // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::build_cut: "
+        //           << "Entering..."
+        //           << std::endl;
 
         hcut_.reset();
         rinfo = _build_cut_from_ast_node(ast_, mgr_, hcut_);
 
 
-        std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::build_cut: "
-                  << "Exiting: FAILURE!"
-                  << std::endl;
+        // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::build_cut: "
+        //           << "Exiting: FAILURE!"
+        //           << std::endl;
         return rinfo;
       }
 
@@ -140,9 +140,9 @@ namespace vire {
 
           // Fetch a selector by name from the manager:
           const std::string & role_path = id_node->path;
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found identifier node with path '" << role_path << "'"
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found identifier node with path '" << role_path << "'"
+          //           << std::endl;
           if (!mgr_.has_role_by_path(role_path)) {
             DT_COMMAND_RETURNED_ERROR(rinfo, datatools::command::CEC_PARAMETER_INVALID_VALUE,
                                       "Resource manager has no role with path '" << role_path << "'!");
@@ -160,9 +160,9 @@ namespace vire {
 
           // Create a regex selector:
           const std::string & regex = re_node->re;
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found regex node with regex '" << regex << "'..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found regex node with regex '" << regex << "'..."
+          //           << std::endl;
           regex_resource_selector * rrs = new regex_resource_selector;
           hcut_.reset(rrs);
           rrs->set_resource_mgr(mgr_);
@@ -173,9 +173,9 @@ namespace vire {
 
           // Create a by access selector:
           const std::string & access_label = ac_node->label;
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found access node with label '" << access_label << "'..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found access node with label '" << access_label << "'..."
+          //           << std::endl;
           by_access_resource_selector * bars = new by_access_resource_selector;
           hcut_.reset(bars);
           bars->set_resource_mgr(mgr_);
@@ -186,9 +186,9 @@ namespace vire {
 
           // Create a ranged selector:
           const range_node::range_pair_type & rp = ra_node->range_pair;
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found range node with range '[" << rp.first << ';' << rp.second << "]'..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found range node with range '[" << rp.first << ';' << rp.second << "]'..."
+          //           << std::endl;
           ranged_resource_selector * rrs = new ranged_resource_selector;
           hcut_.reset(rrs);
           rrs->set_resource_mgr(mgr_);
@@ -199,9 +199,9 @@ namespace vire {
 
           // Create a enumerated selector:
           const enum_node::path_coll_type & pc = en_node->paths;
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found enumeration node with [" << pc.size() << "] paths..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found enumeration node with [" << pc.size() << "] paths..."
+          //           << std::endl;
           enumerated_resource_selector * ers = new enumerated_resource_selector;
           hcut_.reset(ers);
           ers->set_resource_mgr(mgr_);
@@ -212,9 +212,9 @@ namespace vire {
 
         } else if (const expression_ast * expr_node = boost::get<expression_ast>(&ast_.expr)) {
 
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found expression AST node..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found expression AST node..."
+          //           << std::endl;
           rinfo = _build_cut_from_ast_node(expr_node->expr, mgr_, hcut_);
           if (rinfo.is_failure()) {
             return rinfo;
@@ -223,26 +223,26 @@ namespace vire {
         } else if (const binary_op * binop_node = boost::get<binary_op>(&ast_.expr)) {
 
           // Build a binary operator selector:
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found binary_op node..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found binary_op node..."
+          //           << std::endl;
           char op = binop_node->op;
           cuts::i_binary_cut * bincut = 0;
           if (op == '+') {
             bincut = new cuts::or_cut;
-            std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                      << "Found OR binary cut..."
-                      << std::endl;
+            // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+            //           << "Found OR binary cut..."
+            //           << std::endl;
           } else if (op == '*') {
             bincut = new cuts::and_cut;
-            std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                      << "Found AND binary cut..."
-                      << std::endl;
+            // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+            //           << "Found AND binary cut..."
+            //           << std::endl;
           } else if (op == '-') {
             bincut = new cuts::exclude_cut;
-            std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                      << "Found EXCLUDE binary cut..."
-                      << std::endl;
+            // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+            //           << "Found EXCLUDE binary cut..."
+            //           << std::endl;
           } else {
             DT_COMMAND_RETURNED_ERROR(rinfo, datatools::command::CEC_PARAMETER_INVALID_KEY,
                                       "Invalid binary operator '" << op << "'!");
@@ -265,9 +265,9 @@ namespace vire {
         } else if (const unary_op * unop_node = boost::get<unary_op>(&ast_.expr)) {
 
           // Build an unary operator selector:
-          std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
-                    << "Found unary_op node..."
-                    << std::endl;
+          // std::cerr << "DEVEL: vire::resource::detail::general_expression_parsing::_build_cut_from_ast_node: "
+          //           << "Found unary_op node..."
+          //           << std::endl;
           char op = unop_node->op;
           if (op == '!') {
             cuts::not_cut * negcut = new cuts::not_cut;

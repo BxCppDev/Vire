@@ -177,8 +177,8 @@ namespace vire {
     // static
     const std::string & manager::default_universe_role_name()
     {
-      static const std::string _durn("__universe__");
-      return _durn;
+      static const std::string _name("__universe__");
+      return _name;
     }
 
     bool manager::has_roles_table_path() const
@@ -232,7 +232,7 @@ namespace vire {
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role manager is already initialized!");
       _dont_load_tables_ = flag_;
-      DT_LOG_TRACE(get_logging_priority(), "Set dont_load_tables = " << _dont_load_tables_);
+      DT_LOG_TRACE(get_logging_priority(), "Set dont_load_tables = " << std::boolalpha << _dont_load_tables_);
       return;
     }
 
@@ -240,7 +240,7 @@ namespace vire {
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role manager is already initialized!");
       _dont_store_tables_ = flag_;
-      DT_LOG_TRACE(get_logging_priority(), "Set dont_store_tables = " << _dont_store_tables_);
+      DT_LOG_TRACE(get_logging_priority(), "Set dont_store_tables = " << std::boolalpha << _dont_store_tables_);
       return;
     }
 
@@ -248,7 +248,7 @@ namespace vire {
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role manager is already initialized!");
       _dont_backup_tables_ = flag_;
-      DT_LOG_TRACE(get_logging_priority(), "Set dont_backup_tables = " << _dont_backup_tables_);
+      DT_LOG_TRACE(get_logging_priority(), "Set dont_backup_tables = " << std::boolalpha << _dont_backup_tables_);
       return;
     }
 
@@ -439,18 +439,19 @@ namespace vire {
         role & r = const_cast<role &>(role_);
         r._set_id(candidate_role_id());
       } else {
-        DT_THROW_IF(has_resource_by_id(role_.get_id()),
+        DT_THROW_IF(has_role_by_id(role_.get_id()),
                     std::logic_error,
                     "Resource manager already has a role with ID=[" << role_.get_id() << "]");
       }
+      // role_.tree_dump(std::cerr, "ADD ROLE: " + role_.get_name(), "DEVEL: ");
       _data_->roles.insert(role_);
       return;
     }
 
-    bool manager::has_role_by_name(const std::string & name_) const
+    bool manager::has_role_by_name(const std::string & role_name_) const
     {
       const role_set_by_name & name_index = _data_->roles.get<role_tag_name>();
-      role_set_by_name::const_iterator found = name_index.find(name_);
+      role_set_by_name::const_iterator found = name_index.find(role_name_);
       return found != name_index.end();
     }
 
@@ -662,7 +663,7 @@ namespace vire {
         build_set_of_resource_ids_from_path_regexp(".*", resource_ids);
         for (auto rid : resource_ids) {
           const resource & res = get_resource_by_id(rid);
-          std::cerr << "DEVEL: Resource [" << rid << "] : " << res.get_path() << std::endl;
+          // std::cerr << "DEVEL: Resource [" << rid << "] : " << res.get_path() << std::endl;
           DT_LOG_DEBUG(get_logging_priority(), "Resource [" << rid << "] : " << res.get_path() );
         }
       }
@@ -773,8 +774,9 @@ namespace vire {
           new_role.set_id(role_id);
           new_role.set_resource_manager(*this);
           new_role.initialize(role_config);
+          // new_role.tree_dump(std::cerr, "ROLE: ", "DEVEL: ");
           DT_THROW_IF(has_role_by_name(new_role.get_name()), std::logic_error,
-                      "Role '" << new_role.get_name() << "' already exists!");
+                      "Role '" << new_role.get_name() << "' with id '" << role_id << "' already exists!");
           add_role(new_role);
         }
         const role_set_by_id & id_index = _data_->roles.get<role_tag_id>();
@@ -1114,7 +1116,7 @@ namespace vire {
     void manager::build_resources_from_devices(const vire::device::manager & device_manager_,
                                                uint32_t /* flags_ */)
     {
-      DT_LOG_TRACE_ENTERING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       try {
         devices_to_resources_builder d2r_builder;
         datatools::logger::priority d2r_builder_logging = get_logging_priority();
@@ -1123,11 +1125,12 @@ namespace vire {
         d2r_builder.set_resource_manager(*this);
         d2r_builder.initialize_simple();
         d2r_builder.build_resources();
+        d2r_builder.reset();
       } catch (std::exception & error) {
         DT_LOG_ERROR(datatools::logger::PRIO_ERROR, error.what());
         throw std::logic_error(error.what());
       }
-      DT_LOG_TRACE_EXITING(datatools::logger::PRIO_TRACE);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 

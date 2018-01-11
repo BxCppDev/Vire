@@ -12,7 +12,7 @@
 #@config Parameters describing a generic computer blade (1U)
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of I/O
 io_type : string = "inout"

@@ -38,8 +38,10 @@ list(APPEND VireLibrary_HEADERS
   device/base_link_model.h
   device/physical_port.h
   device/physical_link.h
-  device/device_info.h
   device/mapping.h
+  device/instance_info.h
+  device/instance_tree.h
+  device/instance_tree_builder.h
   device/mapping_info.h
   device/mapping_utils.h
   device/manager.h
@@ -76,6 +78,9 @@ list(APPEND VireLibrary_SOURCES
   device/base_port_model.cc
   device/base_link_model.cc
   device/manager.cc
+  device/instance_info.cc
+  device/instance_tree.cc
+  device/instance_tree_builder.cc
   device/mapping_utils.cc
   device/mapping_info.cc
   device/mapping.cc

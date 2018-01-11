@@ -295,16 +295,16 @@ namespace vire {
     }
 
     // virtual
-    void slot::tree_dump(std::ostream & out_,
-                         const std::string & title_,
-                         const std::string & indent_,
-                         bool inherit_) const
+    void slot::print_tree(std::ostream & out_,
+                          const boost::property_tree::ptree & options_) const
     {
-      if (!title_.empty()) {
-        out_ << indent_ << title_ << std::endl;
+      datatools::i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+      if (!popts.title.empty()) {
+        out_ << popts.indent << popts.title << std::endl;
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Dimension: ";
       if (!has_dimension()) {
         out_ << "<none>";
@@ -314,7 +314,7 @@ namespace vire {
       out_ << std::endl;
 
       if (has_dimension()) {
-        out_ << indent_ << datatools::i_tree_dumpable::tag
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
              << "Coordinates: ";
         if (_dimension_ == space::DIM_0) {
           out_ << "<none>";
@@ -336,7 +336,7 @@ namespace vire {
         out_ << std::endl;
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+      out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
            << "Validity: " << is_valid() << std::endl;
 
       return;

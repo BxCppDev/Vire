@@ -359,17 +359,20 @@ namespace vire {
       return;
     }
 
-    void logical_device::tree_dump(std::ostream& out_,
-                                   const std::string& title_,
-                                   const std::string& indent_,
-                                   bool inherit_) const
+    void logical_device::print_tree(std::ostream & out_,
+                                    const boost::property_tree::ptree & options_) const
     {
-      this->enriched_base::tree_dump(out_, title_, indent_, true);
+      datatools::i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+      this->enriched_base::tree_dump(out_, popts.title, popts.indent, true);
+      bool print_daughters_list = options_.get<bool>("list_daughters", false);
+      bool print_ports_list = options_.get<bool>("list_ports", false);
+      bool print_links_list = options_.get<bool>("list_links", false);
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Initialized : " << _initialized_ << std::endl;
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
+           << "Initialized : " << std::boolalpha << _initialized_ << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Model : ";
       if (_model_) {
         out_ << "'" << _model_->get_name() << "'";
@@ -381,7 +384,7 @@ namespace vire {
       out_ << std::endl;
 
       {
-        out_ << indent_ << datatools::i_tree_dumpable::tag
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
              << "Physical ports : ";
         if (_ports_.size() == 0) {
           out_ << "<none>";
@@ -389,36 +392,38 @@ namespace vire {
           out_ << '[' << _ports_.size() << ']';
         }
         out_ << std::endl;
-        for (ports_dict_type::const_iterator i = _ports_.begin();
-             i != _ports_.end();
-             i++) {
-          ports_dict_type::const_iterator j = i;
-          j++;
-          out_ << indent_;
-          out_ << datatools::i_tree_dumpable::skip_tag;
-          if (j == _ports_.end()) {
-            out_ << datatools::i_tree_dumpable::last_tag;
-          } else {
-            out_ << datatools::i_tree_dumpable::tag;
-          }
-          const std::string & port_label = i->first;
-          const physical_port & port_phys = *i->second;
-          out_ << "'" << port_label << "' ";
-          if (port_phys.has_logical()) {
-            out_ << "(as logical '" << port_phys.get_logical().get_name() << "'";
-            if (port_phys.get_logical().has_model()) {
-              out_ << " of type '" << get_device_type_label((device_type) port_phys.get_logical().get_model().get_type()) << "'";
+        if (print_ports_list) {
+          for (ports_dict_type::const_iterator i = _ports_.begin();
+               i != _ports_.end();
+               i++) {
+            ports_dict_type::const_iterator j = i;
+            j++;
+            out_ << popts.indent;
+            out_ << datatools::i_tree_dumpable::skip_tag;
+            if (j == _ports_.end()) {
+              out_ << datatools::i_tree_dumpable::last_tag;
+            } else {
+              out_ << datatools::i_tree_dumpable::tag;
             }
-            out_ << ")";
-          } else {
-            out_ << "<no logical>";
+            const std::string & port_label = i->first;
+            const physical_port & port_phys = *i->second;
+            out_ << "'" << port_label << "' ";
+            if (port_phys.has_logical()) {
+              out_ << "(as logical '" << port_phys.get_logical().get_name() << "'";
+              if (port_phys.get_logical().has_model()) {
+                out_ << " of type '" << get_device_type_label((device_type) port_phys.get_logical().get_model().get_type()) << "'";
+              }
+              out_ << ")";
+            } else {
+              out_ << "<no logical>";
+            }
+            out_ << std::endl;
           }
-          out_ << std::endl;
         }
       }
 
       {
-        out_ << indent_ << datatools::i_tree_dumpable::tag
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
              << "Daughter physical devices : ";
         if (_daughters_.size() == 0) {
           out_ << "<none>";
@@ -426,36 +431,38 @@ namespace vire {
           out_ << '[' << _daughters_.size() << ']';
         }
         out_ << std::endl;
-        for (daughters_dict_type::const_iterator i = _daughters_.begin();
-             i != _daughters_.end();
-             i++) {
-          daughters_dict_type::const_iterator j = i;
-          j++;
-          out_ << indent_;
-          out_ << datatools::i_tree_dumpable::skip_tag;
-          if (j == _daughters_.end()) {
-            out_ <<  datatools::i_tree_dumpable::last_tag;
-          } else {
-            out_ <<  datatools::i_tree_dumpable::tag;
-          }
-          const std::string & daughter_label = i->first;
-          const physical_device & daughter_phys = *i->second;
-          out_ << "'" << daughter_label << "' ";
-          if (daughter_phys.has_logical()) {
-            out_ << "(as logical '" << daughter_phys.get_logical().get_name() << "'";
-            if (daughter_phys.get_logical().has_model()) {
-              out_ << " of type '" << get_device_type_label((device_type) daughter_phys.get_logical().get_model().get_type()) << "'";
+        if (print_daughters_list) {
+          for (daughters_dict_type::const_iterator i = _daughters_.begin();
+               i != _daughters_.end();
+               i++) {
+            daughters_dict_type::const_iterator j = i;
+            j++;
+            out_ << popts.indent;
+            out_ << datatools::i_tree_dumpable::skip_tag;
+            if (j == _daughters_.end()) {
+              out_ <<  datatools::i_tree_dumpable::last_tag;
+            } else {
+              out_ <<  datatools::i_tree_dumpable::tag;
             }
-            out_ << ")";
-          } else {
-            out_ << "<no logical>";
+            const std::string & daughter_label = i->first;
+            const physical_device & daughter_phys = *i->second;
+            out_ << "'" << daughter_label << "' ";
+            if (daughter_phys.has_logical()) {
+              out_ << "(as logical '" << daughter_phys.get_logical().get_name() << "'";
+              if (daughter_phys.get_logical().has_model()) {
+                out_ << " of type '" << get_device_type_label((device_type) daughter_phys.get_logical().get_model().get_type()) << "'";
+              }
+              out_ << ")";
+            } else {
+              out_ << "<no logical>";
+            }
+            out_ << std::endl;
           }
-          out_ << std::endl;
         }
       }
 
       {
-        out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+        out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
              << "Physical links : ";
         if (_links_.size() == 0) {
           out_ << "<none>";
@@ -463,22 +470,24 @@ namespace vire {
           out_ << '[' << _links_.size() << ']';
         }
         out_ << std::endl;
-        for (links_dict_type::const_iterator i = _links_.begin();
-             i != _links_.end();
-             i++) {
-          links_dict_type::const_iterator j = i;
-          j++;
-          out_ << indent_;
-          out_ << datatools::i_tree_dumpable::inherit_skip_tag(inherit_);
-          if (j == _links_.end()) {
-            out_ <<  datatools::i_tree_dumpable::last_tag;
-          } else {
-            out_ <<  datatools::i_tree_dumpable::tag;
+        if (print_links_list) {
+          for (links_dict_type::const_iterator i = _links_.begin();
+               i != _links_.end();
+               i++) {
+            links_dict_type::const_iterator j = i;
+            j++;
+            out_ << popts.indent;
+            out_ << datatools::i_tree_dumpable::inherit_skip_tag(popts.inherit);
+            if (j == _links_.end()) {
+              out_ <<  datatools::i_tree_dumpable::last_tag;
+            } else {
+              out_ <<  datatools::i_tree_dumpable::tag;
+            }
+            const std::string & link_label = i->first;
+            const physical_link & link_phys = *i->second;
+            out_ << "'" << link_label << "' ";
+            out_ << std::endl;
           }
-          const std::string & link_label = i->first;
-          const physical_link & link_phys = *i->second;
-          out_ << "'" << link_label << "' ";
-          out_ << std::endl;
         }
       }
 

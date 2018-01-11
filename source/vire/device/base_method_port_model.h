@@ -37,7 +37,8 @@ namespace vire {
   namespace device {
 
     //! \brief Base class for method port models
-    class base_method_port_model : public base_port_model
+    class base_method_port_model
+      : public base_port_model
     {
     public:
 

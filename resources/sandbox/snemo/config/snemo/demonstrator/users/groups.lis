@@ -4,12 +4,12 @@
 #@key_label "gid"
 #@meta_label "type"
 
-
+##################################
 [gid="0" type="vire::user::group"]
 #@config Group 0
 
 #@description Name
-name : string = "administrators"
+name : string = "admin"
 
 #@description Display name
 display_name : string = "Administrators"
@@ -17,19 +17,17 @@ display_name : string = "Administrators"
 #@description Short description
 terse_description : string = "This is a mock Vire administrator group"
 
-#@description Name
-name : string = "admin"
+#@description Type of the user selector
+selector_type_id : string = "vire::user::enumerated_user_selector"
 
 #@description The list of user identifiers (UIDs)
 selector.uids : integer[1] = 0
-
-#@description Type of the user selector
-selector_type_id : string = "vire::user::enumerated_user_selector"
 
 #@description email
 aux.email : string = "admin@myexperiment.org"
 
 
+#####################################
 [gid="2000" type="vire::user::group"]
 #@config Group 2000
 
@@ -42,16 +40,11 @@ display_name : string = "Users"
 #@description Short description
 terse_description : string = "This is a mock Vire user group"
 
-#@description The list of user identifiers (UIDs)
-selector.uids : integer[0] =
-
 #@description Type of the user selector
-selector_type_id : string = "vire::user::enumerated_user_selector"
-
-#@description email
-aux.email : string = "users@myexperiment.org"
+selector_type_id : string = "cuts::accept_cut"
 
 
+#####################################
 [gid="2001" type="vire::user::group"]
 #@config Group 2001
 
@@ -64,14 +57,11 @@ display_name : string = "Expert users"
 #@description Short description
 terse_description : string = "This is a mock Vire group"
 
-#@description The list of user identifiers (UIDs)
-selector.uids : integer[4] = 2000 2001 2002 2003
-
 #@description Type of the user selector
 selector_type_id : string = "vire::user::enumerated_user_selector"
 
-#@description email
-aux.email : string = "experts@myexperiment.org"
+#@description The list of user identifiers (UIDs)
+selector.uids : integer[5] = 2000 2002 2003 2005 2006
 
 
 # end

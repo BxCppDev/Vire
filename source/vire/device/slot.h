@@ -180,10 +180,8 @@ namespace vire {
       void make_dimension_3(uint32_t i_, uint32_t j_, uint32_t k_);
 
       //! Smart print
-      virtual void tree_dump(std::ostream & out_         = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_          = false) const;
+      virtual void print_tree(std::ostream & out_ = std::clog,
+                              const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
 
       //! Parse from a string
       bool from_string(const std::string &);
@@ -201,8 +199,7 @@ namespace vire {
       static void slot_to_string(const slot &, std::string &);
 
       //! Print
-      friend std::ostream & operator<<(std::ostream & out_,
-                                       const slot & s_);
+      friend std::ostream & operator<<(std::ostream & out_, const slot & s_);
 
       //! Comparison operator
       bool operator==(const slot & slot_) const;

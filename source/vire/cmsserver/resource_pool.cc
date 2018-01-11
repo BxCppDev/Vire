@@ -35,7 +35,6 @@ namespace vire {
 
     resource_pool::resource_pool()
     {
-      _initialized_ = false;
       return;
     }
 
@@ -51,10 +50,6 @@ namespace vire {
                                                   const cardinalities_request_type & token_cardinalities_)
     {
       DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
-      DT_THROW_IF(!parent_.is_initialized(), std::logic_error,
-                  "Source parent resource pool is not initialized!");
-      DT_THROW_IF(daughter_.is_initialized(), std::logic_error,
-                  "Target daughter resource pool is already initialized!");
       daughter_._limited_tokens_.clear();
       daughter_._unlimited_.clear();
       for (std::map<int32_t, std::size_t>::const_iterator i = token_cardinalities_.begin();
@@ -73,7 +68,7 @@ namespace vire {
         }
         if (r.is_number_of_tokens_unlimited()) {
           // We ignore cardinality directive for resource with unlimited number of tokens:
-          daughter_._unlimited_.insert(rid);
+          daughter_.add_unlimited(rid);
           // // 2017-10-03, FM: or should we throw ?
           // DT_THROW(std::logic_error,
           //       "Resource with ID=[" << rid << " is unlimited and cannot be constrained via cardinality]!");
@@ -83,10 +78,9 @@ namespace vire {
                       "Source parent resource pool has not enough tokens left for resource with ID=[" << rid << "]!");
           // We transfer tokens from parent to daughter:
           parent_.decrement_limited_tokens(rid, cardinality);
-          daughter_._limited_tokens_[rid] = cardinality;
+          daughter_.add_limited(rid, cardinality);
         }
       }
-      daughter_.initialize();
       DT_LOG_TRACE_EXITING(vire::cmsserver::logging());
       return;
     }
@@ -94,10 +88,6 @@ namespace vire {
     // static
     void resource_pool::restore_parent_from_daughter(resource_pool & parent_, resource_pool & daughter_)
     {
-      DT_THROW_IF(!parent_.is_initialized(), std::logic_error,
-                  "Parent resource pool is not initialized!");
-      DT_THROW_IF(!daughter_.is_initialized(), std::logic_error,
-                  "Daughter resource pool is not initialized!");
       for (std::map<int32_t, std::size_t>::const_iterator i = daughter_._limited_tokens_.begin();
            i != daughter_._limited_tokens_.end();
            i++) {
@@ -115,8 +105,6 @@ namespace vire {
                                   const cardinalities_request_type & requested_cardinalities_,
                                   cardinality_profile_type profile_)
     {
-      DT_THROW_IF(root_.is_initialized(), std::logic_error,
-                  "Target root resource pool is already initialized!");
       root_._limited_tokens_.clear();
       root_._unlimited_.clear();
       // Scan all available resources from the manager:
@@ -155,27 +143,14 @@ namespace vire {
             DT_THROW_IF(cardinality > max_cardinality, std::logic_error,
                         "Requested token cardinality [" << cardinality << "] is too large!");
           }
-          root_._limited_tokens_[rid] = cardinality;
+          root_.add_limited(rid, cardinality);
         }
       } // end of scan.
-      root_.initialize();
-      return;
-    }
-
-    bool resource_pool::is_initialized() const
-    {
-      return _initialized_;
-    }
-
-    void resource_pool::initialize()
-    {
-      _initialized_ = true;
       return;
     }
 
     void resource_pool::reset()
     {
-      _initialized_ = false;
       _limited_tokens_.clear();
       _unlimited_.clear();
       return;
@@ -183,7 +158,6 @@ namespace vire {
 
     bool resource_pool::has_resource(int32_t rid_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       if (_unlimited_.count(rid_) > 0) {
         return true;
       }
@@ -195,43 +169,56 @@ namespace vire {
 
     bool resource_pool::is_limited(int32_t rid_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       return _limited_tokens_.find(rid_) != _limited_tokens_.end();
     }
 
     bool resource_pool::is_exhausted(int32_t rid_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       return is_limited(rid_) && remaining_limited_tokens(rid_) == 0;
     }
 
     bool resource_pool::is_unlimited(int32_t rid_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       return _unlimited_.count(rid_) > 0;
     }
 
     void resource_pool::add_unlimited(int32_t rid_)
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
+      DT_THROW_IF(is_limited(rid_),
+                  std::logic_error,
+                  "Resource with identifier [" << rid_ << "] is known as limited!");
       _unlimited_.insert(rid_);
+      return;
+    }
+
+    void resource_pool::add_limited(int32_t rid_, std::size_t init_)
+    {
+      DT_THROW_IF(is_unlimited(rid_),
+                  std::logic_error,
+                  "Resource with identifier [" << rid_ << "] is known as unlimited!");
+      _limited_tokens_[rid_] = init_;
       return;
     }
 
     void resource_pool::increment_limited_tokens(int32_t rid_, std::size_t step_)
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
+      DT_THROW_IF(!is_limited(rid_),
+                  std::logic_error,
+                  "Resource with identifier [" << rid_ << "] is not imited!");
       std::map<int32_t, std::size_t>::iterator found = _limited_tokens_.find(rid_);
       DT_THROW_IF(found == _limited_tokens_.end(),
                   std::logic_error,
                   "Resource with identifier [" << rid_ << "] is not limited!");
       found->second += step_;
+
       return;
     }
 
     void resource_pool::decrement_limited_tokens(int32_t rid_, std::size_t step_)
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
+      DT_THROW_IF(is_unlimited(rid_),
+                  std::logic_error,
+                  "Resource with identifier [" << rid_ << "] is known as unlimited!");
       std::map<int32_t, std::size_t>::iterator found = _limited_tokens_.find(rid_);
       DT_THROW_IF(found == _limited_tokens_.end(),
                   std::logic_error,
@@ -244,7 +231,6 @@ namespace vire {
 
     std::size_t resource_pool::remaining_limited_tokens(int32_t rid_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       std::map<int32_t, std::size_t>::const_iterator found
         = _limited_tokens_.find(rid_);
       DT_THROW_IF(found == _limited_tokens_.end(),
@@ -255,13 +241,11 @@ namespace vire {
 
     bool resource_pool::can_tranfer(int32_t rid_, std::size_t step_)
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       return step_ <= remaining_limited_tokens(rid_);
     }
 
     void resource_pool::build_all(std::set<int32_t> & all_, bool append_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       build_limited(all_, append_);
       build_unlimited(all_, true);
       return;
@@ -269,7 +253,6 @@ namespace vire {
 
     void resource_pool::build_limited(std::set<int32_t> & limited_, bool append_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       if (!append_) limited_.clear();
       for (std::map<int32_t, std::size_t>::const_iterator i = _limited_tokens_.begin();
            i != _limited_tokens_.end();
@@ -281,7 +264,6 @@ namespace vire {
 
     void resource_pool::build_unlimited(std::set<int32_t> & unlimited_, bool append_) const
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error, "Resource pool is not initialized!");
       if (!append_) unlimited_.clear();
       for (std::set<int32_t>::const_iterator i = _unlimited_.begin();
            i != _unlimited_.end();
@@ -374,23 +356,18 @@ namespace vire {
     void resource_pool::print(std::ostream & out_, uint32_t flags_) const
     {
       if (flags_ | 0x1) {
-        out_ << "#@initialized=" << is_initialized() << std::endl;
+        out_ << "#@number_of_unlimited_resources=" << _unlimited_.size() << std::endl;
+        out_ << "#@number_of_limited_resources=" << _limited_tokens_.size() << std::endl;
       }
-      if (is_initialized()) {
-        if (flags_ | 0x1) {
-          out_ << "#@number_of_unlimited_resources=" << _unlimited_.size() << std::endl;
-          out_ << "#@number_of_limited_resources=" << _limited_tokens_.size() << std::endl;
-        }
-        for (std::set<int32_t>::const_iterator i = _unlimited_.begin();
-             i != _unlimited_.end();
-             i++) {
-          out_ << *i << ' ' << vire::resource::resource::MAX_TOKENS_UNLIMITED << std::endl;
-        }
-        for (std::map<int32_t, std::size_t>::const_iterator i = _limited_tokens_.begin();
-             i != _limited_tokens_.end();
-             i++) {
-          out_ << i->first << ' ' << i->second << std::endl;
-        }
+      for (std::set<int32_t>::const_iterator i = _unlimited_.begin();
+           i != _unlimited_.end();
+           i++) {
+        out_ << *i << ' ' << vire::resource::resource::MAX_TOKENS_UNLIMITED << std::endl;
+      }
+      for (std::map<int32_t, std::size_t>::const_iterator i = _limited_tokens_.begin();
+           i != _limited_tokens_.end();
+           i++) {
+        out_ << i->first << ' ' << i->second << std::endl;
       }
       out_ << std::endl;
       return;
@@ -405,16 +382,14 @@ namespace vire {
         out_ << indent_ << title_ << std::endl;
       }
 
-      if (is_initialized()) {
-        out_ << indent_ << i_tree_dumpable::tag
-             << "Unlimited resource IDs: " << _unlimited_.size() << std::endl;
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Unlimited resource IDs    : " << _unlimited_.size() << std::endl;
 
-        out_ << indent_ << i_tree_dumpable::tag
-             << "Limited resource IDs: " << _limited_tokens_.size() << std::endl;
-      }
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Limited resource IDs      : " << _limited_tokens_.size() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
-           << "Initialized: " << _initialized_ << std::endl;
+           << "Total number of resources : " << (_unlimited_.size() + _limited_tokens_.size()) << std::endl;
 
       return;
     }
@@ -426,9 +401,6 @@ namespace vire {
 
     bool resource_pool::operator==(const resource_pool & pool_) const
     {
-      if (_initialized_ != pool_._initialized_) {
-        return false;
-      }
       if (_limited_tokens_.size() != _limited_tokens_.size()) {
         return false;
       }

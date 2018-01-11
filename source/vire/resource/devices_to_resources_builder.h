@@ -33,7 +33,8 @@ namespace vire {
 
   namespace device {
     class manager;
-    class mapping;
+    // class mapping;
+    class instance_tree;
   }
 
   namespace resource {
@@ -79,8 +80,9 @@ namespace vire {
       bool _initialized_; //!< Initialization flag
 
       // Data:
-      const ::vire::device::manager * _device_manager_; //!< Handle to the device manager
-      const ::vire::device::mapping * _device_mapping_; //!< Device mapping
+      const ::vire::device::manager * _device_manager_;    //!< Handle to the device manager
+      // const ::vire::device::mapping * _device_mapping_;    //!< Device mapping
+      // const ::vire::device::instance_tree * _device_tree_; //!< Device instance tree
 
 #ifndef Q_MOC_RUN
       //! Reflection interface

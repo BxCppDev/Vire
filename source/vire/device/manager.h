@@ -1,7 +1,7 @@
 //! \file  vire/device/manager.h
 //! \brief Vire device manager
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -45,6 +45,8 @@
 #include <vire/device/base_device_model.h>
 #include <vire/device/base_port_model.h>
 #include <vire/device/mapping.h>
+#include <vire/device/instance_tree.h>
+#include <vire/utility/instance_identifier.h>
 
 namespace datatools {
 
@@ -82,7 +84,7 @@ namespace vire {
       static const std::string & default_service_name();
 
       //! Return the default name for the top-level device model
-      static const std::string & default_top_level_name();
+      static const std::string & default_top_level_device_model_name();
 
       //! \brief Construction flag
       enum flag_type {
@@ -108,6 +110,9 @@ namespace vire {
       //! Set the version of the setup
       void set_setup_version(const std::string & version_);
 
+      //! Return the Setup ID
+      vire::utility::instance_identifier get_setup_id() const;
+
       //! Return the name of the setup
       const std::string & get_setup_label() const;
 
@@ -131,6 +136,10 @@ namespace vire {
 
       //! Add a device model ID to be preloaded from the system factory
       void add_factory_preload_system_only(const std::string & id_);
+
+      void set_top_level_device_model_name(const std::string &);
+
+      const std::string & get_top_level_device_model_name() const;
 
       //! Set the build mapping flag
       void set_mapping_requested(bool);
@@ -301,6 +310,9 @@ namespace vire {
       //! Return the mapping
       const mapping & get_mapping() const;
 
+      //! Return the device instance tree
+      const instance_tree & get_tree() const;
+
       //! Dump device models
       void dump_device_models(std::ostream & out_ = std::clog,
                               const std::string & title_  = "",
@@ -310,12 +322,27 @@ namespace vire {
       void dump_port_models(std::ostream & out_ = std::clog,
                             const std::string & title_  = "",
                             const std::string & indent_ = "") const;
-
       //! Smart print
-      virtual void tree_dump(std::ostream & out_         = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_               = false) const;
+      //!
+      //! Supported options:
+      //! \code
+      //! {
+      //!   "title"    : "My title: ",
+      //!   "indent"   : "[debug] ",
+      //!   "inherit"  : true,
+      //!   "models.list" : true,
+      //!   "models.full" : true,
+      //!   "tree.list_instances" : true,
+      //!   "tree.full_instances" : false,
+      //!   "mapping.list_categories" : true,
+      //!   "mapping.full_categories" : false,
+      //!   "mapping.list_ids" : false,
+      //!   "logicals.list" : true,
+      //!   "ports.list" : true
+      //! }
+      //! \endcode
+      virtual void print_tree(std::ostream & out_ = std::clog,
+                              const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
 
     protected:
 
@@ -350,6 +377,20 @@ namespace vire {
 
     private:
 
+      void _post_init_(const datatools::properties & config_);
+
+      void _pre_reset_();
+
+      void _init_tree_(const datatools::properties & config_);
+
+      void _reset_tree_();
+
+      void _init_mapping_(const datatools::properties & config_);
+
+      void _reset_mapping_();
+
+    private:
+
       // Management:
       bool _initialized_; //!< Initialization flag
       bool _propagate_logging_to_devices_ = false;
@@ -362,6 +403,7 @@ namespace vire {
       bool _factory_preload_system_all_;   //!< Factory preload flag
       bool _force_initialization_at_load_; //!< Flag for triggering device initialization at load (rather than first use)
       std::vector<std::string> _auxiliary_property_prefixes_; //!< List of property prefixes to be preserved in device models auxiliary properties
+      std::string _top_level_device_model_name_; //!< Name of the top-level device model
       bool _mapping_requested_; //!< Mapping build request flag
       datatools::multi_properties _external_mapping_rules_; //!< Mapping rules associated to device models
 
@@ -373,6 +415,7 @@ namespace vire {
       logical_port_dict_type   _logical_ports_;   //!< Dictionary of logical ports
       geomtools::id_mgr        _mapping_manager_; //!< Manager of mapping IDs
       mapping                  _mapping_;         //!< Default mapping
+      instance_tree            _tree_;            //!< Device instance tree
 
       friend class model_entry;
 

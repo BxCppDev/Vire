@@ -53,7 +53,7 @@ namespace vire {
       credentials();
 
       /// Destructor
-      ~credentials();
+      virtual ~credentials();
 
       /// Check validity
       bool is_valid() const;
@@ -136,11 +136,11 @@ namespace vire {
       bool        _password_lock_ = false; ///< Password lock flag
       std::string _password_;              ///< Plain password
       std::string _password_encrypted_;    ///< Encrypted password
-      int32_t     _password_last_change_ = DATE_UNSET;  ///< Date of last change
-      int32_t     _password_min_   = DATE_UNSET; ///< Minimum number of days between changes
-      int32_t     _password_max_   = DATE_UNSET; ///< Maximum number of days between changes.
-      int32_t     _password_warn_  = DATE_UNSET; ///< Number of days to warn user to change the password
-      int32_t     _password_inact_ = DATE_UNSET; ///< Number of days the account may be inactive
+      int32_t     _password_last_change_ = DATE_UNSET; ///< Date of last change
+      int32_t     _password_min_    = DATE_UNSET; ///< Minimum number of days between changes
+      int32_t     _password_max_    = DATE_UNSET; ///< Maximum number of days between changes.
+      int32_t     _password_warn_   = DATE_UNSET; ///< Number of days to warn user to change the password
+      int32_t     _password_inact_  = DATE_UNSET; ///< Number of days the account may be inactive
       int32_t     _password_expire_ = DATE_UNSET; ///< Number of days since 1970-01-01 until account expires.
 
     };

@@ -72,7 +72,6 @@ void test_resource_pool_1()
 
   vire::cmsserver::resource_pool root_pool_f;
   // Empty pool:
-  root_pool_f.initialize();
   std::cout << "# Root functional resource pool: " << std::endl;
   root_pool_f.print(std::cout, 1);
   std::cout << std::endl;

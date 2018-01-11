@@ -34,13 +34,12 @@
 #include <vire/resource/datapoint_resource_instance.h>
 #include <vire/resource/method_resource_instance.h>
 #include <vire/device/manager.h>
-#include <vire/device/mapping.h>
 #include <vire/device/logical_device.h>
 #include <vire/device/logical_port.h>
 #include <vire/device/physical_port.h>
 #include <vire/device/base_device_model.h>
 #include <vire/device/base_port_model.h>
-#include <vire/device/mapping.h>
+#include <vire/device/instance_info.h>
 #include <vire/utility/path.h>
 
 namespace vire {
@@ -51,8 +50,7 @@ namespace vire {
       : base_resource_builder()
     {
       _initialized_      = false;
-      _device_manager_   = 0;
-      _device_mapping_   = 0;
+      _device_manager_   = nullptr;
       return;
     }
 
@@ -83,8 +81,7 @@ namespace vire {
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Builder is not initialized!");
       _initialized_ = false;
-      _device_mapping_   = 0;
-      _device_manager_   = 0;
+      _device_manager_   = nullptr;
       return;
     }
 
@@ -99,12 +96,7 @@ namespace vire {
                   "Builder is already initialized!");
       DT_THROW_IF(!device_manager_.is_initialized(), std::logic_error,
                   "Device manager is not initialized!");
-      DT_THROW_IF(!device_manager_.is_mapping_requested(), std::logic_error,
-                  "Device manager has no mapping requested!");
-      DT_THROW_IF(!device_manager_.get_mapping().is_initialized(), std::logic_error,
-                  "Device mapping is not initialized!");
       _device_manager_ = &device_manager_;
-      _device_mapping_ = &device_manager_.get_mapping();
       return;
     }
 
@@ -119,22 +111,22 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       const ::vire::device::manager & device_manager = *_device_manager_;
-      const ::vire::device::mapping & device_mapping = *_device_mapping_;
+      const ::vire::device::instance_tree & device_tree = device_manager.get_tree();
       ::vire::resource::manager & resource_manager   = _grab_resource_manager();
 
       std::set<std::string> dev_paths;
-      device_mapping.build_paths(dev_paths, 0);
+      device_tree.build_paths(dev_paths, 0);
       DT_LOG_DEBUG(get_logging_priority(), "dev_paths = " << dev_paths.size() << "");
       for (std::set<std::string>::const_iterator ipath = dev_paths.begin();
            ipath != dev_paths.end();
            ipath++) {
         const std::string & the_path = *ipath;
         DT_LOG_DEBUG(get_logging_priority(), "Path '" << the_path << "'");
-        const vire::device::mapping_info & minfo = device_mapping.get_mapping_info(the_path);
-        if (minfo.is_device()) {
-          DT_LOG_DEBUG(get_logging_priority(), "Mapping info: '" << the_path << "' (device)");
-          if (minfo.has_logical_device()) {
-            const vire::device::logical_device & log_dev = minfo.get_logical_device();
+        const vire::device::instance_info & iinfo = device_tree.get_instance(the_path);
+        if (iinfo.is_device()) {
+          DT_LOG_DEBUG(get_logging_priority(), "Instance info: '" << the_path << "' (device)");
+          if (iinfo.has_logical_device()) {
+            const vire::device::logical_device & log_dev = iinfo.get_logical_device();
             if (log_dev.has_model()) {
               const vire::device::base_device_model & dev_model = log_dev.get_model();
               const std::type_info & tdev   = typeid(dev_model);
@@ -166,9 +158,7 @@ namespace vire {
                   dp_read_resource.set_access(vire::utility::RW_READABLE);
                   std::string dp_read_name = dp_read_path;
                   vire::utility::path::to_address(dp_read_path, dp_read_name);
-                  // boost::algorithm::replace_first(dp_read_name, vire::utility::path::setup_separator(), vire::utility::path::address_separator());
-                  // boost::algorithm::replace_all(dp_read_name, vire::utility::path::path_separator(), vire::utility::path::address_separator());
-                  dp_read_resource.set_name(dp_read_name);
+                   dp_read_resource.set_name(dp_read_name);
                   method_resource_instance * dp_read_method_res_inst_ptr = new method_resource_instance;
                   boost::shared_ptr<base_resource_instance> sh_ri(dp_read_method_res_inst_ptr);
                   dp_read_method_res_inst_ptr->set_model(dp_read_method_port_model);
@@ -201,8 +191,6 @@ namespace vire {
                   std::string dp_write_name;
                   // = dp_write_path;
                   vire::utility::path::to_address(dp_write_path, dp_write_name);
-                  // boost::algorithm::replace_first(dp_write_name, vire::device::mapping::setup_path_sep(), ".");
-                  // boost::algorithm::replace_all(dp_write_name, "/", ".");
                   dp_write_resource.set_name(dp_write_name);
                   method_resource_instance * dp_write_method_res_inst_ptr = new method_resource_instance;
                   boost::shared_ptr<base_resource_instance> sh_ri(dp_write_method_res_inst_ptr);
@@ -215,10 +203,10 @@ namespace vire {
               }
             }
           }
-        } else if (minfo.is_port()) {
-          DT_LOG_DEBUG(get_logging_priority(), "Mapping info: '" << the_path << "' (port)");
-          if (minfo.has_logical_port()) {
-            const vire::device::logical_port & log_port = minfo.get_logical_port();
+        } else if (iinfo.is_port()) {
+          DT_LOG_DEBUG(get_logging_priority(), "Instance info: '" << the_path << "' (port)");
+          if (iinfo.has_logical_port()) {
+            const vire::device::logical_port & log_port = iinfo.get_logical_port();
             if (log_port.has_model()) {
               const vire::device::base_port_model & port_model = log_port.get_model();
               const std::type_info & tport = typeid(port_model);
@@ -243,7 +231,7 @@ namespace vire {
                 }
                 meth_resource.set_access(rw_access);
                 std::string meth_name = the_path;
-                DT_THROW_IF(vire::utility::path::to_address(the_path, meth_name), std::logic_error,
+                DT_THROW_IF(!vire::utility::path::to_address(the_path, meth_name), std::logic_error,
                             "Invalid conversion for method path '" << the_path << "'!");
                 meth_resource.set_name(meth_name);
                 method_resource_instance * meth_res_inst_ptr
@@ -253,9 +241,9 @@ namespace vire {
                 meth_resource.set_resource_instance(meth_res_inst_ptr);
                 meth_resource.initialize_simple();
                 resource_manager.add_resource(meth_resource);
-                std::cerr << "*** DEVEL *** "
-                          << "Method Port Resource: '" << meth_name << "'"
-                          << std::endl;
+                // std::cerr << "*** DEVEL *** "
+                //           << "Method Port Resource: '" << meth_name << "'"
+                //           << std::endl;
               }
             }
           }

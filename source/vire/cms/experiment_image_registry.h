@@ -44,7 +44,8 @@ namespace vire {
     class manager;
 
     //! \brief Registry of resource images
-    class experiment_image_registry : public ::datatools::base_service
+    class experiment_image_registry
+      : public ::datatools::base_service
     {
     public:
 
@@ -151,7 +152,7 @@ namespace vire {
       // Working data:
       const vire::device::manager   * _device_manager_   = nullptr; //!< Handle to the device manager
       const vire::resource::manager * _resource_manager_ = nullptr; //!< Handle to the resource manager
-      std::map<std::string,image>     _images_;    //!< Dictionary of resource images
+      std::map<std::string,image>     _images_;                     //!< Dictionary of resource images
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(experiment_image_registry);

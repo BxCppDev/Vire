@@ -235,6 +235,9 @@ namespace vire {
 
     regular_2d_instance::~regular_2d_instance()
     {
+      DT_LOG_TRACE_ENTERING(get_logging());
+      reset();
+      DT_LOG_TRACE_EXITING(get_logging());
       return;
     }
 

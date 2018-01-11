@@ -12,7 +12,7 @@
 #@config Parameters describing the SuperNEMO setup
 
 #@parameter Logging priority threshold
-logging.priority : string = "trace"
+logging.priority : string = "fatal"
 
 #@description Type of device
 type      : string  = "setup"

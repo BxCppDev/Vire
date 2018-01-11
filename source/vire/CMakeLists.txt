@@ -141,7 +141,7 @@ include(com/Lists.cmake)
 # CMS server kernel and utilities:
 include(cmsserver/Lists.cmake)
 
-# CMS client kernel and utilities:
+# # CMS client kernel and utilities:
 # include(cmsclient/Lists.cmake)
 
 list(APPEND VireLibrary_HEADERS
@@ -209,6 +209,7 @@ include_directories(${BxRabbitMQ_INCLUDE_DIRS})
 include_directories(${BxProtobuftools_INCLUDE_DIRS})
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${VIRE_BUILD_PREFIX}/include/protobuf/cpp)
+include_directories(${VIRE_BUILD_PREFIX}/include)
 
 get_directory_property(_VireProtobufLibrary_cpp_HEADERS
   DIRECTORY protobuf

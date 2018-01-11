@@ -30,6 +30,7 @@
 // - Boost:
 #include <boost/cstdint.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/optional.hpp>
 // - Bayeux/datatools:
 #include <bayeux/datatools/i_tree_dump.h>
 #include <bayeux/datatools/i_serializable.h>
@@ -50,17 +51,12 @@ namespace vire {
 
   namespace cmsserver {
 
-    /// \brief Session information
+    /// \brief Description of a session for the agenda
     class session_info
       : public datatools::i_tree_dumpable
       , public datatools::i_serializable
     {
     public:
-
-      static const int32_t INVALID_ID     = -1; ///< Invalid session ID
-      static const int32_t ROOT_ID        =  0; ///< Root session ID
-      static const int32_t MAX_USER_ID    = -2; ///< Maximum value for user session
-      static const int32_t MIN_BLESSED_ID =  1; ///< Minimum value for system/blessed session
 
       /// Default constructor
       session_info();
@@ -68,47 +64,38 @@ namespace vire {
       /// Destructor
       virtual ~session_info();
 
-      /// Check validity flag
-      bool is_valid() const;
-
-      /// Check if identifier is set
-      bool has_id() const;
-
-      /// Return identifier
-      int32_t get_id() const;
-
       /// Check if key is set
       bool has_key() const;
+
+      /// Set unique key
+      void set_key(const std::string & key_);
 
       /// Return the key
       const std::string & get_key() const;
 
-      /// Check if the record is blessed
-      bool is_blessed() const;
-
-      /// Check if the record is user defined
-      bool is_user() const;
-
       /// Check if description is set
       bool has_description() const;
+
+      /// Set description
+      void set_description(const std::string & description_);
 
       /// Return description
       const std::string & get_description() const;
 
       /// Check if role identifier is set
-      bool has_role_id() const;
+      bool has_role_identifier() const;
+
+      /// Set role identifier
+      void set_role_identifier(const std::string & rid_);
 
       /// Return role identifier
-      int32_t get_role_id() const;
-
-      /// Check if usecase identifier is set
-      bool has_usecase_id() const;
-
-      /// Return usecase identifier
-      const std::string & get_usecase_id() const;
+      const std::string & get_role_identifier() const;
 
       /// Check if session time period is set
       bool has_when() const;
+
+      /// Set session time period
+      void set_when(const boost::posix_time::time_period & when_);
 
       /// Return session time period
       const boost::posix_time::time_period & get_when() const;
@@ -124,30 +111,6 @@ namespace vire {
 
       /// Return special request on distributable resource cardinalities
       const cardinalities_request_type & get_special_distributable_cardinalities() const;
-
-      //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
-
-      /// Set unique identifier
-      void set_id(int32_t id_);
-
-      /// Set unique key
-      void set_key(const std::string & key_);
-
-      /// Set description
-      void set_description(const std::string & description_);
-
-      /// Set role identifier
-      void set_role_id(int32_t rid_);
-
-      /// Set session time period
-      void set_when(const boost::posix_time::time_period & when_);
-
-      /// Set usecase
-      void set_usecase_id(const std::string & usecase_id_);
 
       /// Add special functional resource token limited cardinality
       void set_special_functional_limited(int32_t resource_id_, std::size_t cardinality_);
@@ -167,7 +130,45 @@ namespace vire {
       /// Unset special distributable resource
       void unset_special_distributable(int32_t resource_id_);
 
-      /// Initialization
+      /// Check if the use case type identifier is set
+      bool has_use_case_type_id() const;
+
+      /// Set the use case identifier
+      void set_use_case_type_id(const std::string & use_case_type_id_);
+
+      /// Return the use case identifier
+      const std::string & get_use_case_type_id() const;
+
+      /// Check if the use case configuration path is set
+      bool has_use_case_config_path() const;
+
+      /// Set the use case configuration path
+      void set_use_case_config_path(const std::string & use_case_config_path_);
+
+      /// Return the use case configuration path (path, URN...)
+      const std::string & get_use_case_config_path() const;
+
+      /// Check if the explicit use case configuration is set
+      bool has_use_case_config() const;
+
+      /// Return the explicit use case configuration
+      const datatools::properties & get_use_case_config() const;
+
+      /// Return the explicit use case configuration
+      datatools::properties & grab_use_case_config();
+
+      /// Set the explicit use case configuration
+      void set_use_case_config(const datatools::properties &);
+
+      /// Reset the explicit use case configuration
+      void reset_use_case_config();
+
+      //! Smart print
+      virtual void tree_dump(std::ostream & out_ = std::clog,
+                             const std::string & title_  = "",
+                             const std::string & indent_ = "",
+                             bool inherit_ = false) const;
+     /// Initialization
       void initialize_simple();
 
       /// Initialization
@@ -182,27 +183,31 @@ namespace vire {
       /// Reset/invalidate the session info
       void reset();
 
-    protected:
+      /// Check validity flag
+      bool is_valid() const;
+
+    private:
 
       /// Initialization
-      void _initialize(const datatools::properties & config_,
+      void _initialize_(const datatools::properties & config_,
                        const vire::user::manager * user_mgr_ = nullptr,
                        const vire::resource::manager * resource_mgr_ = nullptr);
 
       /// Set default attribute values
-      void _set_defaults();
+      void _set_defaults_();
 
     private:
 
       // Configuration:
-      int32_t     _id_;                      ///< Session identifier
-      std::string _key_;                     ///< Session key
-      std::string _description_;             ///< Description of the session
-      int32_t     _role_id_;                 ///< Role identifier
-      boost::posix_time::time_period _when_; ///< Session time period
-      std::string _usecase_id_;              ///< Usecase identifier
-      cardinalities_request_type _special_functional_cardinalities_;    ///< Special cardinality request on functional resource tokens
-      cardinalities_request_type _special_distributable_cardinalities_; ///< Special cardinality request on distributable resource tokens
+      std::string                    _key_;             ///< Unique session key
+      std::string                    _description_;     ///< Description of the session
+      std::string                    _role_identifier_; ///< Role identifier (name)
+      boost::posix_time::time_period _when_;            ///< Session time period
+      cardinalities_request_type     _special_functional_cardinalities_;    ///< Special cardinality request on functional resource tokens
+      cardinalities_request_type     _special_distributable_cardinalities_; ///< Special cardinality request on distributable resource tokens
+      std::string                    _use_case_type_id_;        ///< Use case type identifier
+      std::string                    _use_case_config_path_;    ///< Path of the use case configuration
+      boost::optional<datatools::properties> _use_case_config_; ///< Explicit use case configuration
 
       //! Serialization interface
       DATATOOLS_SERIALIZATION_DECLARATION()
@@ -212,11 +217,6 @@ namespace vire {
   } // namespace cmsserver
 
 } // namespace vire
-
-// #ifndef Q_MOC_RUN
-// // Activate reflection layer:
-// DR_CLASS_INIT(vire::cmsserver::session_info);
-// #endif // Q_MOC_RUN
 
 #endif // VIRE_CMSSERVER_SESSION_INFO_H
 

@@ -119,21 +119,12 @@ namespace vire {
     {
       this->base_port_model::_at_initialize(config_);
 
-      // std::cerr << "DEVEL: " << "base_method_port_model::_at_initialize: " << std::endl;
-      // config_.tree_dump(std::cerr, "Base method port config : ", "DEVEL: *** ");
 
       if (!has_method()) {
-        // std::cerr << "DEVEL: " << "base_method_port_model::_at_initialize: "
-        //           << "Instantiating method description object..."
-        //           << std::endl;
         _method_.reset(new datatools::introspection::method);
         _method_->set_name(get_name());
-        // std::cerr << "DEVEL: " << "base_method_port_model::_at_initialize: "
-        //           << "Initializing method description object..."
-        //           << std::endl;
         datatools::properties method_config;
         config_.export_and_rename_starting_with(method_config, "method.", "");
-        // method_config.tree_dump(std::cerr, "Base method port config : ", "DEVEL: ");
         _method_->initialize(method_config);
       } else {
         // std::cerr << "DEVEL: " << "base_method_port_model::_at_initialize: "
@@ -142,7 +133,6 @@ namespace vire {
       }
 
       DT_THROW_IF(!has_method(), std::logic_error, "Missing method!");
-      // get_method().tree_dump(std::cerr, "Base method port model : ", "DEVEL: ");
       DT_THROW_IF(!get_method().is_valid(), std::logic_error, "Invalid method!");
 
       if (_method_->has_constness()) {
