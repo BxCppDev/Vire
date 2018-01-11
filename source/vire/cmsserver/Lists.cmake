@@ -10,10 +10,10 @@ list(APPEND VireLibrary_HEADERS
   cmsserver/base_use_case.h
   cmsserver/shell_use_case.h
   cmsserver/session.h
+  cmsserver/session_possibility.h
   # cmsserver/agenda.h
   # cmsserver/gate.h
   # cmsserver/server.h
-  cmsserver/session_possibility.h
 )
 
 list(APPEND VireLibrary_PRIVATE_HEADERS
@@ -28,11 +28,11 @@ list(APPEND VireLibrary_SOURCES
   cmsserver/base_use_case.cc
   cmsserver/shell_use_case.cc
   cmsserver/session.cc
-  # cmsserver/session_manager.cc
-  # cmsserver/agenda.cc
-  # cmsserver/server.cc
-  # cmsserver/gate.cc
   cmsserver/session_possibility.cc
+  # cmsserver/agenda.cc
+  # cmsserver/gate.cc
+  # cmsserver/session_manager.cc
+  # cmsserver/server.cc
 )
 
 list(APPEND VireLibrary_TESTS
@@ -40,8 +40,8 @@ list(APPEND VireLibrary_TESTS
   cmsserver/testing/test-cmsserver-resource_pool.cxx
   cmsserver/testing/test-cmsserver-session_info.cxx
   cmsserver/testing/test-cmsserver-session_reservation.cxx
+  # cmsserver/testing/test-cmsserver-session_possibility.cxx
   # cmsserver/testing/test-cmsserver-agenda.cxx
   # cmsserver/testing/test-cmsserver-server.cxx
   cmsserver/testing/test-cmsserver-session.cxx
-  #cmsserver/testing/test-cmsserver-session_possibility.cxx
 )
