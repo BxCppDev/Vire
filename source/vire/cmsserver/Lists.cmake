@@ -6,14 +6,14 @@ list(APPEND VireLibrary_HEADERS
   cmsserver/session_info-serial.ipp
   cmsserver/session_reservation.h
   cmsserver/session_reservation-serial.ipp
-  cmsserver/session_manager.h
+  # cmsserver/session_manager.h
   cmsserver/base_use_case.h
   cmsserver/shell_use_case.h
   cmsserver/session.h
   cmsserver/session_possibility.h
   # cmsserver/agenda.h
-  # cmsserver/gate.h
-  # cmsserver/server.h
+  cmsserver/gate.h
+  cmsserver/server.h
 )
 
 list(APPEND VireLibrary_PRIVATE_HEADERS
@@ -30,9 +30,9 @@ list(APPEND VireLibrary_SOURCES
   cmsserver/session.cc
   cmsserver/session_possibility.cc
   # cmsserver/agenda.cc
-  # cmsserver/gate.cc
+  cmsserver/gate.cc
   # cmsserver/session_manager.cc
-  # cmsserver/server.cc
+  cmsserver/server.cc
 )
 
 list(APPEND VireLibrary_TESTS

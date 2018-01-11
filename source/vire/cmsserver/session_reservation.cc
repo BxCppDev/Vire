@@ -31,6 +31,9 @@ namespace vire {
     // Serialization implementation
     DATATOOLS_SERIALIZATION_IMPLEMENTATION(session_reservation, "vire::cmsserver::session_reservation")
 
+    // static
+    const int32_t session_reservation::INVALID_ID;
+
     session_reservation::session_reservation()
     {
       return;
@@ -43,8 +46,25 @@ namespace vire {
 
     bool session_reservation::is_valid() const
     {
+      if (!has_id()) return false;
       if (!has_sinfo()) return false;
       return true;
+    }
+
+    bool session_reservation::has_id() const
+    {
+      return _id_ != INVALID_ID;
+    }
+
+    void session_reservation::set_id(const int32_t id_)
+    {
+      _id_ = id_ >= 0 ? id_ : INVALID_ID;
+      return;
+    }
+
+    int32_t session_reservation::get_id() const
+    {
+      return _id_;
     }
 
     void session_reservation::reset()

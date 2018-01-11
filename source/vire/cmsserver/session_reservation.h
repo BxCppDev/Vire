@@ -40,6 +40,8 @@ namespace vire {
     {
     public:
 
+      static const int32_t INVALID_ID = -1;
+
       /// Default constructor
       session_reservation();
 
@@ -51,6 +53,12 @@ namespace vire {
 
       /// Reset
       void reset();
+
+      bool has_id() const;
+
+      void set_id(const int32_t id_);
+
+      int32_t get_id() const;
 
       bool has_sinfo() const;
 
@@ -112,6 +120,7 @@ namespace vire {
 
     private:
 
+      int32_t      _id_ = INVALID_ID; ///< Session réservation ID
       session_info _sinfo_;       ///< Session information
       std::string  _start_macro_; ///< Start macro executed at session start
       std::string  _stop_macro_;  ///< Stop macro executed at session stop

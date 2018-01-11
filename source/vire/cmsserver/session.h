@@ -143,7 +143,7 @@ namespace vire {
                              bool inherit_ = false) const;
 
       /// Initialization
-      void initialize();
+      void initialize_simple();
 
       /// Initialization
       void initialize(const vire::resource::manager & resources_,

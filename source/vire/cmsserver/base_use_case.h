@@ -93,7 +93,9 @@ namespace vire {
 
       bool is_initialized() const;
 
-      void initialized(const datatools::properties & config_);
+      void initialize_simple();
+
+      void initialize(const datatools::properties & config_);
 
       void reset();
 

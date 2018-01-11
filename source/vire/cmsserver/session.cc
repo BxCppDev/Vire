@@ -105,6 +105,9 @@ namespace vire {
     void session::set_use_case(const use_case_ptr_type & uc_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
+
+      // XXX Should we test here if the use case object if initialized ?
+      // DT_THROW_IF(!uc_->is_initialized(), std::logic_error, "Use case is not initialized!");
       _use_case_ = uc_;
       return;
     }
@@ -300,7 +303,7 @@ namespace vire {
       return;
     }
 
-    void session::initialize()
+    void session::initialize_simple()
     {
       DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
       DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
@@ -484,6 +487,13 @@ namespace vire {
       return;
     }
 
+    /* start                                                               stop
+     * --[-----------+--------------------------------------------+----------]----> time
+     *   <--up-->....<-----------work---------------------->......<--down-->..
+     *    up_max                                                   down_max
+     *
+     *
+     */
     void session::_at_run_()
     {
 

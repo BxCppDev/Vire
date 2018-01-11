@@ -38,11 +38,11 @@
 #include <vire/device/manager.h>
 #include <vire/resource/manager.h>
 #include <vire/cmsserver/gate.h>
-#include <vire/cmsserver/agenda.h>
+// #include <vire/cmsserver/agenda.h>
 #include <vire/user/manager.h>
 #include <vire/auth/manager.h>
 #include <vire/logging/simple_logging_service.h>
-#include <vire/cmsserver/session_manager.h>
+// #include <vire/cmsserver/session_manager.h>
 #include <vire/utility/path.h>
 
 namespace vire {
@@ -675,18 +675,18 @@ namespace vire {
       }
       _services_->sync();
 
-      // Agenda:
-      DT_LOG_TRACE(_logging_, "Agenda...");
-      datatools::properties agenda_config;
-      if (_mconfig_.has_section("agenda")) {
-        agenda_config = _mconfig_.get_section("agenda");
-      }
-      vire::cmsserver::agenda & agenda =
-        dynamic_cast<vire::cmsserver::agenda &>(_services_->load_no_init(agenda_service_name(),
-                                                                        "vire::cmsserver::agenda"));
-      agenda.set_logging_priority(this->get_logging());
-      agenda.initialize(agenda_config,
-                        const_cast<datatools::service_dict_type&>(_services_->get_bus_of_services()));
+      // // Agenda:
+      // DT_LOG_TRACE(_logging_, "Agenda...");
+      // datatools::properties agenda_config;
+      // if (_mconfig_.has_section("agenda")) {
+      //   agenda_config = _mconfig_.get_section("agenda");
+      // }
+      // vire::cmsserver::agenda & agenda =
+      //   dynamic_cast<vire::cmsserver::agenda &>(_services_->load_no_init(agenda_service_name(),
+      //                                                                   "vire::cmsserver::agenda"));
+      // agenda.set_logging_priority(this->get_logging());
+      // agenda.initialize(agenda_config,
+      //                   const_cast<datatools::service_dict_type&>(_services_->get_bus_of_services()));
 
       // {
       //   const datatools::service_dict_type & services_dict = _services_->get_bus_of_services();
@@ -732,17 +732,17 @@ namespace vire {
         }
       }
 
-      if (_services_->has(sessions_service_name())) {
-      if (_services_->is_a<vire::cmsserver::session_manager>(sessions_service_name())) {
-        _services_->drop(sessions_service_name());
-      }
-      }
+      // if (_services_->has(sessions_service_name())) {
+      //        if (_services_->is_a<vire::cmsserver::session_manager>(sessions_service_name())) {
+      //          _services_->drop(sessions_service_name());
+      //        }
+      // }
 
-      if (_services_->has(agenda_service_name())) {
-        if (_services_->is_a<vire::cmsserver::agenda>(agenda_service_name())) {
-          _services_->drop(agenda_service_name());
-        }
-      }
+      // if (_services_->has(agenda_service_name())) {
+      //   if (_services_->is_a<vire::cmsserver::agenda>(agenda_service_name())) {
+      //     _services_->drop(agenda_service_name());
+      //   }
+      // }
 
       if (_services_->has(com_service_name())) {
         if (_services_->is_a<vire::com::manager>(com_service_name())) {

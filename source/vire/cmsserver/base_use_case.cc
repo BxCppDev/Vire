@@ -117,7 +117,14 @@ namespace vire {
       return _initialized_;
     }
 
-    void base_use_case::initialized(const datatools::properties & config_)
+    void base_use_case::initialize_simple()
+    {
+      datatools::properties dummy_config;
+      initialize(dummy_config);
+      return;
+    }
+
+    void base_use_case::initialize(const datatools::properties & config_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Use case is already initialized!");

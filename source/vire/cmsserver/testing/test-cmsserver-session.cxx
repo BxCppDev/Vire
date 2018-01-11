@@ -22,7 +22,8 @@
 #include <vire/resource/manager.h>
 #include <vire/resource/testing/populate_manager.h>
 #include <vire/cmsserver/session_info.h>
-#include <vire/cmsserver/base_usecase.h>
+#include <vire/cmsserver/base_use_case.h>
+#include <vire/cmsserver/shell_use_case.h>
 
 void test_session_1();
 
@@ -114,13 +115,18 @@ void test_session_1()
   distributable.tree_dump(std::clog, "Distributable:");
   std::clog << std::endl;
 
+  vire::cmsserver::session::use_case_ptr_type shellPtr(new vire::cmsserver::shell_use_case);
+  shellPtr->initialize_simple();
+
   vire::cmsserver::session tops;
   tops.set_id(0);
   tops.set_functional(functional);
   tops.set_distributable(distributable);
-  // tops.init_set_process(p0);
-  // tops.initialize(rmgr, si0);
+  tops.set_use_case(shellPtr);
+  tops.initialize_simple();
   tops.tree_dump(std::clog, "Top session:");
+  tops.run();
+  tops.reset();
 
   std::clog << std::endl;
   return;

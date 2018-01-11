@@ -37,6 +37,7 @@ namespace vire {
                                         const unsigned int /* version_*/)
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
+      archive_ & boost::serialization::make_nvp("id", _id_);
       archive_ & boost::serialization::make_nvp("sinfo", _sinfo_);
       archive_ & boost::serialization::make_nvp("start_macro", _start_macro_);
       archive_ & boost::serialization::make_nvp("stop_macro",  _stop_macro_);

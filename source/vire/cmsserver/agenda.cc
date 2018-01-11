@@ -333,20 +333,23 @@ namespace vire {
 
     int32_t agenda::get_next_reservation_id() const
     {
-      return _last_reservation_id_ + 1;
+      int id = _last_reservation_id_ + 1;
+      // XXX
+      return id;
     }
 
     int32_t agenda::add_reservation(const session_reservation & r_)
     {
       std::lock_guard<std::mutex> guard(_reservations_mutex_);
-      int32_t id = session_info::INVALID_ID;
-      if (r_.get_sinfo().has_id()) {
-        id = r_.get_sinfo().get_id();
-      }
+      DT_THROW_IF(!r_.is_valid(),
+                  std::logic_error,
+                  "Reservation is not valid!");
+      int32_t id = r_.get_id();
       DT_THROW_IF(has_reservation(id),
                   std::logic_error,
                   "Reservation with ID=" << id << " already exists!");
       _reservations_[id] = r_;
+      // XXX
       _last_reservation_id_ = id;
       _reservations_changed_ = true;
       return id;
@@ -401,12 +404,12 @@ namespace vire {
         for (std::size_t i = 0; i < number_of_reservations; i++) {
           int32_t id;
           session_reservation res;
-          // reader.load("session_id", id);
           reader.load("session_reservation", res);
-          id = res.get_sinfo().get_id();
-          _reservations_[id] = res;
-          _last_reservation_id_ = id;
-          DT_LOG_DEBUG(get_logging_priority(), "Loading reservation ID=[" << id << "]");
+          // id = res.get_id();
+          // _reservations_[id] = res;
+          // _last_reservation_id_ = id;
+          DT_LOG_DEBUG(get_logging_priority(), "Loading reservation ID=[" << res.get_id() << "]");
+          add_reservation(res);
         }
       }
       return;
@@ -431,7 +434,6 @@ namespace vire {
            iter++) {
         int32_t id = iter->first;
         const session_reservation & res = iter->second;
-        // writer.store("session_id", id);
         writer.store("session_reservation", res);
       }
       if (_reservations_changed_) {
@@ -542,7 +544,7 @@ namespace vire {
       if (future.size()) {
         return future.front();
       }
-      return session_info::INVALID_ID;
+      return INVALID_ID;
     }
 
     // bool agenda::has_session(const std::string & session_key_)
