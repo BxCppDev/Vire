@@ -94,15 +94,15 @@ namespace vire {
        * path : string  = "calo_expert"
        * functional_resource.selector_type_id   : string    = "vire::resource::enumerated_resource_selector"
        * functional_resource.selector.resources : string[4] = \
-       *   "Calo/HV/Start" \
-       *   "Calo/HV/Stop" \
-       *   "Calo/HV/Lock" \
-       *   "Calo/HV/Unlock"
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/Status/__dp_read__" \
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/Channel_0/Voltage/__dp_read__" \
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/Channel_1/Voltage/__dp_read__" \
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/Channel_2/Voltage/__dp_read__"
        * distributable_resource.selector_type_id   : string    = "vire::resource::enumerated_resource_selector"
        * distributable_resource.selector.resources : string[3] = \
-       *   "Calo/HV/PS/Initialize" \
-       *   "Calo/HV/PS/LoadConfiguration" \
-       *   "Calo/HV/PS/Reset"
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/Initialize" \
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/LoadConfiguration" \
+       *   "SuperNEMO:/Demonstrator/CMS/Calo/HV/PS/Reset"
        * build_cache    : boolean   = false
        * allowed_users  : string[3] = "johndoe" "bill" "foo"
        * allowed_groups : string[2] = "grp1" "grp2"
@@ -154,10 +154,10 @@ namespace vire {
       void add_allowed_user(const std::string & username_);
 
       //! Add allowed user
-      void add_allowed_user(int32_t uid_);
+      void add_allowed_user(const int32_t uid_);
 
       //! Remove allowed user
-      void remove_allowed_user(int32_t uid_);
+      void remove_allowed_user(const int32_t uid_);
 
       //! Remove allowed user
       void remove_allowed_user(const std::string & username_);
@@ -166,13 +166,13 @@ namespace vire {
       bool has_allowed_groups() const;
 
       //! Add allowed group
-      void add_allowed_group(int32_t gid_);
+      void add_allowed_group(const int32_t gid_);
 
       //! Add allowed group
       void add_allowed_group(const std::string & groupame_);
 
       //! Remove allowed group
-      void remove_allowed_group(int32_t gid_);
+      void remove_allowed_group(const int32_t gid_);
 
       //! Remove allowed group
       void remove_allowed_group(const std::string & groupame_);
@@ -374,7 +374,7 @@ namespace vire {
 
       // External resources:
       const manager *             _resource_manager_ = nullptr; //!< Handle to an external resource manager
-      const vire::user::manager * _user_manager_ = nullptr;     //!< Handle to an external user manager
+      const vire::user::manager * _user_manager_     = nullptr; //!< Handle to an external user manager
 
       // Configuration:
       int32_t               _id_;           //!< Role unique identifier

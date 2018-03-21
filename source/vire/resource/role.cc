@@ -119,8 +119,8 @@ namespace vire {
     {
       if (! has_id()) return false;
       if (! has_path()) return false;
-      if (!has_functional_resource_selector() &&
-          !has_distributable_resource_selector()) return false;
+      if (! has_functional_resource_selector() &&
+          ! has_distributable_resource_selector()) return false;
       return true;
     }
 
@@ -507,7 +507,7 @@ namespace vire {
       return _allowed_uids_.size();
     }
 
-    void role::add_allowed_user(int32_t uid_)
+    void role::add_allowed_user(const int32_t uid_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(has_allowed_user(uid_), std::logic_error,
@@ -527,12 +527,12 @@ namespace vire {
       return;
     }
 
-    bool role::has_allowed_user(int32_t uid_) const
+    bool role::has_allowed_user(const int32_t uid_) const
     {
       return _allowed_uids_.count(uid_) == 1;
     }
 
-    void role::remove_allowed_user(int32_t uid_)
+    void role::remove_allowed_user(const int32_t uid_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(!has_allowed_user(uid_), std::logic_error,
@@ -552,7 +552,7 @@ namespace vire {
       return;
     }
 
-    void role::add_allowed_group(int32_t gid_)
+    void role::add_allowed_group(const int32_t gid_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(has_allowed_group(gid_), std::logic_error,
@@ -561,12 +561,12 @@ namespace vire {
       return;
     }
 
-    bool role::has_allowed_group(int32_t gid_) const
+    bool role::has_allowed_group(const int32_t gid_) const
     {
       return _allowed_gids_.count(gid_) == 1;
     }
 
-    void role::remove_allowed_group(int32_t gid_)
+    void role::remove_allowed_group(const int32_t gid_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Role '" << get_name() << "' is already initialized!");
       DT_THROW_IF(!has_allowed_group(gid_), std::logic_error,
