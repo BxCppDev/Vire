@@ -4,11 +4,13 @@ option java_outer_classname = "ResourcePubsubSuccessStub";
 package vire.cms;
 
 import "vire/utility/BasePayload.proto";
+import "vire/cms/ResourceExecSuccess.proto";
 
 message ResourcePubsubSuccess {
 
   vire.utility.BasePayload _base = 1;
 
-  bool subscribed = 100; // Subscription flag
+  bool                         subscribed = 100; // Subscription flag
+  vire.cms.ResourceExecSuccess audit      = 101; // Resource audit (optional)
 
 }
