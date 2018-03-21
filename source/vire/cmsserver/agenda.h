@@ -191,10 +191,11 @@ namespace vire {
       const vire::user::manager     * _users_     = nullptr;
       std::mutex            _reservations_mutex_;
       reservation_dict_type _reservations_;
+      // reservation sequences ???
       bool                  _reservations_changed_;
       int32_t               _last_reservation_id_  = session_reservation::INVALID_ID;
 
-      //! Auto-registration of this service class in a central service database of Bayeux/datatools
+      //! Auto-registration of this service class in the Bayeux/datatools' central service database
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(agenda)
 
     };
