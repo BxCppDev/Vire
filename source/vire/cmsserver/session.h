@@ -2,8 +2,8 @@
 //! \brief The CMS server session
 //
 // Copyright (c) 2016-2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
-//                       François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jérôme Poincheval <poincheval@lpccaen.in2p3.fr>
+//                         François Mauger <mauger@lpccaen.in2p3.fr>
+//                         Jérôme Poincheval <poincheval@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -61,9 +61,17 @@ namespace vire {
       static const int32_t INVALID_ID     = -1; ///< Invalid session ID
       static const int32_t ROOT_ID        =  0; ///< Root session ID
 
-      typedef std::shared_ptr<base_use_case> use_case_ptr_type;
-      typedef std::shared_ptr<session> session_ptr_type;
-      typedef std::map<std::string, session_ptr_type> session_dict_type;
+      //typedef std::unique_ptr<base_use_case> use_case_ptr_type;
+
+      typedef session * session_ptr_type;
+      struct session_entry
+      {
+        ~session_entry();
+        std::string      name; //!< Unique subsession name
+        session_ptr_type instance = nullptr; //!< Session instance
+        // base_use_case  * usecase  = nullptr;
+      };
+      typedef std::map<std::string, session_entry> session_dict_type;
 
       /// Default constructor
       session();
@@ -90,10 +98,13 @@ namespace vire {
       bool has_parent() const;
 
       /// Set the parent session
-      void set_parent(const session_ptr_type & parent_);
+      void set_parent(const session & parent_);
+
+      /// Reset the parent session
+      void reset_parent();
 
       /// Return the handle to the parent, if any
-      const session_ptr_type & get_parent() const;
+      const session & get_parent() const;
 
       /// Check if session is the root session
       bool is_root() const;
@@ -102,10 +113,22 @@ namespace vire {
       bool has_use_case() const;
 
       /// Set the use case handle
-      void set_use_case(const use_case_ptr_type &);
+      void set_use_case(base_use_case &);
 
       /// Return the handle to the use case
-      const use_case_ptr_type & get_use_case() const;
+      const base_use_case & get_use_case() const;
+
+      /// Return the handle to the use case
+      base_use_case & grab_use_case();
+
+      /// Check if the session period is set
+      bool has_when() const;
+
+      /// Return the session period
+      const boost::posix_time::time_period & get_when() const;
+
+      /// Set the session period
+      void set_when(const boost::posix_time::time_period &);
 
       /// Return the functional resources
       const resource_pool & get_functional() const;
@@ -125,14 +148,14 @@ namespace vire {
       /// Set of distributable resources
       void set_distributable(const resource_pool &);
 
-      // /// Check if subsessions are set
-      // bool has_subsessions() const;
+      /// Check if subsessions are set
+      bool has_subsessions() const;
 
-      // /// Return the set of subsessions
-      // const session_set_type & get_subsessions() const;
+      /// Return the set of subsessions
+      const session_dict_type & get_subsessions() const;
 
-      // /// Return the set of subsessions
-      // session_set_type & grab_subsessions();
+      /// Build the list of subsessions' names
+      void build_subsession_names(std::set<std::string> & names_) const;
 
       // /// Print the list of subsessions
       // void list_subsessions(std::ostream & out_ = std::clog,
@@ -149,14 +172,23 @@ namespace vire {
       /// Initialization
       void initialize_simple();
 
-      /// Reset
-      void reset();
+      /// Terminate
+      void terminate();
 
       /// Check initialization flag
       bool is_initialized() const;
 
       //! Main run
       void run();
+
+      //! Set the check only flag
+      void set_check_only(bool check_);
+
+      /// Check the check only flag
+      bool is_check_only() const;
+
+      /// Check if the session can run
+      bool can_run() const;
 
       /// Check running flag
       bool is_running() const;
@@ -174,35 +206,39 @@ namespace vire {
       //                         const session_info & sinfo_);
 
       /// Post initialization
-      void _post_init_();
+      //! Setup all structural internal mechanisms for resource execution
+      //! - bind "write" resources on Control domain's exchange
+      //! - ...
+      void _at_init_();
 
-      // /// System initialization
-      // void _at_init_(const session_ptr_type & parent_,
-      //                 const vire::resource::manager & rmgr_,
-      //                 const session_info & sinfo_,
-      //                 uint32_t flags_ = 0);
-
-      /// System reset
-      void _at_reset_();
+      //! Check the use case
+      void _check_use_case_();
 
       /// System run
       void _at_run_();
+
+      /// System terminate
+      void _at_terminate_();
+
+      /// Destroy the embedded use case
+      void _destroy_use_case_();
 
     private:
 
       // Management:
       datatools::logger::priority _logging_ = datatools::logger::PRIO_FATAL; ///< Logging priority
       bool _initialized_ = false; ///< Initialization flag
+      bool _check_only_  = false; ///< Check only flag
       bool _running_     = false; ///< Running flag
 
       // Work:
-      int               _id_ = INVALID_ID;     ///< Session unique identifier
-      session_ptr_type  _parent_  = nullptr;   ///< Handle to parent session, if any
-      // when
-      resource_pool     _functional_;          ///< Pool of functional resources (accounting)
-      resource_pool     _distributable_;       ///< Pool of distributable resources (accounting)
-      use_case_ptr_type _use_case_;            ///< Handle to the use case
-      session_dict_type _subsessions_;         ///< Daughter sessions
+      int               _id_ = INVALID_ID;    ///< Session unique identifier
+      const session *   _parent_  = nullptr;  ///< Handle to parent session, if any
+      base_use_case *   _use_case_ = nullptr; ///< Handle to the use case
+      boost::posix_time::time_period _when_;  ///< Session time period
+      resource_pool     _functional_;         ///< Pool of functional resources (accounting)
+      resource_pool     _distributable_;      ///< Pool of distributable resources (accounting)
+      session_dict_type _subsessions_;        ///< Daughter sessions
 
     };
 

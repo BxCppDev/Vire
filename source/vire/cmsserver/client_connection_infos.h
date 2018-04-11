@@ -1,8 +1,7 @@
-//! \file  vire/cmsserver/task_utils.h
-//! \brief The CMS server task utilities
+//! \file  vire/cmsserver/client_connection_infos.h
+//! \brief The client connection informations
 //
-// Copyright (c) 2016-2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
-//                       François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -19,23 +18,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSSERVER_TASK_UTILS_H
-#define VIRE_CMSSERVER_TASK_UTILS_H
+#ifndef VIRE_CMSSERVER_CLIENT_CONNECTION_INFOS_H
+#define VIRE_CMSSERVER_CLIENT_CONNECTION_INFO_H
+
+// Standard Library:
+#include <string>
+
+// This project:
+#include <vire/time/utils.h>
 
 namespace vire {
 
   namespace cmsserver {
 
-    struct work_report_type
-    {
-      int error_code = 0;
-    };
-
   } // namespace cmsserver
 
 } // namespace vire
 
-#endif // VIRE_CMSSERVER_TASK_UTILS_H
+#endif // VIRE_CMSSERVER_CLIENT_CONNECTION_INFO_H
 
 // Local Variables: --
 // mode: c++ --

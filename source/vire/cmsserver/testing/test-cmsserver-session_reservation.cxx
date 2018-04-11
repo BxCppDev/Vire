@@ -51,7 +51,8 @@ void test_session_reservation_1()
   resa1.set_id(1);
   resa1.set_booked_by("nemoprod");
   resa1.set_last_update(boost::posix_time::second_clock::local_time());
-  resa1.set_resource_scope("stdshift");
+  // resa1.set_resource_scope("stdshift");
+  resa1.set_role_description("stdshift");
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
   boost::posix_time::time_period when(now, now + boost::posix_time::hours(2));
   resa1.set_when(when);
@@ -73,8 +74,8 @@ void test_session_reservation_1()
 
     resa1.set_use_case_info(ucinfo);
   }
-  resa1.set_start_macro("daq_start.macro");
-  resa1.set_stop_macro("daq_stop.macro");
+  // resa1.set_start_macro("daq_start.macro");
+  // resa1.set_stop_macro("daq_stop.macro");
   resa1.tree_dump(std::clog, "Session reservation 1: ", "[info] ");
   std::clog << std::endl;
 

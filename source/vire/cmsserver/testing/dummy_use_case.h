@@ -22,12 +22,12 @@ namespace vire {
       public:
 
         //! Default constructor
-        dummy_use_case(const unsigned int uts_ = 4,
-                       const unsigned int wts_ = 8,
-                       const unsigned int dts_ = 3)
-          : _up_time_sec_(uts_)
-          , _work_time_sec_(wts_)
-          , _down_time_sec_(dts_)
+        dummy_use_case(const unsigned int futs_ = 4,
+                       const unsigned int fwts_ = 8,
+                       const unsigned int fdts_ = 3)
+          : _functional_up_time_sec_(futs_)
+          , _functional_work_time_sec_(fwts_)
+          , _functional_down_time_sec_(fdts_)
         {
           return;
         }
@@ -38,77 +38,144 @@ namespace vire {
           return;
         }
 
-        virtual void _at_initialized_(const datatools::properties & config_)
+        void _at_initialize_(const datatools::properties & config_) override
         {
-          return;
-        }
-
-        virtual void _at_reset_()
-        {
-          return;
-        }
-
-        virtual void _at_up_()
-        {
-          std::cerr << "dummy_use_case: up: entering..." << std::endl;
-          for (unsigned int tick = 1; tick <= _up_time_sec_; tick++) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            std::cerr << "dummy_use_case: up: elapsed = "
-                      << tick << '/'<< _up_time_sec_ << " sec" << std::endl;
+          if (config_.has_key("functional_up_time_sec")) {
+            unsigned int futs = config_.fetch_positive_integer("functional_up_time_sec");
+            _functional_up_time_sec_ = futs;
           }
-          std::cerr << "dummy_use_case: up: exiting." << std::endl;
+
+          if (config_.has_key("functional_work_time_sec")) {
+            unsigned int fwts = config_.fetch_positive_integer("functional_work_time_sec");
+            _functional_work_time_sec_ = fwts;
+          }
+
+          if (config_.has_key("functional_down_time_sec")) {
+            unsigned int fdts = config_.fetch_positive_integer("functional_down_time_sec");
+            _functional_down_time_sec_ = fdts;
+          }
+
           return;
         }
 
-        virtual vire::cmsserver::work_report_type _at_work_()
+        void _compute_run_distributable_times_() override
         {
-          std::cerr << "dummy_use_case: work: entering..." << std::endl;
-          vire::cmsserver::work_report_type work_report;
-          work_report.error_code = 0;
-          for (unsigned int tick = 1; tick <= _work_time_sec_; tick++) {
+          return;
+        }
+
+        void _compute_run_functional_times_() override
+        {
+          set_functional_up_max_duration(boost::posix_time::seconds(_functional_up_time_sec_));
+          set_functional_work_min_duration(boost::posix_time::seconds(_functional_work_time_sec_));
+          set_functional_work_max_duration(boost::posix_time::seconds(_functional_work_time_sec_ + 1));
+          set_functional_down_max_duration(boost::posix_time::seconds(_functional_down_time_sec_));
+          return;
+        }
+
+        void _at_finalize_() override
+        {
+          _functional_up_time_sec_   = 4;
+          _functional_work_time_sec_ = 8;
+          _functional_down_time_sec_ = 3;
+          return;
+        }
+
+        // void _at_run_prepare_() override
+        // {
+        //   return;
+        // }
+
+        // void _at_run_distributable_up_() override
+        // {
+        //   return;
+        // }
+
+        void _at_run_functional_up_() override
+        {
+          std::cerr << "dummy_use_case: up functional: entering..." << std::endl;
+          for (unsigned int tick = 1; tick <= _functional_up_time_sec_; tick++) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::cerr << "dummy_use_case: up functional: elapsed = "
+                      << tick << '/'<< _functional_up_time_sec_ << " sec" << std::endl;
+          }
+          std::cerr << "dummy_use_case: up functional: exiting." << std::endl;
+          return;
+        }
+
+        void _at_run_functional_work_loop_iteration_() override
+        {
+          std::cerr << "dummy_use_case: work functional: entering..." << std::endl;
+          for (unsigned int tick = 1; tick <= _functional_work_time_sec_; tick++) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             std::cerr << "dummy_use_case: work: elapsed = "
-                      << tick << '/'<< _work_time_sec_ << " sec" << std::endl;
+                      << tick << '/'<< _functional_work_time_sec_ << " sec" << std::endl;
           }
-          std::cerr << "dummy_use_case: work: exiting." << std::endl;
-          return work_report;
-        }
-
-        virtual void _at_down_()
-        {
-          std::cerr << "dummy_use_case: down: entering..." << std::endl;
-          for (unsigned int tick = 1; tick <= _down_time_sec_; tick++) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            std::cerr << "dummy_use_case: down: elapsed = "
-                      << tick << '/'<< _down_time_sec_ << " sec" << std::endl;
-          }
-          std::cerr << "dummy_use_case: down: exiting." << std::endl;
+          std::cerr << "dummy_use_case: work functional: exiting." << std::endl;
           return;
         }
 
-        unsigned int get_work_time_sec() const
+        void _at_run_functional_down_() override
         {
-          return _work_time_sec_;
+          std::cerr << "dummy_use_case: down functional: entering..." << std::endl;
+          for (unsigned int tick = 1; tick <= _functional_down_time_sec_; tick++) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::cerr << "dummy_use_case: down: elapsed = "
+                      << tick << '/'<< _functional_down_time_sec_ << " sec" << std::endl;
+          }
+          std::cerr << "dummy_use_case: down functional: exiting." << std::endl;
+          return;
         }
 
-        unsigned int get_up_time_sec() const
+        const ::vire::resource::role * _create_minimal_role_() override
         {
-          return _up_time_sec_;
+          const ::vire::resource::role * r = new ::vire::resource::role();
+          return r;
         }
 
-        unsigned int get_down_time_sec() const
+        void set_functional_work_time_sec(const unsigned int fwts_)
         {
-          return _down_time_sec_;
+          DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already initialized!");
+          _functional_work_time_sec_ = fwts_;
+          return;
         }
 
-        unsigned int get_total_time_sec() const
+        unsigned int get_functional_work_time_sec() const
         {
-          return get_work_time_sec() +  get_up_time_sec() + get_down_time_sec();
+          return _functional_work_time_sec_;
         }
 
-        unsigned int _up_time_sec_   = 5;
-        unsigned int _work_time_sec_ = 8;
-        unsigned int _down_time_sec_ = 3;
+        void set_functional_up_time_sec(const unsigned int futs_)
+        {
+          DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already initialized!");
+          _functional_up_time_sec_ = futs_;
+          return;
+        }
+
+        unsigned int get_functional_up_time_sec() const
+        {
+          return _functional_up_time_sec_;
+        }
+
+        void set_functional_down_time_sec(const unsigned int fdts_)
+        {
+          DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already initialized!");
+          _functional_down_time_sec_ = fdts_;
+          return;
+        }
+
+        unsigned int get_functional_down_time_sec() const
+        {
+          return _functional_down_time_sec_;
+        }
+
+        unsigned int get_functional_total_time_sec() const
+        {
+          return get_functional_work_time_sec() +  get_functional_up_time_sec() + get_functional_down_time_sec();
+        }
+
+        unsigned int _functional_up_time_sec_   = 5;
+        unsigned int _functional_work_time_sec_ = 8;
+        unsigned int _functional_down_time_sec_ = 3;
 
       };
 

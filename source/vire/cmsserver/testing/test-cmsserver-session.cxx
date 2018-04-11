@@ -23,8 +23,11 @@
 #include <vire/resource/testing/populate_manager.h>
 #include <vire/cmsserver/session_info.h>
 #include <vire/cmsserver/base_use_case.h>
-#include <vire/cmsserver/shell_use_case.h>
 
+#include "dummy_use_case.h"
+#include "tools.h"
+
+void test_session_0();
 void test_session_1();
 
 int main(int /* argc_ */, char ** /* argv_ */)
@@ -35,7 +38,8 @@ int main(int /* argc_ */, char ** /* argv_ */)
     std::clog << "Test program for the 'vire::cmsserver::session' class."
               << std::endl;
 
-    test_session_1();
+    test_session_0();
+    // test_session_1();
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -115,18 +119,90 @@ void test_session_1()
   distributable.tree_dump(std::clog, "Distributable:");
   std::clog << std::endl;
 
-  vire::cmsserver::session::use_case_ptr_type shellPtr(new vire::cmsserver::shell_use_case);
-  shellPtr->initialize_simple();
+  // std::unique_ptr<vire::cmsserver::base_use_case> shellPtr(new vire::cmsserver::shell_use_case);
+  // shellPtr->initialize_simple();
+
+  // vire::cmsserver::session tops;
+  // tops.set_id(0);
+  // tops.set_functional(functional);
+  // tops.set_distributable(distributable);
+  // tops.set_use_case(*shellPtr);
+  // tops.initialize_simple();
+  // tops.tree_dump(std::clog, "Top session:");
+  // tops.run();
+  // tops.reset();
+
+  std::clog << std::endl;
+  return;
+}
+
+void test_session_0()
+{
+  std::clog << "\ntest_session_0: basics" << std::endl;
+
+  // User manager:
+  vire::user::manager user_mgr;
+  vire::sandbox::init_users(user_mgr);
+
+  // Device manager:
+  vire::device::manager dev_mgr;
+  vire::sandbox::init_devices(dev_mgr);
+
+  // Resource manager:
+  uint32_t res_mgr_flags = 0;
+  res_mgr_flags |= vire::resource::manager::LOG_TRACE;
+  res_mgr_flags |= vire::resource::manager::DONT_STORE_TABLES;
+  res_mgr_flags |= vire::resource::manager::DONT_BACKUP_TABLES;
+  vire::resource::manager res_mgr(res_mgr_flags);
+  vire::sandbox::init_resources(res_mgr, dev_mgr);
+
+  // Top session:
+  std::clog << "Creating a top session..." << std::endl;
+
+  vire::cmsserver::resource_pool functional;
+  functional.add_unlimited(1000);
+  functional.add_unlimited(1002);
+  functional.add_unlimited(1006);
+  functional.add_limited(1001, 1);
+  functional.add_limited(1003, 1);
+  functional.add_limited(1004, 3);
+  functional.tree_dump(std::clog, "Functional:");
+  std::clog << std::endl;
+
+  vire::cmsserver::resource_pool distributable;
+  distributable.add_unlimited(1010);
+  distributable.add_unlimited(1014);
+  distributable.tree_dump(std::clog, "Distributable:");
+  std::clog << std::endl;
 
   vire::cmsserver::session tops;
+  tops.set_logging_priority(datatools::logger::PRIO_DEBUG);
   tops.set_id(0);
+  std::size_t session_duration_sec = 10;
+  boost::posix_time::ptime session_start = vire::time::now();
+  boost::posix_time::time_duration session_duration = boost::posix_time::seconds(session_duration_sec);
+  boost::posix_time::ptime session_stop = session_start + session_duration;
+  boost::posix_time::time_period when(session_start, session_stop);
+  tops.set_when(when);
   tops.set_functional(functional);
   tops.set_distributable(distributable);
-  tops.set_use_case(shellPtr);
+
+  vire::cmsserver::test::dummy_use_case dummyUse(5);
+  std::size_t func_up_max_duration   = 5;
+  std::size_t func_work_min_duration = 10;
+  std::size_t func_down_max_duration = 2;
+  dummyUse.set_functional_up_time_sec(func_up_max_duration);
+  dummyUse.set_functional_work_time_sec(func_work_min_duration);
+  dummyUse.set_functional_down_time_sec(func_down_max_duration);
+  std::clog << "Dummy use case: " << std::endl;
+  dummyUse.set_mother_session(tops);
+  dummyUse.print_tree(std::clog);
+
+  tops.set_use_case(dummyUse);
   tops.initialize_simple();
   tops.tree_dump(std::clog, "Top session:");
   tops.run();
-  tops.reset();
+  tops.terminate();
 
   std::clog << std::endl;
   return;

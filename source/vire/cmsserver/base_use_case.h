@@ -25,6 +25,10 @@
 // Standard Library:
 #include <string>
 #include <memory>
+#include <future>
+#include <exception>
+#include <map>
+#include <mutex>
 
 // Third party:
 // - Boost:
@@ -33,6 +37,8 @@
 #include <bayeux/datatools/enriched_base.h>
 #include <bayeux/datatools/properties.h>
 #include <bayeux/datatools/factory_macros.h>
+#include <bayeux/mygsl/min_max.h>
+#include <bayeux/mygsl/mean.h>
 
 // This project:
 #include <vire/time/utils.h>
@@ -52,27 +58,37 @@ namespace vire {
     {
     public:
 
+      /// \brief Supported run stages
       enum run_stage_type {
         RUN_STAGE_UNDEF = 0,
-        RUN_STAGE_PREPARING = 1,
-        RUN_STAGE_READY = 2,
-        RUN_STAGE_DISTRIBUTABLE_UP = 3,
-        RUN_STAGE_DISTRIBUTABLE_UP_DONE = 4,
-        RUN_STAGE_FUNCTIONAL_UP = 5,
-        RUN_STAGE_FUNCTIONAL_UP_DONE = 6,
-        RUN_STAGE_FUNCTIONAL_WORK = 7,
-        RUN_STAGE_FUNCTIONAL_WORK_DONE = 8,
-        RUN_STAGE_FUNCTIONAL_DOWN = 9,
-        RUN_STAGE_FUNCTIONAL_DOWN_DONE = 10,
-        RUN_STAGE_DISTRIBUTABLE_DOWN = 11,
-        RUN_STAGE_DISTRIBUTABLE_DOWN_DONE = 12,
-        RUN_STAGE_TERMINATING = 100,
-        RUN_STAGE_TERMINATED = 200
+        RUN_STAGE_READY = 1,
+        RUN_STAGE_PREPARING = 2,
+        RUN_STAGE_PREPARED = 3,
+        RUN_STAGE_DISTRIBUTABLE_UP_RUNNING = 4,
+        RUN_STAGE_DISTRIBUTABLE_UP_DONE = 5,
+        RUN_STAGE_FUNCTIONAL_UP_RUNNING = 6,
+        RUN_STAGE_FUNCTIONAL_UP_DONE = 7,
+        RUN_STAGE_FUNCTIONAL_WORK_RUNNING = 8,
+        RUN_STAGE_FUNCTIONAL_WORK_DONE = 9,
+        RUN_STAGE_FUNCTIONAL_DOWN_RUNNING = 10,
+        RUN_STAGE_FUNCTIONAL_DOWN_DONE = 11,
+        RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING = 12,
+        RUN_STAGE_DISTRIBUTABLE_DOWN_DONE = 13,
+        RUN_STAGE_TERMINATING = 14,
+        RUN_STAGE_TERMINATED = 15
+      };
+
+      /// Return the label associated to a given run stage
+      static std::string run_stage_label(const run_stage_type);
+
+      ///
+      enum run_functional_work_loop_status_type {
+        RUN_FUNCTIONAL_WORK_LOOP_ITERATE = 0,
+        RUN_FUNCTIONAL_WORK_LOOP_STOP    = 1
       };
 
       struct base_signal {};
       struct termination_signal : public base_signal {};
-      struct kill_signal : public base_signal {};
       struct timeout_signal : public base_signal {};
       // struct user1_signal : public base_signal {};
       // struct user2_signal : public base_signal {};
@@ -80,15 +96,15 @@ namespace vire {
       enum run_termination_type {
         RUN_TERMINATION_UNDEF   = 0,
         RUN_TERMINATION_NORMAL  = 1, ///< Normal termination by the usecase itself
-        RUN_TERMINATION_ERROR   = 2, ///< Abnormal termination by the usecase itself because an excpetion was thrown
-        RUN_TERMINATION_SESSION = 3, ///< Normal anticipated termination requested by the session (through a termination_signal)
-        RUN_TERMINATION_KILLED  = 4, ///< Forced anticipated termination requested by the session (through a kill_signal)
-        RUN_TERMINATION_TIMEOUT = 5  ///< Forced termination requested by the session because of the timeout (through a timeout_signal)
+        RUN_TERMINATION_SESSION = 2, ///< Normal anticipated termination requested by the session (through a termination_signal)
+        RUN_TERMINATION_ERROR   = 3, ///< Abnormal termination by the usecase itself because an exception was thrown
+        RUN_TERMINATION_TIMEOUT = 4  ///< Forced termination requested by the session because of the timeout (through a timeout_signal)
       };
 
-      struct base_exception : public std::exception
+      struct base_exception
+        : public std::exception
       {
-        virtual void export(boost::property_tree::ptree & error_data_) const = 0;
+        virtual void export_error_data(boost::property_tree::ptree & error_data_) const = 0;
       };
 
       /*
@@ -105,25 +121,54 @@ namespace vire {
       };
       */
 
-      struct run_report_type
+      //! \brief Run report data structure returned by each running steps of the use case
+      struct stage_completion
       {
-        run_termination_type        run_termination = RUN_TERMINATION_UNDEF;
-        boost::posix_time::ptime    timestamp;
-        run_stage_type              run_stage  = RUN_STAGE_UNDEF;
-        std::string                 error_class_id;
-        boost::property_tree::ptree error_data;
+        boost::posix_time::ptime    timestamp;      ///< Report timestamp (mandatory)
+        run_termination_type        run_termination = RUN_TERMINATION_UNDEF; ///< Type of run termination (mandatory)
+        run_stage_type              run_stage       = RUN_STAGE_UNDEF;       ///< Run stage at termination (mandatory)
+        std::string                 error_class_id; ///< Error/exception type/class identifier (optional)
+        boost::property_tree::ptree error_data;     ///< Specific data associated to the error/exception (optional)
 
         bool is_error() const;
         bool is_normal_termination() const;
       };
 
-      typedef std::future<run_report_type> run_future_type;
+      // typedef std::future<stage_completion> run_future_type;
+
+      struct stage_time_statistics
+      {
+        stage_time_statistics();
+        std::size_t                    loop_counter = 0;
+        boost::posix_time::time_period start_stop;
+        boost::posix_time::time_period last_run_start_stop;
+        // Use templatized min/max and mean/sigma calculation ?
+        mygsl::min_max                 min_max_info;
+        mygsl::arithmetic_mean         mean_info;
+      };
+
+      struct stage_report_record
+      {
+        stage_time_statistics time_stats;
+        stage_completion      completion;
+      };
+
+      typedef std::map<run_stage_type,stage_report_record> run_report_type;
 
       //! Default constructor
       base_use_case();
 
       //! Destructor
       virtual ~base_use_case();
+
+      //! Check if the role expression is set
+      bool has_role_expression() const;
+
+      //! Set the role expression
+      void set_role_expression(const std::string & role_expression_);
+
+      //! Return the role expression
+      const std::string & get_role_expression() const;
 
       //! Check if the mother session is set
       bool has_mother_session() const;
@@ -194,6 +239,15 @@ namespace vire {
       //! Return the maximum duration of all stages
       boost::posix_time::time_duration get_total_max_duration() const;
 
+      // //! Check if the tick time for the run functional work loop is set
+      // bool has_run_functional_work_loop_tick() const;
+
+      // //! Set the tick time for the run functional work loop
+      // void set_run_functional_work_loop_tick(const boost::posix_time::time_duration &);
+
+      // //! Return the tick time for the run functional work loop
+      // const boost::posix_time::time_duration & get_run_functional_work_loop_tick() const;
+
       // Instance initialization
 
       bool is_initialized() const;
@@ -202,32 +256,35 @@ namespace vire {
 
       void initialize(const datatools::properties & config_);
 
-      void terminate();
+      void finalize();
 
       // Business running:
       run_stage_type get_run_stage() const;
 
+      /// Check if run is ready to process
       bool is_run_ready() const;
 
-      bool is_run_done() const;
+      /// Check if run is terminated
+      bool is_run_terminated() const;
 
-      bool is_run_broken() const;
+      // /// Check if run is broken
+      // bool is_run_broken() const;
 
-      void set_run_broken(const bool b_ = true);
+      // void set_run_broken(const bool b_ = true);
 
-      run_report_type run_prepare();
+      stage_completion run_prepare();
 
-      run_report_type run_distributable_up();
+      stage_completion run_distributable_up();
 
-      run_report_type run_functional_up();
+      stage_completion run_functional_up();
 
-      run_report_type run_functional_work();
+      stage_completion run_functional_work();
 
-      run_report_type run_functional_down();
+      stage_completion run_functional_down();
 
-      run_report_type run_distributable_down();
+      stage_completion run_distributable_down();
 
-      run_report_type run_terminate();
+      stage_completion run_terminate();
 
       // Signal handler based on the few signals and possible overidden handler methods in the UC
 
@@ -237,14 +294,17 @@ namespace vire {
 
       const ::vire::resource::role & get_minimal_role() const;
 
+      void run_stop_request();
+
     private:
 
-      // Initialization/termination
+      // Initialization/destruction:
+
       void _basic_initialize_(const datatools::properties & config_);
 
       void _basic_time_calibration_(const datatools::properties & config_);
 
-      void _basic_terminate_();
+      void _basic_finalize_();
 
       virtual const ::vire::resource::role * _create_minimal_role_() = 0;
 
@@ -252,23 +312,23 @@ namespace vire {
 
       virtual void _compute_run_functional_times_();
 
-      virtual void _at_initialize_(const datatools::properties & config_) = 0;
+      virtual void _at_initialize_(const datatools::properties & config_);
 
-      virtual void _at_terminate_() = 0;
+      virtual void _at_finalize_();
 
       // Running:
 
       virtual void _at_run_prepare_();
 
-      virtual void _at_run_distributable_up_() = 0;
+      virtual void _at_run_distributable_up_();
 
-      virtual void _at_run_functional_up_() = 0;
+      virtual void _at_run_functional_up_();
 
-      virtual void _at_run_functional_work_() = 0;
+      virtual void _at_run_functional_work_loop_iteration_();
 
-      virtual void _at_run_functional_down_() = 0;
+      virtual void _at_run_functional_down_();
 
-      virtual void _at_run_distributable_down_() = 0;
+      virtual void _at_run_distributable_down_();
 
       virtual void _at_run_terminate_();
 
@@ -276,16 +336,39 @@ namespace vire {
       // to build a recursive snapshot of the use case (and its daughter
       // use cases) and report.
 
+      std::size_t get_run_work_loop_count() const;
+
+      void _run_work_init_();
+
+      void _run_work_begin_();
+
+      void _run_work_end_();
+
+      void _run_work_terminate_();
+
+    protected:
+
+      bool _check_run_stop_requested() const;
+
+      void _run_functional_work_loop_status_continue();
+
+      void _run_functional_work_loop_status_stop();
+
     private:
 
-      // Management:
-      bool           _initialized_ = false;           //!< Initialization flag
-      run_stage_type _run_stage_   = RUN_STAGE_UNDEF; //!< Run stage status
-      bool           _run_broken_  = false;           //!< Flag for broken stage
+      // System management:
+      bool                      _initialized_ = false;           //!< Initialization flag
 
+      // Run management:
+      run_stage_type            _run_stage_   = RUN_STAGE_UNDEF; //!< Run stage status
+      //! Status of the functional work loop
+      run_functional_work_loop_status_type _run_functional_work_loop_status_;
+      run_report_type           _run_report_;                    //!< Run report
+      std::mutex                _run_stop_request_mutex_;        //!< Mutex for teh stop request flag
+      bool                      _run_stop_requested_ = false;    //!< Stop request flag
 
       // Configuration:
-      std::string _role_expr_; //!< Expression describing the role
+      std::string _role_expression_; //!< Expression describing the role
 
       // Internal data:
       const session * _mother_session_ = nullptr;                         //!< Handle to the mother session
@@ -295,7 +378,7 @@ namespace vire {
       boost::posix_time::time_duration _functional_work_min_duration_;    //!< Minimum duration of the functional work action
       boost::posix_time::time_duration _functional_work_max_duration_;    //!< Maximum duration of the functional work action
       boost::posix_time::time_duration _functional_down_max_duration_;    //!< Maximum duration of the functional down action
-      std::unique_ptr<vire::resource::role *> _minimal_role_;             //!< Cached minimal role
+      std::unique_ptr<const vire::resource::role> _minimal_role_;         //!< Cached minimal role
 
       friend class session;
 

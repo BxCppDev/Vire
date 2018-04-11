@@ -20,12 +20,89 @@
 // Ourselves:
 #include <vire/cmsserver/session.h>
 
+// Standard Library:
+#include <thread>
+#include <future>
+#include <memory>
+#include <chrono>
+#include <unistd.h>
+
 // This project:
 #include <vire/time/utils.h>
 #include <vire/resource/role.h>
 #include <vire/resource/manager.h>
 #include <vire/cmsserver/utils.h>
 #include <vire/cmsserver/base_use_case.h>
+#include <vire/cmsserver/task_utils.h>
+#include <vire/cmsserver/client_connection.h>
+#include <vire/user/simple_password_generator.h>
+
+/*
+namespace
+{
+
+  class session_user_manager
+  {
+  public:
+
+    session_user_manager()
+    {
+      _init_();
+      return;
+    }
+
+    ~session_user_manager()
+    {
+      return;
+    }
+
+    std::pair<std::string,std::string> new_user_password()
+    {
+      std::pair<std::string,std::string> p;
+      _login_gen_->generate_password(p.first, 8);
+      _password_gen_->generate_password(p.second, 10);
+      return p;
+    }
+
+  private:
+
+    void _init_()
+    {
+      std::hash<std::thread::id> hasher;
+      unsigned long i1 = hasher(std::this_thread::get_id());
+      unsigned long i2 = hasherstatic_cast<unsigned long>(getpid());
+      unsigned long i3 = std::chrono::system_clock::now().time_since_epoch().count();
+      unsigned int seed_name = std::abs(i3 + i2 - i1);
+      unsigned int seed_password = i3 + i2 + i1;
+      _login_gen_.reset(new vire::user::simple_password_generator(vire::user::simple_password_generator::CHARSET_ALPHANUM,
+                                                                  seed_name));
+      _password_gen_.reset(new vire::user::simple_password_generator(vire::user::simple_password_generator::CHARSET_ALPHANUM,
+                                                                     seed_password));
+      return;
+    }
+
+    void _reset_()
+    {
+      _login_gen_.reset();
+      _password_gen_.reset();
+      return;
+    }
+
+    std::unique_ptr<vire::user::simple_password_generator> _login_gen_;
+    std::unique_ptr<vire::user::simple_password_generator> _password_gen_;
+  };
+
+  session_user_manager & session_users()
+  {
+    static std::unique_ptr<session_user_manager> _sum;
+    if (_sum.get() == nullptr) {
+      _sum.reset(new session_user_manager);
+    }
+    return *_sum;
+  }
+
+}
+*/
 
 namespace vire {
 
@@ -35,7 +112,21 @@ namespace vire {
     const int32_t session::INVALID_ID;
     const int32_t session::ROOT_ID;
 
+    session::session_entry::~session_entry()
+    {
+      if (instance != nullptr) {
+        if (instance->is_initialized()) {
+          // Other tests and ops may be needed...
+          instance->terminate();
+        }
+        delete instance;
+        instance = nullptr;
+      }
+      return;
+    }
+
     session::session()
+      : _when_(vire::time::invalid_time_interval())
     {
       return;
     }
@@ -63,7 +154,7 @@ namespace vire {
 
     void session::set_id(const int32_t id_)
     {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
       _id_ = id_ < 0 ? INVALID_ID : id_;
       return;
     }
@@ -75,20 +166,27 @@ namespace vire {
 
     bool session::has_parent() const
     {
-      return _parent_.get() != nullptr;
+      return _parent_ != nullptr;
     }
 
-    void session::set_parent(const session_ptr_type & parent_)
+    void session::set_parent(const session & parent_)
     {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
-      _parent_ = parent_;
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
+      _parent_ = &parent_;
       return;
     }
 
-    const session::session_ptr_type & session::get_parent() const
+    void session::reset_parent()
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
+      _parent_ = nullptr;
+      return;
+    }
+
+    const session & session::get_parent() const
     {
       DT_THROW_IF(has_parent(), std::logic_error, "No parent is set!");
-      return _parent_;
+      return *_parent_;
     }
 
     bool session::is_root() const
@@ -98,23 +196,47 @@ namespace vire {
 
     bool session::has_use_case() const
     {
-      return _use_case_.get() != nullptr;
+      return _use_case_ != nullptr;
     }
 
-    void session::set_use_case(const use_case_ptr_type & uc_)
+    void session::set_use_case(base_use_case & uc_)
     {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
 
       // XXX Should we test here if the use case object if initialized ?
       // DT_THROW_IF(!uc_->is_initialized(), std::logic_error, "Use case is not initialized!");
-      _use_case_ = uc_;
+      _use_case_ = &uc_;
       return;
     }
 
-    const session::use_case_ptr_type & session::get_use_case() const
+    const base_use_case & session::get_use_case() const
     {
       DT_THROW_IF(!has_use_case(), std::logic_error, "Use case is not set!");
-      return _use_case_;
+      return *_use_case_;
+    }
+
+    base_use_case & session::grab_use_case()
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
+      DT_THROW_IF(!has_use_case(), std::logic_error, "Use case is not set!");
+      return *_use_case_;
+    }
+
+    bool session::has_when() const
+    {
+      return vire::time::is_valid(_when_);
+    }
+
+    const boost::posix_time::time_period & session::get_when() const
+    {
+      return _when_;
+    }
+
+    void session::set_when(const boost::posix_time::time_period & when_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
+      _when_ = when_;
+      return;
     }
 
     const resource_pool & session::get_functional() const
@@ -129,7 +251,7 @@ namespace vire {
 
     void session::set_functional(const resource_pool & functional_)
     {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
       _functional_ = functional_;
       return;
     }
@@ -146,8 +268,17 @@ namespace vire {
 
     void session::set_distributable(const resource_pool & distributable_)
     {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
+      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
       _distributable_ = distributable_;
+      return;
+    }
+
+    void session::_check_use_case_()
+    {
+      DT_THROW_IF(!has_use_case(), std::logic_error, "Session has no use case!");
+
+      // Check resource and time constraints forced by the use case
+
       return;
     }
 
@@ -176,7 +307,19 @@ namespace vire {
     //   return;
     // }
 
-    void session::_at_reset_()
+    void session::_destroy_use_case_()
+    {
+      if (_use_case_ != nullptr) {
+
+        // Some checks and ops needed...
+
+        delete _use_case_;
+        _use_case_ = nullptr;
+      }
+     return;
+    }
+
+    void session::_at_terminate_()
     {
       DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
 
@@ -189,6 +332,7 @@ namespace vire {
       _distributable_.reset();
       _parent_  = nullptr;
       _id_ = INVALID_ID;
+      _destroy_use_case_();
 
       DT_LOG_TRACE_EXITING(vire::cmsserver::logging());
       return;
@@ -304,10 +448,10 @@ namespace vire {
     }
     */
 
-    void session::_post_init_()
+    void session::_at_init_()
     {
       DT_THROW_IF(!has_id(), std::logic_error, "Session has no ID!");
-      DT_THROW_IF(!has_use_case(), std::logic_error, "Session has no use_case!");
+      _check_use_case_();
 
       return;
     }
@@ -317,7 +461,8 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
       DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
 
-      _post_init_();
+      _at_init_();
+
       _initialized_ = true;
       DT_LOG_TRACE_EXITING(vire::cmsserver::logging());
       return;
@@ -337,7 +482,7 @@ namespace vire {
     //   return;
     // }
 
-    void session::reset()
+    void session::terminate()
     {
       DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
       DT_THROW_IF(!is_initialized(), std::logic_error, "Session is not initialized!");
@@ -353,9 +498,9 @@ namespace vire {
         }
       }
       */
-      //  _subsessions_.clear();
+      // _subsessions_.clear();
 
-      _at_reset_();
+      _at_terminate_();
 
       DT_LOG_TRACE_EXITING(vire::cmsserver::logging());
       return;
@@ -366,15 +511,24 @@ namespace vire {
       return _initialized_;
     }
 
-    // bool session::has_subsessions() const
-    // {
-    //   return _subsessions_.size() > 0;
-    // }
+    bool session::has_subsessions() const
+    {
+      return _subsessions_.size() > 0;
+    }
 
-    // const session_set_type & session::get_subsessions() const
-    // {
-    //   return _subsessions_;
-    // }
+    const session::session_dict_type & session::get_subsessions() const
+    {
+      return _subsessions_;
+    }
+
+    void session::build_subsession_names(std::set<std::string> & names_) const
+    {
+      names_.clear();
+      for (const auto & s : _subsessions_) {
+        names_.insert(s.first);
+      }
+      return;
+    }
 
     // session_set_type & session::grab_subsessions()
     // {
@@ -479,6 +633,24 @@ namespace vire {
       return;
     }
 
+    void session::set_check_only(bool check_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Session is already initialized!");
+      _check_only_ = check_;
+      return;
+    }
+
+    bool session::is_check_only() const
+    {
+      return _check_only_;
+    }
+
+    bool session::can_run() const
+    {
+      return !_check_only_ && is_initialized();
+    }
+
     bool session::is_running() const
     {
       return _running_;
@@ -488,10 +660,19 @@ namespace vire {
     {
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Session is not initialized!");
+      DT_THROW_IF(is_check_only(), std::logic_error,
+                  "Session is in check-only mode and is not configured for running!");
       DT_THROW_IF(is_running(), std::logic_error,
                   "Session is already running!");
       _running_ = true;
-      _at_run_();
+      DT_LOG_DEBUG(_logging_, "Session is running...");
+      // _use_case_->run_distributable_up();
+      // std::packaged_task<work_report_type()> use_case_task(std::bind(&base_use_case::run_functional, _use_case_));
+      // std::future<work_report_type> work_report = use_case_task.get_future();
+      // std::thread use_case_thread(std::move(use_case_task));
+      // _at_run_();
+      // use_case_thread.join();
+      // _use_case_->run_distributable_down();
       _running_ = false;
       return;
     }
@@ -505,13 +686,54 @@ namespace vire {
      */
     void session::_at_run_()
     {
+      //std::this_thread::sleep_for(std::chrono::seconds(10));
+      return;
+    }
 
-      _use_case_->up();
-      _use_case_->work();
-      _use_case_->down();
+    /*
+    void session::create_connection()
+    {
+      DT_THROW_IF(!is_ready_for_connection(), std::logic_error, "Session cannot be connected!");
+
+      _conn_.reset(new client_connection);
+      _conn_->set_mother_session(*this);
+      _conn_->set_id(++_last_connection_id_);
+      {
+        std::pair<std::string,std::string> p = ::session_users().new_user_password();
+        _conn_->set_user_login(p.first);
+        _conn_->set_user_password(p.second);
+      }
+      {
+        boost::posix_time:ptime start = vire::time::now();
+        boost::posix_time:ptime stop = _when_.end();
+        if (_use_case_->has_down_max_duration()) {
+          stop -= _use_case_->get_down_max_duration();
+        }
+        if ( _use_case_->has_stop_macro()) {
+          // substract the stop macro max time...
+        }
+        boost::posix_time::time_period ti(start, stop);
+        _conn_->set_time_interval(ti);
+      }
+
+      // register user in rabbit...
 
       return;
     }
+
+    void session::destroy_connection()
+    {
+      if (_conn_.get() == nullptr) return;
+
+      if (_conn_->is_initialized()) {
+        // unregister user from rabbit...
+        _conn_->reset();
+      }
+
+      _conn_.reset();
+      return;
+    }
+    */
 
   } // namespace cmsserver
 

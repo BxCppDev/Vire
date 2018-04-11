@@ -38,13 +38,18 @@ namespace vire {
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
       archive_ & boost::serialization::make_nvp("id", _id_);
-      archive_ & boost::serialization::make_nvp("booked_by", _booked_by_);
+      archive_ & boost::serialization::make_nvp("sequence_id", _sequence_id_);
+      archive_ & boost::serialization::make_nvp("booked_by",   _booked_by_);
       archive_ & boost::serialization::make_nvp("last_update", _last_update_);
-      archive_ & boost::serialization::make_nvp("resource_scope", _resource_scope_);
+      archive_ & boost::serialization::make_nvp("validated",    _validated_);
+      archive_ & boost::serialization::make_nvp("validated_by", _validated_by_);
+      archive_ & boost::serialization::make_nvp("validation_time", _validation_time_);
+      archive_ & boost::serialization::make_nvp("cancelled",    _cancelled_);
+      archive_ & boost::serialization::make_nvp("cancelled_by", _cancelled_by_);
+      archive_ & boost::serialization::make_nvp("cancellation_time", _cancellation_time_);
+      archive_ & boost::serialization::make_nvp("role_description", _role_description_);
       archive_ & boost::serialization::make_nvp("when", _when_);
       archive_ & boost::serialization::make_nvp("use_case_info", _use_case_info_);
-      archive_ & boost::serialization::make_nvp("start_macro", _start_macro_);
-      archive_ & boost::serialization::make_nvp("stop_macro",  _stop_macro_);
       return;
     }
 

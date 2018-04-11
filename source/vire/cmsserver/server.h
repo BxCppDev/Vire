@@ -1,8 +1,8 @@
 //! \file  vire/cmsserver/server.h
 //! \brief Vire CMS server
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -157,26 +157,35 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
+      //! Return the mutable service manager
       datatools::service_manager & grab_services();
 
+      //! Return the non mutable service manager
       const datatools::service_manager & get_services() const;
 
 
-      // Running:
+      //! Return the run status
       run_status_t get_run_status() const;
 
+      //! Request stop
       void request_stop();
 
+      //! Check if stop is requested
       bool is_requested_stop() const;
 
+      //! Check if server is running
       bool is_running() const;
 
+      //! Check if server is stopped
       bool is_stopped() const;
 
+      //! Run the server
       void run();
 
+      //! Compute and return the sever's uptime
       double compute_uptime() const;
 
+      //! Return the server's uptime in microsecond
       std::size_t get_uptime_us() const;
 
     private:
@@ -209,7 +218,9 @@ namespace vire {
       void _manage_run_();
 
       void _at_run_start_();
+
       void _at_run_stop_();
+
       bool _at_run_loop_();
 
       void _set_run_status_(const run_status_t);
@@ -219,13 +230,13 @@ namespace vire {
       // Management:
       bool                        _initialized_ = false;
       run_status_t                _run_status_ = RUN_STATUS_INVALID;
-      bool                        _stop_requested_;
+      bool                        _stop_requested_ = false;
       datatools::logger::priority _logging_;
 
       // Configuration:
-      ::vire::utility::instance_identifier _setup_id_; //!< Setup ID
+      ::vire::utility::instance_identifier _setup_id_;     //!< Setup ID
       std::string                          _cms_top_path_; //!< CMS top path
-      datatools::multi_properties          _mconfig_;  //!< Server configuration parameters
+      datatools::multi_properties          _mconfig_;      //!< Server configuration parameters
       std::string                          _dll_load_default_path_;
       std::vector<std::string>             _dll_load_directives_;
       std::size_t                          _tick_ms_ = 500;

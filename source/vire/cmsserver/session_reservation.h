@@ -1,8 +1,8 @@
 //! \file  vire/cmsserver/session_reservation.h
 //! \brief The CMS server session reservation
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -45,6 +45,50 @@ namespace vire {
     public:
 
       static const int32_t INVALID_ID = -1;
+      static const int32_t INVALID_SEQUENCE_ID = -1;
+
+      /// \brief A sequence of session reservations
+      struct sequence
+        : public datatools::i_tree_dumpable
+        , public datatools::i_serializable
+      {
+      public:
+
+        /// Default constructor
+        sequence();
+
+        /// Destructor
+        virtual ~sequence();
+
+        /// Check validity
+        bool is_valid() const;
+
+        /// Reset
+        void reset();
+
+        /// Check if the session sequence ID is set
+        bool has_sequence_id() const;
+
+        /// Set the session sequence ID
+        void set_sequence_id(const int32_t id_);
+
+        /// Return the session sequence ID
+        int32_t get_sequence_id() const;
+
+        //! Smart print
+        virtual void tree_dump(std::ostream & out_ = std::clog,
+                               const std::string & title_  = "",
+                               const std::string & indent_ = "",
+                               bool inherit_ = false) const;
+
+      private:
+
+        int32_t _sequence_id_ = INVALID_SEQUENCE_ID; ///< Session reservation sequence ID (mandatory)
+
+        //! Serialization interface
+        DATATOOLS_SERIALIZATION_DECLARATION()
+
+      };
 
       /// Default constructor
       session_reservation();
@@ -128,11 +172,11 @@ namespace vire {
 
       const boost::posix_time::ptime & get_cancellation_time() const;
 
-      bool has_resource_scope() const;
+      bool has_role_description() const;
 
-      const std::string & get_resource_scope() const;
+      const std::string & get_role_description() const;
 
-      void set_resource_scope(const std::string &);
+      void set_role_description(const std::string &);
 
       /// Check if session time period is set
       bool has_when() const;
@@ -148,18 +192,6 @@ namespace vire {
       void set_use_case_info(const use_case_info & uci_);
 
       const use_case_info & get_use_case_info() const;
-
-      bool has_start_macro() const;
-
-      const std::string & get_start_macro() const;
-
-      void set_start_macro(const std::string &);
-
-      bool has_stop_macro() const;
-
-      const std::string & get_stop_macro() const;
-
-      void set_stop_macro(const std::string &);
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
@@ -205,21 +237,17 @@ namespace vire {
 
       int32_t                        _id_ = INVALID_ID;          ///< Session réservation ID (mandatory)
       int32_t                        _sequence_id_ = INVALID_ID; ///< Session sequence ID (mandatory)
-
       std::string                    _booked_by_;          ///< Identity of the user who booked the session (optional)
       boost::posix_time::ptime       _last_update_;        ///< Last update time (optional)
-      bool                           _validated_ = false;  ///<
+      bool                           _validated_ = false;  ///< Validation time
       std::string                    _validated_by_;       ///< Identity of the user who booked the session (optional)
       boost::posix_time::ptime       _validation_time_;    ///< Identity of the user who booked the session (optional)
-      bool                           _cancelled_ = false;  ///<
+      bool                           _cancelled_ = false;  ///< Cancellation flag
       std::string                    _cancelled_by_;       ///< Identity of the user who booked the session (optional)
       boost::posix_time::ptime       _cancellation_time_;  ///< Identity of the user who booked the session (optional)
-
-      std::string                    _resource_scope_;  ///< The scope of functional resources needed for the session
-      boost::posix_time::time_period _when_;            ///< Session time period (mandatory)
-      use_case_info                  _use_case_info_;   ///< Use case information
-      std::string                    _start_macro_;     ///< Start macro executed at session start (optional)
-      std::string                    _stop_macro_;      ///< Stop macro executed at session stop (optional)
+      std::string                    _role_description_;   ///< The description of the role associated to the session
+      boost::posix_time::time_period _when_;               ///< Session time period (mandatory)
+      use_case_info                  _use_case_info_;      ///< Use case information
 
       //! Serialization interface
       DATATOOLS_SERIALIZATION_DECLARATION()

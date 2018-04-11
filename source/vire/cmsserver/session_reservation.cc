@@ -1,7 +1,7 @@
 //! \file vire/cmsserver/session_reservation.cc
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -30,12 +30,76 @@ namespace vire {
 
     // Serialization implementation
     DATATOOLS_SERIALIZATION_IMPLEMENTATION(session_reservation, "vire::cmsserver::session_reservation")
+    DATATOOLS_SERIALIZATION_IMPLEMENTATION(session_reservation::sequence, "vire::cmsserver::session_reservation::sequence")
 
     // static
     const int32_t session_reservation::INVALID_ID;
+    const int32_t session_reservation::INVALID_SEQUENCE_ID;
+
+    // Sequence of session reservations:
+
+    session_reservation::sequence::sequence()
+      : _sequence_id_(INVALID_SEQUENCE_ID)
+    {
+      return;
+    }
+
+    session_reservation::sequence::~sequence()
+    {
+      return;
+    }
+
+    bool session_reservation::sequence::is_valid() const
+    {
+      if (!has_sequence_id()) return false;
+      return true;
+    }
+
+    void session_reservation::sequence::reset()
+    {
+      _sequence_id_ = INVALID_SEQUENCE_ID;
+      return;
+    }
+
+    bool session_reservation::sequence::has_sequence_id() const
+    {
+      return _sequence_id_ != INVALID_SEQUENCE_ID;
+    }
+
+    void session_reservation::sequence::set_sequence_id(const int32_t sequence_id_)
+    {
+      _sequence_id_ = sequence_id_ >= 0 ? sequence_id_ : INVALID_SEQUENCE_ID;
+      return;
+    }
+
+    int32_t session_reservation::sequence::get_sequence_id() const
+    {
+      return _sequence_id_;
+    }
+
+    void session_reservation::sequence::tree_dump(std::ostream & out_,
+                                                  const std::string & title_,
+                                                  const std::string & indent_,
+                                                  bool inherit_) const
+    {
+      if (!title_.empty()) {
+        out_ << indent_ << title_ << std::endl;
+      }
+
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Sequence ID : " << get_sequence_id() << std::endl;
+
+      out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
+           << "Valid : " << std::boolalpha << is_valid() << std::endl;
+
+      return;
+    }
+
+    // Session reservation:
 
     session_reservation::session_reservation()
       : _id_(INVALID_ID)
+      , _sequence_id_(INVALID_ID)
       , _last_update_(vire::time::invalid_time())
       , _validation_time_(vire::time::invalid_time())
       , _cancellation_time_(vire::time::invalid_time())
@@ -52,7 +116,7 @@ namespace vire {
     bool session_reservation::is_valid() const
     {
       if (!has_id()) return false;
-      if (!has_resource_scope()) return false;
+      if (!has_role_description()) return false;
       if (!has_when()) return false;
       if (!has_use_case_info()) return false;
       return true;
@@ -61,6 +125,7 @@ namespace vire {
     void session_reservation::reset()
     {
       _id_ = INVALID_ID;
+      _sequence_id_ = INVALID_ID;
       _booked_by_.clear();
       vire::time::invalidate_time(_last_update_);
       _validated_ = false;
@@ -69,11 +134,9 @@ namespace vire {
       _cancelled_ = false;
       _cancelled_by_.clear();
       vire::time::invalidate_time(_cancellation_time_);
-      _resource_scope_.clear();
+      _role_description_.clear();
       vire::time::invalidate_time_interval(_when_);
       _use_case_info_.reset();
-      _start_macro_.clear();
-      _stop_macro_.clear();
       return;
     }
 
@@ -228,20 +291,20 @@ namespace vire {
       return _cancellation_time_;
     }
 
-    bool session_reservation::has_resource_scope() const
+    bool session_reservation::has_role_description() const
     {
-      return !_resource_scope_.empty();
+      return !_role_description_.empty();
     }
 
-    void session_reservation::set_resource_scope(const std::string & resource_scope_)
+    void session_reservation::set_role_description(const std::string & role_description_)
     {
-      _resource_scope_ = resource_scope_;
+      _role_description_ = role_description_;
       return;
     }
 
-    const std::string & session_reservation::get_resource_scope() const
+    const std::string & session_reservation::get_role_description() const
     {
-      return _resource_scope_;
+      return _role_description_;
     }
 
     bool session_reservation::has_when() const
@@ -276,38 +339,6 @@ namespace vire {
       return _use_case_info_;
     }
 
-    bool session_reservation::has_start_macro() const
-    {
-      return !_start_macro_.empty();
-    }
-
-    const std::string & session_reservation::get_start_macro() const
-    {
-      return _start_macro_;
-    }
-
-    void session_reservation::set_start_macro(const std::string & sm_)
-    {
-      _start_macro_ = sm_;
-      return;
-    }
-
-    bool session_reservation::has_stop_macro() const
-    {
-      return !_stop_macro_.empty();
-    }
-
-    const std::string & session_reservation::get_stop_macro() const
-    {
-      return _stop_macro_;
-    }
-
-    void session_reservation::set_stop_macro(const std::string & sm_)
-    {
-      _stop_macro_ = sm_;
-      return;
-    }
-
     void session_reservation::tree_dump(std::ostream & out_,
                                         const std::string & title_,
                                         const std::string & indent_,
@@ -321,7 +352,13 @@ namespace vire {
            << "ID          : " << get_id() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Sequence ID : " << get_sequence_id() << std::endl;
+           << "Sequence ID : ";
+      if (has_sequence_id()) {
+        out_ << "'" << get_sequence_id() << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Booked by   : " << get_booked_by() << std::endl;
@@ -352,9 +389,9 @@ namespace vire {
       }
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Resource scope : ";
-      if (has_resource_scope()) {
-        out_ << "'" << _resource_scope_ << "'";
+           << "Role description : ";
+      if (has_role_description()) {
+        out_ << "'" << _role_description_ << "'";
       } else {
         out_ << "<none>";
       }
@@ -373,24 +410,6 @@ namespace vire {
            << "Use case info    : ";
       out_ << std::endl;
       _use_case_info_.tree_dump(out_, "", indent_ + "|   ");
-
-      out_ << indent_ << i_tree_dumpable::tag
-           << "Start macro : ";
-      if (has_start_macro()) {
-        out_ << "'" << _start_macro_ << "'";
-      } else {
-        out_ << "<none>";
-      }
-      out_ << std::endl;
-
-      out_ << indent_ << i_tree_dumpable::tag
-           << "Stop macro  : ";
-      if (has_stop_macro()) {
-        out_ << "'" << _stop_macro_ << "'";
-      } else {
-        out_ << "<none>";
-      }
-      out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
            << "Valid : " << std::boolalpha << is_valid() << std::endl;

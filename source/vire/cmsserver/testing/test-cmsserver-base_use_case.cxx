@@ -7,46 +7,24 @@
 #include <string>
 #include <exception>
 #include <set>
+#include <thread>
+#include <future>
+
+// Third party:
+// - Boost:
+#include <boost/filesystem.hpp>
 
 // This project:
 #include <vire/vire.h>
+#include <vire/device/manager.h>
 #include <vire/resource/resource.h>
 #include <vire/resource/role.h>
 #include <vire/resource/manager.h>
 #include <vire/cmsserver/base_use_case.h>
+#include <vire/cmsserver/session.h>
+#include <vire/cmsserver/task_utils.h>
 
-class dummy_use_case
-  : public vire::cmsserver::base_use_case
-{
-public:
-
-  virtual void _at_initialized_(const datatools::properties & config_)
-  {
-    return;
-  }
-
-  virtual void _at_reset_()
-  {
-    return;
-  }
-
-  virtual void _at_up_()
-  {
-    return;
-  }
-
-  virtual void _at_work_()
-  {
-    return;
-  }
-
-  virtual void _at_down_()
-  {
-    return;
-  }
-
-};
-
+#include "dummy_use_case.h"
 
 void test_use_case_0();
 
@@ -118,10 +96,28 @@ void test_use_case_0()
 
   vire::cmsserver::session dummySession;
 
-
-  dummy_use_case dummyUse;
-
-
+  vire::cmsserver::test::dummy_use_case dummyUse(4,8,3);
+  dummyUse.set_name("dummy");
+  dummyUse.set_display_name("Dummy");
+  dummyUse.set_terse_description("A dummy use case");
+  dummyUse.set_logging_priority(datatools::logger::PRIO_DEBUG);
+  dummyUse.set_mother_session(dummySession);
+  dummyUse.set_functional_up_max_duration(boost::posix_time::seconds(dummyUse.get_up_time_sec()));
+  dummyUse.set_functional_work_min_duration(boost::posix_time::seconds(dummyUse.get_work_time_sec()));
+  // dummyUse.set_functional_work_max_duration(boost::posix_time::seconds(dummyUse.get_work_time_sec()));
+  dummyUse.set_functional_down_max_duration(boost::posix_time::seconds(dummyUse.get_down_time_sec()));
+  dummyUse.initialize_simple();
+  std::clog << "Dummy use case: " << std::endl;
+  dummyUse.print_tree(std::clog);
+  {
+    dummyUse.up();
+    std::packaged_task<vire::cmsserver::work_report_type()> use_case_task(std::bind(&vire::cmsserver::base_use_case::work, &dummyUse));
+    std::future<vire::cmsserver::work_report_type> work_report = use_case_task.get_future();
+    std::thread use_case_thread(std::move(use_case_task));
+    use_case_thread.join();
+    dummyUse.down();
+  }
+  dummyUse.reset();
 
   return;
 }
