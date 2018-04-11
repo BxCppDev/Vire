@@ -41,23 +41,29 @@ include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(virecmsserver/virecmsserver_config.h.in virecmsserver/virecmsserver_config.h @ONLY)
 
 set(VireCmsServerApp_HEADERS
-  virecmsserver/ui/shell.h
-  virecmsserver/ui/server_print_command.h
-  virecmsserver/ui/server_stop_command.h
-  virecmsserver/ui/server_uptime_command.h
-  virecmsserver/ui/server_command_interface.h
   virecmsserver/virecmsserver_config.h
+  virecmsserver/core.h
+  virecmsserver/command_line.h
+  virecmsserver/parameters.h
+  # virecmsserver/ui/shell.h
+  # virecmsserver/ui/server_print_command.h
+  # virecmsserver/ui/server_stop_command.h
+  # virecmsserver/ui/server_uptime_command.h
+  # virecmsserver/ui/server_command_interface.h
 )
 
 set(VireCmsServerApp_PRIVATE_HEADERS
 )
 
 set(VireCmsServerApp_SOURCES
-  virecmsserver/ui/shell.cc
-  virecmsserver/ui/server_print_command.cc
-  virecmsserver/ui/server_stop_command.cc
-  virecmsserver/ui/server_uptime_command.cc
-  virecmsserver/ui/server_command_interface.cc
+  virecmsserver/core.cc
+  virecmsserver/command_line.cc
+  virecmsserver/parameters.cc
+  # virecmsserver/ui/shell.cc
+  # virecmsserver/ui/server_print_command.cc
+  # virecmsserver/ui/server_stop_command.cc
+  # virecmsserver/ui/server_uptime_command.cc
+  # virecmsserver/ui/server_command_interface.cc
   virecmsservermain.cxx
 )
 
