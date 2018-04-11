@@ -125,7 +125,7 @@ namespace vire {
         }
         if (r.is_number_of_tokens_unlimited()) {
           // Unlimited resource is push as is in the pool:
-          root_._unlimited_.insert(rid);
+          root_.add_unlimited(rid);
         } else {
           std::size_t max_cardinality = r.get_max_number_of_tokens();
           if (cardinality == vire::resource::resource::MAX_TOKENS_UNLIMITED) {

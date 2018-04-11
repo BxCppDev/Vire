@@ -1175,17 +1175,13 @@ namespace vire {
           resource_id = vire::resource::resource::INVALID_ID;
         }
       } catch (boost::bad_lexical_cast &) {
-        // std::cerr << "DEVEL: vire::resource::manager::fetch_resource_id: " << "Cannot parse resource ID..." << std::endl;
         resource_id = vire::resource::resource::INVALID_ID;
       }
       if (resource_id == vire::resource::resource::INVALID_ID) {
         // Attempt to parse the resource path:
-        // std::cerr << "DEVEL: vire::resource::manager::fetch_resource_id: " << "Attempt to parse the resource path..." << std::endl;
         const std::string & resource_path = repr_;
         if (has_resource_by_path(resource_path)) {
-          // std::cerr << "DEVEL: vire::resource::manager::fetch_resource_id: " << "Found resource with path = '" << resource_path << "'" << std::endl;
           resource_id = get_resource_by_path(resource_path).get_id();
-          // std::cerr << "DEVEL: vire::resource::manager::fetch_resource_id: " << "Found resource ID = [" << resource_id << "]" << std::endl;
         }
       }
       resource_id_ = resource_id;

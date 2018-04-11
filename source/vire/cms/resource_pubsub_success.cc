@@ -27,9 +27,11 @@
 #include <bayeux/datatools/utils.h>
 // - BxJsontools:
 #include <bayeux/jsontools/base_type_converters.h>
+#include <bayeux/jsontools/boost_type_converters.h>
 // - BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/base_type_converters.h>
+#include <bayeux/protobuftools/boost_optional_converter.h>
 
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
@@ -66,11 +68,35 @@ namespace vire {
       return _subscribed_;
     }
 
+    bool resource_pubsub_success::has_audit() const
+    {
+      return _audit_ != boost::none;
+    }
+
+    const resource_exec_success & resource_pubsub_success::get_audit() const
+    {
+      DT_THROW_IF(!has_audit(), std::logic_error, "No audit is set!");
+      return *_audit_;
+    }
+
+    void resource_pubsub_success::set_audit(const resource_exec_success & audit_)
+    {
+      _audit_ = audit_;
+      return;
+    }
+
+    void resource_pubsub_success::reset_audit()
+    {
+      _audit_ = boost::none;
+      return;
+    }
+
     void resource_pubsub_success::jsonize(jsontools::node & node_,
                                           const unsigned long int version_)
     {
       this->vire::utility::base_payload::jsonize(node_, version_);
       node_["subscribed"] % _subscribed_;
+      node_["audit"] % _audit_;
       return;
     }
 
@@ -79,6 +105,7 @@ namespace vire {
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_payload, node_);
       node_["subscribed"] % _subscribed_;
+      node_["audit"] % _audit_;
       return;
     }
 
@@ -89,8 +116,20 @@ namespace vire {
     {
       this->vire::utility::base_payload::tree_dump(out_, title_, indent_, true);
 
-      out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
+      out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Subscribed : " << std::boolalpha << _subscribed_ << std::endl;
+
+      out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
+           << "Audit : ";
+      if (!has_audit()) {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
+      if (has_audit()) {
+        std::ostringstream indentss;
+        indentss << indent_ << ::datatools::i_tree_dumpable::inherit_skip_tag(inherit_);
+        _audit_->tree_dump(out_, "", indentss.str());
+      }
 
       return;
     }

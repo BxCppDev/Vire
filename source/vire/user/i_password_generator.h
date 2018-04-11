@@ -36,12 +36,12 @@ namespace vire {
     {
 
       enum charset_type {
-	CHARSET_ALPHA    = datatools::bit_mask::bit00,
-	CHARSET_NUMERIC  = datatools::bit_mask::bit01,
-	CHARSET_PUNCT    = datatools::bit_mask::bit02,
-	CHARSET_ALPHANUM = CHARSET_ALPHA | CHARSET_NUMERIC,
- 	CHARSET_ALL      = CHARSET_ALPHANUM | CHARSET_PUNCT,
- 	CHARSET_DEFAULT  = CHARSET_ALL
+        CHARSET_ALPHA    = datatools::bit_mask::bit00,
+        CHARSET_NUMERIC  = datatools::bit_mask::bit01,
+        CHARSET_PUNCT    = datatools::bit_mask::bit02,
+        CHARSET_ALPHANUM = CHARSET_ALPHA | CHARSET_NUMERIC,
+        CHARSET_ALL      = CHARSET_ALPHANUM | CHARSET_PUNCT,
+        CHARSET_DEFAULT  = CHARSET_ALL
       };
 
       static const std::string & alpha_charset();
@@ -52,7 +52,7 @@ namespace vire {
       static const std::size_t DEFAULT_LENGTH = 8;
 
       virtual void generate_password(std::string & password_,
-				     const std::size_t length_ = DEFAULT_LENGTH) = 0;
+                                     const std::size_t length_ = DEFAULT_LENGTH) = 0;
 
     };
 

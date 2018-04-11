@@ -25,9 +25,13 @@
 // Standard Library:
 #include <string>
 
+// Third party:
+// - Boost:
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 // This project:
 #include <vire/utility/comparison.h>
-#include <vire/cmsserver/session_info.h>
+#include <vire/cmsserver/use_case_info.h>
 
 namespace vire {
 
@@ -48,35 +52,114 @@ namespace vire {
       /// Destructor
       virtual ~session_reservation();
 
-      /// Check validity
+      /// Check if the reservation is a valid/completed object
       bool is_valid() const;
 
       /// Reset
       void reset();
 
+      /// Check if the session reservation ID is set
       bool has_id() const;
 
+      /// Set the session reservation ID
       void set_id(const int32_t id_);
 
+      /// Return the session reservation ID
       int32_t get_id() const;
 
-      bool has_sinfo() const;
+      /// Check if the session reservation sequence ID is set
+      bool has_sequence_id() const;
 
-      void set_sinfo(const session_info &);
+      /// Set the session reservation sequence ID
+      void set_sequence_id(const int32_t id_);
 
-      const session_info & get_sinfo() const;
+      /// Return the session reservation sequence ID
+      int32_t get_sequence_id() const;
 
-      void set_start_macro(const std::string &);
+      bool has_booked_by() const;
+
+      const std::string & get_booked_by() const;
+
+      void set_booked_by(const std::string &);
+
+      bool has_last_update() const;
+
+      const boost::posix_time::ptime & get_last_update() const;
+
+      void set_last_update(const boost::posix_time::ptime &);
+
+      /// Check if the reservation was validated by a validator user
+      bool is_validated() const;
+
+      /// Set the validation flag
+      void set_validated(bool);
+
+      /// Check if the validator identity is set
+      bool has_validated_by() const;
+
+      /// Return the validator identity
+      const std::string & get_validated_by() const;
+
+      /// Set the validator identity
+      void set_validated_by(const std::string &);
+
+      /// Check if the validator time is set
+      bool has_validation_time() const;
+
+      /// Set the validation time
+      void set_validation_time(const boost::posix_time::ptime &);
+
+      /// Return the validation time
+      const boost::posix_time::ptime & get_validation_time() const;
+
+      bool is_cancelled() const;
+
+      void set_cancelled(bool);
+
+      bool has_cancelled_by() const;
+
+      const std::string & get_cancelled_by() const;
+
+      void set_cancelled_by(const std::string &);
+
+      bool has_cancellation_time() const;
+
+      void set_cancellation_time(const boost::posix_time::ptime &);
+
+      const boost::posix_time::ptime & get_cancellation_time() const;
+
+      bool has_resource_scope() const;
+
+      const std::string & get_resource_scope() const;
+
+      void set_resource_scope(const std::string &);
+
+      /// Check if session time period is set
+      bool has_when() const;
+
+      /// Set session time period
+      void set_when(const boost::posix_time::time_period & when_);
+
+      /// Return session time period
+      const boost::posix_time::time_period & get_when() const;
+
+      bool has_use_case_info() const;
+
+      void set_use_case_info(const use_case_info & uci_);
+
+      const use_case_info & get_use_case_info() const;
 
       bool has_start_macro() const;
 
       const std::string & get_start_macro() const;
 
+      void set_start_macro(const std::string &);
+
       bool has_stop_macro() const;
 
-      void set_stop_macro(const std::string &);
-
       const std::string & get_stop_macro() const;
+
+      void set_stop_macro(const std::string &);
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
@@ -86,7 +169,7 @@ namespace vire {
 
       /** \brief Comparison of two session reservations.
        *
-       *  One compares the begin (b) times of embedded session infos.
+       *  One compares the begin (b) times.
        *  Last (l) times are also used to discriminate equal begin times:
        *
        *  \code
@@ -120,10 +203,23 @@ namespace vire {
 
     private:
 
-      int32_t      _id_ = INVALID_ID; ///< Session réservation ID
-      session_info _sinfo_;       ///< Session information
-      std::string  _start_macro_; ///< Start macro executed at session start
-      std::string  _stop_macro_;  ///< Stop macro executed at session stop
+      int32_t                        _id_ = INVALID_ID;          ///< Session réservation ID (mandatory)
+      int32_t                        _sequence_id_ = INVALID_ID; ///< Session sequence ID (mandatory)
+
+      std::string                    _booked_by_;          ///< Identity of the user who booked the session (optional)
+      boost::posix_time::ptime       _last_update_;        ///< Last update time (optional)
+      bool                           _validated_ = false;  ///<
+      std::string                    _validated_by_;       ///< Identity of the user who booked the session (optional)
+      boost::posix_time::ptime       _validation_time_;    ///< Identity of the user who booked the session (optional)
+      bool                           _cancelled_ = false;  ///<
+      std::string                    _cancelled_by_;       ///< Identity of the user who booked the session (optional)
+      boost::posix_time::ptime       _cancellation_time_;  ///< Identity of the user who booked the session (optional)
+
+      std::string                    _resource_scope_;  ///< The scope of functional resources needed for the session
+      boost::posix_time::time_period _when_;            ///< Session time period (mandatory)
+      use_case_info                  _use_case_info_;   ///< Use case information
+      std::string                    _start_macro_;     ///< Start macro executed at session start (optional)
+      std::string                    _stop_macro_;      ///< Stop macro executed at session stop (optional)
 
       //! Serialization interface
       DATATOOLS_SERIALIZATION_DECLARATION()

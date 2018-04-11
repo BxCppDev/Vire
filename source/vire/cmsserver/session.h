@@ -49,7 +49,6 @@ namespace vire {
 
   namespace cmsserver {
 
-    class session_info;
     class base_use_case;
 
     /// \brief Session
@@ -63,9 +62,8 @@ namespace vire {
       static const int32_t ROOT_ID        =  0; ///< Root session ID
 
       typedef std::shared_ptr<base_use_case> use_case_ptr_type;
-      typedef std::shared_ptr<session>   session_ptr_type;
-      // typedef std::set<session_ptr_type> session_set_type;
-      // typedef std::map<int, session_ptr_type> session_dict_type;
+      typedef std::shared_ptr<session> session_ptr_type;
+      typedef std::map<std::string, session_ptr_type> session_dict_type;
 
       /// Default constructor
       session();
@@ -112,11 +110,17 @@ namespace vire {
       /// Return the functional resources
       const resource_pool & get_functional() const;
 
+      /// Return the functional resources
+      resource_pool & grab_functional();
+
       /// Set of functional resources
       void set_functional(const resource_pool &);
 
       /// Return the distributable resources
       const resource_pool & get_distributable() const;
+
+      /// Return the distributable resources
+      resource_pool & grab_distributable();
 
       /// Set of distributable resources
       void set_distributable(const resource_pool &);
@@ -145,10 +149,6 @@ namespace vire {
       /// Initialization
       void initialize_simple();
 
-      /// Initialization
-      void initialize(const vire::resource::manager & resources_,
-                      const session_info & sinfo_);
-
       /// Reset
       void reset();
 
@@ -164,7 +164,7 @@ namespace vire {
     private:
 
       // /// Register a subsession
-      // void _sys_add_subsession_(const session_ptr_type & s_);
+      // void _add_subsession_(const session_ptr_type & s_);
 
       // /// Unregister a subsession
       // void _sys_remove_subsession_(session & s_);
@@ -198,10 +198,11 @@ namespace vire {
       // Work:
       int               _id_ = INVALID_ID;     ///< Session unique identifier
       session_ptr_type  _parent_  = nullptr;   ///< Handle to parent session, if any
+      // when
       resource_pool     _functional_;          ///< Pool of functional resources (accounting)
       resource_pool     _distributable_;       ///< Pool of distributable resources (accounting)
       use_case_ptr_type _use_case_;            ///< Handle to the use case
-      // session_set_type  _subsessions_;         ///< Daughter sessions
+      session_dict_type _subsessions_;         ///< Daughter sessions
 
     };
 

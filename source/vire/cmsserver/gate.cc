@@ -272,7 +272,6 @@ namespace vire {
       return datatools::SUCCESS;
     }
 
-
   } // namespace cmsserver
 
 } // namespace vire

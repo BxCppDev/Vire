@@ -24,7 +24,6 @@
 #include <vire/time/utils.h>
 #include <vire/resource/role.h>
 #include <vire/resource/manager.h>
-#include <vire/cmsserver/session_info.h>
 #include <vire/cmsserver/utils.h>
 #include <vire/cmsserver/base_use_case.h>
 
@@ -123,6 +122,11 @@ namespace vire {
       return _functional_;
     }
 
+    resource_pool & session::grab_functional()
+    {
+      return _functional_;
+    }
+
     void session::set_functional(const resource_pool & functional_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
@@ -131,6 +135,11 @@ namespace vire {
     }
 
     const resource_pool & session::get_distributable() const
+    {
+      return _distributable_;
+    }
+
+    resource_pool & session::grab_distributable()
     {
       return _distributable_;
     }
@@ -314,19 +323,19 @@ namespace vire {
       return;
     }
 
-    void session::initialize(const vire::resource::manager & rmgr_,
-                             const session_info & sinfo_)
-    {
-      DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
+    // void session::initialize(const vire::resource::manager & rmgr_,
+    //                          const session_info & sinfo_)
+    // {
+    //   DT_LOG_TRACE_ENTERING(vire::cmsserver::logging());
+    //   DT_THROW_IF(is_initialized(), std::logic_error, "Session is already initialized!");
 
 
 
-      _post_init_();
-      _initialized_ = true;
-      DT_LOG_TRACE_EXITING(vire::cmsserver::logging());
-      return;
-    }
+    //   _post_init_();
+    //   _initialized_ = true;
+    //   DT_LOG_TRACE_EXITING(vire::cmsserver::logging());
+    //   return;
+    // }
 
     void session::reset()
     {

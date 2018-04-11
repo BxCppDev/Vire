@@ -27,6 +27,8 @@
 #include <memory>
 
 // Third party:
+// - Boost:
+#include <boost/noncopyable.hpp>
 // - Bayeux/datatools:
 #include <bayeux/datatools/enriched_base.h>
 #include <bayeux/datatools/properties.h>
@@ -34,6 +36,8 @@
 
 // This project:
 #include <vire/time/utils.h>
+#include <vire/cmsserver/task_utils.h>
+#include <vire/resource/role.h>
 
 namespace vire {
 
@@ -43,9 +47,77 @@ namespace vire {
 
     /// \brief Vire CMS base use case
     class base_use_case
-      : public datatools::enriched_base
+      : private boost::noncopyable
+      , public datatools::enriched_base
     {
     public:
+
+      enum run_stage_type {
+        RUN_STAGE_UNDEF = 0,
+        RUN_STAGE_PREPARING = 1,
+        RUN_STAGE_READY = 2,
+        RUN_STAGE_DISTRIBUTABLE_UP = 3,
+        RUN_STAGE_DISTRIBUTABLE_UP_DONE = 4,
+        RUN_STAGE_FUNCTIONAL_UP = 5,
+        RUN_STAGE_FUNCTIONAL_UP_DONE = 6,
+        RUN_STAGE_FUNCTIONAL_WORK = 7,
+        RUN_STAGE_FUNCTIONAL_WORK_DONE = 8,
+        RUN_STAGE_FUNCTIONAL_DOWN = 9,
+        RUN_STAGE_FUNCTIONAL_DOWN_DONE = 10,
+        RUN_STAGE_DISTRIBUTABLE_DOWN = 11,
+        RUN_STAGE_DISTRIBUTABLE_DOWN_DONE = 12,
+        RUN_STAGE_TERMINATING = 100,
+        RUN_STAGE_TERMINATED = 200
+      };
+
+      struct base_signal {};
+      struct termination_signal : public base_signal {};
+      struct kill_signal : public base_signal {};
+      struct timeout_signal : public base_signal {};
+      // struct user1_signal : public base_signal {};
+      // struct user2_signal : public base_signal {};
+
+      enum run_termination_type {
+        RUN_TERMINATION_UNDEF   = 0,
+        RUN_TERMINATION_NORMAL  = 1, ///< Normal termination by the usecase itself
+        RUN_TERMINATION_ERROR   = 2, ///< Abnormal termination by the usecase itself because an excpetion was thrown
+        RUN_TERMINATION_SESSION = 3, ///< Normal anticipated termination requested by the session (through a termination_signal)
+        RUN_TERMINATION_KILLED  = 4, ///< Forced anticipated termination requested by the session (through a kill_signal)
+        RUN_TERMINATION_TIMEOUT = 5  ///< Forced termination requested by the session because of the timeout (through a timeout_signal)
+      };
+
+      struct base_exception : public std::exception
+      {
+        virtual void export(boost::property_tree::ptree & error_data_) const = 0;
+      };
+
+      /*
+      struct resource_exception : public base_exception
+      {
+        virtual void export(boost::property_tree::ptree & error_data_) const
+        {
+          error_data_.put("resource_path", resource_path);
+          error_data_.put("invalid_value", invalid_value);
+        }
+
+        std::string resource_path;
+        int invalid_value;
+      };
+      */
+
+      struct run_report_type
+      {
+        run_termination_type        run_termination = RUN_TERMINATION_UNDEF;
+        boost::posix_time::ptime    timestamp;
+        run_stage_type              run_stage  = RUN_STAGE_UNDEF;
+        std::string                 error_class_id;
+        boost::property_tree::ptree error_data;
+
+        bool is_error() const;
+        bool is_normal_termination() const;
+      };
+
+      typedef std::future<run_report_type> run_future_type;
 
       //! Default constructor
       base_use_case();
@@ -53,43 +125,76 @@ namespace vire {
       //! Destructor
       virtual ~base_use_case();
 
-      void set_mother_session(session & s_);
+      //! Check if the mother session is set
+      bool has_mother_session() const;
 
-      //! Check if the maximum duration of the up action is set
-      bool has_up_max_duration() const;
+      //! Set the mother session
+      void set_mother_session(const session & s_);
 
-      //! Set the maximum duration of the up action
-      void set_up_max_duration(const boost::posix_time::time_duration &);
+      //! Return the mother session
+      const session & get_mother_session() const;
 
-      //! Return the maximum duration of the up action
-      const boost::posix_time::time_duration & get_up_max_duration() const;
+      //! Check if the maximum duration for distributable up action is set
+      bool has_distributable_up_max_duration() const;
 
-      //! Check if the minimum duration of the work action is set
-      bool has_work_min_duration() const;
+      //! Set the maximum duration for distributable up action is set
+      void set_distributable_up_max_duration(const boost::posix_time::time_duration &);
 
-      //! Set the minimum duration of the work action
-      void set_work_min_duration(const boost::posix_time::time_duration &);
+      //! Return the maximum duration for distributable up action is set
+      const boost::posix_time::time_duration & get_distributable_up_max_duration() const;
 
-      //! Return the minimum duration of the work action
-      const boost::posix_time::time_duration & get_work_min_duration() const;
+      //! Check if the maximum duration for distributable down action is set
+      bool has_distributable_down_max_duration() const;
 
-      //! Check if the maximum duration of the work action is set
-      bool has_work_max_duration() const;
+      //! Set the maximum duration for distributable down action is set
+      void set_distributable_down_max_duration(const boost::posix_time::time_duration &);
 
-      //! Set the maximum duration of the work action
-      void set_work_max_duration(const boost::posix_time::time_duration &);
+      //! Return the maximum duration for distributable down action is set
+      const boost::posix_time::time_duration & get_distributable_down_max_duration() const;
 
-      //! Return the maximum duration of the work action
-      const boost::posix_time::time_duration & get_work_max_duration() const;
+      //! Check if the maximum duration for functional up action is set
+      bool has_functional_up_max_duration() const;
 
-      //! Check if the maximum duration of the down action is set
-      bool has_down_max_duration() const;
+      //! Set the maximum duration for functional up action is set
+      void set_functional_up_max_duration(const boost::posix_time::time_duration &);
 
-      //! Set the maximum duration of the down action
-      void set_down_max_duration(const boost::posix_time::time_duration &);
+      //! Return the maximum duration for functional up action is set
+      const boost::posix_time::time_duration & get_functional_up_max_duration() const;
 
-      //! Return the maximum duration of the down action
-      const boost::posix_time::time_duration & get_down_max_duration() const;
+      //! Check if the maximum duration for functional down action is set
+      bool has_functional_down_max_duration() const;
+
+      //! Set the maximum duration for functional down action is set
+      void set_functional_down_max_duration(const boost::posix_time::time_duration &);
+
+      //! Return the maximum duration for functional down action is set
+      const boost::posix_time::time_duration & get_functional_down_max_duration() const;
+
+      //! Check if the maximum duration for functional work action is set
+      bool has_functional_work_max_duration() const;
+
+      //! Set the maximum duration for functional work action is set
+      void set_functional_work_max_duration(const boost::posix_time::time_duration &);
+
+      //! Return the maximum duration for functional work action is set
+      const boost::posix_time::time_duration & get_functional_work_max_duration() const;
+
+      //! Check if the minimum duration for functional work action is set
+      bool has_functional_work_min_duration() const;
+
+      //! Set the minimum duration for functional work action is set
+      void set_functional_work_min_duration(const boost::posix_time::time_duration &);
+
+      //! Return the minimum duration for functional work action is set
+      const boost::posix_time::time_duration & get_functional_work_min_duration() const;
+
+      //! Return the minimum duration of all stages
+      boost::posix_time::time_duration get_total_min_duration() const;
+
+      //! Return the maximum duration of all stages
+      boost::posix_time::time_duration get_total_max_duration() const;
+
+      // Instance initialization
 
       bool is_initialized() const;
 
@@ -97,43 +202,102 @@ namespace vire {
 
       void initialize(const datatools::properties & config_);
 
-      void reset();
+      void terminate();
 
-      void up();
+      // Business running:
+      run_stage_type get_run_stage() const;
 
-      void work();
+      bool is_run_ready() const;
 
-      void down();
+      bool is_run_done() const;
+
+      bool is_run_broken() const;
+
+      void set_run_broken(const bool b_ = true);
+
+      run_report_type run_prepare();
+
+      run_report_type run_distributable_up();
+
+      run_report_type run_functional_up();
+
+      run_report_type run_functional_work();
+
+      run_report_type run_functional_down();
+
+      run_report_type run_distributable_down();
+
+      run_report_type run_terminate();
+
+      // Signal handler based on the few signals and possible overidden handler methods in the UC
+
+      //! Smart print
+      virtual void print_tree(std::ostream & out_ = std::clog,
+                              const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
+
+      const ::vire::resource::role & get_minimal_role() const;
 
     private:
 
-      void _init_(const datatools::properties & config_);
+      // Initialization/termination
+      void _basic_initialize_(const datatools::properties & config_);
 
-      void _reset_();
+      void _basic_time_calibration_(const datatools::properties & config_);
 
-      virtual void _at_initialized_(const datatools::properties & config_) = 0;
+      void _basic_terminate_();
 
-      virtual void _at_reset_() = 0;
+      virtual const ::vire::resource::role * _create_minimal_role_() = 0;
 
-      virtual void _at_up_() = 0;
+      virtual void _compute_run_distributable_times_();
 
-      virtual void _at_work_() = 0;
+      virtual void _compute_run_functional_times_();
 
-      virtual void _at_down_() = 0;
+      virtual void _at_initialize_(const datatools::properties & config_) = 0;
+
+      virtual void _at_terminate_() = 0;
+
+      // Running:
+
+      virtual void _at_run_prepare_();
+
+      virtual void _at_run_distributable_up_() = 0;
+
+      virtual void _at_run_functional_up_() = 0;
+
+      virtual void _at_run_functional_work_() = 0;
+
+      virtual void _at_run_functional_down_() = 0;
+
+      virtual void _at_run_distributable_down_() = 0;
+
+      virtual void _at_run_terminate_();
+
+      // In case of broken run at some given stage, we should be able
+      // to build a recursive snapshot of the use case (and its daughter
+      // use cases) and report.
 
     private:
 
       // Management:
-      bool _initialized_ = false; //!< Initialization flag
+      bool           _initialized_ = false;           //!< Initialization flag
+      run_stage_type _run_stage_   = RUN_STAGE_UNDEF; //!< Run stage status
+      bool           _run_broken_  = false;           //!< Flag for broken stage
+
 
       // Configuration:
-      boost::posix_time::time_duration _up_max_duration_;   //!< Maximum duration of the up action
-      boost::posix_time::time_duration _work_min_duration_; //!< Minimum duration of the work action
-      boost::posix_time::time_duration _work_max_duration_; //!< Maximum duration of the work action
-      boost::posix_time::time_duration _down_max_duration_; //!< Maximum duration of the down action
+      std::string _role_expr_; //!< Expression describing the role
 
       // Internal data:
-      session * _mother_session_ = nullptr; //!< Handle to the mother session
+      const session * _mother_session_ = nullptr;                         //!< Handle to the mother session
+      boost::posix_time::time_duration _distributable_up_max_duration_;   //!< Maximum duration of the distributable up action
+      boost::posix_time::time_duration _distributable_down_max_duration_; //!< Maximum duration of the distributable down action
+      boost::posix_time::time_duration _functional_up_max_duration_;      //!< Maximum duration of the functional up action
+      boost::posix_time::time_duration _functional_work_min_duration_;    //!< Minimum duration of the functional work action
+      boost::posix_time::time_duration _functional_work_max_duration_;    //!< Maximum duration of the functional work action
+      boost::posix_time::time_duration _functional_down_max_duration_;    //!< Maximum duration of the functional down action
+      std::unique_ptr<vire::resource::role *> _minimal_role_;             //!< Cached minimal role
+
+      friend class session;
 
       // Factory declaration :
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(base_use_case)

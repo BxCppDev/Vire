@@ -43,10 +43,10 @@ namespace vire {
     public:
 
       simple_password_generator(uint32_t charset_ = CHARSET_DEFAULT,
-				const unsigned int seed_ = 1);
+                                const unsigned int seed_ = 1);
 
       virtual void generate_password(std::string & password_,
-				     const std::size_t length_ = DEFAULT_LENGTH);
+                                     const std::size_t length_ = DEFAULT_LENGTH);
 
       const std::string & get_charset() const;
 

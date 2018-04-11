@@ -49,12 +49,12 @@ namespace vire {
     ///      "version" : "1.0.2"
     ///   },
     ///   "requested_resources" : [
-    ///     "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__" ,
-    ///     "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__" ,
-    ///     "SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_read__" ,
+    ///     "SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_read__" ,
+    ///     "SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_write__" ,
+    ///     "SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Voltage/__dp_read__" ,
     ///      ...
-    ///     "SuperNEMO://Demonstrator/CMS/Acquisition/start",
-    ///     "SuperNEMO://Demonstrator/CMS/Acquisition/stop"
+    ///     "SuperNEMO:/Demonstrator/CMS/Acquisition/start",
+    ///     "SuperNEMO:/Demonstrator/CMS/Acquisition/stop"
     ///   ]
     /// }
     /// @endcode

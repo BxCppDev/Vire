@@ -38,6 +38,7 @@
 #include <vire/time/utils.h>
 #include <vire/cmsserver/utils.h>
 #include <vire/cmsserver/server.h>
+#include <vire/cmsserver/session.h>
 
 namespace vire {
 
@@ -59,6 +60,48 @@ namespace vire {
       if (is_initialized()) {
         reset();
       }
+      return;
+    }
+
+    void session_manager::set_users_name(const std::string & name_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Session manager is already initialized!");
+      _users_name_ = name_;
+      return;
+    }
+
+    const std::string & session_manager::get_users_name() const
+    {
+      return _users_name_;
+    }
+
+    void session_manager::set_user_manager(const vire::user::manager & mgr_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Session manager is already initialized!");
+      _users_ = mgr_;
+      return;
+    }
+
+    void session_manager::set_devices_name(const std::string & name_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Session manager is already initialized!");
+      _devices_name_ = name_;
+      return;
+    }
+
+    const std::string & session_manager::get_devices_name() const
+    {
+      return _devices_name_;
+    }
+
+    void session_manager::set_device_manager(const vire::device::manager & mgr_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Session manager is already initialized!");
+      _devices_ = mgr_;
       return;
     }
 
@@ -84,21 +127,25 @@ namespace vire {
     }
 
     void session_manager::tree_dump(std::ostream & out_,
-                           const std::string & title_,
-                           const std::string & indent_,
-                           bool inherit_) const
+                                    const std::string & title_,
+                                    const std::string & indent_,
+                                    bool inherit_) const
     {
       this->datatools::base_service::tree_dump(out_, title_, indent_, true);
 
-      /*
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Users service name   : "
+           << "'" << _users_name_ << "'" << std::endl;
+
       out_ << indent_ << i_tree_dumpable::tag
            << "Devices service name   : "
-           << "'" << _devices_service_name_ << "'" << std::endl;
+           << "'" << _devices_name_ << "'" << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Resources service name : "
-           << "'" << _resources_service_name_ << "'" << std::endl;
+           << "'" << _resources_name_ << "'" << std::endl;
 
+      /*
       out_ << indent_ << i_tree_dumpable::tag
            << "Users service name : "
            << "'" << _users_service_name_ << "'" << std::endl;
@@ -110,11 +157,10 @@ namespace vire {
       out_ << indent_ << i_tree_dumpable::tag
            << "Running    : " << std::boolalpha
            << _running_ << std::endl;
+      */
 
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
-           << "Must be stopped : " << std::boolalpha
-           << must_be_stopped() << std::endl;
-      */
+           << "Next session ID : " << _next_id_ << std::endl;
 
       return;
     }
@@ -134,10 +180,38 @@ namespace vire {
 
       this->::datatools::base_service::common_initialize(config_);
 
+      if (_users_ != nullptr) {
+        if (_users_name_.empty()) {
+          if (config_.has_key("users_name")) {
+            set_users_name(config_.fetch_string("users_name"));
+          }
+        }
+
+        if (_users_name_.empty()) {
+          set_users_name(server::users_service_name());
+        }
+
+        set_user_manager(datatools::get<vire::user::manager>(service_dict_, _users_name_));
+      }
+
+      if (_devices_ != nullptr) {
+        if (_devices_name_.empty()) {
+          if (config_.has_key("devices_name")) {
+            set_devices_name(config_.fetch_string("devices_name"));
+          }
+        }
+
+        if (_devices_name_.empty()) {
+          set_devices_name(server::devices_service_name());
+        }
+
+        set_device_manager(datatools::get<vire::device::manager>(service_dict_, _devices_name_));
+      }
+
       if (_resources_ != nullptr) {
         if (_resources_name_.empty()) {
-          if (config_.has_key("resources_label")) {
-            set_resources_name(config_.fetch_string("resources_label"));
+          if (config_.has_key("resources_name")) {
+            set_resources_name(config_.fetch_string("resources_name"));
           }
         }
 
@@ -145,8 +219,7 @@ namespace vire {
           set_resources_name(server::resources_service_name());
         }
 
-        set_resource_manager(datatools::get<vire::resource::manager>(service_dict_,
-                                                                     _resources_name_));
+        set_resource_manager(datatools::get<vire::resource::manager>(service_dict_, _resources_name_));
       }
 
       _initialized_ = true;
@@ -173,8 +246,47 @@ namespace vire {
       return;
     }
 
-    void session_manager::_init_top_session_()
+    void session_manager::run()
     {
+      DT_THROW_IF(!is_initialized(), std::logic_error, "Session manager service is not initialized!");
+      _create_top_session_();
+      _run_top_session_();
+      _destroy_top_session_();
+      return;
+    }
+
+    // std::shared_ptr<session> session_manager::_create_subsession_(const session_ptr_type & parent_,
+    //                                                               int)
+    // {
+    //   std::shared_ptr<session> sp(new session);
+    //   session & s = *sp.get();
+    //   s.set_parent(parent_);
+    //   s.set_id(_next_id_++);
+    //   return
+    // }
+
+    void session_manager::_create_root_session_()
+    {
+      _root_session_.reset(new session);
+      session & ts = *_root_session_.get();
+      ts.set_id(session::ROOT_ID);
+      cardinalities_request_type dummy;
+      resource_pool::init_root(ts.grab_distributable(),
+                               *_resources_,
+                               dummy,
+                               resource_pool::CARD_ALL_PLUS_ONE);
+
+      return;
+    }
+
+    void session_manager::_run_root_session_()
+    {
+      return;
+    }
+
+    void session_manager::_destroy_root_session_()
+    {
+      _root_session_.reset();
       return;
     }
 

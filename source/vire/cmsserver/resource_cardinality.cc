@@ -108,7 +108,9 @@ namespace vire {
     void resource_cardinality::print(std::ostream & out_) const
     {
       out_ << "#@number_of_cardinalities=" << this->_request_.size() << std::endl;
-      for (cardinalities_request_type::const_iterator i = this->_request_.begin(); i != this->_request_.end(); i++) {
+      for (cardinalities_request_type::const_iterator i = this->_request_.begin();
+           i != this->_request_.end();
+           i++) {
         out_ << i->first << " " << i->second << std::endl;
       }
       out_ << std::endl;

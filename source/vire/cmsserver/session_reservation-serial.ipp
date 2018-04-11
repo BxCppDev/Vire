@@ -38,7 +38,11 @@ namespace vire {
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
       archive_ & boost::serialization::make_nvp("id", _id_);
-      archive_ & boost::serialization::make_nvp("sinfo", _sinfo_);
+      archive_ & boost::serialization::make_nvp("booked_by", _booked_by_);
+      archive_ & boost::serialization::make_nvp("last_update", _last_update_);
+      archive_ & boost::serialization::make_nvp("resource_scope", _resource_scope_);
+      archive_ & boost::serialization::make_nvp("when", _when_);
+      archive_ & boost::serialization::make_nvp("use_case_info", _use_case_info_);
       archive_ & boost::serialization::make_nvp("start_macro", _start_macro_);
       archive_ & boost::serialization::make_nvp("stop_macro",  _stop_macro_);
       return;

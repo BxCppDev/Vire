@@ -21,7 +21,7 @@
 #ifndef VIRE_CMSSERVER_UTILS_H
 #define VIRE_CMSSERVER_UTILS_H
 
-// Standard Library:
+// Standard library:
 #include <string>
 #include <map>
 
@@ -36,7 +36,8 @@ namespace vire {
     datatools::logger::priority logging(datatools::logger::priority p_
                                         = datatools::logger::PRIO_UNDEFINED);
 
-    typedef std::map<int32_t, std::size_t> cardinalities_request_type;
+    typedef std::map<int32_t, std::size_t>     cardinalities_request_type;
+    typedef std::map<std::string, std::size_t> resource_cardinalities_request_type;
 
     struct service {
 

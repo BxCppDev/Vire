@@ -40,7 +40,7 @@
 #include <vire/device/manager.h>
 #include <vire/user/manager.h>
 #include <vire/cmsserver/session_reservation.h>
-#include <vire/cmsserver/session_info.h>
+// #include <vire/cmsserver/session_info.h>
 
 namespace vire {
 
@@ -62,6 +62,18 @@ namespace vire {
 
       //! Destructor
       virtual ~session_manager();
+
+      void set_users_name(const std::string &);
+
+      const std::string & get_users_name() const;
+
+      void set_user_manager(const vire::user::manager & mgr_);
+
+      void set_devices_name(const std::string &);
+
+      const std::string & get_devices_name() const;
+
+      void set_device_manager(const vire::device::manager & mgr_);
 
       void set_resources_name(const std::string &);
 
@@ -85,24 +97,28 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
+      //! Run
+      void run();
+
     private:
 
       void _set_defaults_();
 
-      void _init_top_session_();
+      void _create_root_session_();
 
-    private:
+      void _run_root_session_();
 
-      // Management:
-      bool _initialized_ = false; //!< Initialization flag
+      void _destroy_root_session_();
 
-      // Configuration:
-      std::string _resources_name_;
+      // std::shared_ptr<session> _create_subsession_(const session_ptr_type & parent_,
+      //                                              int);
 
       // Working data:
+      const vire::user::manager     * _users_ = nullptr;     ///< Handle to the user manager
+      const vire::device::manager   * _devices_ = nullptr;   ///< Handle to the device manager
       const vire::resource::manager * _resources_ = nullptr; ///< Handle to the resource manager
       int _next_id_ = -1;
-      std::shared_ptr<session> _top_session_;
+      session_handle_type _root_session_;
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(session_manager)

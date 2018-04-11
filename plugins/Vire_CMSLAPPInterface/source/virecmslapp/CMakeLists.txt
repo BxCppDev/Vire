@@ -28,15 +28,27 @@ get_directory_property(_VireCmsLappProtobufLibrary_cpp_HEADERS
 get_directory_property(_VireCmsLappProtobufLibrary_cpp_SOURCES
   DIRECTORY protobuf
   DEFINITION Vire_CMSLAPPInterface_ProtobufLibrary_cpp_SOURCES)
+get_directory_property(_VireCmsLappProtobufLibrary_cpp_TARGETS
+  DIRECTORY protobuf
+  DEFINITION VireCmsLappProtobufLibrary_cpp_TARGETS)
+if (VIRE_WITH_PROTOBUF_JAVA)
+  get_directory_property(_VireCmsLappProtobufLibrary_java_TARGETS
+    DIRECTORY protobuf
+    DEFINITION VireCmsLappProtobufLibrary_java_TARGETS)
+endif()
 message(STATUS "[Vire_CMSLAPPInterface] _VireCmsLappProtobufLibrary_cpp_HEADERS='${_VireCmsLappProtobufLibrary_cpp_HEADERS}'")
 message(STATUS "[Vire_CMSLAPPInterface] _VireCmsLappProtobufLibrary_cpp_SOURCES='${_VireCmsLappProtobufLibrary_cpp_SOURCES}'")
 
 #-----------------------------------------------------------------------
 # Declare headers
 #
-set(Vire_CMSLAPPInterface_Plugin_HEADERS
+set(Vire_CMSLAPPInterface_Plugin_CORE_HEADERS
   vire/cmslapp/version.h.in
   vire/cmslapp/pubsub_support.h
+)
+
+set(Vire_CMSLAPPInterface_Plugin_HEADERS
+  ${Vire_CMSLAPPInterface_Plugin_CORE_HEADERS}
   ${_VireCmsLappProtobufLibrary_cpp_HEADERS}
 )
 
@@ -57,7 +69,7 @@ set(Vire_CMSLAPPInterface_Plugin_SOURCES
 )
 
 # - Publish headers
-foreach(_hdrin ${Vire_CMSLAPPInterface_Plugin_HEADERS})
+foreach(_hdrin ${Vire_CMSLAPPInterface_Plugin_CORE_HEADERS})
   string(REGEX REPLACE "\\.in$" "" _hdrout "${_hdrin}")
   configure_file(${_hdrin} ${VIRE_BUILD_PREFIX}/include/${_hdrout} @ONLY)
 endforeach()
@@ -68,7 +80,18 @@ add_library(Vire_CMSLAPP
   ${Vire_CMSLAPPInterface_Plugin_HEADERS}
   ${Vire_CMSLAPPInterface_Plugin_PRIVATE_HEADERS}
   ${Vire_CMSLAPPInterface_Plugin_SOURCES}
+  ${_VireCmsLappProtobufLibrary_cpp_HEADERS}
+  ${_VireCmsLappProtobufLibrary_cpp_SOURCES}
   )
+# Tell CMake the source won't be available until build time.
+set_source_files_properties(${_VireCmsLappProtobufLibrary_cpp_HEADERS} PROPERTIES GENERATED 1)
+set_source_files_properties(${_VireCmsLappProtobufLibrary_cpp_SOURCES} PROPERTIES GENERATED 1)
+set_target_properties(Vire_CMSLAPP PROPERTIES LINKER_LANGUAGE CXX)
+foreach(_pb_target ${_VireCmsLappProtobufLibrary_cpp_TARGETS})
+  message( STATUS "[info] ##### Adding new dependency from target='${_pb_target}'")
+  add_dependencies(Vire ${_pb_target})
+endforeach()
+
 
 message (STATUS "[Vire_CMSLAPPInterface] Boost_LOG_LIBRARY       = ${Boost_LOG_LIBRARY}")
 message (STATUS "[Vire_CMSLAPPInterface] Boost_LOG_SETUP_LIBRARY = ${Boost_LOG_SETUP_LIBRARY}")

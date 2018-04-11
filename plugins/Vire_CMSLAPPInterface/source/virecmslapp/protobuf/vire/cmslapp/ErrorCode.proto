@@ -3,8 +3,6 @@ option java_package = "VireProtobuf.vire.cmslapp";
 option java_outer_classname = "ErrorCodeStub";
 package vire.cmslapp;
 
-import "vire/utility/BasePayload.proto";
-
 enum ErrorCode {
   CMSLAPP_SUCCESS     = 0;   // Success
   CMSLAPP_CMS_FAILURE = 1;   // Generic CMS failure code

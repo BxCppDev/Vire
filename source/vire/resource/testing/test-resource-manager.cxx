@@ -39,12 +39,10 @@ int main(int /* argc_ */, char ** /* argv_ */)
     // test_manager_1();
 
     std::clog << "The end." << std::endl;
-  }
-  catch (std::exception & x) {
+  } catch (std::exception & x) {
     std::cerr << "error: " << x.what() << std::endl;
     error_code = EXIT_FAILURE;
-  }
-  catch (...) {
+  } catch (...) {
     std::cerr << "error: " << "unexpected error !" << std::endl;
     error_code = EXIT_FAILURE;
   }

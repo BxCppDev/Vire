@@ -25,6 +25,8 @@
 #include<vire/cms/resource_exec.h>
 #include<vire/cms/resource_exec_success.h>
 #include<vire/cms/resource_exec_failure.h>
+#include<vire/cms/resource_pubsub_success.h>
+#include<vire/cms/resource_pubsub_failure.h>
 
 namespace vire {
 
@@ -32,7 +34,9 @@ namespace vire {
 
     // The name of the effective resource path corresponds to a method name on CMS/LAPP side:
     // Format is :
-    //   <Vire resource path> + '/'+ "__dp_subscribe__"
+    //   <Vire resource parent path> + '/'+ "__dp_read__"
+    // translated to:
+    //   <Vire resource parent path> + '/'+ "__dp_subscribe__"
     //
     // Argument: boolean
     //  0 == false : unsubscribe
@@ -40,7 +44,7 @@ namespace vire {
     //
     // Example:
     //
-    //   SuperNEMO://Demonstrator/CMS/Coil/PS/Control/Current/__dp_subscribe__(0|1)
+    //   SuperNEMO:/Demonstrator/CMS/Coil/PS/Control/Current/__dp_subscribe__(0|1)
     //
     // Returned payload:
     //   vire::cms::resource_exec_success
@@ -49,16 +53,23 @@ namespace vire {
     //
     static const std::string & dp_pub_suffix();
 
-    // Convert a "resource_pubsub" payload received from the Vire client to the Vire server
-    // (PubSub manager) into a dedicated "resource_exec" payload for
+    // Convert a "resource_pubsub" payload received from the Vire Client to the Vire Server
+    // (PubSub manager) into a dedicated "resource_exec" payload
     int convert(const vire::cms::resource_pubsub & pubsub_,
-                 vire::cms::resource_exec & exec_);
+                vire::cms::resource_exec & exec_);
 
-    /* void convert(const vire::cms::resource_exec_success & pubsub_, */
-    /*           vire::cms::resource_exec & exec_); */
+    // Vire Server to Vire Client:
+    // Question; what path is transmitted :
+    //   <Vire resource parent path> + '/'+ "__dp_subscribe__"
+    // translated to:
+    //   <Vire resource parent path> + '/'+ "__dp_read__"
 
-    /* void convert(const vire::cms::resource_exec_failure & pubsub_, */
-    /*           vire::cms::resource_exec & exec_); */
+    void convert(const vire::cms::resource_exec_success & pubsub_,
+                 vire::cms::resource_pubsub_success & success_);
+
+    // Vire Server to Vire Client:
+    void convert(const vire::cms::resource_exec_failure & pubsub_,
+                 vire::cms::resource_pubsub_failure & failure_);
 
   } // namespace cmslapp
 

@@ -23,6 +23,11 @@
 
 // This project
 #include <vire/utility/base_payload.h>
+#include <vire/cms/resource_exec_success.h>
+
+// Third party
+// - Boost
+#include <boost/optional.hpp>
 
 namespace vire {
 
@@ -46,7 +51,19 @@ namespace vire {
       /// Return the subscription flag
       bool is_subscribed() const;
 
-      //! Smart print
+      /// Check if audit is set
+      bool has_audit() const;
+
+      /// Return the audit (if set)
+      const resource_exec_success & get_audit() const;
+
+      /// Set the audit
+      void set_audit(const resource_exec_success &);
+
+      /// Reset the audit
+      void reset_audit();
+
+      /// Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
                              const std::string & title_  = "",
                              const std::string & indent_ = "",
@@ -62,7 +79,9 @@ namespace vire {
 
     private:
 
-      bool _subscribed_; ///< Subscription flag
+      bool                                   _subscribed_; ///< Subscription flag
+      boost::optional<resource_exec_success> _audit_;      ///< Resource audit (timestamped status+value)
+
 
       VIRE_UTILITY_PAYLOAD_INTERFACE(resource_pubsub_success)
 
