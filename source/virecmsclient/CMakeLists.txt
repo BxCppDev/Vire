@@ -25,6 +25,13 @@
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
+#include_directories(${Readline_INCLUDE_DIR})
+include_directories(${BxJsontools_INCLUDE_DIRS})
+#include_directories(${BxRabbitMQ_INCLUDE_DIRS})
+include_directories(${BxProtobuftools_INCLUDE_DIRS})
+#include_directories(${PROTOBUF_INCLUDE_DIRS})
+#include_directories(${VIRE_BUILD_PREFIX}/include/protobuf/cpp)
+#include_directories(${VIRE_BUILD_PREFIX}/include)
 
 #-----------------------------------------------------------------------
 # Build command line app
@@ -33,17 +40,18 @@ include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 # configure_file(virecmsclient_config.h.in virecmsclient_config.h @ONLY)
 
 set(VireCmsClientApp_HEADERS
-  #ui_shell.h
-  #virecmsclient_config.h
-  #virecmsclient.h
+  virecmsclient/core.h
+  virecmsclient/parameters.h
+  virecmsclient/command_line.h
 )
 
 set(VireCmsClientApp_PRIVATE_HEADERS
 )
 
 set(VireCmsClientApp_SOURCES
-  #ui_shell.cc
-  #virecmsclient.cc
+  virecmsclient/core.cc
+  virecmsclient/parameters.cc
+  virecmsclient/command_line.cc
   virecmsclientmain.cxx
 )
 
@@ -54,8 +62,6 @@ add_executable(virecmsclient
   )
 target_link_libraries(virecmsclient
   Vire
-  # ${Bayeux_LIBRARIES}
-  # ${Boost_LIBRARIES}
   )
 # - RPath it
 set_target_properties(virecmsclient PROPERTIES INSTALL_RPATH_USE_LINK_PATH 1)
