@@ -135,9 +135,12 @@ do
 	eval ${COMMAND}
 	if [ $? -ne 0 ]; then
 	    my_exit 1 "Cannot generate C++ source from '${protofile}'!"
-	fi
+	else
+	    if [ ${debug} -ne 0 ]; then
+		echo >&2 "[debug] C++ source has been generated from '${protofile}'."
+	    fi
+ 	fi
     fi
-
 
     if [ ${gen_java} -ne 0 ]; then
 	if [ ${debug} -ne 0 ]; then
@@ -150,7 +153,11 @@ do
 	eval ${COMMAND}
 	if [ $? -ne 0 ]; then
 	    my_exit 1 "Cannot generate Java source from '${protofile}'!"
-	fi
+	else
+	    if [ ${debug} -ne 0 ]; then
+		echo >&2 "[debug] Java source has been generated from '${protofile}'."
+	    fi
+ 	fi
     fi
 
     if [ ${out_list} -ne 0 ]; then
@@ -164,6 +171,10 @@ done
 # if [ ${debug} -ne 0 ]; then
 #     # tree ${out_dir} >&2
 # fi
+
+if [ ${debug} -ne 0 ]; then
+    echo >&2 "[debug] Source code has been generated from '${protofile}'."
+fi
 
 my_exit 0
 

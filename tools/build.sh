@@ -37,7 +37,7 @@ only_configure=0
 debug=0
 vire_source_dir="${opwd}"
 vire_version="develop"
-bayeux_version="3.2.0"
+bayeux_version="3.3.0"
 install_dir=$(pwd)/_install.d
 build_dir=$(pwd)/_build.d
 
@@ -115,7 +115,7 @@ fi
 
 bxversion=$(bxquery --version)
 if [ "${bxversion}" != "${bayeux_version}" ]; then
-    echo >&2 "[error] Bayeux's version is not supported!"
+    echo >&2 "[error] Bayeux's version ${bxversion} is not supported!"
     my_exit 1
 else
     echo >&2 "[info] Found Bayeux ${bxversion}"
