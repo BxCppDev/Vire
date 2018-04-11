@@ -69,7 +69,7 @@ namespace vire {
 
     private:
 
-      std::string _id_;   //!< Identifier of the session connection
+      std::string _id_;   //!< Session identifier
       std::string _role_; //!< Role
       boost::posix_time::ptime _deadline_; //!< Session deadline
       std::string _login_;    //!< Login

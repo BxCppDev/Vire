@@ -39,7 +39,7 @@ namespace vire {
       // Negotiation worker interface
       struct i_worker
       {
-        i_worker(negotiation & nego_);
+        i_worker(negotiation & parent_);
         virtual ~i_worker();
         virtual bool run(session_connection_parameters &) = 0;
       protected:
@@ -68,9 +68,9 @@ namespace vire {
 
     private:
 
-      session_manager & _parent_;
-      std::string _user_;
-      std::string _password_;
+      session_manager & _parent_; //!< Parent session manager service
+      std::string _user_;         //!< User
+      std::string _password_;     //!< Password
 
     };
 

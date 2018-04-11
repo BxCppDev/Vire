@@ -23,18 +23,19 @@
 #define VIRE_CMSCLIENT_CLIENT_H
 
 // Standard library:
+#include <string>
+#include <iostream>
 
 // Third party:
 // - Bayeux:
-#include <bayeux/datatools/i_tree_dump.h>
+#include <bayeux/datatools/enriched_base.h>
 #include <bayeux/datatools/multi_properties.h>
 #include <bayeux/datatools/properties.h>
 #include <bayeux/datatools/service_manager.h>
 #include <bayeux/datatools/logger.h>
 
 // This project:
-#include <vire/cmsclient/server_infos.h>
-#include <vire/utility/instance_identifier.h>
+#include <vire/cmsclient/setup_infos.h>
 
 namespace vire {
 
@@ -42,7 +43,7 @@ namespace vire {
 
     /// \brief Vire CMS client
     class client
-      : public datatools::i_tree_dumpable
+      : public datatools::enriched_base
     {
     public:
 
@@ -60,21 +61,6 @@ namespace vire {
       //! Destructor
       virtual ~client();
 
-      //! Return the logging threshold
-      datatools::logger::priority get_logging() const;
-
-      //! Set the logging threshold
-      void set_logging(const datatools::logger::priority);
-
-      //! Check if setup ID is set
-      bool has_setup_id() const;
-
-      //! Return the setup ID
-      const ::vire::utility::instance_identifier & get_setup_id() const;
-
-      //! Set the setup ID
-      void set_setup_id(const ::vire::utility::instance_identifier &);
-
       //! Check initialization status
       bool is_initialized() const;
 
@@ -90,13 +76,13 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      bool has_server_infos() const;
+      bool has_setup_infos() const;
 
-      void set_server_infos(const server_infos &);
+      void set_setup_infos(const setup_infos &);
 
-      const server_infos & get_server_infos() const;
+      const setup_infos & get_setup_infos() const;
 
-      server_infos & grab_server_infos();
+      setup_infos & grab_setup_infos();
 
       datatools::service_manager & grab_services();
 
@@ -125,13 +111,11 @@ namespace vire {
     private:
 
       // Management:
-      bool                        _initialized_ = false;
-      datatools::logger::priority _logging_;
+      bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
-      ::vire::utility::instance_identifier _setup_id_;     //!< Setup ID
-      datatools::multi_properties          _mconfig_;      //!< Client configuration parameters
-      server_infos                         _server_infos_; //!< Server infos
+      datatools::multi_properties _mconfig_;     //!< Client configuration parameters
+      setup_infos                 _setup_infos_; //!< Setup infos
 
       // Working:
       datatools::service_manager _services_;

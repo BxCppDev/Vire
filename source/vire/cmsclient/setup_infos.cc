@@ -1,4 +1,4 @@
-// /vire/cmsclient/server_infos.cc
+// /vire/cmsclient/setup_infos.cc
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //                       Jean Hommet <hommet@lpccaen.in2p3.fr>
@@ -19,7 +19,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmsclient/server_infos.h>
+#include <vire/cmsclient/setup_infos.h>
 
 // Third party:
 // - Bayeux:
@@ -29,153 +29,153 @@ namespace vire {
 
   namespace cmsclient {
 
-    server_infos::server_infos()
+    setup_infos::setup_infos()
     {
       return;
     }
 
-    server_infos::~server_infos()
+    setup_infos::~setup_infos()
     {
       return;
     }
 
-    bool server_infos::has_setup_id() const
+    bool setup_infos::has_setup_id() const
     {
       return _setup_id_.is_valid();
     }
 
-    void server_infos::set_setup_id(const ::vire::utility::instance_identifier & setup_id_)
+    void setup_infos::set_setup_id(const ::vire::utility::instance_identifier & setup_id_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _setup_id_ = setup_id_;
       return;
     }
 
-    const ::vire::utility::instance_identifier & server_infos::get_setup_id() const
+    const ::vire::utility::instance_identifier & setup_infos::get_setup_id() const
     {
       return _setup_id_;
     }
 
-    bool server_infos::has_host() const
+    bool setup_infos::has_host() const
     {
       return !_host_.empty();
     }
 
-    void server_infos::set_host(const std::string & host_)
+    void setup_infos::set_host(const std::string & host_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _host_ = host_;
       return;
     }
 
-    const std::string & server_infos::get_host() const
+    const std::string & setup_infos::get_host() const
     {
       return _host_;
     }
 
-    bool server_infos::has_port() const
+    bool setup_infos::has_port() const
     {
       return _port_ != -1;
     }
 
-    void server_infos::set_port(const int port_)
+    void setup_infos::set_port(const int port_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _port_ = (port_ > 0 ? port_ : -1);
       return;
     }
 
-    int server_infos::get_port() const
+    int setup_infos::get_port() const
     {
       return _port_;
     }
 
-    bool server_infos::has_domain_name_prefix() const
+    bool setup_infos::has_domain_name_prefix() const
     {
       return !_domain_name_prefix_.empty();
     }
 
-    void server_infos::set_domain_name_prefix(const std::string & tp_)
+    void setup_infos::set_domain_name_prefix(const std::string & tp_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _domain_name_prefix_ = tp_;
       return;
     }
 
-    const std::string & server_infos::get_domain_name_prefix() const
+    const std::string & setup_infos::get_domain_name_prefix() const
     {
       return _domain_name_prefix_;
     }
 
-    bool server_infos::has_transport_protocol_id() const
+    bool setup_infos::has_transport_protocol_id() const
     {
       return _transport_protocol_id_.is_valid();
     }
 
-    void server_infos::set_transport_protocol_id(const ::vire::utility::model_identifier & tp_)
+    void setup_infos::set_transport_protocol_id(const ::vire::utility::model_identifier & tp_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _transport_protocol_id_ = tp_;
       return;
     }
 
-    const ::vire::utility::model_identifier & server_infos::get_transport_protocol_id() const
+    const ::vire::utility::model_identifier & setup_infos::get_transport_protocol_id() const
     {
       return _transport_protocol_id_;
     }
 
-    bool server_infos::has_encoding_protocol_id() const
+    bool setup_infos::has_encoding_protocol_id() const
     {
       return _encoding_protocol_id_.is_valid();
     }
 
-    void server_infos::set_encoding_protocol_id(const ::vire::utility::model_identifier & ep_)
+    void setup_infos::set_encoding_protocol_id(const ::vire::utility::model_identifier & ep_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _encoding_protocol_id_ = ep_;
       return;
     }
 
-    const ::vire::utility::model_identifier & server_infos::get_encoding_protocol_id() const
+    const ::vire::utility::model_identifier & setup_infos::get_encoding_protocol_id() const
     {
       return _encoding_protocol_id_;
     }
 
-    bool server_infos::has_gate_login() const
+    bool setup_infos::has_gate_login() const
     {
       return !_gate_login_.empty();
     }
 
-    void server_infos::set_gate_login(const std::string & login_)
+    void setup_infos::set_gate_login(const std::string & login_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _gate_login_ = login_;
       return;
     }
 
-    const std::string & server_infos::get_gate_login() const
+    const std::string & setup_infos::get_gate_login() const
     {
       return _gate_login_;
     }
 
-    bool server_infos::has_gate_password() const
+    bool setup_infos::has_gate_password() const
     {
       return !_gate_password_.empty();
     }
 
-    void server_infos::set_gate_password(const std::string & ep_)
+    void setup_infos::set_gate_password(const std::string & ep_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
       _gate_password_ = ep_;
       return;
     }
 
-    const std::string & server_infos::get_gate_password() const
+    const std::string & setup_infos::get_gate_password() const
     {
       return _gate_password_;
     }
 
-    bool server_infos::is_valid() const
+    bool setup_infos::is_valid() const
     {
       if (!has_setup_id()) return false;
       if (!has_host()) return false;
@@ -188,12 +188,12 @@ namespace vire {
       return true;
     }
 
-    bool server_infos::is_initialized() const
+    bool setup_infos::is_initialized() const
     {
       return _initialized_;
     }
 
-    void server_infos::initialize(const datatools::properties & config_)
+    void setup_infos::initialize(const datatools::properties & config_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Already initialized!");
 
@@ -250,7 +250,7 @@ namespace vire {
       return;
     }
 
-    void server_infos::reset()
+    void setup_infos::reset()
     {
       DT_THROW_IF(!is_initialized(), std::logic_error, "Not initialized!");
       _initialized_ = false;
@@ -265,7 +265,7 @@ namespace vire {
       return;
     }
 
-    void server_infos::tree_dump(std::ostream & out_,
+    void setup_infos::tree_dump(std::ostream & out_,
                                  const std::string & title_,
                                  const std::string & indent_,
                                  bool inherit_) const
@@ -296,7 +296,7 @@ namespace vire {
            << "Gate login : '" << _gate_login_ << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Gate password : " << std::boolalpha << has_gate_password() << std::endl;
+           << "Gate password : " << (has_gate_password() ? "yes" : "no") << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Validity : "

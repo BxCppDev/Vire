@@ -255,8 +255,8 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(_logging_);
       DT_THROW_IF(!is_idle(), std::logic_error,
                   "Can only start run from 'idle' state!");
-      vire::utility::model_identifier transport_protocol_id = _client_->get_server_infos().get_transport_protocol_id();
-      vire::utility::model_identifier encoding_protocol_id = _client_->get_server_infos().get_encoding_protocol_id();
+      vire::utility::model_identifier transport_protocol_id = _client_->get_setup_infos().get_transport_protocol_id();
+      vire::utility::model_identifier encoding_protocol_id = _client_->get_setup_infos().get_encoding_protocol_id();
       _com_->set_transport_type_id(transport_protocol_id);
       _com_->set_encoding_type_id(encoding_protocol_id);
       _com_->set_resources(get_resources());
@@ -286,7 +286,7 @@ namespace vire {
     void session_manager::_configure_com_for_negotiation()
     {
       ::vire::com::manager & com = *_com_;
-      std::string domain_name_prefix = _client_->get_server_infos().get_domain_name_prefix();
+      std::string domain_name_prefix = _client_->get_setup_infos().get_domain_name_prefix();
       std::string gate_domain_name
         = ::vire::com::domain_builder::build_cms_clients_gate_name(domain_name_prefix);
       DT_THROW_IF(com.has_domain(gate_domain_name),
@@ -295,8 +295,8 @@ namespace vire {
       // Create the gate domain:
       ::vire::com::domain & gatedom = com.create_domain(gate_domain_name,
                                                      ::vire::com::domain::CATEGORY_GENERAL,
-                                                     _client_->get_server_infos().get_transport_protocol_id(),
-                                                     _client_->get_server_infos().get_encoding_protocol_id()
+                                                     _client_->get_setup_infos().get_transport_protocol_id(),
+                                                     _client_->get_setup_infos().get_encoding_protocol_id()
                                                      );
 
       // Populate gate domain:
@@ -310,7 +310,7 @@ namespace vire {
     {
 
       ::vire::com::manager & com = *_com_;
-      std::string domain_name_prefix = _client_->get_server_infos().get_domain_name_prefix();
+      std::string domain_name_prefix = _client_->get_setup_infos().get_domain_name_prefix();
       std::string gate_domain_name
         = ::vire::com::domain_builder::build_cms_clients_gate_name(domain_name_prefix);
       if (com.has_domain(gate_domain_name)) {

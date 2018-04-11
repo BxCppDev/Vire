@@ -76,54 +76,26 @@ namespace vire {
       return;
     }
 
-    datatools::logger::priority client::get_logging() const
+    bool client::has_setup_infos() const
     {
-      return _logging_;
+      return _setup_infos_.is_valid();
     }
 
-    void client::set_logging(const datatools::logger::priority l_)
-    {
-      _logging_ = l_;
-      return;
-    }
-
-    bool client::has_setup_id() const
-    {
-      return _setup_id_.is_valid();
-    }
-
-    const ::vire::utility::instance_identifier & client::get_setup_id() const
-    {
-      return _setup_id_;
-    }
-
-    void client::set_setup_id(const ::vire::utility::instance_identifier & setup_id_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
-      _setup_id_ = setup_id_;
-      return;
-    }
-
-    bool client::has_server_infos() const
-    {
-      return _server_infos_.is_valid();
-    }
-
-    void client::set_server_infos(const server_infos & si_)
+    void client::set_setup_infos(const setup_infos & si_)
     {
      DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
-      _server_infos_ = si_;
+      _setup_infos_ = si_;
       return;
     }
 
-    const server_infos & client::get_server_infos() const
+    const setup_infos & client::get_setup_infos() const
     {
-      return _server_infos_;
+      return _setup_infos_;
     }
 
-    server_infos & client::grab_server_infos()
+    setup_infos & client::grab_setup_infos()
     {
-      return _server_infos_;
+      return _setup_infos_;
     }
 
     datatools::service_manager & client::grab_services()
@@ -143,7 +115,7 @@ namespace vire {
 
     void client::initialize(const datatools::multi_properties & mconfig_)
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
 
       _mconfig_ = mconfig_;
@@ -155,13 +127,13 @@ namespace vire {
       _start_business_services();
 
       _initialized_ = true;
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::reset()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(!is_initialized(), std::logic_error, "Client is not initialized!");
       _initialized_ = false;
 
@@ -171,7 +143,7 @@ namespace vire {
 
       _at_reset_();
 
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
@@ -193,14 +165,11 @@ namespace vire {
       }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Setup ID : '" << _setup_id_.to_string() << "'" << std::endl;
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Server infos : " << std::endl;
+           << "Setup infos : " << std::endl;
       {
         std::ostringstream indent2;
         indent2 << indent_ << datatools::i_tree_dumpable::skip_tag;
-        _server_infos_.tree_dump(out_, "", indent2.str());
+        _setup_infos_.tree_dump(out_, "", indent2.str());
       }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
@@ -220,38 +189,38 @@ namespace vire {
 
     void client::_init_main_(const datatools::properties & config_)
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
 
-      if (!has_setup_id()) {
-        // Fetch requested setup ID:
-        if (config_.has_key("setup_id")) {
-          vire::utility::instance_identifier sid;
-          const std::string & sid_repr = config_.fetch_string("setup_id");
-          DT_THROW_IF(!sid.from_string(sid_repr), std::logic_error,
-                      "Invalid setup ID '" << sid_repr<< "'!");
-          set_setup_id(sid);
-        }
-      }
+      // if (!has_setup_id()) {
+      //   // Fetch requested setup ID:
+      //   if (config_.has_key("setup_id")) {
+      //     vire::utility::instance_identifier sid;
+      //     const std::string & sid_repr = config_.fetch_string("setup_id");
+      //     DT_THROW_IF(!sid.from_string(sid_repr), std::logic_error,
+      //                 "Invalid setup ID '" << sid_repr<< "'!");
+      //     set_setup_id(sid);
+      //   }
+      // }
+      //
+      // if (!has_setup_infos()) {
+      //   // XXX
+      // }
 
-      if (!has_server_info()) {
-        // XXX
-      }
-
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_reset_main_()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
-      _setup_id_.reset();
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      _setup_infos_.reset();
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_at_init_()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
 
       _services_.set_name("CMSClientServices");
       _services_.set_description("CMS client service manager");
@@ -266,43 +235,35 @@ namespace vire {
         _init_main_(main_config);
       }
 
-      if (!has_server_infos()) {
-        // Fetch server informations:
-        datatools::properties cmsserver_config;
-        if (_mconfig_.has_section("cmsserver")) {
-          cmsserver_config = _mconfig_.get_section("cmsserver");
-          _server_infos_.initialize(cmsserver_config);
+      if (!has_setup_infos()) {
+        // Fetch setup informations:
+        datatools::properties setup_config;
+        if (_mconfig_.has_section("setup")) {
+          setup_config = _mconfig_.get_section("setup");
+          _setup_infos_.initialize(setup_config);
         }
       }
 
-      // Checks: setup name/version (client vs server)
-      if (has_setup_id() && has_server_infos()) {
-        DT_THROW_IF(_setup_id_.get_name() != _server_infos_.get_setup_id().get_name(),
-                    std::logic_error,
-                    "Client setup ID '" << _setup_id_.to_string()
-                    << "' does not match the server setup ID '"
-                    << _server_infos_.get_setup_id().to_string() << "'!");
-      }
-
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_at_reset_()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
-      _server_infos_.reset();
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      _setup_infos_.reset();
       _reset_main_();
       _services_.reset();
-      DT_LOG_TRACE_EXITING(_logging_);
+      _mconfig_.reset();
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_start_system_services()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       // Com manager:
-      DT_LOG_TRACE(_logging_, "Com manager...");
+      DT_LOG_TRACE(get_logging_priority(), "Com manager...");
       datatools::properties com_config;
       if (_mconfig_.has_section("com")) {
         com_config = _mconfig_.get_section("com");
@@ -310,27 +271,27 @@ namespace vire {
       _services_.load(com_service_name(),
                       "vire::com::manager",
                       com_config);
-      if (datatools::logger::is_trace(_logging_)) {
+      if (datatools::logger::is_trace(get_logging_priority())) {
         _services_.tree_dump(std::cerr, "Services:", "[trace] ");
       }
-      DT_LOG_TRACE(_logging_, "com service is setup.");
+      DT_LOG_TRACE(get_logging_priority(), "com service is setup.");
       vire::com::manager & com = _services_.grab<vire::com::manager>(com_service_name());
       vire::com::actor client_actor("client", vire::com::actor::CATEGORY_CLIENT);
-      if (datatools::logger::is_trace(_logging_)) {
+      if (datatools::logger::is_trace(get_logging_priority())) {
         com.tree_dump(std::cerr, "Com service:", "[trace] ");
       }
       _services_.sync();
 
       {
         const datatools::service_dict_type & services_dict = _services_.get_bus_of_services();
-        DT_LOG_TRACE(_logging_, "Session dict size = " << services_dict.size());
+        DT_LOG_TRACE(get_logging_priority(), "Session dict size = " << services_dict.size());
         for (const auto & p : services_dict) {
-          DT_LOG_TRACE(_logging_, "Key='" << p.first << "'");
+          DT_LOG_TRACE(get_logging_priority(), "Key='" << p.first << "'");
         }
       }
 
       // Session manager:
-      DT_LOG_TRACE(_logging_, "Session manager...");
+      DT_LOG_TRACE(get_logging_priority(), "Session manager...");
       datatools::properties session_config;
       if (_mconfig_.has_section("session")) {
         session_config = _mconfig_.get_section("session");
@@ -338,29 +299,29 @@ namespace vire {
       vire::cmsclient::session_manager & session =
         dynamic_cast<vire::cmsclient::session_manager&>(_services_.load_no_init(session_service_name(),
                                                                                 "vire::cmsclient::session_manager"));
-      session.set_logging(this->get_logging());
+      session.set_logging(get_logging_priority());
       session.set_client(*this);
       session.initialize(session_config,
                          const_cast<datatools::service_dict_type&>(_services_.get_bus_of_services()));
 
       {
         const datatools::service_dict_type & services_dict = _services_.get_bus_of_services();
-        DT_LOG_TRACE(_logging_, "Session dict size = " << services_dict.size());
+        DT_LOG_TRACE(get_logging_priority(), "Session dict size = " << services_dict.size());
         for (const auto & p : services_dict) {
-          DT_LOG_TRACE(_logging_, "Key='" << p.first << "'");
+          DT_LOG_TRACE(get_logging_priority(), "Key='" << p.first << "'");
         }
       }
       _services_.sync();
 
-      DT_LOG_TRACE(_logging_, "session service is setup.");
+      DT_LOG_TRACE(get_logging_priority(), "session service is setup.");
 
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_stop_system_services()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
 
       if (_services_.is_a<vire::cmsclient::session_manager>(session_service_name())) {
         _services_.drop(session_service_name());
@@ -370,13 +331,13 @@ namespace vire {
         _services_.drop(com_service_name());
       }
 
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_start_business_services()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       // Devices manager:
       datatools::properties devices_config;
       if (_mconfig_.has_section("devices")) {
@@ -397,13 +358,13 @@ namespace vire {
                       resources_config);
       _services_.sync();
 
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void client::_stop_business_services()
     {
-      DT_LOG_TRACE_ENTERING(_logging_);
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::vector<std::string> list_of_services;
       _services_.build_list_of_services(list_of_services);
       std::set<std::string> list_of_business_services;
@@ -432,7 +393,7 @@ namespace vire {
       }
 
       return;
-      DT_LOG_TRACE_EXITING(_logging_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
     }
 
   } // namespace cmsclient

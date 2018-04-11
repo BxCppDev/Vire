@@ -28,7 +28,7 @@ namespace vire {
 
   namespace cmsclient {
 
-    negotiation::i_worker::i_worker(negotiation & nego_)
+    negotiation::i_worker::i_worker(negotiation & parent_)
       : _nego(parent_)
     {
       return;

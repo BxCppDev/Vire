@@ -1,5 +1,5 @@
-//! \file vire/cmsclient/testing/test-vireclient-server_infos.cxx
-//! \brief Test Vire server infos
+//! \file vire/cmsclient/testing/test-vireclient-setup_infos.cxx
+//! \brief Test Vire setup infos
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -19,7 +19,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmsclient/server_infos.h>
+#include <vire/cmsclient/setup_infos.h>
 
 // Standard library:
 #include <cstdlib>
@@ -40,7 +40,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
   vire::initialize();
   int error_code = EXIT_SUCCESS;
   try {
-    std::clog << "Test program for the 'vire::cmsclient::server_infos' class." << std::endl;
+    std::clog << "Test program for the 'vire::cmsclient::setup_infos' class." << std::endl;
 
     bool interactive = false;
     interactive = true;
@@ -64,22 +64,22 @@ void test_cmsclient_si_1(bool interactive_)
   std::clog << "\ntest_cmsclient_si_1: basics" << std::endl;
 
   // Configuration:
-  datatools::properties serverInfosParams;
-  serverInfosParams.store("setup_id", "SuperNEMO");
-  serverInfosParams.store("host", "localhost");
-  serverInfosParams.store("port", 5671);
-  serverInfosParams.store("domain_name_prefix", "/supernemo/demonstrator");
-  serverInfosParams.store("transport_protocol_id", "vire::com::rabbitmq_transport_driver");
-  serverInfosParams.store("encoding_protocol_id", "vire::com::protobuf_encoding_driver");
-  serverInfosParams.store("gate_login", "snclient");
-  serverInfosParams.store("gate_password", "IeM8rohghu");
-  serverInfosParams.tree_dump(std::clog, "Vire CMS server infos: ");
+  datatools::properties setupInfosParams;
+  setupInfosParams.store("setup_id", "SuperNEMO");
+  setupInfosParams.store("host", "localhost");
+  setupInfosParams.store("port", 5671);
+  setupInfosParams.store("domain_name_prefix", "/supernemo/demonstrator");
+  setupInfosParams.store("transport_protocol_id", "vire::com::rabbitmq_transport_driver");
+  setupInfosParams.store("encoding_protocol_id", "vire::com::protobuf_encoding_driver");
+  setupInfosParams.store("gate_login", "snclient");
+  setupInfosParams.store("gate_password", "IeM8rohghu");
+  setupInfosParams.tree_dump(std::clog, "Vire CMS setup infos: ");
 
-  // Server infos:
-  vire::cmsclient::server_infos serverInfos;
-  serverInfos.initialize(serverInfosParams);
-  serverInfos.tree_dump(std::clog, "Server infos: ");
-  serverInfos.reset();
+  // Setup infos:
+  vire::cmsclient::setup_infos setupInfos;
+  setupInfos.initialize(setupInfosParams);
+  setupInfos.tree_dump(std::clog, "Setup infos: ");
+  setupInfos.reset();
   std::clog << std::endl;
 
   return;

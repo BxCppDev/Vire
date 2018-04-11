@@ -1,4 +1,4 @@
-//! \file  vire/cmsclient/server_infos.h
+//! \file  vire/cmsclient/setup_infos.h
 //! \brief Server infos
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -19,8 +19,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSCLIENT_SERVER_INFOS_H
-#define VIRE_CMSCLIENT_SERVER_INFOS_H
+#ifndef VIRE_CMSCLIENT_SETUP_INFOS_H
+#define VIRE_CMSCLIENT_SETUP_INFOS_H
 
 // Standard library:
 #include <string>
@@ -38,17 +38,17 @@ namespace vire {
 
   namespace cmsclient {
 
-    /// \brief Informations about the CMS server
-    class server_infos
+    /// \brief Informations about the setup
+    class setup_infos
       : public datatools::i_tree_dumpable
     {
     public:
 
       //! Default constructor
-      server_infos();
+      setup_infos();
 
       //! Destructor
-      virtual ~server_infos();
+      virtual ~setup_infos();
 
       //! Check if the setup ID is set
       bool has_setup_id() const;
@@ -150,8 +150,10 @@ namespace vire {
       std::string _host_;               ///< The server host identifier
       int         _port_ = -1;          ///< The server port
       std::string _domain_name_prefix_; ///< The domain name prefix
-      ::vire::utility::model_identifier _transport_protocol_id_; ///< The default transport protocol ID (ex: "RabbitMQ-0.9")
-      ::vire::utility::model_identifier _encoding_protocol_id_;  ///< The default encoding protocol ID (ex: "protobuf-3.3")
+      /// The default transport protocol ID (ex: "RabbitMQ-0.9")
+      ::vire::utility::model_identifier _transport_protocol_id_;
+      /// The default encoding protocol ID (ex: "protobuf-3.3")
+      ::vire::utility::model_identifier _encoding_protocol_id_;
       std::string _gate_login_;         ///< The login used to connect to the server's client gate
       std::string _gate_password_;      ///< The password used to connect to the server's client gate
 
@@ -161,7 +163,7 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_CMSCLIENT_SERVER_INFOS_H
+#endif // VIRE_CMSCLIENT_SETUP_INFOS_H
 
 // Local Variables: --
 // mode: c++ --
