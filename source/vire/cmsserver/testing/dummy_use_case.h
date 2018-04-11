@@ -10,7 +10,6 @@
 
 // This project:
 #include <vire/cmsserver/base_use_case.h>
-#include <vire/cmsserver/task_utils.h>
 
 namespace vire {
   namespace cmsserver{

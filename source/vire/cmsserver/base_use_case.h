@@ -42,7 +42,6 @@
 
 // This project:
 #include <vire/time/utils.h>
-#include <vire/cmsserver/task_utils.h>
 #include <vire/resource/role.h>
 
 namespace vire {

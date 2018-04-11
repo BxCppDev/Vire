@@ -33,7 +33,6 @@
 #include <vire/resource/manager.h>
 #include <vire/cmsserver/utils.h>
 #include <vire/cmsserver/base_use_case.h>
-#include <vire/cmsserver/task_utils.h>
 #include <vire/cmsserver/client_connection.h>
 #include <vire/user/simple_password_generator.h>
 
