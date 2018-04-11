@@ -141,8 +141,8 @@ include(com/Lists.cmake)
 # CMS server kernel and utilities:
 include(cmsserver/Lists.cmake)
 
-# # CMS client kernel and utilities:
-# include(cmsclient/Lists.cmake)
+# CMS client kernel and utilities:
+include(cmsclient/Lists.cmake)
 
 list(APPEND VireLibrary_HEADERS
   )
@@ -151,32 +151,6 @@ list(APPEND VireLibrary_SOURCES
   the_introspectable.cc
   the_serializable.cc
   )
-
-# get_directory_property(_VireProtobufLibrary_cpp_HEADERS
-#   DIRECTORY protobuf
-#   DEFINITION VireProtobufLibrary_cpp_HEADERS)
-
-# get_directory_property(_VireProtobufLibrary_cpp_SOURCES
-#   DIRECTORY protobuf
-#   DEFINITION VireProtobufLibrary_cpp_SOURCES)
-
-# set(VireProtobufLibrary_cpp_HEADERS)
-# set(VireProtobufLibrary_cpp_SOURCES)
-# foreach(_protofile ${_VireProtobufLibrary_cpp_SOURCES})
-#   get_filename_component(_pb_dir ${_protofile} DIRECTORY)
-#   get_filename_component(_pb_basename ${_protofile} NAME_WE)
-#   set(_pb_stub_header ${_pb_dir}/${_pb_basename}.pb.h)
-#   message(STATUS "========> Adding protobuf header  = '${_pb_stub_header}'")
-#   list(APPEND
-#     VireProtobufLibrary_cpp_HEADERS
-#     ${_pb_stub_header}
-#     )
-# endforeach()
-# message(STATUS "===> VireProtobufLibrary_cpp_HEADERS='${VireProtobufLibrary_cpp_HEADERS}'")
-# list(APPEND
-#   VireLibrary_HEADERS
-#   ${VireProtobufLibrary_cpp_HEADERS}
-#   )
 
 # - Publish headers
 foreach(_hdrin ${VireLibrary_HEADERS})
@@ -217,8 +191,21 @@ get_directory_property(_VireProtobufLibrary_cpp_HEADERS
 get_directory_property(_VireProtobufLibrary_cpp_SOURCES
   DIRECTORY protobuf
   DEFINITION VireProtobufLibrary_cpp_SOURCES)
+get_directory_property(_VireProtobufLibrary_cpp_TARGETS
+  DIRECTORY protobuf
+  DEFINITION VireProtobufLibrary_cpp_TARGETS)
+if (VIRE_WITH_PROTOBUF_JAVA)
+  get_directory_property(_VireProtobufLibrary_java_TARGETS
+    DIRECTORY protobuf
+    DEFINITION VireProtobufLibrary_java_TARGETS)
+endif()
+message(STATUS "[debug] VireLibrary_HEADERS='${VireLibrary_HEADERS}'")
+message(STATUS "[debug] VireLibrary_PRIVATE_HEADERS='${VireLibrary_PRIVATE_HEADERS}'")
+message(STATUS "[debug] VireLibrary_SOURCES='${VireLibrary_SOURCES}'")
 message(STATUS "[debug] _VireProtobufLibrary_cpp_HEADERS='${_VireProtobufLibrary_cpp_HEADERS}'")
 message(STATUS "[debug] _VireProtobufLibrary_cpp_SOURCES='${_VireProtobufLibrary_cpp_SOURCES}'")
+message(STATUS "[debug] _VireProtobufLibrary_cpp_TARGETS='${_VireProtobufLibrary_cpp_TARGETS}'")
+message(STATUS "[debug] _VireProtobufLibrary_java_TARGETS='${_VireProtobufLibrary_java_TARGETS}'")
 
 #-----------------------------------------------------------------------
 # Build/Link the library
@@ -230,6 +217,16 @@ add_library(Vire SHARED
   ${_VireProtobufLibrary_cpp_HEADERS}
   ${_VireProtobufLibrary_cpp_SOURCES}
   )
+# Doc: https://cmake.org/Wiki/CMake_FAQ#How_can_I_add_a_dependency_to_a_source_file_which_is_generated_in_a_subdirectory.3F
+# Tell CMake the source won't be available until build time.
+set_source_files_properties(${_VireProtobufLibrary_cpp_HEADERS} PROPERTIES GENERATED 1)
+set_source_files_properties(${_VireProtobufLibrary_cpp_SOURCES} PROPERTIES GENERATED 1)
+set_target_properties(Vire PROPERTIES LINKER_LANGUAGE CXX)
+foreach(_pb_target ${_VireProtobufLibrary_cpp_TARGETS})
+  message( STATUS "[info] ##### Adding new dependency from target='${_pb_target}'")
+  add_dependencies(Vire ${_pb_target})
+endforeach()
+
 target_compile_definitions(Vire PRIVATE ENABLE_BINRELOC)
 message( STATUS "[debug] VIRE_CXX_COMPILE_FEATURES = '${VIRE_CXX_COMPILE_FEATURES}'")
 target_compile_features(Vire PUBLIC ${VIRE_CXX_COMPILE_FEATURES})
