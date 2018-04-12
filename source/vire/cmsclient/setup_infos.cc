@@ -1,4 +1,4 @@
-// /vire/cmsclient/setup_infos.cc
+// vire/cmsclient/setup_infos.cc
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //                       Jean Hommet <hommet@lpccaen.in2p3.fr>
@@ -20,6 +20,9 @@
 
 // Ourselves:
 #include <vire/cmsclient/setup_infos.h>
+
+// Standard libraries:
+#include <iomanip>
 
 // Third party:
 // - Bayeux:
@@ -184,8 +187,20 @@ namespace vire {
       if (!has_transport_protocol_id()) return false;
       if (!has_encoding_protocol_id()) return false;
       if (!has_gate_login()) return false;
-      if (!has_gate_password()) return false;
+      // if (!has_gate_password()) return false;
       return true;
+    }
+
+    void setup_infos::lock()
+    {
+      _initialized_ = true;
+      return;
+    }
+
+    void setup_infos::unlock()
+    {
+      _initialized_ = false;
+      return;
     }
 
     bool setup_infos::is_initialized() const
@@ -246,7 +261,13 @@ namespace vire {
         set_gate_password(gp);
       }
 
-      _initialized_ = true;
+      bool lock_it = true;
+      if (config_.has_key("nolock")) {
+        lock_it = false;
+      }
+      if (lock_it) {
+        _initialized_ = true;
+      }
       return;
     }
 
@@ -296,7 +317,14 @@ namespace vire {
            << "Gate login : '" << _gate_login_ << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Gate password : " << (has_gate_password() ? "yes" : "no") << std::endl;
+           << "Gate password : ";
+      if (has_gate_password()) {
+        out_ << "'" << std::setfill ('*')
+             << std::setw(_gate_password_.size()) << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Validity : "

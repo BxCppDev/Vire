@@ -131,8 +131,14 @@ namespace vire {
       //! Initialize the server infos
       void initialize(const datatools::properties &);
 
-      //! Terminate the client
+      //! Terminate the server infos
       void reset();
+
+      //! Lock the server infos
+      void lock();
+
+      //! Unlock the server infos
+      void unlock();
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
