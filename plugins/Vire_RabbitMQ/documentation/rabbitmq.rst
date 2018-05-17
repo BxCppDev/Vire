@@ -25,11 +25,6 @@ Configure the server
 
 TBD
 
-.. code:: sh
-
-   $ sudo rabbitmq-plugins enable rabbitmq_management
-..
-
 
 Start the server
 ================
@@ -39,11 +34,19 @@ Start the server
    $ sudo service rabbitmq-server start
 ..
 
+Start the web interface
+=======================
 
-Manual 
+.. code:: sh
 
-rabbitmqctrl
-============
+   $ sudo rabbitmq-plugins enable rabbitmq_management
+..
+
+Then browse URL: http://localhost:15672/
+
+
+Administration account
+======================
 
 Create an administrator user for the Vire CMS server:
 
@@ -52,7 +55,12 @@ Create an administrator user for the Vire CMS server:
    $ sudo rabbitmqctl add_user supernemo_adm {password}
    $ sudo rabbitmqctl change_password supernemo_adm sesame
    $ sudo rabbitmqctl set_user_tags supernemo_adm administrator
+   $ sudo rabbitmqctl set_permissions -p / supernemo_adm  ".*" ".*" ".*"
    $ sudo rabbitmqctl list_users
+
+   
+Normal account
+==============
 
 Create a normal user for the Vire CMS/LAPP subcontractor:
 
