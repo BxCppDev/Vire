@@ -56,9 +56,12 @@ void test_1()
 {
   std::clog << "\ntest_1: basics" << std::endl;
 
-  vire::ui::tui_password_dialog dialog(3);
+  vire::ui::tui_password_dialog dialog;
+  dialog.set_show_stars(true);
+  dialog.set_title("Connection");
+  dialog.set_label("Password");
   std::string password;
-  if (dialog.input_password("Enter password: ", password)) {
+  if (dialog.input(password)) {
     std::clog << "Password is : '" << password << "'" << std::endl;
   } else {
     std::cerr << "No password was input!" << std::endl;

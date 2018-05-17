@@ -76,7 +76,7 @@ code.
 Prerequisites and dependencies
 ------------------------------
 
-Vire supports  Ubuntu Linux 16.04  system (x86_64), which is  our main
+Vire supports  Ubuntu Linux 16.04/18.04  system (x86_64), which is  our main
 development system.  Support for more flavors of Linux will come later
 (i.e. Scientific Linux 7.X).
 
@@ -167,17 +167,18 @@ List of required libraries and tools:
   - Protobuf 3.3.0 (automatically installed from the Linuxbrew BxCppDev tap)
   - BxProtobuftools 0.2.0 (installed from the Linuxbrew BxCppDev tap)
   - BxRabbitMQ 0.3.0 (installed from the Linuxbrew BxCppDev tap)
-  - Bayeux 3.0.0 (installed from the Linuxbrew BxCppDev tap)
+  - Bayeux >=3.2.0 (installed from the Linuxbrew BxCppDev tap)
 
-Example of dependency installation for Ubuntu Linux 16.04:
+Example of dependency installation for Ubuntu Linux 18.04:
 
 .. code:: sh
 
-   $ sudo apt-get install openjdk-8-jdk
+   $ sudo apt-get install libb64-dev libb64-0d
+   $ sudo apt-get install openjdk-11-jdk
    $ brew tap bxcppdev/homebrew-bxtap
    $ brew install bxcppdev/bxtap/bxrabbitmq --with-manager
    $ brew install bxcppdev/bxtap/bxprotobuftools
-   $ brew install bxcppdev/bxtap/bayeux@3.0.0
+   $ brew install bxcppdev/bxtap/bayeux
 ..
 
 Vire on Linuxbrew

@@ -47,6 +47,8 @@ namespace vire {
     {
     public:
 
+      static std::string log_service_name();
+
       static std::string com_service_name();
 
       static std::string session_service_name();
@@ -55,11 +57,33 @@ namespace vire {
 
       static std::string resources_service_name();
 
+      enum ui_mode_type {
+        UI_UNDEF = 0, //!< Undefined user interface
+        UI_BATCH = 1, //!< Not interactive mode
+        UI_TUI   = 2, //!< Interactive mode with text user interface
+        UI_GUI   = 3  //!< Interactive mode with graphical user interface
+      };
+
       //! Default constructor
       client();
 
       //! Destructor
       virtual ~client();
+
+      //! Check if UI mode is set
+      bool has_ui_mode() const;
+
+      //! Set the UI mode
+      void set_ui_mode(const ui_mode_type);
+
+      //! Return the UI mode
+      ui_mode_type get_ui_mode() const;
+
+      //! Check interactive UI mode
+      bool is_interactive() const;
+
+      //! Check non-interactive UI mode
+      bool is_batch() const;
 
       //! Check initialization status
       bool is_initialized() const;
@@ -70,11 +94,15 @@ namespace vire {
       //! Terminate the client
       void reset();
 
-      //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
+      //! Check is client is in the setup
+      bool in_setup() const;
+
+      //! Entering the setup
+      void setup_enter();
+
+      //! Leave the setup
+      void setup_quit();
+
 
       bool has_setup_infos() const;
 
@@ -87,6 +115,11 @@ namespace vire {
       datatools::service_manager & grab_services();
 
       const datatools::service_manager & get_services() const;
+
+      //! Smart print
+      virtual void print_tree(std::ostream & out_ = std::clog,
+                              const boost::property_tree::ptree & options_
+                              = datatools::i_tree_dumpable::empty_options()) const;
 
     protected:
 
@@ -112,12 +145,14 @@ namespace vire {
 
       // Management:
       bool _initialized_ = false; //!< Initialization flag
+      bool _in_setup_ = false; //!< In-setup flag
 
       // Configuration:
-      datatools::multi_properties _mconfig_;     //!< Client configuration parameters
-      setup_infos                 _setup_infos_; //!< Setup infos
+      datatools::multi_properties _mconfig_; //!< Client configuration parameters
+      ui_mode_type _ui_mode_ = UI_UNDEF;     //!< User interface mode
 
       // Working:
+      setup_infos                _setup_infos_; //!< Setup infos
       datatools::service_manager _services_;
 
     };

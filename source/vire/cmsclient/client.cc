@@ -30,6 +30,7 @@
 #include <vire/cmsclient/session_manager.h>
 #include <vire/device/manager.h>
 #include <vire/resource/manager.h>
+#include <vire/cmsclient/setup_infos_tui.h>
 
 namespace vire {
 
@@ -39,6 +40,13 @@ namespace vire {
     std::string client::com_service_name()
     {
       static const std::string _n("com");
+      return _n;
+    }
+
+    // static
+    std::string client::log_service_name()
+    {
+      static const std::string _n("log");
       return _n;
     }
 
@@ -76,6 +84,33 @@ namespace vire {
       return;
     }
 
+    bool client::has_ui_mode() const
+    {
+      return _ui_mode_ != UI_UNDEF;
+    }
+
+    void client::set_ui_mode(const ui_mode_type ui_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
+      _ui_mode_ = ui_;
+      return;
+    }
+
+    client::ui_mode_type client::get_ui_mode() const
+    {
+      return _ui_mode_;
+    }
+
+    bool client::is_interactive() const
+    {
+      return _ui_mode_ == UI_TUI || _ui_mode_ == UI_GUI;
+    }
+
+    bool client::is_batch() const
+    {
+      return _ui_mode_ == UI_BATCH;
+    }
+
     bool client::has_setup_infos() const
     {
       return _setup_infos_.is_valid();
@@ -83,7 +118,7 @@ namespace vire {
 
     void client::set_setup_infos(const setup_infos & si_)
     {
-     DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
+      DT_THROW_IF(is_initialized(), std::logic_error, "Client is already initialized!");
       _setup_infos_ = si_;
       return;
     }
@@ -124,7 +159,7 @@ namespace vire {
 
       _start_system_services();
 
-      _start_business_services();
+      // _start_business_services();
 
       _initialized_ = true;
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -137,7 +172,7 @@ namespace vire {
       DT_THROW_IF(!is_initialized(), std::logic_error, "Client is not initialized!");
       _initialized_ = false;
 
-      _stop_business_services();
+      //_stop_business_services();
 
       _stop_system_services();
 
@@ -147,42 +182,87 @@ namespace vire {
       return;
     }
 
-    void client::tree_dump(std::ostream & out_,
-                           const std::string & title_,
-                           const std::string & indent_,
-                           bool inherit_) const
+    bool client::in_setup() const
     {
-      if (!title_.empty()) {
-        out_ << indent_ << title_ << std::endl;
+      return _in_setup_;
+    }
+
+    void client::setup_enter()
+    {
+      DT_THROW_IF(!is_initialized(), std::logic_error, "Client is not initialized!");
+      if ((has_setup_infos() && !get_setup_infos().is_valid())
+          || !has_setup_infos()) {
+        if (is_interactive()) {
+          _setup_infos_.unlock();
+          if (_ui_mode_ == UI_TUI || _ui_mode_ == UI_GUI) {
+            setup_infos_tui setupInfosTui;
+            if (! setupInfosTui.run(_setup_infos_)) {
+            }
+          }
+          _setup_infos_.lock();
+          if (datatools::logger::is_notice(get_logging_priority())) {
+            _setup_infos_.tree_dump(std::clog, "Setup infos: ");
+          }
+        }
+      }
+      _in_setup_ = true;
+      return;
+    }
+
+    void client::setup_quit()
+    {
+      DT_THROW_IF(!in_setup(), std::logic_error, "CLient is not in-setup status!");
+      _in_setup_ = false;
+
+      // ...
+
+      return;
+    }
+
+    void client::print_tree(std::ostream & out_,
+                            const boost::property_tree::ptree & options_) const
+    {
+      base_print_options popts;
+      popts.configure_from(options_);
+
+      if (!popts.title.empty()) {
+        out_ << popts.indent << popts.title << std::endl;
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Configuration : " << std::endl;
       {
         std::ostringstream indent2;
-        indent2 << indent_ << datatools::i_tree_dumpable::skip_tag;
+        indent2 << popts.indent << datatools::i_tree_dumpable::skip_tag;
         _mconfig_.tree_dump(out_, "", indent2.str());
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
+           << "UI mode : " << _ui_mode_ << std::endl;
+
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Setup infos : " << std::endl;
       {
         std::ostringstream indent2;
-        indent2 << indent_ << datatools::i_tree_dumpable::skip_tag;
+        indent2 << popts.indent << datatools::i_tree_dumpable::skip_tag;
         _setup_infos_.tree_dump(out_, "", indent2.str());
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Services : " << std::endl;
       {
         std::ostringstream indent2;
-        indent2 << indent_ << datatools::i_tree_dumpable::skip_tag;
+        indent2 << popts.indent << datatools::i_tree_dumpable::skip_tag;
         _services_.tree_dump(out_, "", indent2.str());
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Initialized : "
            << std::boolalpha << _initialized_ << std::endl;
+
+      out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
+           << "In setup : "
+           << std::boolalpha << _in_setup_ << std::endl;
 
       return;
     }
@@ -191,20 +271,22 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
 
-      // if (!has_setup_id()) {
-      //   // Fetch requested setup ID:
-      //   if (config_.has_key("setup_id")) {
-      //     vire::utility::instance_identifier sid;
-      //     const std::string & sid_repr = config_.fetch_string("setup_id");
-      //     DT_THROW_IF(!sid.from_string(sid_repr), std::logic_error,
-      //                 "Invalid setup ID '" << sid_repr<< "'!");
-      //     set_setup_id(sid);
-      //   }
-      // }
-      //
-      // if (!has_setup_infos()) {
-      //   // XXX
-      // }
+      datatools::enriched_base::initialize(config_, false);
+
+      if (!has_ui_mode()) {
+        if (config_.has_key("ui_mode")) {
+          std::string ui_repr = config_.fetch_string("ui_mode");
+          if (ui_repr == "batch") {
+            set_ui_mode(UI_BATCH);
+          } else if (ui_repr == "tui") {
+            set_ui_mode(UI_TUI);
+          } else if (ui_repr == "gui") {
+            set_ui_mode(UI_GUI);
+          } else {
+            DT_THROW(std::logic_error, "Unsupported UI mode '" << ui_repr << "'!");
+          }
+        }
+      }
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
@@ -222,12 +304,6 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
 
-      _services_.set_name("CMSClientServices");
-      _services_.set_description("CMS client service manager");
-      _services_.set_allow_dynamic_services(true);
-      _services_.set_force_initialization_at_load(true);
-      _services_.initialize();
-
       // Fetch general client parameters:
       datatools::properties main_config;
       if (_mconfig_.has_section("main")) {
@@ -235,14 +311,20 @@ namespace vire {
         _init_main_(main_config);
       }
 
-      if (!has_setup_infos()) {
-        // Fetch setup informations:
-        datatools::properties setup_config;
-        if (_mconfig_.has_section("setup")) {
-          setup_config = _mconfig_.get_section("setup");
-          _setup_infos_.initialize(setup_config);
-        }
-      }
+      // if (!has_setup_infos()) {
+      //   // Fetch setup informations:
+      //   datatools::properties setup_config;
+      //   if (_mconfig_.has_section("setup")) {
+      //     setup_config = _mconfig_.get_section("setup");
+      //     _setup_infos_.initialize(setup_config);
+      //   }
+      // }
+
+      _services_.set_name("CMSClientServices");
+      _services_.set_description("CMS client service manager");
+      _services_.set_allow_dynamic_services(true);
+      _services_.set_force_initialization_at_load(true);
+      _services_.initialize();
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
@@ -251,9 +333,9 @@ namespace vire {
     void client::_at_reset_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
+      _services_.reset();
       _setup_infos_.reset();
       _reset_main_();
-      _services_.reset();
       _mconfig_.reset();
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;

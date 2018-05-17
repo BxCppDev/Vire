@@ -1,6 +1,6 @@
 //! \file vire/ui/tui_password_dialog.cc
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -30,34 +30,45 @@ namespace vire {
 
   namespace ui {
 
-    tui_password_dialog::tui_password_dialog(const std::size_t max_attempts_)
-      : _max_attempts_(max_attempts_ > 0 ? max_attempts_ : 1)
+    tui_password_dialog::tui_password_dialog()
     {
       return;
     }
 
-    bool tui_password_dialog::input_password(const std::string & prompt_,
-                                             std::string & password_)
+    tui_password_dialog::~tui_password_dialog()
+    {
+      return;
+    }
+
+    dialog_report tui_password_dialog::input(std::string & password_)
     {
       password_.clear();
-      std::size_t attempt_counter = 0;
-      while (attempt_counter < _max_attempts_) {
-        if (!prompt_.empty()) std::clog << prompt_;
-        attempt_counter++;
-        std::string input;
-        tui::set_stdin_echo(false);
-        std::getline(std::cin, input);
-        //if (input.empty()) {
-          std::clog << std::endl;
-          //}
-        tui::set_stdin_echo(true);
-        if (!input.empty()) {
-          password_ = input;
-          input.clear();
-          return true;
-        }
+      bool interactive = false;
+      if (has_label() || has_title()) {
+        interactive = true;
       }
-      return false;
+      if (interactive) {
+        if (has_title()) {
+          std::clog << get_title() << ' ' << std::endl;
+        }
+        if (has_label()) std::clog << get_label() << " : ";
+      }
+      std::string input;
+      tui::set_stdin_echo(false);
+      std::getline(std::cin, input);
+      if (interactive) {
+        std::clog << std::endl;
+      }
+      tui::set_stdin_echo(true);
+      if (std::cin) {
+        if (input.empty() && ! is_allow_empty_password()) {
+          return make_dialog_report(false, "empty password is not allowed");
+        }
+        password_ = input;
+        input.clear();
+        return make_dialog_report(true);
+      }
+      return make_dialog_report(false, "no input password");
     }
 
   } // namespace ui

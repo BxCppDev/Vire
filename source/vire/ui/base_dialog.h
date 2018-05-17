@@ -1,7 +1,7 @@
-//! \file  vire/ui/tui_password_dialog.h
-//! \brief Test user interface password dialog
+//! \file  vire/ui/base_dialog.h
+//! \brief Base dialog
 //
-// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,31 +18,50 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_UI_TUI_PASSWORD_DIALOG_H
-#define VIRE_UI_TUI_PASSWORD_DIALOG_H
+#ifndef VIRE_UI_BASE_DIALOG_H
+#define VIRE_UI_BASE_DIALOG_H
 
 // Standard library:
 #include <string>
 
-// This project:
-#include <vire/ui/i_password_dialog.h>
+// Third party:
+#include <boost/optional.hpp>
 
 namespace vire {
 
   namespace ui {
 
-    /// \brief Text user interface password dialog
-    class tui_password_dialog
-      : public i_password_dialog
+    struct dialog_report
+    {
+      bool success = true;
+      std::string message;
+      operator bool() const;
+      const std::string & what() const;
+
+    };
+
+    dialog_report make_dialog_report(const bool = true,
+                                     const std::string & = "");
+
+    struct base_dialog
     {
     public:
 
-      // Constructor:
-      tui_password_dialog();
+      base_dialog();
 
-      virtual ~tui_password_dialog();
+      virtual ~base_dialog();
 
-      virtual dialog_report input(std::string & password_) final;
+      bool has_title() const;
+
+      void set_title(const std::string &);
+
+      void reset_title();
+
+      const std::string & get_title() const;
+
+    public:
+
+      boost::optional<std::string> _title_;
 
     };
 
@@ -50,7 +69,7 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_UI_TUI_PASSWORD_DIALOG_H
+#endif // VIRE_UI_BASE_DIALOG_H
 
 // Local Variables: --
 // mode: c++ --

@@ -1,7 +1,7 @@
-//! \file  vire/ui/i_password_dialog.h
-//! \brief Interface for password dialog
+//! \file  vire/ui/i_string_dialog.h
+//! \brief Interface for string dialog
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,11 +18,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_UI_I_PASSWORD_DIALOG_H
-#define VIRE_UI_I_PASSWORD_DIALOG_H
+#ifndef VIRE_UI_I_STRING_DIALOG_H
+#define VIRE_UI_I_STRING_DIALOG_H
 
 // Standard library:
 #include <string>
+#include <set>
 
 // Third party:
 #include <boost/optional.hpp>
@@ -34,27 +35,33 @@ namespace vire {
 
   namespace ui {
 
-    struct i_password_dialog
+    struct i_string_dialog
       : public base_input_dialog
     {
-      i_password_dialog();
+      i_string_dialog();
 
-      virtual ~i_password_dialog();
+      virtual ~i_string_dialog();
 
-      bool is_show_stars() const;
+      bool has_default_value() const;
 
-      void set_show_stars(bool ss_);
+      void set_default_value(const std::string &);
 
-      bool is_allow_empty_password() const;
+      const std::string & get_default_value() const;
 
-      void set_allow_empty_password(bool aep_);
+      bool has_allowed_values() const;
 
-      virtual dialog_report input(std::string & password_) = 0;
+      const std::set<std::string> & get_allowed_values() const;
 
-    private:
+      void add_allowed_value(const std::string & value_);
 
-      bool _show_stars_ = false;
-      bool _allow_empty_password_ = false;
+      bool has_allowed_value(const std::string & value_) const;
+
+      virtual dialog_report input(std::string & value_) = 0;
+
+    public:
+
+      std::set<std::string> _allowed_values_;
+      boost::optional<std::string> _default_value_;
 
     };
 
@@ -62,7 +69,7 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_UI_I_PASSWORD_DIALOG_H
+#endif // VIRE_UI_I_STRING_DIALOG_H
 
 // Local Variables: --
 // mode: c++ --

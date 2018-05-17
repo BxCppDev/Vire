@@ -1,7 +1,7 @@
-//! \file  vire/user/testing/test-ui-gui_password_dialog.cxx
-//! \brief Vire user graphical user interface password dialog
+//! \file  vire/user/testing/test-ui-tui_string_dialog.cxx
+//! \brief Vire user text user interface string dialog
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -24,12 +24,9 @@
 #include <string>
 #include <exception>
 
-// - Bayeux:
-#include <bayeux/datatools/qt/interface.h>
-
 // This project:
 #include <vire/vire.h>
-#include <vire/ui/gui_password_dialog.h>
+#include <vire/ui/tui_string_dialog.h>
 
 void test_1();
 
@@ -38,7 +35,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
   vire::initialize();
   int error_code = EXIT_SUCCESS;
   try {
-    std::clog << "Test program for the 'vire::ui::gui_password_dialog' class."
+    std::clog << "Test program for the 'vire::ui::tui_string_dialog' class."
               << std::endl;
 
     test_1();
@@ -59,17 +56,18 @@ void test_1()
 {
   std::clog << "\ntest_1: basics" << std::endl;
 
-  datatools::qt::interface::instance();
-
-  vire::ui::gui_password_dialog dialog;
-  dialog.set_title("Connection");
-  dialog.set_label("Password");
-  dialog.set_show_stars(true);
-  std::string password;
-  if (vire::ui::dialog_report report = dialog.input(password)) {
-    std::clog << "Password is : '" << password << "'" << std::endl;
+  vire::ui::tui_string_dialog dialog;
+  dialog.set_title("Zoo's parameters");
+  dialog.set_label("Duck's name");
+  dialog.add_allowed_value("riri");
+  dialog.add_allowed_value("fifi");
+  dialog.add_allowed_value("loulou");
+  dialog.set_default_value("fifi");
+  std::string word;
+  if (dialog.input(word)) {
+    std::clog << "String is : '" << word << "'" << std::endl;
   } else {
-    std::cerr << "No password was input : " << report.what() << std::endl;
+    std::cerr << "No string was input!" << std::endl;
   }
 
   return;

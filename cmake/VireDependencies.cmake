@@ -135,6 +135,21 @@ if (VIRE_WITH_QT_GUI)
   find_package(Qt5Gui     ${VIRE_QT5_VERSION} REQUIRED)
   find_package(Qt5Widgets ${VIRE_QT5_VERSION} REQUIRED)
   find_package(Qt5Svg     ${VIRE_QT5_VERSION} REQUIRED)
+  message (STATUS "[info] Include dirs         = ${Qt5Core_INCLUDE_DIRS}")
+  message (STATUS "[info] Include private dirs = ${Qt5Core_PRIVATE_INCLUDE_DIRS}")
+  message (STATUS "[info] Include dirs         = ${Qt5Gui_INCLUDE_DIRS}")
+  message (STATUS "[info] Include private dirs = ${Qt5Gui_PRIVATE_INCLUDE_DIRS}")
+  message (STATUS "[info] Include dirs         = ${Qt5Widgets_INCLUDE_DIRS}")
+  message (STATUS "[info] Include private dirs = ${Qt5Widgets_PRIVATE_INCLUDE_DIRS}")
+  include_directories(
+    ${Qt5Core_INCLUDE_DIRS}
+    ${Qt5Core_PRIVATE_INCLUDE_DIRS}
+    ${Qt5Gui_INCLUDE_DIRS}
+    ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
+    ${Qt5Widgets_INCLUDE_DIRS}
+    ${Qt5Widgets_PRIVATE_INCLUDE_DIRS}
+    )
 endif()
 
 #-----------------------------------------------------------------------
+message( STATUS "[info] End of Vire dependencies")

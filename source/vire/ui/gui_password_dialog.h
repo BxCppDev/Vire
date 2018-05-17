@@ -1,7 +1,7 @@
 //! \file  vire/ui/gui_password_dialog.h
 //! \brief Test user interface password dialog
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -24,26 +24,25 @@
 // Standard library:
 #include <string>
 
+// This project:
+#include <vire/ui/i_password_dialog.h>
+
 namespace vire {
 
   namespace ui {
 
-    /// \brief Text user interface password dialog
+    /// \brief Graphical user interface password dialog
     class gui_password_dialog
+      : public i_password_dialog
     {
     public:
 
       // Constructor:
-      gui_password_dialog(const std::size_t max_attempts_ = 3,
-			  bool show_stars_ = true);
+      gui_password_dialog();
 
-      virtual bool input_password(const std::string & prompt_,
-				  std::string & password_);
+      virtual ~gui_password_dialog();
 
-    private:
-
-      std::size_t _max_attempts_;
-      bool _show_stars_ = true;
+      virtual dialog_report input(std::string & password_) final;
 
     };
 
