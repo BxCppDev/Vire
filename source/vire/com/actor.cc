@@ -110,7 +110,7 @@ namespace vire {
 
     bool actor::has_category() const
     {
-      return _category_ == CATEGORY_INVALID;
+      return _category_ != CATEGORY_INVALID;
     }
 
     void actor::set_category(const category_type & category_)
@@ -178,6 +178,9 @@ namespace vire {
       if (!title_.empty()) {
         out_ << indent_ << title_ << std::endl;
       }
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Validity : " << std::boolalpha << is_valid() << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Category : '" << category_label(_category_) << "'" << std::endl;
