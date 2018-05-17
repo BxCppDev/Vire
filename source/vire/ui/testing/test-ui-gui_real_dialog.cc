@@ -35,6 +35,7 @@ void test_1();
 void test_2();
 void test_3();
 void test_4();
+void test_5();
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -48,6 +49,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
     test_2();
     test_3();
     test_4();
+    test_5();
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -94,7 +96,7 @@ void test_2()
   dialog.set_label("Value");
   dialog.set_min_value(30);
   dialog.set_max_value(120);
-  dialog.set_precision(0.5);
+  dialog.set_precision(0.15);
   // dialog.set_default_value(42.0);
   double value;
   if (vire::ui::dialog_report report = dialog.input(value)) {
@@ -133,7 +135,7 @@ void test_3()
 
 void test_4()
 {
-  std::clog << "\ntest_4: fraction" << std::endl;
+  std::clog << "\ntest_4: shift (length)" << std::endl;
 
   vire::ui::gui_real_dialog dialog;
   dialog.set_title("Configuration of the zoo");
@@ -143,6 +145,29 @@ void test_4()
   dialog.set_min_value(-5.0 * CLHEP::mm);
   dialog.set_precision(0.1 * CLHEP::mm);
   // dialog.set_max_value(5.0 * CLHEP::mm);
+  dialog.set_default_value(0.0 * CLHEP::mm);
+  double shift;
+  if (vire::ui::dialog_report report = dialog.input(shift)) {
+    std::clog << "Shift is : " << shift / CLHEP::mm << " mm" << std::endl;
+  } else {
+    std::cerr << "No shift was input : " << report.what() << std::endl;
+  }
+
+  std::clog << std::endl;
+  return;
+}
+
+void test_5()
+{
+  std::clog << "\ntest_5: shift (length)" << std::endl;
+
+  vire::ui::gui_real_dialog dialog;
+  dialog.set_title("Configuration of the zoo");
+  dialog.set_label("Shift");
+  dialog.set_unit_dimension("length");
+  dialog.set_preferred_unit("mm");
+  dialog.set_min_value(-5.0e5 * CLHEP::mm);
+  dialog.set_precision(10 * CLHEP::mm);
   dialog.set_default_value(0.0 * CLHEP::mm);
   double shift;
   if (vire::ui::dialog_report report = dialog.input(shift)) {

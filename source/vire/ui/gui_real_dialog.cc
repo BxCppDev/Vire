@@ -87,7 +87,14 @@ namespace vire {
       } else {
         qtitle = "Real Input Dialog";
       }
-      QString qlabel = "<b>";
+      QString qlabel;
+      if (has_title()) {
+        qlabel.append("<b>");
+        qlabel.append(get_title().c_str());     
+        qlabel.append("</b>");
+        qlabel.append("<hr>");
+      }
+      qlabel.append("<b>");
       if (has_label()) {
         qlabel.append(QString::fromStdString(get_label()));
       } else {
@@ -137,14 +144,14 @@ namespace vire {
       double step = std::pow(10.0, -ndigits);
       if (has_precision()) {
         double relative_precision = get_precision() / display_unit_value;
-        std::cerr << "DEVEL: relative_precision = " << relative_precision << std::endl;
-        ndigits = -std::log10(relative_precision);
+        // std::cerr << "DEVEL: relative_precision = " << relative_precision << std::endl;
+        ndigits = (int) (-std::log10(relative_precision)+0.5);
         step = relative_precision;
       }
-      std::cerr << "DEVEL: ndigits = " << ndigits << std::endl;
+      // std::cerr << "DEVEL: ndigits = " << ndigits << std::endl;
       int decimals =  ndigits + 1;
-      std::cerr << "DEVEL: decimals = " << decimals << std::endl;
-      std::cerr << "DEVEL: step = " << step << std::endl;
+      // std::cerr << "DEVEL: decimals = " << decimals << std::endl;
+      // std::cerr << "DEVEL: step = " << step << std::endl;
       Qt::WindowFlags qwflags = Qt::WindowFlags();
       double input = QInputDialog::getDouble(nullptr,
                                              qtitle,

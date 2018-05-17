@@ -17,7 +17,6 @@ list(APPEND VireLibrary_HEADERS
   ui/gui_file_dialog.h
   ui/tui_real_dialog.h
   ui/gui_real_dialog.h
-  #ui/qrealinputdialog.h
   ui/ui_service.h
   )
 
@@ -40,7 +39,6 @@ list(APPEND VireLibrary_SOURCES
   ui/gui_file_dialog.cc
   ui/tui_real_dialog.cc
   ui/gui_real_dialog.cc
-  #ui/qrealinputdialog.cc
   ui/ui_service.cc
   )
 
