@@ -1,3 +1,46 @@
+=================================================
+How to use the RabbitMQ Server 
+=================================================
+
+
+System
+======
+
+* Ubuntu Linux 18.04
+* rabbitmq-server, version 3.6.10-1
+
+
+
+Install the server
+==================
+
+.. code:: sh
+
+   $ sudo apt-get install rabbitmq-server
+..
+
+
+Configure the server
+====================
+
+TBD
+
+.. code:: sh
+
+   $ sudo rabbitmq-plugins enable rabbitmq_management
+..
+
+
+Start the server
+================
+
+.. code:: sh
+
+   $ sudo service rabbitmq-server start
+..
+
+
+Manual 
 
 rabbitmqctrl
 ============
