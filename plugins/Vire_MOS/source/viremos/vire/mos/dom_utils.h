@@ -22,6 +22,7 @@
 
 // Standard library:
 #include <cstdlib>
+#include <vector>
 
 // Third Party:
 // - Boost:
