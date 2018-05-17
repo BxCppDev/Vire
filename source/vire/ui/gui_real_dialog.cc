@@ -23,6 +23,8 @@
 // Standard library:
 #include <iostream>
 #include <sstream>
+#include <limits>
+#include <cmath>
 
 // Third party:
 // - Qt:
@@ -85,15 +87,19 @@ namespace vire {
       } else {
         qtitle = "Real Input Dialog";
       }
-      QString qlabel = "Value";
+      QString qlabel = "<b>";
       if (has_label()) {
-        qlabel = QString::fromStdString(get_label());
+        qlabel.append(QString::fromStdString(get_label()));
+      } else {
+        qlabel.append("Value");
       }
       if (!display_unit_symbol.empty()) {
         std::ostringstream more_ss;
-        more_ss << " [" << display_unit_symbol << "]";
+        more_ss << " (" << display_unit_symbol << ")";
         qlabel.append(more_ss.str().c_str());
       }
+      qlabel.append(" : ");
+      qlabel.append("</b>");
       double min_val = std::numeric_limits<double>::min();
       if (has_min_value()) {
         min_val = get_min_value();
@@ -109,15 +115,47 @@ namespace vire {
       }
       double rmin = min_val / display_unit_value;
       double rmax = max_val / display_unit_value;
+      if (has_min_value()) {
+        std::ostringstream more_ss;
+        more_ss << "<br>&nbsp;&nbsp;Min. value : " << rmin;
+        if (!display_unit_symbol.empty()) {
+          more_ss << " " << display_unit_symbol;
+        }
+        qlabel.append(more_ss.str().c_str());
+      }
+      if (has_max_value()) {
+        std::ostringstream more_ss;
+        more_ss << "<br>&nbsp;&nbsp;Max. value : " << rmax;
+        if (!display_unit_symbol.empty()) {
+          more_ss << " " << display_unit_symbol;
+        }
+        qlabel.append(more_ss.str().c_str());
+      }
       double rinit_val = init_val / display_unit_value;
+      static const int default_digits = 7;
+      int ndigits = default_digits;
+      double step = std::pow(10.0, -ndigits);
+      if (has_precision()) {
+        double relative_precision = get_precision() / display_unit_value;
+        std::cerr << "DEVEL: relative_precision = " << relative_precision << std::endl;
+        ndigits = -std::log10(relative_precision);
+        step = relative_precision;
+      }
+      std::cerr << "DEVEL: ndigits = " << ndigits << std::endl;
+      int decimals =  ndigits + 1;
+      std::cerr << "DEVEL: decimals = " << decimals << std::endl;
+      std::cerr << "DEVEL: step = " << step << std::endl;
+      Qt::WindowFlags qwflags = Qt::WindowFlags();
       double input = QInputDialog::getDouble(nullptr,
                                              qtitle,
                                              qlabel,
                                              rinit_val,
                                              rmin,
                                              rmax,
-                                             1,
-                                             &ok);
+                                             decimals,
+                                             &ok,
+                                             qwflags,
+                                             step);
       if (ok) {
         value_ = input * display_unit_value;
         return make_dialog_report(true);
