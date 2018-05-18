@@ -240,6 +240,11 @@ namespace vire {
       resource_pool     _distributable_;      ///< Pool of distributable resources (accounting)
       session_dict_type _subsessions_;        ///< Daughter sessions
 
+      // Pimpl-ized internals:
+      // struct internals_type;
+      // std::unique_ptr<internals_type> _internals_;
+
+      
     };
 
   } // namespace cmsserver
