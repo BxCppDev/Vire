@@ -62,10 +62,10 @@ namespace vire {
           std::clog << std::endl << title << std::endl;
         }
       }
-      std::map<int, std::string> menu;
+      std::map<unsigned int, std::string> menu;
       int default_menu = 0;
       if (has_allowed_values()) {
-        int value_counter = 0;
+        unsigned int value_counter = 0;
         for (const auto value : get_allowed_values()) {
           value_counter++;
           menu[value_counter] = value;
@@ -93,41 +93,32 @@ namespace vire {
             std::clog << label << " ";
           }
         }
-        if (has_default_value()) {
-          std::clog << '[' << get_default_value() << "]";
-        }
-        std::clog << ": ";
+        std::clog << " : ";
       }
       std::string input;
       tui::set_stdin_echo(true);
       std::getline(std::cin, input);
       if (!input.empty()) {
-        if (menu.size() > 0) {
-          std::istringstream menu_iss(input);
-          int imenu = 0;
-          menu_iss >> imenu;
-          if (menu_iss) {
-            if (imenu > menu.size() || imenu <= 0) {
-              value_.clear();
-              std::string msg;
-              msg += "invalid menu item";
-              return make_dialog_report(false,msg);
-            } else {
-              value_ = menu.find(imenu)->second;
-              return make_dialog_report(true);
-            }
-          } else {
+        {
+          if (menu.size()) {
             if (has_allowed_value(input)) {
               value_ = input;
-              return make_dialog_report(true);
             } else {
-              std::string msg;
-              msg += "unsupported menu item";
-              return make_dialog_report(false,msg);
+              std::istringstream item_ss(input);
+              unsigned int item = menu.size();
+              item_ss >> item;
+              if (!item_ss) {
+                return make_dialog_report(false, "invalid choice");
+              } else {
+                if (item >= menu.size()) {
+                  return make_dialog_report(false, "invalid choice");
+                }
+              }
+              value_ = menu[item];
             }
+          } else {
+            value_ = input;
           }
-        } else {
-          value_ = input;
           return make_dialog_report(true);
         }
       } else {

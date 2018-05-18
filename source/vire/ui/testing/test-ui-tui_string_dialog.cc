@@ -29,6 +29,7 @@
 #include <vire/ui/tui_string_dialog.h>
 
 void test_1();
+void test_2();
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -39,6 +40,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
               << std::endl;
 
     test_1();
+    test_2();
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -68,6 +70,24 @@ void test_1()
     std::clog << "String is : '" << word << "'" << std::endl;
   } else {
     std::cerr << "No string was input!" << std::endl;
+  }
+
+  return;
+}
+
+void test_2()
+{
+  std::clog << "\ntest_2:  name" << std::endl;
+
+  vire::ui::tui_string_dialog dialog;
+  dialog.set_title("Zoo's parameters");
+  dialog.set_label("Director's name");
+  dialog.set_default_value("bob");
+  std::string name;
+  if (dialog.input(name)) {
+    std::clog << "String is : '" << name << "'" << std::endl;
+  } else {
+    std::cerr << "No name was input!" << std::endl;
   }
 
   return;
