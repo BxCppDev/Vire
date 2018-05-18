@@ -1,4 +1,4 @@
-//! \file  vire/user/testing/test-ui-tui_string_dialog.cxx
+//! \file  vire/user/testing/test-ui-tui_string_dialog.cc
 //! \brief Vire user text user interface string dialog
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
