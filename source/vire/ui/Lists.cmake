@@ -17,6 +17,9 @@ list(APPEND VireLibrary_HEADERS
   ui/gui_file_dialog.h
   ui/tui_real_dialog.h
   ui/gui_real_dialog.h
+  ui/i_yesno_question_dialog.h
+  ui/tui_yesno_question_dialog.h
+  ui/gui_yesno_question_dialog.h
   ui/ui_service.h
   )
 
@@ -39,6 +42,9 @@ list(APPEND VireLibrary_SOURCES
   ui/gui_file_dialog.cc
   ui/tui_real_dialog.cc
   ui/gui_real_dialog.cc
+  ui/i_yesno_question_dialog.cc
+  ui/tui_yesno_question_dialog.cc
+  ui/gui_yesno_question_dialog.cc
   ui/ui_service.cc
   )
 
@@ -53,4 +59,6 @@ list(APPEND VireLibrary_TESTS
   #ui/testing/test-ui-gui_file_dialog.cxx
   ui/testing/test-ui-tui_real_dialog.cc
   #ui/testing/test-ui-gui_real_dialog.cc
+  ui/testing/test-ui-tui_yesno_question_dialog.cxx
+  #ui/testing/test-ui-gui_yesno_question_dialog.cxx
   )
