@@ -21,7 +21,7 @@
 #include <vire/resource/regex_resource_selector.h>
 #include <vire/resource/testing/populate_manager.h>
 
-void test_ers_1();
+void test_rrs_1();
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -32,7 +32,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
               << std::endl;
 
     boost::filesystem::remove("roles.def");
-    test_ers_1();
+    test_rrs_1();
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -47,9 +47,9 @@ int main(int /* argc_ */, char ** /* argv_ */)
   return (error_code);
 }
 
-void test_ers_1()
+void test_rrs_1()
 {
-  std::clog << "\ntest_ers_1: " << std::endl;
+  std::clog << "\ntest_rrs_1: " << std::endl;
 
   std::clog << "\nCreating the resource manager..." << std::endl;
   vire::resource::manager mgr;
@@ -58,6 +58,7 @@ void test_ers_1()
   mgr.set_terse_description("This is a mock resource manager");
   mgr.set_logging_priority(datatools::logger::PRIO_TRACE);
   mgr.set_name("ResourceManager");
+  mgr.set_roles_table_path("roles.def");
 
   std::clog << "\nPopulating the resource manager with mock resources..." << std::endl;
   vire::resource::testing::populate_manager(mgr);
@@ -87,5 +88,6 @@ void test_ers_1()
   }
   std::clog << std::endl;
   ers.tree_dump(std::clog, "Resource selector '" + ers.get_name() + "' : ");
+  boost::filesystem::remove("roles.def");
   return;
 }

@@ -31,8 +31,8 @@ int main(int /* argc_ */, char ** /* argv_ */)
   try {
     std::clog << "Test program for the 'vire::resource::by_access_resource_selector' class."
               << std::endl;
+    
     boost::filesystem::remove("roles.def");
-
     test_bars_1();
 
     std::clog << "The end." << std::endl;
@@ -58,6 +58,7 @@ void test_bars_1()
   mgr.set_name("ResourceManager");
   mgr.set_display_name("The resource manager");
   mgr.set_terse_description("This is a mock resource manager");
+  mgr.set_roles_table_path("roles.def");
   // mgr.set_roles_table_path("roles.defs");
   // mgr.tree_dump(std::clog, mgr.get_display_name() + " (before init): ");
   std::clog << "\nPopulating the resource manager with mock resources..." << std::endl;
@@ -108,5 +109,6 @@ void test_bars_1()
     std::clog << "Invoke selector destructor..." << std::endl;
   }
   std::clog << "Invoke manager destructor..." << std::endl;
+  boost::filesystem::remove("roles.def");
   return;
 }

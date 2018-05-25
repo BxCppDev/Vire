@@ -59,6 +59,7 @@ void test_btrs_1()
   mgr.set_terse_description("This is a mock resource manager");
   std::clog << "\nPopulating the resource manager with mock resources..." << std::endl;
   vire::resource::testing::populate_manager(mgr);
+  mgr.set_roles_table_path("roles.def");
   mgr.initialize_simple();
   mgr.tree_dump(std::clog, mgr.get_display_name());
 
@@ -96,5 +97,6 @@ void test_btrs_1()
   }
   std::clog << std::endl;
   btrs.tree_dump(std::clog, "Resource selector '" + btrs.get_name() + "' : ");
+  boost::filesystem::remove("roles.def");
   return;
 }

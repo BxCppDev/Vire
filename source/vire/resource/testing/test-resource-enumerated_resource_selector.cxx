@@ -59,6 +59,7 @@ void test_ers_1()
   mgr.set_logging_priority(datatools::logger::PRIO_TRACE);
   std::clog << "\nPopulating the resource manager with mock resources..." << std::endl;
   vire::resource::testing::populate_manager(mgr);
+  mgr.set_roles_table_path("roles.def");
   mgr.initialize_simple();
   mgr.tree_dump(std::clog, mgr.get_display_name());
 

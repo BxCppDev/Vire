@@ -57,6 +57,7 @@ void test_gers_1()
   mgr.set_display_name("The resource manager");
   mgr.set_terse_description("This is a mock resource manager");
   std::clog << "\nPopulating the resource manager with mock resources..." << std::endl;
+  mgr.set_roles_table_path("roles.def");
   vire::resource::testing::populate_manager(mgr);
   mgr.initialize_simple();
   mgr.tree_dump(std::clog, mgr.get_display_name());
@@ -95,5 +96,6 @@ void test_gers_1()
   }
   std::clog << std::endl;
   gers.tree_dump(std::clog, "Resource selector '" + gers.get_name() + "' : ");
+  boost::filesystem::remove("roles.def");
   return;
 }
