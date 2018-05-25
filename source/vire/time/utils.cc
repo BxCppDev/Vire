@@ -27,18 +27,113 @@
 
 // Third party:
 // - Boost:
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/split.hpp>
 // - Bayeux/datatools:
 #include <datatools/units.h>
 #include <datatools/clhep_units.h>
 
+// Useful links:
+// - https://www.boost.org/doc/libs/1_67_0/doc/html/date_time/posix_time.html 
+// - https://stackoverflow.com/questions/4910373/interoperability-between-boostdate-time-and-stdchrono#4918873
+// - https://howardhinnant.github.io/date/date.html
+// - https://stackoverflow.com/questions/11200763/when-is-it-appropriate-to-use-a-c11-until-timeout-function-instead-of-the-co
+// - https://www.informit.com/articles/article.aspx?p=1881386&seqNum=2
+
+/*
+namespace {
+  
+  boost::posix_time::ptime convert_chrono_to_boost(const std::chrono::system_clock::time_point & from_) 
+  { 
+    typedef std::chrono::system_clock::time_point time_point_t; 
+    typedef std::chrono::nanoseconds duration_t; 
+    typedef duration_t::rep rep_t; 
+    rep_t d = std::chrono::duration_cast<duration_t>(from_.time_since_epoch()).count(); 
+    rep_t sec = d / 1000000000; 
+    rep_t nsec = d % 1000000000; 
+    return boost::posix_time::from_time_t(0)+ 
+      boost::posix_time::seconds(static_cast<long>(sec))+ 
+#ifdef BOOST_DATE_TIME_HAS_NANOSECONDS 
+      boost::posix_time::nanoseconds(nsec); 
+#else 
+    boost::posix_time::microseconds((nsec+500)/1000); 
+#endif 
+  } 
+
+  std::chrono::system_clock::time_point convert_boost_to_chrono(const boost::posix_time::ptime & from_) 
+  { 
+    boost::posix_time::time_duration const time_since_epoch = from_ - boost::posix_time::from_time_t(0); 
+    std::chrono::system_clock::time_point t = std::chrono::system_clock::from_time_t(time_since_epoch.total_seconds()); 
+    long nsec = time_since_epoch.fractional_seconds() * (1000000000 / time_since_epoch.ticks_per_second()); 
+    return t + std::chrono::nanoseconds(nsec); 
+  }
+  
+}
+*/
+
 namespace vire {
 
   namespace time {
 
-    // POSIX time point:
+    // ----------- time point conversions -----------
 
+    /*
+    maybe_std_time_point to_std(const boost::posix_time::ptime & from_)
+    {
+      maybe_std_time_point otp = boost::none;
+      if (is_valid(from_)) {
+        if (from_ == boost::posix_time::ptime(boost::posix_time::min_date_time)) {
+          otp = std::chrono::system_clock::time_point::min();
+        } else if (from_ == boost::posix_time::ptime(boost::posix_time::max_date_time)) {
+          otp = std::chrono::system_clock::time_point::max();
+        } else if (from_ == boost::posix_time::ptime(boost::posix_time::neg_infin)) {
+          otp = std::chrono::system_clock::time_point::min();
+        } else if (from_ == boost::posix_time::ptime(boost::posix_time::pos_infin)) {
+          otp = std::chrono::system_clock::time_point::max();
+        } else {
+          otp = convert_boost_to_chrono(from_);
+        }
+      }
+      return otp;
+    }
+ 
+    bool from_std(const std::chrono::system_clock::time_point & from_,
+                  boost::posix_time::ptime & to_)
+    {
+      to_ = convert_chrono_to_boost(from_);
+      return true;
+    }
+    */
+    
+    // ----------- date operations -----------
+
+    const boost::gregorian::date & invalid_date()
+    {
+      std::unique_ptr<boost::gregorian::date> _invalid_date;
+      if (_invalid_date.get() == nullptr) {
+        _invalid_date.reset(new boost::gregorian::date(boost::date_time::not_a_date_time));
+      }
+      return *_invalid_date.get();
+    }
+
+    boost::gregorian::date date_today_utc()
+    {
+      // Methods of interest:
+      // - boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+      // - boost::gregorian::date today = now.date();
+      // - boost::gregorian::date todayDateInLocalTZ = boost::gregorian::day_clock::local_day();
+      boost::gregorian::date todayDateInUTCTZ = boost::gregorian::day_clock::universal_day();
+      return todayDateInUTCTZ;
+    }
+  
+    boost::gregorian::date date_epoch()
+    {
+      return boost::gregorian::date(1970, 1, 1);
+    }
+    
+    // ----------- time point operations -----------
+    
     const boost::posix_time::ptime & invalid_time()
     {
       static std::unique_ptr<boost::posix_time::ptime> _it;
@@ -76,7 +171,7 @@ namespace vire {
       std::string repr = token_;
       boost::algorithm::trim(repr);
       if (repr == "now") {
-        t_ = boost::posix_time::second_clock::local_time();
+        t_ = boost::posix_time::second_clock::universal_time();
       } else if (repr == "never" || repr == "not-a-date-time") {
         t_ = boost::posix_time::not_a_date_time;
       } else if (repr == "min" || repr == "min-date-time") {
@@ -103,20 +198,50 @@ namespace vire {
 
     void now(boost::posix_time::ptime & t_)
     {
-      t_ = boost::posix_time::microsec_clock::local_time();
+      now_utc(t_);
+      return;
+    }
+    
+    void now_utc(boost::posix_time::ptime & t_)
+    {
+      t_ = boost::posix_time::microsec_clock::universal_time();
       return;
     }
 
     boost::posix_time::ptime now()
     {
+      return now_utc();
+    }
+ 
+    boost::posix_time::ptime now_utc()
+    {
       boost::posix_time::ptime t;
-      now(t);
+      now_utc(t);
       return t;
     }
 
     boost::posix_time::ptime epoch()
     {
       return boost::posix_time::ptime(boost::gregorian::date(1970, 1, 1));
+    }
+
+    void make(boost::posix_time::ptime & time_point_,
+              const unsigned int year_,
+              const unsigned int month_,
+              const unsigned int day_,
+              const unsigned int hours_,
+              const unsigned int minutes_,
+              const unsigned int seconds_,
+              const unsigned int microseconds_)
+    {
+      boost::gregorian::date d(year_, month_, day_);
+      boost::posix_time::time_duration t
+        = boost::posix_time::hours(hours_)
+        + boost::posix_time::minutes(minutes_)
+        + boost::posix_time::seconds(seconds_)
+        + boost::posix_time::microseconds(microseconds_);
+      time_point_ = boost::posix_time::ptime(d, t);
+      return;
     }
 
     /** Comparison table:
@@ -167,8 +292,8 @@ namespace vire {
       }
       return vire::utility::COMPARISON_EQUAL;
     }
-
-    // Time duration:
+   
+    // ----------- time duration operations -----------
 
     const boost::posix_time::time_duration & invalid_time_duration()
     {
@@ -198,28 +323,78 @@ namespace vire {
 
     std::string to_string(const boost::posix_time::time_duration & td_)
     {
-      return boost::posix_time::to_iso_string(td_);
+      return boost::posix_time::to_simple_string(td_);
+      //return boost::posix_time::to_iso_extended_string(td_);
     }
 
-    bool parse_time_duration(const std::string & token_, boost::posix_time::time_duration & td_)
+    boost::posix_time::time_duration make_duration(const unsigned int hours_,
+                                                   const unsigned int minutes_,
+                                                   const unsigned int seconds_,
+                                                   const unsigned int microseconds_)
     {
+      unsigned int fractional_seconds = microseconds_;
+      unsigned int microseconds_count = microseconds_;
+      unsigned int fractional_count
+        = microseconds_count * (boost::posix_time::time_duration::ticks_per_second()/1000000);
+      boost::posix_time::time_duration td(hours_,
+                                          minutes_,
+                                          seconds_,
+                                          fractional_count);
+      return td;
+      return boost::posix_time::time_duration(boost::date_time::not_a_date_time);
+    }
+
+    bool parse_positive_time_duration(const std::string & token_, boost::posix_time::time_duration & td_)
+    {
+      bool debug = false;
+      if (debug) std::clog << "[debug] parse_time_duration: token_ = '" << token_ << "'" << std::endl;
       td_ = boost::posix_time::not_a_date_time;
       std::string repr = token_;
       boost::algorithm::trim(repr);
-      std::istringstream iss(token_);
+      if (debug) std::clog << "[debug] repr = '" << repr << "'" << std::endl;
+      if (repr == "never"
+          || repr == "not-a-time-duration"
+          || repr == "not-a-date-time"
+          || repr == "none"
+          || repr == "invalid") {
+        return true;
+      }
+      
       if (repr == "forever" || repr == "+infinity") {
         td_ = boost::posix_time::pos_infin;
+        if (debug) std::clog << "[debug] Success: +infinity" << std::endl;
         return true;
-      } else {
+      } 
+      
+      {
+        std::istringstream iss(repr);
+        std::string token;
+        iss >> token >> std::ws;
+        if (debug) std::clog << "[debug] token = '" << token << "'" << std::endl;
         try {
-          td_ = boost::posix_time::duration_from_string(repr);
-          if (td_.is_negative()) {
-            td_ = boost::posix_time::not_a_date_time;
-            return false;
+          boost::posix_time::time_duration attempt(boost::posix_time::duration_from_string(token));
+          std::string more;
+          iss >> more >> std::ws;
+          if (debug) std::clog << "[debug] more = '" << more << "'" << std::endl;
+          if (more.empty()) {
+            // No trailing chars:
+            if (attempt >= boost::posix_time::time_duration(0, 0, 0)) {
+              // Why not use: !td_.is_negative()
+              // Only positive or null time duration:
+              td_ = attempt;
+              if (debug) std::clog << "[debug] Success..." << std::endl;
+              return true;
+            }
           }
-        } catch (std::exception &) {
-          td_ = boost::posix_time::not_a_date_time;
+        } catch (std::exception & error) {
+          if (debug) std::clog << "[debug] Failure..." << std::endl;
+        } catch (...) {
+          if (debug) std::clog << "[debug] Failure..." << std::endl;
         }
+      }
+     
+      if (debug) std::clog << "[debug] Trying more formats..." << std::endl;
+      {
         if (td_.is_not_a_date_time()) {
           double time_duration;
           std::string time_unit_label;
@@ -229,29 +404,27 @@ namespace vire {
             return false;
           }
           if (time_unit_label != "time") {
-            // Invalid unit , time unit is expected:
+            // Invalid unit, time unit is expected:
             return false;
           }
-          if (time_duration < 0.0) {
+          if (time_duration < 0.0 * CLHEP::microsecond) {
             // Invalid negative time duration :
             return false;
           }
-          // if (time_duration < 1.0000001 * CLHEP::second) {
-          //   // Time duration is too short:
-          //   return false;
-          // }
-          td_ = boost::posix_time::seconds((int) (time_duration / CLHEP::second));
+          double time_unit_usec = time_duration / CLHEP::microsecond;
+          td_ = boost::posix_time::microseconds((long) time_unit_usec);
+          return true;
         }
       }
-      if (td_.total_seconds() < 1) {
-        td_ = boost::posix_time::not_a_date_time;
-        // Time duration is too short :
-        return false;
-      }
-      return true;
+      // if (td_.total_microseconds() < 1) {
+      //   td_ = boost::posix_time::not_a_date_time;
+      //   // Time duration is too short :
+      //   return false;
+      // }
+      return false;
     }
 
-    // Time period:
+    // ----------- time period operations -----------
 
     const boost::posix_time::time_period & invalid_time_interval()
     {
@@ -353,7 +526,7 @@ namespace vire {
             tok1 = "+infinity";
           }
           // std::cerr << "DEVEL: parse_time_interval: duration tok1='" << tok1 << "'" << std::endl;
-          if (!parse_time_duration(tok1, period_duration)) {
+          if (!parse_positive_time_duration(tok1, period_duration)) {
             return false;
           }
           // std::cerr << "DEVEL: parse_time_interval: start_time = " << boost::posix_time::to_simple_string(start_time) << std::endl;
@@ -396,24 +569,13 @@ namespace vire {
       } else {
         if (config_.has_key("duration")) {
           std::string duration_str = config_.fetch_string("duration");
-          DT_THROW_IF(!parse_time_duration(duration_str, duration), std::logic_error, "Invalid time duration format!");
+          DT_THROW_IF(!parse_positive_time_duration(duration_str, duration), std::logic_error, "Invalid time duration format!");
           ti_ = boost::posix_time::time_period(start_time, duration);
         }
       }
       DT_THROW_IF(!is_valid(ti_), std::logic_error, "Invalid time period!");
       return;
     }
-
-    // vire::utility::comparison_result
-    // compare(const boost::posix_time::time_period & i1_,
-    //      const boost::posix_time::time_period & i2_)
-    // {
-    //   int comp = vire::utility::COMPARISON_NO_APPLICABLE;
-    //   if (!is_valid(i1_) || !is_valid(i2)) {
-    //  return vire::utility::COMPARISON_NO_APPLICABLE;
-    //   }
-    //   return comp;
-    // }
 
   } // namespace time
 

@@ -1,7 +1,7 @@
 //! \file  vire/time/utils.h
 //! \brief Time utilities
 //
-// Copyright (c) 2015-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -23,10 +23,12 @@
 
 // Standard library:
 #include <string>
+#include <chrono>
 
 // Third party:
 // - Boost:
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/optional.hpp>
 // - Bayeux/datatools:
 #include <datatools/properties.h>
 
@@ -36,13 +38,36 @@
 namespace vire {
 
   namespace time {
+  
+    // ----------- time point conversions -----------
 
+    /*
+    ///! Convenient type alias:
+    typedef boost::optional<std::chrono::system_clock::time_point> maybe_std_time_point;
+  
+    maybe_std_time_point to_std(const boost::posix_time::ptime & from_);
+
+    bool from_std(const std::chrono::system_clock::time_point & from_,
+                  boost::posix_time::ptime & to_);
+    */
+    
+    // ----------- date operations -----------
+
+    //! Return an invalid date (presumably UTC) (singleton)
+    const boost::gregorian::date & invalid_date();
+
+    //!  Return the current date in UTC time (today)
+    boost::gregorian::date date_today_utc();
+  
+    //!  Return the Epoch date in UTC time
+    boost::gregorian::date date_epoch();
+    
     // ----------- time point operations -----------
-
+    
     //! Return a const reference to a invalid time point singleton
     const boost::posix_time::ptime & invalid_time();
 
-    //! Check if a time point is valid
+    //! Check if a time point (presumably UTC) is valid
     bool is_valid(const boost::posix_time::ptime &);
 
     //! Invalidate a time point
@@ -51,30 +76,48 @@ namespace vire {
     //! Invalidate a time point
     void invalidate(boost::posix_time::ptime &);
 
-    //! Return an ISO representation of a time point
+    //! Return an ISO representation of a time point (presumably UTC)
     std::string to_string(const boost::posix_time::ptime &);
 
-    //! Parse a time point
+    //! Parse a time point (presumably UTC)
     bool parse_time(const std::string & token_, boost::posix_time::ptime &);
 
-    //! Set a time point at current local time (now)
+    //! Set a time point at current time in UTC (now)
+    void now_utc(boost::posix_time::ptime &);
+
+    //! Set a time point at current time in UTC (now)
+    //! \deprecated
     void now(boost::posix_time::ptime &);
 
-    //!  Return a time point at current local time (now)
-    boost::posix_time::ptime now();
+    //! Build a plain time (presumably UTC) from date and time with microsecond resolution
+    void make(boost::posix_time::ptime &,
+              const unsigned int year_,
+              const unsigned int month_,
+              const unsigned int day_,
+              const unsigned int hours_ = 0,
+              const unsigned int minutes_ = 0,
+              const unsigned int seconds_ = 0,
+              const unsigned int microseconds_ = 0);
 
-    //!  Return a time point at epoch
+    //!  Return a time point at current local time in UTC (now)
+    boost::posix_time::ptime now_utc();
+  
+    //!  Return a time point at current local time in UTC (now)
+    //! \deprecated
+    boost::posix_time::ptime now();
+  
+    //!  Return a time point at Epoch in UTC
     boost::posix_time::ptime epoch();
 
     //! Compare time points
     vire::utility::comparison_result compare(const boost::posix_time::ptime & t1_,
                                              const boost::posix_time::ptime & t2_);
-
+   
     // ----------- time duration operations -----------
 
     //! Return a const reference to a invalid time duration
     const boost::posix_time::time_duration & invalid_time_duration();
-
+ 
     //! Check if a time duration is valid
     bool is_valid(const boost::posix_time::time_duration &);
 
@@ -84,11 +127,28 @@ namespace vire {
     //! Invalidate a time duration
     void invalidate(boost::posix_time::time_duration &);
 
-    //! Return an ISO representation of a time duration
+    //! Return a representation of a time duration
     std::string to_string(const boost::posix_time::time_duration &);
 
-    //! Parse a time duration
-    bool parse_time_duration(const std::string & token_, boost::posix_time::time_duration &);
+    //! Build a time duration with microsecond resolution
+    boost::posix_time::time_duration make_duration(const unsigned int hours_,
+                                                   const unsigned int minutes_,
+                                                   const unsigned int seconds_,
+                                                   const unsigned int microseconds_ = 0);
+
+    //! Parse a positive time duration with microsecond resolution
+    //!
+    //! Supported formats:
+    //! \code
+    //! std::string s1 = "01:23:32.000002" // {HH}:{MM}:{SS}.{ffffff}
+    //! std::string s2 = "3.24 s"          // {value} {unit}
+    //! \endcode
+    //!
+    //! Note: the following format is (strangely) accepted: 
+    //! \code
+    //! std::string s = "0:59.000123" // as {HH}:{MM}.{SSSSSS} !!!!
+    //! \endcode
+    bool parse_positive_time_duration(const std::string & token_, boost::posix_time::time_duration &);
 
     // ----------- time interval/period operations -----------
 
