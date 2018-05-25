@@ -93,7 +93,7 @@ void test_1()
   timeServ.set_display_name("Time service");
   timeServ.set_terse_description("Time service associated to a given location");
   timeServ.set_time_zone_id("America/Chicago");
-  timeServ.set_time_zone_id("Africa/Abidjan");
+  // timeServ.set_time_zone_id("Africa/Abidjan");
   timeServ.initialize_simple();
 
   std::clog << "Time service TZ : " << std::endl;

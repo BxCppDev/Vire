@@ -165,6 +165,19 @@ namespace vire {
     void invalidate(boost::posix_time::time_period &);
 
     //! Parse a time interval
+    //!
+    //! Supported formats:
+    //! \code
+    //! std::string s1 = "[2018-May-25 06:24:48/2099-Apr-30 23:59:59.99999]" // [{start}/{stop}]
+    //! std::string s2 = "[2018-May-25 06:24:48/]"                           // [{start}/]
+    //! std::string s3 = "[2018-May-25 06:24:48/+infinity]"                  // [{start}/+infinity]
+    //! std::string s4 = "[/2018-May-25 06:24:48]"                           // [/{stop}]
+    //! std::string s5 = "[-infinity/2018-May-25 06:24:48]"                  // [-infinity/{stop}]
+    //! std::string s6 = "[-infinity/+infinity]"                             // [-infinity/+infinity]
+    //! std::string s7 = "(2018-May-25 06:24:48;23:59:59.99999)"             // ({start};{duration})
+    //! std::string s7 = "(2018-May-25 06:24:48;)"                           // ({start};)
+    //! std::string s7 = "(2018-May-25 06:24:48;+infinity)"                  // ({start};+infinity)
+    //! \endcode
     bool parse_time_interval(const std::string & token_, boost::posix_time::time_period  &);
 
     //! Return an ISO representation of a time period
