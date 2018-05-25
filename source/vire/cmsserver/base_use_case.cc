@@ -37,6 +37,68 @@ namespace vire {
     DATATOOLS_FACTORY_SYSTEM_REGISTER_IMPLEMENTATION(base_use_case,
                                                      "vire::cmsserver::base_use_case/_system_")
 
+    const parametrized_resource_specifications & base_use_case::get_relative_functional_requirements() const
+    {
+      static const parametrized_resource_specifications _nospecs;
+      return _nospecs;
+    }
+ 
+    bool base_use_case::has_relative_functional_requirements() const
+    {
+      return !get_relative_functional_requirements().is_empty();
+    }
+
+    bool base_use_case::has_functional_mount_point(const std::string & name_) const
+    {
+      return _functional_mount_points_.count(name_);
+    }
+
+    bool base_use_case::is_completed_functional_mount_points() const
+    {
+      if (_functional_mount_points_.size() == get_relative_functional_requirements().size()) {
+        return true;
+      }
+      return false;
+    }
+    
+    void base_use_case::set_functional_device_mount_point(const std::string & name_, const std::string & device_path_)
+    {
+      DT_THROW_IF(!has_relative_functional_requirements(),
+                  std::logic_error,
+                  "This use case has no relative functional requirements!");
+      const parametrized_resource_specifications & rfr = get_relative_functional_requirements();
+      DT_THROW_IF(!rfr.has(name_),
+                  std::logic_error,
+                  "No relative functional required object with name '" << name_ << "' is defined!");
+      DT_THROW_IF(!rfr.is_device(name_),
+                  std::logic_error,
+                  "Relative functional required object with name '" << name_ << "' is not a device!");
+      DT_THROW_IF(has_functional_mount_point(name_),
+                  std::logic_error,
+                  "Relative functional mount point with name '" << name_ << "' is already set!");
+      _functional_mount_points_[name_] = device_path_;
+      return;
+    }
+
+    void base_use_case::set_functional_resource_mount_point(const std::string & name_, const std::string & resource_path_)
+    {
+      DT_THROW_IF(!has_relative_functional_requirements(),
+                  std::logic_error,
+                  "This use case has no relative functional requirements!");
+      const parametrized_resource_specifications & rfr = get_relative_functional_requirements();
+      DT_THROW_IF(!rfr.has(name_),
+                  std::logic_error,
+                  "No relative functional required object with name '" << name_ << "' is defined!");
+      DT_THROW_IF(!rfr.is_resource(name_),
+                  std::logic_error,
+                  "Relative functional required object with name '" << name_ << "' is not a resource!");
+      DT_THROW_IF(has_functional_mount_point(name_),
+                  std::logic_error,
+                  "Relative functional mount point with name '" << name_ << "' is already set!");
+      _functional_mount_points_[name_] = resource_path_;
+      return;
+    }
+  
     std::string base_use_case::run_stage_label(const run_stage_type stage_)
     {
       switch (stage_) {
@@ -497,22 +559,22 @@ namespace vire {
         _run_stage_ = RUN_STAGE_PREPARING;
         _at_run_prepare_();
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_stage = _run_stage_;
         _run_stage_ = RUN_STAGE_PREPARED;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -529,22 +591,22 @@ namespace vire {
         _run_stage_ = RUN_STAGE_DISTRIBUTABLE_UP_RUNNING;
         _at_run_distributable_up_();
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_stage = _run_stage_;
         _run_stage_ = RUN_STAGE_DISTRIBUTABLE_UP_DONE;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -561,21 +623,21 @@ namespace vire {
         _run_stage_ = RUN_STAGE_FUNCTIONAL_UP_RUNNING;
         _at_run_functional_up_();
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         _run_stage_ = RUN_STAGE_FUNCTIONAL_UP_DONE;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -606,7 +668,7 @@ namespace vire {
       // run_report_record_dict_type::iterator found = _run_reports_.find(_stage_);
       // if (found == _run_reports_.end()) {
       //   run_report_record new_record = run_report_record;
-      //   new_record.start_stop = boost::posix_time::time_period(vire::time::now(),
+      //   new_record.start_stop = boost::posix_time::time_period(vire::time::now_utc(),
       //                                                                 vire::time::invalid_time());
       //   _run_reports_[_stage_] = new_record;
       // } else {
@@ -646,21 +708,21 @@ namespace vire {
         }
         // (LOOP STAT FINI)
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         _run_stage_ = RUN_STAGE_FUNCTIONAL_WORK_DONE;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -677,21 +739,21 @@ namespace vire {
         _run_stage_ = RUN_STAGE_FUNCTIONAL_DOWN_RUNNING;
         _at_run_functional_down_();
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         _run_stage_ = RUN_STAGE_FUNCTIONAL_DOWN_DONE;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -708,21 +770,21 @@ namespace vire {
         _run_stage_ = RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING;
         _at_run_distributable_down_();
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         _run_stage_ = RUN_STAGE_DISTRIBUTABLE_DOWN_DONE;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -742,21 +804,21 @@ namespace vire {
         _run_stage_ = RUN_STAGE_TERMINATING;
         _at_run_terminate_();
         completion.run_termination = RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         _run_stage_ = RUN_STAGE_TERMINATED;
       } catch (base_exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
-        completion.timestamp = vire::time::now();
+        completion.timestamp = vire::time::now_utc();
         completion.run_termination = RUN_TERMINATION_ERROR;
         completion.run_stage = _run_stage_;
         completion.error_class_id = "unsupported exception";
@@ -817,10 +879,40 @@ namespace vire {
 
       datatools::enriched_base::tree_dump(out_, popts.title, popts.indent, true);
 
-      // if (!popts.title.empty()) {
-      //   out_ << popts.indent << popts.title << std::endl;
-      // }
+      if (has_relative_functional_requirements()) {
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
+             << "Relative functional requirements  : ";
+        out_ << std::endl;
+        {
+          boost::property_tree::ptree popts2;
+          popts2.put(datatools::i_tree_dumpable::base_print_options::indent_key(),
+                     popts.indent + datatools::i_tree_dumpable::tags::skip_item());
+          get_relative_functional_requirements().print_tree(out_, popts2);
+        }
 
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
+             << "Functional mount points : ";
+        out_ << std::endl;
+        size_t count = 0;
+        for (const auto fmp : _functional_mount_points_) {
+          out_ << popts.indent << datatools::i_tree_dumpable::skip_tag;
+          if (++count == _functional_mount_points_.size()) {
+            out_ << datatools::i_tree_dumpable::last_tag; 
+          } else {
+            out_ << datatools::i_tree_dumpable::tag; 
+          }
+          out_ << "Mount point '" << fmp.first << "'"
+               << " with path '" << fmp.second << "'"
+               << std::endl;
+        }
+        
+      }
+      
+      out_ << popts.indent << datatools::i_tree_dumpable::tag
+           << "Role expression  : ";
+      out_ << "'" << _role_expression_ << "'";
+      out_ << std::endl;
+       
       out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Role expression  : ";
       out_ << "'" << _role_expression_ << "'";
@@ -913,6 +1005,23 @@ namespace vire {
       return;
     }
 
+    // static
+    use_case_ptr_type base_use_case::_create_use_case_(const std::string & use_case_type_id_,
+                                                       session * mother_session_)
+    {
+      use_case_ptr_type new_use_case;
+      const factory_register_type & the_factory_register
+        = DATATOOLS_FACTORY_GET_SYSTEM_REGISTER(vire::cmsserver::base_use_case);
+      
+      DT_THROW_IF(!the_factory_register.has(use_case_type_id_),
+                  std::logic_error,
+                  "Use case factory has no type with identifier '" << use_case_type_id_ << "'!");
+      const factory_register_type::factory_type & the_factory = the_factory_register.get(use_case_type_id_);
+      new_use_case.reset(the_factory());
+      new_use_case->_mother_session_ = mother_session_;
+      return new_use_case;
+    }
+    
   } // namespace cmsserver
 
 } // namespace vire

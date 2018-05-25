@@ -85,7 +85,7 @@ void test_com_jed_1(bool interactive_)
     body_layout_id.set_name(vire::message::body_layout::name());
     body_layout_id.set_version(vire::message::body_layout::current_version());
     h.set_message_id(msg_id);
-    h.set_timestamp(vire::time::now());
+    h.set_timestamp(vire::time::now_utc());
     h.set_category(vire::message::MESSAGE_EVENT);
     h.set_in_reply_to(vire::message::message_identifier("vire.client.0", 23));
     // h.set_asynchronous(true);

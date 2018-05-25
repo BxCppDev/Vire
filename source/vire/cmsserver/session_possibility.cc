@@ -84,7 +84,7 @@ namespace vire {
     {
       _action_ = action_enter_session;
       _role_id_ = role_id_;
-      boost::posix_time::time_period when(vire::time::now(), end_);
+      boost::posix_time::time_period when(vire::time::now_utc(), end_);
       DT_THROW_IF(!vire::time::is_valid(when), std::logic_error,
                   "Invalid end : " << boost::posix_time::to_iso_string(end_));
       _when_ = when;

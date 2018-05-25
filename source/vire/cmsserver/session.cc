@@ -118,8 +118,7 @@ namespace vire {
           // Other tests and ops may be needed...
           instance->terminate();
         }
-        delete instance;
-        instance = nullptr;
+        instance.reset();
       }
       return;
     }
@@ -168,20 +167,6 @@ namespace vire {
       return _parent_ != nullptr;
     }
 
-    void session::set_parent(const session & parent_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
-      _parent_ = &parent_;
-      return;
-    }
-
-    void session::reset_parent()
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
-      _parent_ = nullptr;
-      return;
-    }
-
     const session & session::get_parent() const
     {
       DT_THROW_IF(has_parent(), std::logic_error, "No parent is set!");
@@ -195,31 +180,31 @@ namespace vire {
 
     bool session::has_use_case() const
     {
-      return _use_case_ != nullptr;
+      return _use_case_.get() != nullptr;
     }
 
-    void session::set_use_case(base_use_case & uc_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
+    // void session::set_use_case(use_case_ptr_type ucp_)
+    // {
+    //   DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
 
-      // XXX Should we test here if the use case object if initialized ?
-      // DT_THROW_IF(!uc_->is_initialized(), std::logic_error, "Use case is not initialized!");
-      _use_case_ = &uc_;
-      return;
-    }
+    //   // XXX Should we test here if the use case object if initialized ?
+    //   // DT_THROW_IF(!uc_->is_initialized(), std::logic_error, "Use case is not initialized!");
+    //   _use_case_ = ucp_;
+    //   return;
+    // }
 
     const base_use_case & session::get_use_case() const
     {
       DT_THROW_IF(!has_use_case(), std::logic_error, "Use case is not set!");
-      return *_use_case_;
+      return *_use_case_.get();
     }
 
-    base_use_case & session::grab_use_case()
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
-      DT_THROW_IF(!has_use_case(), std::logic_error, "Use case is not set!");
-      return *_use_case_;
-    }
+    // base_use_case & session::grab_use_case()
+    // {
+    //   DT_THROW_IF(is_initialized(), std::logic_error, "Session is initialized and locked!");
+    //   DT_THROW_IF(!has_use_case(), std::logic_error, "Use case is not set!");
+    //   return *_use_case_.get();
+    // }
 
     bool session::has_when() const
     {
@@ -308,13 +293,12 @@ namespace vire {
 
     void session::_destroy_use_case_()
     {
-      if (_use_case_ != nullptr) {
+      if (_use_case_.get() != nullptr) {
 
         // Some checks and ops needed...
 
-        delete _use_case_;
-        _use_case_ = nullptr;
-      }
+        _use_case_.reset();
+       }
      return;
     }
 
@@ -645,16 +629,17 @@ namespace vire {
       return _check_only_;
     }
 
-    bool session::can_run() const
-    {
-      return !_check_only_ && is_initialized();
-    }
+    // bool session::can_run() const
+    // {
+    //   return !_check_only_ && is_initialized();
+    // }
 
     bool session::is_running() const
     {
       return _running_;
     }
 
+    /*
     void session::run()
     {
       DT_THROW_IF(!is_initialized(), std::logic_error,
@@ -675,7 +660,8 @@ namespace vire {
       _running_ = false;
       return;
     }
-
+    */
+    
     /* start                                                               stop
      * --[-----------+--------------------------------------------+----------]----> time
      *   <--up-->....<-----------work---------------------->......<--down-->..
@@ -683,11 +669,11 @@ namespace vire {
      *
      *
      */
-    void session::_at_run_()
-    {
-      //std::this_thread::sleep_for(std::chrono::seconds(10));
-      return;
-    }
+    // void session::_at_run_()
+    // {
+    //   //std::this_thread::sleep_for(std::chrono::seconds(10));
+    //   return;
+    // }
 
     /*
     void session::create_connection()
@@ -733,6 +719,40 @@ namespace vire {
       return;
     }
     */
+
+    // static
+    session_ptr_type session::create_root_session(const session_info & sinfo_,
+                                                  const uint32_t flags_)
+    {
+      session_ptr_type root_session;
+      root_session.reset(new session);
+      root_session->_id_ = ROOT_ID;
+      if (flags_ & CHECK_ONLY) {
+        root_session->_check_only_ = true;
+      }
+      DT_THROW_IF(!sinfo_.has_when(), std::logic_error,
+                  "Session info has no valid time interval!");
+      root_session->_when_ = sinfo_.get_when();
+      DT_THROW_IF(!sinfo_.has_use_case_type_id(), std::logic_error,
+                  "Session info has no valid use case type identifier!");
+      const datatools::properties * use_case_config_ptr = nullptr;
+      datatools::properties use_case_config;
+      if (sinfo_.has_use_case_config()) {
+        use_case_config_ptr = &sinfo_.get_use_case_config();
+      } else if (sinfo_.has_use_case_config_path()) {
+        std::string uc_cfg_path = sinfo_.get_use_case_config_path();
+        datatools::fetch_path_with_env(uc_cfg_path);
+        use_case_config.read_configuration(uc_cfg_path);
+        use_case_config_ptr = &use_case_config;
+      }
+      root_session->_use_case_ =
+        base_use_case::_create_use_case_(sinfo_.get_use_case_type_id(), nullptr);
+      
+      if (use_case_config_ptr != nullptr) {
+        root_session->_use_case_->initialize(*use_case_config_ptr);
+      }
+      return root_session;
+    }
 
   } // namespace cmsserver
 

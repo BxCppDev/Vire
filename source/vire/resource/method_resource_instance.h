@@ -30,7 +30,8 @@ namespace vire {
   namespace resource {
 
     //! \brief Method resource instance
-    class method_resource_instance : public base_resource_instance
+    class method_resource_instance
+      : public base_resource_instance
     {
     public:
 

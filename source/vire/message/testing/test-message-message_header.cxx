@@ -78,7 +78,7 @@ void test_message_header_1()
     body_layout_id.set_name(vire::message::body_layout::name());
     body_layout_id.set_version(vire::message::body_layout::current_version());
     msgh.set_message_id(msg_id);
-    msgh.set_timestamp(vire::time::now());
+    msgh.set_timestamp(vire::time::now_utc());
     msgh.set_category(vire::message::MESSAGE_EVENT);
     msgh.set_in_reply_to(vire::message::message_identifier("vire.client.0", 23));
     msgh.set_asynchronous(false);

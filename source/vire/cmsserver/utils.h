@@ -24,6 +24,7 @@
 // Standard library:
 #include <string>
 #include <map>
+#include <memory>
 
 // Third party:
 // - Bayeux/datatools:
@@ -73,6 +74,11 @@ namespace vire {
 
     };
 
+    class session;
+    class base_use_case;
+    typedef std::shared_ptr<session>       session_ptr_type;
+    typedef std::shared_ptr<base_use_case> use_case_ptr_type;
+    
   } // namespace cmsserver
 
 } // namespace vire

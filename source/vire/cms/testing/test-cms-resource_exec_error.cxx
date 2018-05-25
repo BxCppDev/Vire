@@ -45,7 +45,7 @@ int main( int argc_, char * argv_[])
     {
       // Error:
       vire::cms::resource_exec_error err;
-      err.make_timeout_error(vire::time::now());
+      err.make_timeout_error(vire::time::now_utc());
       err.print(std::clog);
       std::clog << std::endl;
     }

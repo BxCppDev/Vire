@@ -35,11 +35,13 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 // - Bayeux/datatools:
 #include <bayeux/datatools/logger.h>
+#include <bayeux/datatools/bit_mask.h>
 #include <bayeux/datatools/i_tree_dump.h>
 
 // This project:
 #include <vire/resource/role.h>
 #include <vire/cmsserver/resource_pool.h>
+#include <vire/cmsserver/session_info.h>
 
 namespace vire {
 
@@ -60,16 +62,13 @@ namespace vire {
 
       static const int32_t INVALID_ID     = -1; ///< Invalid session ID
       static const int32_t ROOT_ID        =  0; ///< Root session ID
-
-      //typedef std::unique_ptr<base_use_case> use_case_ptr_type;
-
-      typedef session * session_ptr_type;
+      
       struct session_entry
       {
         ~session_entry();
-        std::string      name; //!< Unique subsession name
-        session_ptr_type instance = nullptr; //!< Session instance
-        // base_use_case  * usecase  = nullptr;
+        std::string       name;     //!< Unique name for the sub-session
+        session_ptr_type  instance; //!< Sub-session instance
+        // use_case_ptr_type usecase;  //!< Sub-session use case
       };
       typedef std::map<std::string, session_entry> session_dict_type;
 
@@ -97,9 +96,6 @@ namespace vire {
       /// Check if a parent session is set
       bool has_parent() const;
 
-      /// Set the parent session
-      void set_parent(const session & parent_);
-
       /// Reset the parent session
       void reset_parent();
 
@@ -118,16 +114,13 @@ namespace vire {
       /// Return the handle to the use case
       const base_use_case & get_use_case() const;
 
-      /// Return the handle to the use case
-      base_use_case & grab_use_case();
-
-      /// Check if the session period is set
+      /// Check if the session period is set (UTC)
       bool has_when() const;
 
-      /// Return the session period
+      /// Return the session period (UTC)
       const boost::posix_time::time_period & get_when() const;
 
-      /// Set the session period
+      /// Set the session period (UTC)
       void set_when(const boost::posix_time::time_period &);
 
       /// Return the functional resources
@@ -156,7 +149,7 @@ namespace vire {
 
       /// Build the list of subsessions' names
       void build_subsession_names(std::set<std::string> & names_) const;
-
+      
       // /// Print the list of subsessions
       // void list_subsessions(std::ostream & out_ = std::clog,
       //                       const std::string & title_  = "",
@@ -178,28 +171,49 @@ namespace vire {
       /// Check initialization flag
       bool is_initialized() const;
 
-      //! Main run
-      void run();
-
       //! Set the check only flag
       void set_check_only(bool check_);
 
       /// Check the check only flag
       bool is_check_only() const;
 
-      /// Check if the session can run
-      bool can_run() const;
+      // //! Main run
+      // void run();
+
+      // /// Check if the session can run
+      // bool can_run() const;
 
       /// Check running flag
       bool is_running() const;
+      
+      /// Check running flag
+      bool is_completed() const;
+ 
+      /// Start the session
+      void start();
 
+      /// Stop the session
+      void stop();
+      
+    public:
+
+      enum root_session_flag_type {
+        CHECK_ONLY = datatools::bit_mask::bit00 //!< 
+      };
+      
+      static session_ptr_type create_root_session(const session_info &,
+                                                  const uint32_t flags_ = 0);
+      
     private:
 
-      // /// Register a subsession
-      // void _add_subsession_(const session_ptr_type & s_);
+      void _create_subsession_(const std::string & name_, const session_info &);
 
-      // /// Unregister a subsession
-      // void _sys_remove_subsession_(session & s_);
+      void _destroy_subsession_(const std::string & name_);
+      
+      static session_ptr_type _create_session_(session * parent_,
+                                               const session_info & sinfo_);
+                               
+    private:
 
       /// Initialization of embedded pools
       // void _initialize_pools_(const vire::resource::manager & rmgr_,
@@ -214,8 +228,8 @@ namespace vire {
       //! Check the use case
       void _check_use_case_();
 
-      /// System run
-      void _at_run_();
+      // /// System run
+      // void _at_run_();
 
       /// System terminate
       void _at_terminate_();
@@ -230,11 +244,13 @@ namespace vire {
       bool _initialized_ = false; ///< Initialization flag
       bool _check_only_  = false; ///< Check only flag
       bool _running_     = false; ///< Running flag
+      //   bool _completed_  = false; ///< completed flag
+      //   bool _timeout_    = false; ///< timeout flag
 
       // Work:
       int               _id_ = INVALID_ID;    ///< Session unique identifier
       const session *   _parent_  = nullptr;  ///< Handle to parent session, if any
-      base_use_case *   _use_case_ = nullptr; ///< Handle to the use case
+      use_case_ptr_type _use_case_;           ///< Handle to the use case
       boost::posix_time::time_period _when_;  ///< Session time period
       resource_pool     _functional_;         ///< Pool of functional resources (accounting)
       resource_pool     _distributable_;      ///< Pool of distributable resources (accounting)
@@ -244,6 +260,7 @@ namespace vire {
       // struct internals_type;
       // std::unique_ptr<internals_type> _internals_;
 
+      friend class base_use_case;
       
     };
 

@@ -18,8 +18,36 @@ namespace vire {
       class dummy_use_case
         : public vire::cmsserver::base_use_case
       {
-      public:
+      protected:
+        
+        static void _build_relative_functional_specifications(parametrized_resource_specifications & prs_)
+        {
+          prs_.add_device("bob", "HV.PowerSupply.Mod2817A");
+          prs_.add_device("riri", "Probe42");
+          prs_.add_resource("t1", "unit_dimension=temperature");
+          prs_.add_resource("p1", "unit_dimension=pressure");
+          prs_.add_resource("p2", "unit_dimension=pressure");
+          return;
+        }
 
+      public:
+        
+        static const parametrized_resource_specifications & relative_functional_specifications()
+        {
+          // Static singleton:
+          static std::unique_ptr<parametrized_resource_specifications> _prs;
+          if (_prs.get() == nullptr) {
+            _prs.reset(new parametrized_resource_specifications);
+            _build_relative_functional_specifications(*_prs.get());
+          }
+          return *_prs.get();
+        }
+        
+        virtual const parametrized_resource_specifications & get_relative_functional_requirements() const override
+        {
+          return dummy_use_case::relative_functional_specifications();
+        }
+        
         //! Default constructor
         dummy_use_case(const unsigned int futs_ = 4,
                        const unsigned int fwts_ = 8,

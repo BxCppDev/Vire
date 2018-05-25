@@ -156,7 +156,7 @@ namespace vire {
                                            datatools::service_dict_type & service_dict_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      DT_THROW_IF(this->is_initialized(), std::logic_error, "Simple_Logging_Service is already initialized !");
+      DT_THROW_IF(this->is_initialized(), std::logic_error, "Simple logging service is already initialized !");
 
       this->::datatools::base_service::common_initialize(config_);
 

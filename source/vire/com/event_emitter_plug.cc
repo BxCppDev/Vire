@@ -79,7 +79,7 @@ namespace vire {
                                                      vire::message::body_layout::current_version());
       msg_header.set_body_layout_id(body_layout_id);
 
-      msg_header.set_timestamp(vire::time::now());
+      msg_header.set_timestamp(vire::time::now_utc());
       msg_header.set_category(vire::message::MESSAGE_EVENT);
       //msg_header.set_asynchronous(true);
       //msg_header.add_metadata("signature", "dummy");

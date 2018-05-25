@@ -24,7 +24,6 @@
 // Standard library:
 #include <string>
 #include <iostream>
-//#include <map>
 #include <vector>
 
 // Third party:
@@ -82,10 +81,10 @@ namespace vire {
       //! Return the body format identifier
       const vire::utility::model_identifier & get_body_layout_id() const;
 
-      //! Set the timestamp
+      //! Set the UTC timestamp
       void set_timestamp(const boost::posix_time::ptime &);
 
-      //! Return the timestamp
+      //! Return the UTC timestamp
       const boost::posix_time::ptime & get_timestamp() const;
 
       /// Set the category of the message
@@ -168,7 +167,7 @@ namespace vire {
     private:
 
       message_identifier                  _message_id_;       //!< Message identifier
-      boost::posix_time::ptime            _timestamp_;        //!< Message timestamp
+      boost::posix_time::ptime            _timestamp_;        //!< Message timestamp (UTC)
       message_category                    _category_;         //!< Message category
       boost::optional<message_identifier> _in_reply_to_;      //!< Reference to an original request message (for a message which wraps a 'response' or 'event' payload)
       bool                                _asynchronous_;     //!< Asynchronous flag

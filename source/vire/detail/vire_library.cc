@@ -260,7 +260,7 @@ namespace vire {
                                     vire::get_resource_files_dir());
         DT_LOG_TRACE(_logging_, "Vire resource files dir is documented.");
 
-        // If the 'VIRE_RESOURCE_DIR' environment variable is set, it will supersede
+        // If the 'VIRE_RESOURCE_FILES_DIR' environment variable is set, it will supersede
         // the official registered resource path above through the 'datatools::fetch_path_with_env'
         // function:
         vire_lib_infos.store_string(datatools::library_info::keys::env_resource_dir(),

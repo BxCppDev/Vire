@@ -56,7 +56,7 @@ namespace vire {
 
     base_alarm::base_alarm(const std::string & severity_,
                            const std::string & message_)
-      : base_alarm(vire::time::now(), severity_, message_)
+      : base_alarm(vire::time::now_utc(), severity_, message_)
     {
       return;
     }

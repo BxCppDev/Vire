@@ -30,7 +30,8 @@ namespace vire {
   namespace resource {
 
     //! \brief Datapoint resource instance
-    class datapoint_resource_instance : public base_resource_instance
+    class datapoint_resource_instance
+      : public base_resource_instance
     {
     public:
 

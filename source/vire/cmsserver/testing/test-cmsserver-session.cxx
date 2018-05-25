@@ -95,7 +95,7 @@ void test_session_1()
   // top_si.set_key("Top");
   // top_si.set_description("A dummy top session info record");
   // top_si.set_role_identifier("_universe_");
-  // boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+  // boost::posix_time::ptime now_utc = vire::time::now_utc();
   // boost::posix_time::time_period when(now, now + boost::posix_time::hours(2));
   // top_si.set_when(when);
   // top_si.set_usecase_type_id("snemo::cms::basic_shell_usecase");
@@ -159,6 +159,7 @@ void test_session_0()
   // Top session:
   std::clog << "Creating a top session..." << std::endl;
 
+  /*
   vire::cmsserver::resource_pool functional;
   functional.add_unlimited(1000);
   functional.add_unlimited(1002);
@@ -179,30 +180,45 @@ void test_session_0()
   tops.set_logging_priority(datatools::logger::PRIO_DEBUG);
   tops.set_id(0);
   std::size_t session_duration_sec = 10;
-  boost::posix_time::ptime session_start = vire::time::now();
+  boost::posix_time::ptime session_start = vire::time::now_utc();
   boost::posix_time::time_duration session_duration = boost::posix_time::seconds(session_duration_sec);
   boost::posix_time::ptime session_stop = session_start + session_duration;
   boost::posix_time::time_period when(session_start, session_stop);
   tops.set_when(when);
   tops.set_functional(functional);
   tops.set_distributable(distributable);
+  */
+  
+  vire::cmsserver::session_info sinfo;
+  sinfo.set_key("root");
+  sinfo.set_description("The root session");
 
-  vire::cmsserver::test::dummy_use_case dummyUse(5);
-  std::size_t func_up_max_duration   = 5;
-  std::size_t func_work_min_duration = 10;
-  std::size_t func_down_max_duration = 2;
-  dummyUse.set_functional_up_time_sec(func_up_max_duration);
-  dummyUse.set_functional_work_time_sec(func_work_min_duration);
-  dummyUse.set_functional_down_time_sec(func_down_max_duration);
-  std::clog << "Dummy use case: " << std::endl;
-  dummyUse.set_mother_session(tops);
-  dummyUse.print_tree(std::clog);
+  boost::posix_time::ptime when_start;
+  boost::posix_time::ptime when_stop;
+  boost::posix_time::time_period when(when_start, when_stop);
+  sinfo.set_when(when);
+  sinfo.set_use_case_type_id("vire::cmsserver::test::dummy_use_case");
 
-  tops.set_use_case(dummyUse);
-  tops.initialize_simple();
-  tops.tree_dump(std::clog, "Top session:");
-  tops.run();
-  tops.terminate();
+  vire::cmsserver::session_ptr_type rootSessionPtr = 
+    vire::cmsserver::session::create_root_session(sinfo,
+                                                  vire::cmsserver::session::CHECK_ONLY);
+  
+  // vire::cmsserver::test::dummy_use_case dummyUse(5);
+  // std::size_t func_up_max_duration   = 5;
+  // std::size_t func_work_min_duration = 10;
+  // std::size_t func_down_max_duration = 2;
+  // dummyUse.set_functional_up_time_sec(func_up_max_duration);
+  // dummyUse.set_functional_work_time_sec(func_work_min_duration);
+  // dummyUse.set_functional_down_time_sec(func_down_max_duration);
+  // std::clog << "Dummy use case: " << std::endl;
+  // dummyUse.set_mother_session(tops);
+  // dummyUse.print_tree(std::clog);
+
+  // tops.set_use_case(dummyUse);
+  // tops.initialize_simple();
+  rootSessionPtr->tree_dump(std::clog, "Top session:");
+  // tops.start();
+  // tops.terminate();
 
   std::clog << std::endl;
   return;

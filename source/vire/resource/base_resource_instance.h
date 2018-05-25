@@ -37,7 +37,8 @@ namespace vire {
   namespace resource {
 
     //! \brief Base resource instance
-    class base_resource_instance : public datatools::enriched_base
+    class base_resource_instance
+      : public datatools::enriched_base
     {
     public:
 

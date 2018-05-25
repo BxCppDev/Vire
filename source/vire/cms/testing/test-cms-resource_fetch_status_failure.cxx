@@ -38,7 +38,7 @@ int main( int argc_, char * argv_[])
     {
       vire::cms::resource_status_record rsr;
       rsr.set_path("SuperNEMO:/Demonstrator/CMS/Coil/Control/Current/__dp_read__");
-      rsr.set_timestamp(vire::time::now());
+      rsr.set_timestamp(vire::time::now_utc());
 
       vire::utility::invalid_context_error maintenance_error;
       maintenance_error.set_message_format("System is under maintenance");

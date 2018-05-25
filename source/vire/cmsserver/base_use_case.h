@@ -43,6 +43,8 @@
 // This project:
 #include <vire/time/utils.h>
 #include <vire/resource/role.h>
+#include <vire/cmsserver/utils.h>
+#include <vire/cmsserver/parametrized_resource_specifications.h>
 
 namespace vire {
 
@@ -56,6 +58,9 @@ namespace vire {
       , public datatools::enriched_base
     {
     public:
+
+      /// Dictionary of relative functional device/resource path
+      typedef std::map<std::string, std::string> relative_functional_dict_type;
 
       /// \brief Supported run stages
       enum run_stage_type {
@@ -295,6 +300,34 @@ namespace vire {
 
       void run_stop_request();
 
+      /// Check if specifications about relative functional devices and resources are set
+      bool has_relative_functional_requirements() const;
+
+      /// Return the specifications about relative functional devices and resources
+      virtual const parametrized_resource_specifications &
+      get_relative_functional_requirements() const;
+
+      /// Check if functional mount points has been set
+      bool has_functional_mount_point(const std::string & name_) const;
+
+      /// Check if all functional mount points have been set
+      bool is_completed_functional_mount_points() const;
+
+      /// Set a functional device mount point
+      void set_functional_device_mount_point(const std::string & name_,
+                                             const std::string & device_path_);
+
+      /// Set a functional resource mount point
+      void set_functional_resource_mount_point(const std::string & name_,
+                                               const std::string & resource_path_);
+
+     
+    public:
+
+      /// Factory method
+      static use_case_ptr_type _create_use_case_(const std::string & use_case_type_id_,
+                                                 session * mother_session_);
+      
     private:
 
       // Initialization/destruction:
@@ -314,7 +347,7 @@ namespace vire {
       virtual void _at_initialize_(const datatools::properties & config_);
 
       virtual void _at_finalize_();
-
+      
       // Running:
 
       virtual void _at_run_prepare_();
@@ -345,6 +378,7 @@ namespace vire {
 
       void _run_work_terminate_();
 
+
     protected:
 
       bool _check_run_stop_requested() const;
@@ -358,6 +392,10 @@ namespace vire {
       // System management:
       bool                      _initialized_ = false;           //!< Initialization flag
 
+      // Configuration:
+      relative_functional_dict_type _functional_mount_points_;
+      std::string _role_expression_; //!< Expression describing the minimal role required to run the use case
+
       // Run management:
       run_stage_type            _run_stage_   = RUN_STAGE_UNDEF; //!< Run stage status
       //! Status of the functional work loop
@@ -365,10 +403,7 @@ namespace vire {
       run_report_type           _run_report_;                    //!< Run report
       std::mutex                _run_stop_request_mutex_;        //!< Mutex for teh stop request flag
       bool                      _run_stop_requested_ = false;    //!< Stop request flag
-
-      // Configuration:
-      std::string _role_expression_; //!< Expression describing the role
-
+      
       // Internal data:
       const session * _mother_session_ = nullptr;                         //!< Handle to the mother session
       boost::posix_time::time_duration _distributable_up_max_duration_;   //!< Maximum duration of the distributable up action

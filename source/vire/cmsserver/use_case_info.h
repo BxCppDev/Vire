@@ -189,9 +189,9 @@ namespace vire {
 
     private:
 
-      std::string                            _name_;                 ///< Unique use case name
-      std::string                            _description_;          ///< Description of the use case
-      std::string                            _role_definition_;      ///< Role definition (name, path, expression...)
+      std::string                            _name_;            ///< Unique use case name
+      std::string                            _description_;     ///< Description of the use case
+      std::string                            _role_definition_; ///< Role definition (name, path, expression...)
       // /// Special cardinality request on functional resource tokens
       // cardinalities_request_type             _special_functional_cardinalities_;
       // /// Special cardinality request on distributable resource tokens

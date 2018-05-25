@@ -59,16 +59,16 @@ namespace vire {
       /// Destructor
       virtual ~base_alarm();
 
-      /// Check if timestamp is set
+      /// Check if UTC timestamp is set
       bool has_timestamp() const;
 
-      //! Set the timestamp
+      //! Set the UTC timestamp
       void set_timestamp(const boost::posix_time::ptime &);
 
-      //! Reset the timestamp
+      //! Reset the UTC timestamp
       void reset_timestamp();
 
-      //! Return the timestamp
+      //! Return the UTC timestamp
       const boost::posix_time::ptime & get_timestamp() const;
 
       /// Check if severity is set
@@ -105,7 +105,7 @@ namespace vire {
 
     private:
 
-      boost::posix_time::ptime _timestamp_; //!< Event timestamp
+      boost::posix_time::ptime _timestamp_; //!< Event timestamp (UTC)
       std::string _severity_; //!< Alarm severity
       std::string _message_;  //!< Alarm message
 
