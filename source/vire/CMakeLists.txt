@@ -26,6 +26,9 @@ message(STATUS "[info] Begin of 'source/vire/CMakeLists.txt'")
 
 message(STATUS "[debug] VIRE_LIBDIR_TO_RESOURCEDIR = '${VIRE_LIBDIR_TO_RESOURCEDIR}'")
 message(STATUS "[debug] VIRE_LIBDIR_TO_PLUGINDIR   = '${VIRE_LIBDIR_TO_PLUGINDIR}'")
+# set(VIRE_DATAROOTDIR ${VIRE_BUILD_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/${VIRE_TAG})
+# set(VIRE_DATAROOTDIR ${PROJECT_BUILD_DATAROOTDIR}/${VIRE_TAG})
+# message(STATUS "[debug] VIRE_DATAROOTDIR           = '${VIRE_DATAROOTDIR}'")
 
 # -- RPATH settings --
 # From: https://cmake.org/Wiki/CMake_RPATH_handling
@@ -319,9 +322,8 @@ install(DIRECTORY ${VIRE_BUILD_PREFIX}/include/protobuf
 # - NB assumes each test .cxx file generates a single executable
 # - We also output the executables to a dedicated directory
 if(VIRE_ENABLE_TESTING)
-  # message (STATUS "vire: VireLibrary_TESTS = '${VireLibrary_TESTS}' ")
   foreach(_testsource ${VireLibrary_TESTS})
-    set(_vire_TEST_ENVIRONMENT "VIRE_RESOURCE_FILES_DIR=${VIRE_DATAROOTDIR}/resources")
+    set(_vire_TEST_ENVIRONMENT "VIRE_RESOURCE_FILES_DIR=${PROJECT_BUILD_DATAROOTDIR}/${VIRE_TAG}/resources")
     get_filename_component(_testname "${_testsource}" NAME_WE)
     string(REPLACE "-" ";" _testname_splitted ${_testname})
     list(LENGTH _testname_splitted _testname_splitted_length)
