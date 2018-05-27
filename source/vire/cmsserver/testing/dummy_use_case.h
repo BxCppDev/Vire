@@ -85,19 +85,19 @@ namespace vire {
           return;
         }
 
-        void _compute_run_distributable_times_() override
-        {
-          return;
-        }
+        // void _compute_run_distributable_times_() override
+        // {
+        //   return;
+        // }
 
-        void _compute_run_functional_times_() override
-        {
-          set_functional_up_max_duration(boost::posix_time::seconds(_functional_up_time_sec_));
-          set_functional_work_min_duration(boost::posix_time::seconds(_functional_work_time_sec_));
-          set_functional_work_max_duration(boost::posix_time::seconds(_functional_work_time_sec_ + 1));
-          set_functional_down_max_duration(boost::posix_time::seconds(_functional_down_time_sec_));
-          return;
-        }
+        // void _compute_run_functional_times_() override
+        // {
+        //   set_functional_up_max_duration(boost::posix_time::seconds(_functional_up_time_sec_));
+        //   set_functional_work_min_duration(boost::posix_time::seconds(_functional_work_time_sec_));
+        //   set_functional_work_max_duration(boost::posix_time::seconds(_functional_work_time_sec_ + 1));
+        //   set_functional_down_max_duration(boost::posix_time::seconds(_functional_down_time_sec_));
+        //   return;
+        // }
 
         void _at_finalize_() override
         {
@@ -153,11 +153,11 @@ namespace vire {
           return;
         }
 
-        const ::vire::resource::role * _create_minimal_role_() override
-        {
-          const ::vire::resource::role * r = new ::vire::resource::role();
-          return r;
-        }
+        // const ::vire::resource::role * _create_minimal_role_() override
+        // {
+        //   const ::vire::resource::role * r = new ::vire::resource::role();
+        //   return r;
+        // }
 
         void set_functional_work_time_sec(const unsigned int fwts_)
         {

@@ -37,14 +37,16 @@
 #include <bayeux/datatools/enriched_base.h>
 #include <bayeux/datatools/properties.h>
 #include <bayeux/datatools/factory_macros.h>
-#include <bayeux/mygsl/min_max.h>
-#include <bayeux/mygsl/mean.h>
 
 // This project:
 #include <vire/time/utils.h>
 #include <vire/resource/role.h>
 #include <vire/cmsserver/utils.h>
 #include <vire/cmsserver/parametrized_resource_specifications.h>
+#include <vire/cmsserver/running.h>
+#include <vire/cmsserver/uc_composition.h>
+#include <vire/cmsserver/uc_time_constraints.h>
+#include <vire/cmsserver/uc_resource_constraints.h>
 
 namespace vire {
 
@@ -53,6 +55,14 @@ namespace vire {
     class session;
 
     /// \brief Vire CMS base use case
+    //!
+    //! Possible derived composite use case:
+    //!  - composite_use_case
+    //!    - sequencer_use_case [N children]
+    //!    - parallelizer_use_case [N children]
+    //!    - repeater/loop_use_case [1 child]
+    //!  - wait_use_case / wait_condition_use_case
+    //!  - lock_use_case
     class base_use_case
       : private boost::noncopyable
       , public datatools::enriched_base
@@ -62,243 +72,84 @@ namespace vire {
       /// Dictionary of relative functional device/resource path
       typedef std::map<std::string, std::string> relative_functional_dict_type;
 
-      /// \brief Supported run stages
-      enum run_stage_type {
-        RUN_STAGE_UNDEF = 0,
-        RUN_STAGE_READY = 1,
-        RUN_STAGE_PREPARING = 2,
-        RUN_STAGE_PREPARED = 3,
-        RUN_STAGE_DISTRIBUTABLE_UP_RUNNING = 4,
-        RUN_STAGE_DISTRIBUTABLE_UP_DONE = 5,
-        RUN_STAGE_FUNCTIONAL_UP_RUNNING = 6,
-        RUN_STAGE_FUNCTIONAL_UP_DONE = 7,
-        RUN_STAGE_FUNCTIONAL_WORK_RUNNING = 8,
-        RUN_STAGE_FUNCTIONAL_WORK_DONE = 9,
-        RUN_STAGE_FUNCTIONAL_DOWN_RUNNING = 10,
-        RUN_STAGE_FUNCTIONAL_DOWN_DONE = 11,
-        RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING = 12,
-        RUN_STAGE_DISTRIBUTABLE_DOWN_DONE = 13,
-        RUN_STAGE_TERMINATING = 14,
-        RUN_STAGE_TERMINATED = 15
+      enum init_flags {
+        INIT_DRY_RUN = datatools::bit_mask::bit00 ///< Dry run bit flag
       };
-
-      /// Return the label associated to a given run stage
-      static std::string run_stage_label(const run_stage_type);
-
-      ///
-      enum run_functional_work_loop_status_type {
-        RUN_FUNCTIONAL_WORK_LOOP_ITERATE = 0,
-        RUN_FUNCTIONAL_WORK_LOOP_STOP    = 1
-      };
-
-      struct base_signal {};
-      struct termination_signal : public base_signal {};
-      struct timeout_signal : public base_signal {};
-      // struct user1_signal : public base_signal {};
-      // struct user2_signal : public base_signal {};
-
-      enum run_termination_type {
-        RUN_TERMINATION_UNDEF   = 0,
-        RUN_TERMINATION_NORMAL  = 1, ///< Normal termination by the usecase itself
-        RUN_TERMINATION_SESSION = 2, ///< Normal anticipated termination requested by the session (through a termination_signal)
-        RUN_TERMINATION_ERROR   = 3, ///< Abnormal termination by the usecase itself because an exception was thrown
-        RUN_TERMINATION_TIMEOUT = 4  ///< Forced termination requested by the session because of the timeout (through a timeout_signal)
-      };
-
-      struct base_exception
-        : public std::exception
-      {
-        virtual void export_error_data(boost::property_tree::ptree & error_data_) const = 0;
-      };
-
-      /*
-      struct resource_exception : public base_exception
-      {
-        virtual void export(boost::property_tree::ptree & error_data_) const
-        {
-          error_data_.put("resource_path", resource_path);
-          error_data_.put("invalid_value", invalid_value);
-        }
-
-        std::string resource_path;
-        int invalid_value;
-      };
-      */
-
-      //! \brief Run report data structure returned by each running steps of the use case
-      struct stage_completion
-      {
-        boost::posix_time::ptime    timestamp;      ///< Report timestamp (mandatory)
-        run_termination_type        run_termination = RUN_TERMINATION_UNDEF; ///< Type of run termination (mandatory)
-        run_stage_type              run_stage       = RUN_STAGE_UNDEF;       ///< Run stage at termination (mandatory)
-        std::string                 error_class_id; ///< Error/exception type/class identifier (optional)
-        boost::property_tree::ptree error_data;     ///< Specific data associated to the error/exception (optional)
-
-        bool is_error() const;
-        bool is_normal_termination() const;
-      };
-
-      // typedef std::future<stage_completion> run_future_type;
-
-      struct stage_time_statistics
-      {
-        stage_time_statistics();
-        std::size_t                    loop_counter = 0;
-        boost::posix_time::time_period start_stop;
-        boost::posix_time::time_period last_run_start_stop;
-        // Use templatized min/max and mean/sigma calculation ?
-        mygsl::min_max                 min_max_info;
-        mygsl::arithmetic_mean         mean_info;
-      };
-
-      struct stage_report_record
-      {
-        stage_time_statistics time_stats;
-        stage_completion      completion;
-      };
-
-      typedef std::map<run_stage_type,stage_report_record> run_report_type;
-
+      
       //! Default constructor
-      base_use_case();
+      base_use_case(const uint32_t flags_ = 0);
 
       //! Destructor
       virtual ~base_use_case();
 
-      //! Check if the role expression is set
-      bool has_role_expression() const;
+      //! Check dry run mode
+      bool is_dry_run() const;
 
-      //! Set the role expression
-      void set_role_expression(const std::string & role_expression_);
+      bool has_resource_constraints() const;
 
-      //! Return the role expression
-      const std::string & get_role_expression() const;
+      const uc_resource_constraints & get_resource_constraints() const;
 
-      //! Check if the mother session is set
-      bool has_mother_session() const;
+      bool has_time_constraints() const;
 
-      //! Set the mother session
-      void set_mother_session(const session & s_);
+      const uc_time_constraints & get_time_constraints() const;
 
-      //! Return the mother session
-      const session & get_mother_session() const;
+    private:
 
-      //! Check if the maximum duration for distributable up action is set
-      bool has_distributable_up_max_duration() const;
+      virtual std::shared_ptr<uc_resource_constraints> _build_resource_constraints() /* = 0 */;
 
-      //! Set the maximum duration for distributable up action is set
-      void set_distributable_up_max_duration(const boost::posix_time::time_duration &);
+      virtual std::shared_ptr<uc_time_constraints> _build_time_constraints() /* = 0 */;
 
-      //! Return the maximum duration for distributable up action is set
-      const boost::posix_time::time_duration & get_distributable_up_max_duration() const;
-
-      //! Check if the maximum duration for distributable down action is set
-      bool has_distributable_down_max_duration() const;
-
-      //! Set the maximum duration for distributable down action is set
-      void set_distributable_down_max_duration(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for distributable down action is set
-      const boost::posix_time::time_duration & get_distributable_down_max_duration() const;
-
-      //! Check if the maximum duration for functional up action is set
-      bool has_functional_up_max_duration() const;
-
-      //! Set the maximum duration for functional up action is set
-      void set_functional_up_max_duration(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for functional up action is set
-      const boost::posix_time::time_duration & get_functional_up_max_duration() const;
-
-      //! Check if the maximum duration for functional down action is set
-      bool has_functional_down_max_duration() const;
-
-      //! Set the maximum duration for functional down action is set
-      void set_functional_down_max_duration(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for functional down action is set
-      const boost::posix_time::time_duration & get_functional_down_max_duration() const;
-
-      //! Check if the maximum duration for functional work action is set
-      bool has_functional_work_max_duration() const;
-
-      //! Set the maximum duration for functional work action is set
-      void set_functional_work_max_duration(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for functional work action is set
-      const boost::posix_time::time_duration & get_functional_work_max_duration() const;
-
-      //! Check if the minimum duration for functional work action is set
-      bool has_functional_work_min_duration() const;
-
-      //! Set the minimum duration for functional work action is set
-      void set_functional_work_min_duration(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for functional work action is set
-      const boost::posix_time::time_duration & get_functional_work_min_duration() const;
-
-      //! Return the minimum duration of all stages
-      boost::posix_time::time_duration get_total_min_duration() const;
-
-      //! Return the maximum duration of all stages
-      boost::posix_time::time_duration get_total_max_duration() const;
-
-      // //! Check if the tick time for the run functional work loop is set
-      // bool has_run_functional_work_loop_tick() const;
-
-      // //! Set the tick time for the run functional work loop
-      // void set_run_functional_work_loop_tick(const boost::posix_time::time_duration &);
-
-      // //! Return the tick time for the run functional work loop
-      // const boost::posix_time::time_duration & get_run_functional_work_loop_tick() const;
-
-      // Instance initialization
-
+    public:
+      
+      /// Check initialization status
       bool is_initialized() const;
 
+      /// Initialization
       void initialize_simple();
 
+      /// Initialization
       void initialize(const datatools::properties & config_);
 
+      /// Destruction
       void finalize();
 
-      // Business running:
-      run_stage_type get_run_stage() const;
+      // Run mode:
+      
+      /// Check run control
+      bool has_rc() const;
+      
+      /// Return a non mutable run control structure:
+      const running::run_control & get_rc() const;
 
-      /// Check if run is ready to process
-      bool is_run_ready() const;
+      /// Run preparation stage (not in 'dry-run' mode)
+      running::run_stage_completion run_prepare();
 
-      /// Check if run is terminated
-      bool is_run_terminated() const;
+      /// Run distributable up stage (not in 'dry-run' mode)
+      running::run_stage_completion run_distributable_up();
 
-      // /// Check if run is broken
-      // bool is_run_broken() const;
+      /// Run functional up stage (not in 'dry-run' mode)
+      running::run_stage_completion run_functional_up();
 
-      // void set_run_broken(const bool b_ = true);
+      /// Run functional work stage (not in 'dry-run' mode)
+      running::run_stage_completion run_functional_work();
 
-      stage_completion run_prepare();
+      /// Run functional down stage (not in 'dry-run' mode)
+      running::run_stage_completion run_functional_down();
 
-      stage_completion run_distributable_up();
+      /// Run distributable down stage (not in 'dry-run' mode)
+      running::run_stage_completion run_distributable_down();
 
-      stage_completion run_functional_up();
+      /// Run termination stage (not in 'dry-run' mode)
+      running::run_stage_completion run_terminate();
 
-      stage_completion run_functional_work();
+      // Dry-run mode
 
-      stage_completion run_functional_down();
-
-      stage_completion run_distributable_down();
-
-      stage_completion run_terminate();
-
-      // Signal handler based on the few signals and possible overidden handler methods in the UC
-
+      /// Generate a session info
+      void dry_run_generate(session_info & sinfo_) const;
+      
       //! Smart print
       virtual void print_tree(std::ostream & out_ = std::clog,
                               const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
-
-      const ::vire::resource::role & get_minimal_role() const;
-
-      void run_stop_request();
 
       /// Check if specifications about relative functional devices and resources are set
       bool has_relative_functional_requirements() const;
@@ -324,31 +175,27 @@ namespace vire {
      
     public:
 
-      /// Factory method
-      static use_case_ptr_type _create_use_case_(const std::string & use_case_type_id_,
-                                                 session * mother_session_);
+      /// Factory method(s) for run/dry-run modes...
+      // static use_case_ptr_type _create_use_case_(const std::string & use_case_type_id_,
+      //                                           const session_info * sinfo_,
+      //                                            session * mother_session_ = nullptr);
       
     private:
 
       // Initialization/destruction:
+    
+      /// Return a non mutable run control structure:
+      running::run_control & _grab_rc();
 
       void _basic_initialize_(const datatools::properties & config_);
 
-      void _basic_time_calibration_(const datatools::properties & config_);
-
       void _basic_finalize_();
-
-      virtual const ::vire::resource::role * _create_minimal_role_() = 0;
-
-      virtual void _compute_run_distributable_times_();
-
-      virtual void _compute_run_functional_times_();
 
       virtual void _at_initialize_(const datatools::properties & config_);
 
       virtual void _at_finalize_();
       
-      // Running:
+      // Running (not in "dry run" mode):
 
       virtual void _at_run_prepare_();
 
@@ -364,20 +211,8 @@ namespace vire {
 
       virtual void _at_run_terminate_();
 
-      // In case of broken run at some given stage, we should be able
-      // to build a recursive snapshot of the use case (and its daughter
-      // use cases) and report.
-
-      std::size_t get_run_work_loop_count() const;
-
-      void _run_work_init_();
-
-      void _run_work_begin_();
-
-      void _run_work_end_();
-
-      void _run_work_terminate_();
-
+      /// Generate a session info for this use case (only in "dry-run" mode)
+      virtual void _at_dry_run_generate_(session_info & sinfo_) const;
 
     protected:
 
@@ -390,31 +225,30 @@ namespace vire {
     private:
 
       // System management:
-      bool                      _initialized_ = false;           //!< Initialization flag
+      bool _initialized_ = false; //!< Initialization flag
+      bool _dry_run_     = false; //!< "dry-run" mode flag
+      const session * _mother_session_ = nullptr; //!< Not in "dry-run" mode
 
       // Configuration:
-      relative_functional_dict_type _functional_mount_points_;
-      std::string _role_expression_; //!< Expression describing the minimal role required to run the use case
 
-      // Run management:
-      run_stage_type            _run_stage_   = RUN_STAGE_UNDEF; //!< Run stage status
-      //! Status of the functional work loop
-      run_functional_work_loop_status_type _run_functional_work_loop_status_;
-      run_report_type           _run_report_;                    //!< Run report
-      std::mutex                _run_stop_request_mutex_;        //!< Mutex for teh stop request flag
-      bool                      _run_stop_requested_ = false;    //!< Stop request flag
-      
-      // Internal data:
-      const session * _mother_session_ = nullptr;                         //!< Handle to the mother session
-      boost::posix_time::time_duration _distributable_up_max_duration_;   //!< Maximum duration of the distributable up action
-      boost::posix_time::time_duration _distributable_down_max_duration_; //!< Maximum duration of the distributable down action
-      boost::posix_time::time_duration _functional_up_max_duration_;      //!< Maximum duration of the functional up action
-      boost::posix_time::time_duration _functional_work_min_duration_;    //!< Minimum duration of the functional work action
-      boost::posix_time::time_duration _functional_work_max_duration_;    //!< Maximum duration of the functional work action
-      boost::posix_time::time_duration _functional_down_max_duration_;    //!< Maximum duration of the functional down action
-      std::unique_ptr<const vire::resource::role> _minimal_role_;         //!< Cached minimal role
+      /// Functional resource mount points
+      relative_functional_dict_type _functional_mount_points_;
+
+      /// Composition model 
+      std::unique_ptr<uc_composition> _composition_;
+
+      /// Time constraints 
+      std::shared_ptr<uc_time_constraints> _time_constraints_;
+
+      /// Resource constraints 
+      std::shared_ptr<uc_resource_constraints> _resource_constraints_;
+ 
+      // Run management/control for the session (only if not in 'dry-run' mode)
+      // boost::optional<std::size_t> _max_run_functional_loops_;
+      std::unique_ptr<running::run_control> _rc_;
 
       friend class session;
+      friend class uc_factory;
 
       // Factory declaration :
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(base_use_case)

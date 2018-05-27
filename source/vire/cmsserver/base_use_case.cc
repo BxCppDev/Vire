@@ -28,6 +28,12 @@
 // - Bayeux/datatools:
 #include <bayeux/datatools/clhep_units.h>
 #include <bayeux/datatools/units.h>
+#include <bayeux/datatools/exception.h>
+
+// This project:
+#include <vire/cmsserver/error.h>
+#include <vire/cmsserver/session_info.h>
+#include <vire/cmsserver/uc_time_constraints.h>
 
 namespace vire {
 
@@ -98,281 +104,76 @@ namespace vire {
       _functional_mount_points_[name_] = resource_path_;
       return;
     }
-  
-    std::string base_use_case::run_stage_label(const run_stage_type stage_)
+ 
+    base_use_case::base_use_case(const uint32_t flags_)
     {
-      switch (stage_) {
-        case RUN_STAGE_UNDEF: return std::string("undefined");
-        case RUN_STAGE_READY: return std::string("ready");
-        case RUN_STAGE_PREPARING: return std::string("preparing");
-        case RUN_STAGE_PREPARED: return std::string("prepared");
-        case RUN_STAGE_DISTRIBUTABLE_UP_RUNNING: return std::string("distributable-up-running");
-        case RUN_STAGE_DISTRIBUTABLE_UP_DONE: return std::string("distributable-up-done");
-        case RUN_STAGE_FUNCTIONAL_UP_RUNNING: return std::string("functional-up-running");
-        case RUN_STAGE_FUNCTIONAL_UP_DONE: return std::string("functional-up-done");
-        case RUN_STAGE_FUNCTIONAL_WORK_RUNNING: return std::string("functional-work-running");
-        case RUN_STAGE_FUNCTIONAL_WORK_DONE: return std::string("functional-work-done");
-        case RUN_STAGE_FUNCTIONAL_DOWN_RUNNING: return std::string("functional-down-running");
-        case RUN_STAGE_FUNCTIONAL_DOWN_DONE: return std::string("functional-down-done");
-        case RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING: return std::string("distributable-down-running");
-        case RUN_STAGE_DISTRIBUTABLE_DOWN_DONE: return std::string("distributable-down-done");
-        case RUN_STAGE_TERMINATING: return std::string("terminating");
-        case RUN_STAGE_TERMINATED: return std::string("terminated");
+      if (flags_ & INIT_DRY_RUN) {
+        _dry_run_ = true;
       }
-    }
-
-    bool base_use_case::stage_completion::is_error() const
-    {
-      return run_termination == RUN_TERMINATION_ERROR;
-    }
-
-    bool base_use_case::stage_completion::is_normal_termination() const
-    {
-      return run_termination == RUN_TERMINATION_NORMAL;
-    }
-
-    base_use_case::stage_time_statistics::stage_time_statistics()
-      : loop_counter(0)
-      , start_stop(vire::time::invalid_time_interval())
-      , last_run_start_stop(vire::time::invalid_time_interval())
-    {
-      return;
-    }
-
-    base_use_case::base_use_case()
-    {
       return;
     }
 
     base_use_case::~base_use_case()
     {
       if (is_initialized()) {
-        DT_THROW(std::logic_error, "Use case is still initialized!");
+        DT_THROW(std::logic_error, "Use case has not been properly terminated!");
       }
       return;
     }
 
-    const ::vire::resource::role & base_use_case::get_minimal_role() const
+    bool base_use_case::has_rc() const
     {
-      if (_minimal_role_ == nullptr) {
-        base_use_case * mutable_this = const_cast<base_use_case*>(this);
-        mutable_this->_minimal_role_.reset(mutable_this->_create_minimal_role_());
-      }
-      return *(_minimal_role_.get());
+      return _rc_.get() != nullptr;
     }
-
-    bool base_use_case::has_role_expression() const
+                        
+    const running::run_control & base_use_case::get_rc() const
     {
-      return !_role_expression_.empty();
+      DT_THROW_IF(!has_rc() , std::logic_error, "No run control!")
+      return *_rc_;
     }
-
-    void base_use_case::set_role_expression(const std::string & role_expression_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Use case is already initialized!");
-      _role_expression_ = role_expression_;
-      return;
-    }
-
-    const std::string & base_use_case::get_role_expression() const
-    {
-      return _role_expression_;
-    }
-
-    bool base_use_case::has_mother_session() const
-    {
-      return _mother_session_ != nullptr;
-    }
-
-    void base_use_case::set_mother_session(const session & s_)
-    {
-      _mother_session_ = &s_;
-      return;
-    }
-
-    const session & base_use_case::get_mother_session() const
-    {
-      DT_THROW_IF(!has_mother_session(), std::logic_error,
-                  "No mother session is set in use case '" << get_name() << "'!");
-      return *_mother_session_;
-    }
-
-    /* Distributable */
-
-    bool base_use_case::has_distributable_up_max_duration() const
-    {
-      return vire::time::is_valid(_distributable_up_max_duration_);
-    }
-
-    void base_use_case::set_distributable_up_max_duration(const boost::posix_time::time_duration & d_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already intialized!");
-      _distributable_up_max_duration_ = d_;
-      return;
-    }
-
-    const boost::posix_time::time_duration & base_use_case::get_distributable_up_max_duration() const
-    {
-      return _distributable_up_max_duration_;
-    }
-
-    bool base_use_case::has_distributable_down_max_duration() const
-    {
-      return vire::time::is_valid(_distributable_down_max_duration_);
-    }
-
-    void base_use_case::set_distributable_down_max_duration(const boost::posix_time::time_duration & d_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already intialized!");
-      _distributable_down_max_duration_ = d_;
-      return;
-    }
-
-    const boost::posix_time::time_duration & base_use_case::get_distributable_down_max_duration() const
-    {
-      return _distributable_down_max_duration_;
-    }
-
-    /* Functional */
-
-    bool base_use_case::has_functional_up_max_duration() const
-    {
-      return vire::time::is_valid(_functional_up_max_duration_);
-    }
-
-    void base_use_case::set_functional_up_max_duration(const boost::posix_time::time_duration & d_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already intialized!");
-      _functional_up_max_duration_ = d_;
-      return;
-    }
-
-    const boost::posix_time::time_duration & base_use_case::get_functional_up_max_duration() const
-    {
-      return _functional_up_max_duration_;
-    }
-
-    bool base_use_case::has_functional_down_max_duration() const
-    {
-      return vire::time::is_valid(_functional_down_max_duration_);
-    }
-
-    void base_use_case::set_functional_down_max_duration(const boost::posix_time::time_duration & d_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already intialized!");
-      _functional_down_max_duration_ = d_;
-      return;
-    }
-
-    const boost::posix_time::time_duration & base_use_case::get_functional_down_max_duration() const
-    {
-      return _functional_down_max_duration_;
-    }
-
-    bool base_use_case::has_functional_work_min_duration() const
-    {
-      return vire::time::is_valid(_functional_work_min_duration_);
-    }
-
-    void base_use_case::set_functional_work_min_duration(const boost::posix_time::time_duration & d_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already intialized!");
-      if (has_functional_work_max_duration() && vire::time::is_valid(d_)) {
-        DT_THROW_IF(_functional_work_max_duration_ < d_,
-                    std::range_error, "Invalid functional work duration range!");
-      }
-      _functional_work_min_duration_ = d_;
-      return;
-    }
-
-    const boost::posix_time::time_duration & base_use_case::get_functional_work_min_duration() const
-    {
-      return _functional_work_min_duration_;
-    }
-
-    bool base_use_case::has_functional_work_max_duration() const
-    {
-      return vire::time::is_valid(_functional_work_max_duration_);
-    }
-
-    void base_use_case::set_functional_work_max_duration(const boost::posix_time::time_duration & d_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error, "Use case is already intialized!");
-      if (has_functional_work_min_duration() && vire::time::is_valid(d_)) {
-        DT_THROW_IF(d_ < _functional_work_min_duration_,
-                    std::range_error, "Invalid functional work duration range!");
-      }
-      _functional_work_max_duration_ = d_;
-      return;
-    }
-
-    const boost::posix_time::time_duration & base_use_case::get_functional_work_max_duration() const
-    {
-      return _functional_work_max_duration_;
-    }
-
-    boost::posix_time::time_duration base_use_case::get_total_min_duration() const
-    {
-      boost::posix_time::time_duration d = boost::posix_time::seconds(0);
-      if (has_distributable_up_max_duration()) {
-        d += _distributable_up_max_duration_;
-      }
-      if (has_functional_up_max_duration()) {
-        d += _functional_up_max_duration_;
-      }
-      if (has_functional_work_min_duration()) {
-        d += _functional_work_min_duration_;
-      }
-      if (has_functional_down_max_duration()) {
-        d += _functional_down_max_duration_;
-      }
-      if (has_distributable_down_max_duration()) {
-        d += _distributable_down_max_duration_;
-      }
-      return d;
-    }
-
-    boost::posix_time::time_duration base_use_case::get_total_max_duration() const
-    {
-      boost::posix_time::time_duration d = boost::posix_time::seconds(0);
-      if (has_distributable_up_max_duration()) {
-        d += _distributable_up_max_duration_;
-      }
-      if (has_functional_up_max_duration()) {
-        d += _functional_up_max_duration_;
-      }
-      if (has_functional_work_max_duration()) {
-        d += _functional_work_max_duration_;
-      }
-      if (has_functional_down_max_duration()) {
-        d += _functional_down_max_duration_;
-      }
-      if (has_distributable_down_max_duration()) {
-        d += _distributable_down_max_duration_;
-      }
-      return d;
-    }
-
-    // bool base_use_case::has_run_functional_work_loop_tick() const
-    // {
-    //   return vire::time::is_valid(_run_functional_work_loop_tick_);
-    // }
-
-    // void base_use_case::set_run_functional_work_loop_tick(const boost::posix_time::time_duration & d_)
-    // {
-    //   _run_functional_work_loop_tick_ = d_;
-    //   return;
-    // }
-
-    // const boost::posix_time::time_duration & base_use_case::get_run_functional_work_loop_tick() const
-    // {
-    //   return _run_functional_work_loop_tick_;
-    // }
-
 
     bool base_use_case::is_initialized() const
     {
       return _initialized_;
+    }
+
+    bool base_use_case::is_dry_run() const
+    {
+      return _dry_run_;
+    }
+
+    bool base_use_case::has_resource_constraints() const
+    {
+      return _resource_constraints_.get() != nullptr;
+    }
+    
+    const uc_resource_constraints & base_use_case::get_resource_constraints() const
+    {
+      DT_THROW_IF(!has_resource_constraints(), std::logic_error, "No resource constraints!");
+      return *_resource_constraints_.get();
+    }
+
+    bool base_use_case::has_time_constraints() const
+    {
+      return _time_constraints_.get() != nullptr;
+    }
+
+    const uc_time_constraints & base_use_case::get_time_constraints() const
+    {
+      DT_THROW_IF(!has_time_constraints(), std::logic_error, "No time constraints!");
+      return *_time_constraints_.get();
+    }
+
+    // virtual
+    std::shared_ptr<uc_resource_constraints> base_use_case::_build_resource_constraints()
+    {
+      return std::make_shared<uc_resource_constraints>();
+    }
+
+    // virtual
+    std::shared_ptr<uc_time_constraints> base_use_case::_build_time_constraints()
+    {
+      return std::make_shared<uc_time_constraints>();
     }
 
     void base_use_case::initialize_simple()
@@ -384,61 +185,49 @@ namespace vire {
 
     void base_use_case::initialize(const datatools::properties & config_)
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Use case is already initialized!");
-      // DT_THROW_IF(_run_stage_ != RUN_STAGE_UNDEF, std::logic_error,
-      //             "Use case run stage is already set!");
 
       base_use_case::_basic_initialize_(config_);
 
       _at_initialize_(config_);
 
-      base_use_case::_basic_time_calibration_(config_);
-
+      if (! is_dry_run()) {
+        // Install a run control structure:
+        _rc_.reset(new running::run_control);
+        _rc_->run_stage = running::RUN_STAGE_READY;
+      }
       _initialized_ = true;
-      _run_stage_ = RUN_STAGE_READY;
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void base_use_case::finalize()
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Use case is not initialized!");
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_TERMINATED, std::logic_error,
-                  "Use case run is not terminated!");
+      /*
+        if (!is_dry_run()) {
+        if (has_rc()) {
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_TERMINATED, std::logic_error,
+        "Use case run is not terminated!");
+        }
+        }
+      */
+      
       _initialized_ = false;
 
       _at_finalize_();
 
       base_use_case::_basic_finalize_();
 
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
-    void base_use_case::run_stop_request()
-    {
-      std::lock_guard<std::mutex> lck(_run_stop_request_mutex_);
-      _run_stop_requested_ = true;
-      return;
-    }
-
-    bool base_use_case::_check_run_stop_requested() const
-    {
-      base_use_case * mutable_this = const_cast<base_use_case *>(this);
-      std::lock_guard<std::mutex> lck(mutable_this->_run_stop_request_mutex_);
-      return _run_stop_requested_;
-    }
-
-    void base_use_case::_compute_run_distributable_times_()
-    {
-      return;
-    }
-
-    void base_use_case::_compute_run_functional_times_()
-    {
-      return;
-    }
-
+    /*
     void base_use_case::_basic_time_calibration_(const datatools::properties & config_)
     {
       _compute_run_distributable_times_();
@@ -488,30 +277,37 @@ namespace vire {
 
       return;
     }
-
+    */
+    
     void base_use_case::_basic_initialize_(const datatools::properties & config_)
     {
-      DT_THROW_IF(_mother_session_ == nullptr, std::logic_error,
-                  "No mother session is set!");
-
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      if (!is_dry_run()) {
+        // DT_THROW_IF(_mother_session_ == nullptr, std::logic_error,
+        //             "No mother session is set!");
+      }
+      
       this->datatools::enriched_base::initialize(config_, false);
 
+      // Handle mount points
+      
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void base_use_case::_basic_finalize_()
     {
-      _run_stage_ = RUN_STAGE_TERMINATED;
-      vire::time::invalidate_time_duration(_distributable_up_max_duration_);
-      vire::time::invalidate_time_duration(_distributable_down_max_duration_);
-      vire::time::invalidate_time_duration(_functional_up_max_duration_);
-      vire::time::invalidate_time_duration(_functional_work_min_duration_);
-      vire::time::invalidate_time_duration(_functional_work_max_duration_);
-      vire::time::invalidate_time_duration(_functional_down_max_duration_);
-      _minimal_role_.reset();
-      _mother_session_ = nullptr;
-
-      this->datatools::enriched_base::reset();
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      if (!is_dry_run()) {
+        _mother_session_ = nullptr;
+        _rc_.reset();
+      }
+      _resource_constraints_.reset();
+      _time_constraints_.reset();
+      _composition_.reset();
+      _functional_mount_points_.clear();
+      // this->datatools::enriched_base::reset();
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
@@ -525,178 +321,170 @@ namespace vire {
       return;
     }
 
-    bool base_use_case::is_run_ready() const
-    {
-      return _run_stage_ == RUN_STAGE_READY;
-    }
-
-    bool base_use_case::is_run_terminated() const
-    {
-      return _run_stage_ == RUN_STAGE_TERMINATED;
-    }
-
-    // bool base_use_case::is_run_broken() const
-    // {
-    //   return _run_broken_;
-    // }
-
-    // void base_use_case::set_run_broken(const bool b_)
-    // {
-    //   _run_broken_ = b_;
-    //   return;
-    // }
-
     /* Actions */
 
-    base_use_case::stage_completion base_use_case::run_prepare()
+    running::run_stage_completion base_use_case::run_prepare()
     {
-      DT_THROW_IF(!is_initialized(), std::logic_error,
-                  "Use case is not initialized!");
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_READY, std::logic_error,
-                  "Use case cannot prepare for running!");
-      stage_completion completion;
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_PREPARING;
+        DT_THROW_IF(!is_initialized(), std::logic_error,
+                    "Use case is not initialized!");
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_READY,
+                    std::logic_error,
+                    "Use case cannot prepare for running!");
+        _rc_->run_stage = running::RUN_STAGE_PREPARING;
         _at_run_prepare_();
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        completion.run_stage = _run_stage_;
-        _run_stage_ = RUN_STAGE_PREPARED;
+        completion.run_stage = _rc_->run_stage;
+        _rc_->run_stage = running::RUN_STAGE_PREPARED;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
-    base_use_case::stage_completion base_use_case::run_distributable_up()
+    running::run_stage_completion base_use_case::run_distributable_up()
     {
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_PREPARED, std::logic_error,
-                  "Use case is not prepared!");
-      stage_completion completion;
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_DISTRIBUTABLE_UP_RUNNING;
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_PREPARED,
+                    std::logic_error,
+                    "Use case is not prepared!");
+        _rc_->run_stage = running::RUN_STAGE_DISTRIBUTABLE_UP_RUNNING;
         _at_run_distributable_up_();
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        completion.run_stage = _run_stage_;
-        _run_stage_ = RUN_STAGE_DISTRIBUTABLE_UP_DONE;
+        completion.run_stage = _rc_->run_stage;
+        _rc_->run_stage = running::RUN_STAGE_DISTRIBUTABLE_UP_DONE;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
-    base_use_case::stage_completion base_use_case::run_functional_up()
+    running::run_stage_completion base_use_case::run_functional_up()
     {
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_DISTRIBUTABLE_UP_DONE, std::logic_error,
-                  "Distributable up is not done!");
-      stage_completion completion;
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_FUNCTIONAL_UP_RUNNING;
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_DISTRIBUTABLE_UP_DONE,
+                    std::logic_error,
+                    "Distributable up is not done!");
+        _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_UP_RUNNING;
         _at_run_functional_up_();
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        _run_stage_ = RUN_STAGE_FUNCTIONAL_UP_DONE;
+        _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_UP_DONE;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
     void base_use_case::_run_functional_work_loop_status_continue()
     {
-      _run_functional_work_loop_status_ = RUN_FUNCTIONAL_WORK_LOOP_ITERATE;
+      _rc_->run_functional_work_loop_status = running::RUN_FUNCTIONAL_WORK_LOOP_ITERATE;
       return;
     }
 
     void base_use_case::_run_functional_work_loop_status_stop()
     {
-      _run_functional_work_loop_status_ = RUN_FUNCTIONAL_WORK_LOOP_STOP;
+      _rc_->run_functional_work_loop_status = running::RUN_FUNCTIONAL_WORK_LOOP_STOP;
       return;
     }
 
-    void base_use_case::_run_work_init_()
-    {
-      return;
-    }
+    // void base_use_case::_run_work_init_()
+    // {
+    //   return;
+    // }
 
-    void base_use_case::_run_work_begin_()
-    {
-      // run_report_record * record = nullptr;
-      // run_report_record_dict_type::iterator found = _run_reports_.find(_stage_);
-      // if (found == _run_reports_.end()) {
-      //   run_report_record new_record = run_report_record;
-      //   new_record.start_stop = boost::posix_time::time_period(vire::time::now_utc(),
-      //                                                                 vire::time::invalid_time());
-      //   _run_reports_[_stage_] = new_record;
-      // } else {
-      //   record = &found->second;
-      // }
-      return;
-    }
+    // void base_use_case::_run_work_begin_()
+    // {
+    //   // run_report_record * record = nullptr;
+    //   // run_report_record_dict_type::iterator found = _run_reports_.find(_stage_);
+    //   // if (found == _run_reports_.end()) {
+    //   //   run_report_record new_record = run_report_record;
+    //   //   new_record.start_stop = boost::posix_time::time_period(vire::time::now_utc(),
+    //   //                                                                 vire::time::invalid_time());
+    //   //   _run_reports_[_stage_] = new_record;
+    //   // } else {
+    //   //   record = &found->second;
+    //   // }
+    //   return;
+    // }
 
-    void base_use_case::_run_work_end_()
-    {
-      return;
-    }
+    // void base_use_case::_run_work_end_()
+    // {
+    //   return;
+    // }
 
-    void base_use_case::_run_work_terminate_()
-    {
-      return;
-    }
+    // void base_use_case::_run_work_terminate_()
+    // {
+    //   return;
+    // }
 
-    base_use_case::stage_completion base_use_case::run_functional_work()
+    running::run_stage_completion base_use_case::run_functional_work()
     {
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_FUNCTIONAL_UP_DONE, std::logic_error,
-                  "Functional up is not done!");
-      _run_functional_work_loop_status_continue();
-      stage_completion completion;
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_FUNCTIONAL_WORK_RUNNING;
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_FUNCTIONAL_UP_DONE,
+                    std::logic_error,
+                    "Functional up is not done!");
+        _run_functional_work_loop_status_continue();
+        DT_LOG_TRACE(get_logging_priority(), "Default loop status...");
+        _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_WORK_RUNNING;
         // LOOP STAT INIT/RESET
-        while (_run_functional_work_loop_status_ == RUN_FUNCTIONAL_WORK_LOOP_ITERATE) {
+        DT_LOG_TRACE(get_logging_priority(), "Starting loop...");
+        while (_rc_->run_functional_work_loop_status == running::RUN_FUNCTIONAL_WORK_LOOP_ITERATE) {
           _run_functional_work_loop_status_stop();
           // LOOP STAT LAST BEGIN
           //_run_work_begin_(),
@@ -705,124 +493,134 @@ namespace vire {
           // LOOP STAT LAST END
           // LOOP STAT UPDATE
           // STAT_run_functional_work_loop_stat_.loop_count++;
+          _rc_->run_functional_work_loop_counter++;
         }
         // (LOOP STAT FINI)
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        _run_stage_ = RUN_STAGE_FUNCTIONAL_WORK_DONE;
+        _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_WORK_DONE;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
-    base_use_case::stage_completion base_use_case::run_functional_down()
+    running::run_stage_completion base_use_case::run_functional_down()
     {
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_FUNCTIONAL_WORK_DONE, std::logic_error,
-                  "Functional work is not done!");
-      stage_completion completion;
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_FUNCTIONAL_DOWN_RUNNING;
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_FUNCTIONAL_WORK_DONE,
+                    std::logic_error,
+                    "Functional work is not done!");
+         _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_DOWN_RUNNING;
         _at_run_functional_down_();
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        _run_stage_ = RUN_STAGE_FUNCTIONAL_DOWN_DONE;
+        _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_DOWN_DONE;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
-    base_use_case::stage_completion base_use_case::run_distributable_down()
+    running::run_stage_completion base_use_case::run_distributable_down()
     {
-      DT_THROW_IF(_run_stage_ != RUN_STAGE_FUNCTIONAL_DOWN_DONE, std::logic_error,
-                  "Functional down is not done!");
-      stage_completion completion;
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING;
+        DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_FUNCTIONAL_DOWN_DONE,
+                    std::logic_error,
+                    "Functional down is not done!");
+        _rc_->run_stage = running::RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING;
         _at_run_distributable_down_();
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        _run_stage_ = RUN_STAGE_DISTRIBUTABLE_DOWN_DONE;
+        _rc_->run_stage = running::RUN_STAGE_DISTRIBUTABLE_DOWN_DONE;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
-    base_use_case::stage_completion base_use_case::run_terminate()
+    running::run_stage_completion base_use_case::run_terminate()
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       // DT_THROW_IF(!_run_interrupt_
-      //             && _run_stage_ != RUN_STAGE_DISTRIBUTABLE_DOWN_DONE,
+      //             && _rc_->run_stage != running::RUN_STAGE_DISTRIBUTABLE_DOWN_DONE,
       //             std::logic_error,
       //             "Distributable down is not done while run !");
       // SOME CHECK HERE!!!
-      stage_completion completion;
+      running::run_stage_completion completion;
       try {
-        _run_stage_ = RUN_STAGE_TERMINATING;
+        _rc_->run_stage = running::RUN_STAGE_TERMINATING;
         _at_run_terminate_();
-        completion.run_termination = RUN_TERMINATION_NORMAL;
+        completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
-        _run_stage_ = RUN_STAGE_TERMINATED;
+        _rc_->run_stage = running::RUN_STAGE_TERMINATED;
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
         completion.error_class_id = "vire::cmsserver::base_use_case::exception";
         x.export_error_data(completion.error_data);
       } catch (std::exception & x) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "std::exception";
         completion.error_data.put("what", x.what());
       } catch (...) {
         completion.timestamp = vire::time::now_utc();
-        completion.run_termination = RUN_TERMINATION_ERROR;
-        completion.run_stage = _run_stage_;
+        completion.run_termination = running::RUN_TERMINATION_ERROR;
+        completion.run_stage = _rc_->run_stage;
         completion.error_class_id = "unsupported exception";
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return completion;
     }
 
@@ -843,15 +641,6 @@ namespace vire {
 
     void base_use_case::_at_run_functional_work_loop_iteration_()
     {
-      // if (has_functional_work_min_duration()) {
-      //   boost::posix_time::time_duration d = get_functional_work_min_duration();
-      //   for (long tick = 1; tick <= d.seconds(); tick++) {
-      //     std::this_thread::sleep_for(std::chrono::seconds(1));
-      //     DT_LOG_DEBUG(get_logging_priority(),
-      //                  "Elapsed = " << tick << '/'<< _functional_work_time_sec_ << " sec");
-      //   }
-      // }
-      // _run_functional_work_loop_status_continue();
       return;
     }
 
@@ -867,6 +656,24 @@ namespace vire {
 
     void base_use_case::_at_run_terminate_()
     {
+      return;
+    }
+
+    void base_use_case::dry_run_generate(session_info & sinfo_) const
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      DT_THROW_IF(!is_initialized(), std::logic_error,
+                  "Use case is not initialized!");
+      DT_THROW_IF(!is_dry_run(), std::logic_error,
+                  "Use case is not in 'dry-run' mode!");
+      _at_dry_run_generate_(sinfo_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+ 
+    void base_use_case::_at_dry_run_generate_(session_info & sinfo_) const
+    {
+      sinfo_.reset();      
       return;
     }
 
@@ -907,17 +714,13 @@ namespace vire {
         }
         
       }
-      
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Role expression  : ";
-      out_ << "'" << _role_expression_ << "'";
-      out_ << std::endl;
-       
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Role expression  : ";
-      out_ << "'" << _role_expression_ << "'";
-      out_ << std::endl;
+        
+      // out_ << popts.indent << datatools::i_tree_dumpable::tag
+      //      << "Role expression  : ";
+      // out_ << "'" << _role_expression_ << "'";
+      // out_ << std::endl;
 
+      /*
       out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Distributable up max duration   : ";
       if (has_distributable_up_max_duration()) {
@@ -979,32 +782,43 @@ namespace vire {
       // out_ << popts.indent << datatools::i_tree_dumpable::tag
       //      << "Total max duration : " << vire::time::to_string(get_total_max_duration())
       //      << std::endl;
-
+      */
+      
       out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Initialized : " << std::boolalpha << is_initialized()
            << std::endl;
-
+      
       out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Run stage : '" << run_stage_label(_run_stage_) << "'"
+           << "Dry-run : " << std::boolalpha << is_dry_run()
            << std::endl;
 
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Mother session : ";
-      if (has_mother_session()) {
-        out_ << _mother_session_;
-      } else {
-        out_ << "<none>";
+      if (!is_dry_run()) {
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
+             << "Mother session : ";
+        if (_mother_session_ != nullptr) {
+          out_ << _mother_session_;
+        } else {
+          out_ << "<none>";
+        }
+        out_ << std::endl;
       }
-      out_ << std::endl;
 
-      out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
-           << "Run stage : ";
-      out_ << _run_stage_;
-      out_ << std::endl;
+      if (has_rc() ) {
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
+             << "Run stage : '" << running::run_stage_label(_rc_->run_stage) << "'"
+             << std::endl;
+      }
+
+      if (! popts.inherit) {
+        out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
+             << "End.";
+        out_ << std::endl;
+      }
 
       return;
     }
 
+    /*
     // static
     use_case_ptr_type base_use_case::_create_use_case_(const std::string & use_case_type_id_,
                                                        session * mother_session_)
@@ -1021,6 +835,7 @@ namespace vire {
       new_use_case->_mother_session_ = mother_session_;
       return new_use_case;
     }
+    */
     
   } // namespace cmsserver
 

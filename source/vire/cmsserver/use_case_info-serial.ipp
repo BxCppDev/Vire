@@ -43,10 +43,6 @@ namespace vire {
       archive_ & boost::serialization::make_nvp("name", _name_);
       archive_ & boost::serialization::make_nvp("description", _description_);
       archive_ & boost::serialization::make_nvp("role_definition", _role_definition_);
-      // archive_ & boost::serialization::make_nvp("special_functional_cardinalities",
-      //                                           _special_functional_cardinalities_);
-      // archive_ & boost::serialization::make_nvp("special_distributable_cardinalities",
-      //                                           _special_distributable_cardinalities_);
       archive_ & boost::serialization::make_nvp("use_case_type_id", _use_case_type_id_);
       archive_ & boost::serialization::make_nvp("use_case_config_path", _use_case_config_path_);
       archive_ & boost::serialization::make_nvp("use_case_config", _use_case_config_);
