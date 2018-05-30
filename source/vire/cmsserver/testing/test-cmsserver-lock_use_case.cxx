@@ -46,7 +46,7 @@ void test_lock_use_case_1()
 {
   std::clog << "\ntest_lock_use_case_1: dry run..." << std::endl;
 
-  vire::cmsserver::lock_use_case lock(vire::cmsserver::lock_use_case::INIT_DRY_RUN);
+  vire::cmsserver::lock_use_case lock;
   lock.set_name("lock");
   lock.set_display_name("Lock");
   lock.set_terse_description("Test lock use case");
@@ -69,7 +69,7 @@ void test_lock_use_case_2()
 {
   std::clog << "\ntest_lock_use_case_2: running..." << std::endl;
 
-  vire::cmsserver::lock_use_case lock;
+  vire::cmsserver::lock_use_case lock(vire::cmsserver::lock_use_case::INIT_RUN);
   lock.set_name("lock");
   lock.set_display_name("Lock");
   lock.set_terse_description("Test lock use case");
@@ -82,11 +82,19 @@ void test_lock_use_case_2()
   lock.print_tree(std::clog);
 
   vire::cmsserver::running::run_stage_completion rsc = lock.run_prepare();
+
   rsc = lock.run_distributable_up();
   rsc = lock.run_functional_up();
   rsc = lock.run_functional_work();
   rsc = lock.run_functional_down();
   rsc = lock.run_distributable_down();
+
+  rsc = lock.run_distributable_up();
+  rsc = lock.run_functional_up();
+  rsc = lock.run_functional_work();
+  rsc = lock.run_functional_down();
+  rsc = lock.run_distributable_down();
+
   rsc = lock.run_terminate();
   
   std::clog << "Termination." << std::endl;

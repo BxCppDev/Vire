@@ -107,6 +107,13 @@ namespace vire {
         RUN_STAGE_TERMINATED = 15                  ///< terminated stage
       };
 
+      /// \brief Resource running depth 
+      enum run_resource_depth_type {
+        RUN_RESOURCE_DEPTH_DISTRIBUTABLE   = 1, ///< Run distributable up/down 
+        RUN_RESOURCE_DEPTH_FUNCTIONAL_AUTO = 2, ///< Run functional up/down
+        RUN_RESOURCE_DEPTH_FUNCTIONAL_WORK = 3  ///< Run functional work
+      };
+      
       /// Return the label associated to a given run stage
       std::string run_stage_label(const run_stage_type);
 
@@ -156,10 +163,16 @@ namespace vire {
       /// \brief Dictionary of stage report records associated to different running stages
       typedef std::map<run_stage_type, run_stage_report_record> run_report_type;
 
+      /// \brief Preparation run status
+      enum run_preparation_status_type {
+        RUN_PREPARE_STATUS_OK = 0, 
+        RUN_PREPARE_STATUS_ERROR = 1
+      };
+
       /// \brief Control status for functional work loop
       enum run_functional_work_loop_status_type {
-        RUN_FUNCTIONAL_WORK_LOOP_ITERATE = 0,
-        RUN_FUNCTIONAL_WORK_LOOP_STOP    = 1
+        RUN_FUNCTIONAL_WORK_LOOP_CONTINUE = 0, 
+        RUN_FUNCTIONAL_WORK_LOOP_STOP     = 1
       };
 
       // struct run_base_signal {};
@@ -187,14 +200,13 @@ namespace vire {
         run_stage_type                       run_stage   = RUN_STAGE_UNDEF;
         //! Counter of functional work loop
         std::size_t                          run_functional_work_loop_counter = 0;
-        //! Status of the functional work loop
-        run_functional_work_loop_status_type run_functional_work_loop_status;
         //! Run report
         run_report_type                      run_report;                    
 
       private:
         // std::thread  _thread(s)_ // ??? main thread/stage thread/watchdog thread (or in the use case's mother session)
         std::mutex                _run_stop_request_mutex_;        //!< Mutex for the stop request flag
+        // Atomic bool
         bool                      _run_stop_requested_ = false;    //!< Stop request flag
         
       };

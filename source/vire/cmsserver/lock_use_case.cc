@@ -29,7 +29,6 @@ namespace vire {
     {
       vire::time::invalidate(_duration_);
       _tick_ = boost::posix_time::seconds(1);
-      _run_tick_count_ = 0;
       return;
     }
     
@@ -108,19 +107,25 @@ namespace vire {
       return utc_p;
     }
 
-    void lock_use_case::_at_run_prepare_()
+    running::run_preparation_status_type
+    lock_use_case::_at_run_prepare_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      _run_tick_count_ = 0;
+      running::run_preparation_status_type ret = running::RUN_PREPARE_STATUS_OK;
       _run_start_time_ = vire::time::now_utc();
       _run_stop_time_ = _run_start_time_ + _duration_;
       DT_LOG_TRACE_EXITING(get_logging_priority());
-      return;
+      return ret;
     }
 
-    void lock_use_case::_at_run_functional_work_loop_iteration_()
+    running::run_functional_work_loop_status_type
+    lock_use_case::_at_run_functional_work_loop_iteration_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_functional_work_loop_status_type ret = running::RUN_FUNCTIONAL_WORK_LOOP_STOP;
+      
+      // Note: Algorithm to be reviewed and use std::this_thread::sleep_until
+
       boost::posix_time::ptime now = vire::time::now_utc();
       // Compute remaining time:
       boost::posix_time::time_duration sleep_amount = _run_stop_time_ - now;
@@ -133,14 +138,11 @@ namespace vire {
         = std::chrono::microseconds(usecs);
       if (now < _run_stop_time_) {
         DT_LOG_TRACE(get_logging_priority(), "Sleep for " << sleep_time.count() << " us");
-      std::this_thread::sleep_for(sleep_time);
-        _run_functional_work_loop_status_continue();
-      } else {
-        _run_functional_work_loop_status_stop();
+        std::this_thread::sleep_for(sleep_time);
+        ret = running::RUN_FUNCTIONAL_WORK_LOOP_CONTINUE;
       }
-      _run_tick_count_++;
       DT_LOG_TRACE_EXITING(get_logging_priority());
-      return;
+      return ret;
     }
 
     // virtual
@@ -162,11 +164,6 @@ namespace vire {
       out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Tick : "
            << _tick_
-           << std::endl;
-      
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Run tick count : "
-           << _run_tick_count_
            << std::endl;
 
       out_ << popts.indent << datatools::i_tree_dumpable::tag

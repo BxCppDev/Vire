@@ -65,7 +65,8 @@ namespace vire {
 
       virtual std::shared_ptr<uc_time_constraints> _build_time_constraints() override;
        
-      virtual void _at_run_prepare_() override;
+      virtual running::run_preparation_status_type
+      _at_run_prepare_() override;
 
       /**
        *
@@ -76,7 +77,8 @@ namespace vire {
        *                     tick
        *
        */
-      virtual void _at_run_functional_work_loop_iteration_() override;
+      virtual running::run_functional_work_loop_status_type
+      _at_run_functional_work_loop_iteration_() override;
 
     private:
 
@@ -85,7 +87,6 @@ namespace vire {
       boost::posix_time::time_duration _tick_;      //!< Loop tick
 
       // Working data:
-      std::size_t              _run_tick_count_;      //!< Tick count
       boost::posix_time::ptime _run_start_time_; //!< Start time (UTC)
       boost::posix_time::ptime _run_stop_time_;  //!< Stop time (UTC)
     

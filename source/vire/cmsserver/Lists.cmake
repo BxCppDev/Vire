@@ -17,8 +17,8 @@ list(APPEND VireLibrary_HEADERS
   # cmsserver/session_manager.h
   cmsserver/base_use_case.h
   cmsserver/lock_use_case.h
-  cmsserver/sequence_use_case.h
-  cmsserver/parallel_use_case.h
+  # cmsserver/sequence_use_case.h
+  # cmsserver/parallel_use_case.h
   #cmsserver/shell_use_case.h
   cmsserver/session_info.h
   #cmsserver/session.h
@@ -47,8 +47,8 @@ list(APPEND VireLibrary_SOURCES
   cmsserver/session_reservation.cc
   cmsserver/base_use_case.cc
   cmsserver/lock_use_case.cc
-  cmsserver/sequence_use_case.cc
-  cmsserver/parallel_use_case.cc
+  # cmsserver/sequence_use_case.cc
+  # cmsserver/parallel_use_case.cc
   #cmsserver/shell_use_case.cc
   cmsserver/session_info.cc
   #cmsserver/session.cc

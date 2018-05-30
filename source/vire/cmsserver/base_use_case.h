@@ -63,6 +63,25 @@ namespace vire {
     //!    - repeater/loop_use_case [1 child]
     //!  - wait_use_case / wait_condition_use_case
     //!  - lock_use_case
+    //!
+    //!
+    //!            +---------+
+    //!            |         |
+    //!            +---------+
+    //!  run_prepare  |   ^ run_terminate
+    //!               v   |
+    //! +---------------------------------+
+    //! |                                 | distributable
+    //! +---------------------------------+
+    //!    
+    //! +---------------------------------+
+    //! |                                 | distributable
+    //! +---------------------------------+
+    //!
+    //!
+    //!
+    //!
+    //!
     class base_use_case
       : private boost::noncopyable
       , public datatools::enriched_base
@@ -72,8 +91,9 @@ namespace vire {
       /// Dictionary of relative functional device/resource path
       typedef std::map<std::string, std::string> relative_functional_dict_type;
 
+      /// \brief Initialization flags
       enum init_flags {
-        INIT_DRY_RUN = datatools::bit_mask::bit00 ///< Dry run bit flag
+        INIT_RUN = datatools::bit_mask::bit00 ///< Run bit flag
       };
       
       //! Default constructor
@@ -83,7 +103,10 @@ namespace vire {
       virtual ~base_use_case();
 
       //! Check dry run mode
-      bool is_dry_run() const;
+      bool is_dry_run_mode() const;
+
+      //! Check run mode
+      bool is_run_mode() const;
 
       bool has_resource_constraints() const;
 
@@ -197,19 +220,20 @@ namespace vire {
       
       // Running (not in "dry run" mode):
 
-      virtual void _at_run_prepare_();
+      virtual running::run_preparation_status_type _at_run_prepare_();
+
+      virtual running::run_preparation_status_type _at_run_terminate_();
 
       virtual void _at_run_distributable_up_();
 
-      virtual void _at_run_functional_up_();
+      virtual void _at_run_distributable_down_();
 
-      virtual void _at_run_functional_work_loop_iteration_();
+      virtual void _at_run_functional_up_();
 
       virtual void _at_run_functional_down_();
 
-      virtual void _at_run_distributable_down_();
-
-      virtual void _at_run_terminate_();
+      virtual running::run_functional_work_loop_status_type
+      _at_run_functional_work_loop_iteration_();
 
       /// Generate a session info for this use case (only in "dry-run" mode)
       virtual void _at_dry_run_generate_(session_info & sinfo_) const;
@@ -218,16 +242,14 @@ namespace vire {
 
       bool _check_run_stop_requested() const;
 
-      void _run_functional_work_loop_status_continue();
-
-      void _run_functional_work_loop_status_stop();
-
     private:
 
       // System management:
-      bool _initialized_ = false; //!< Initialization flag
-      bool _dry_run_     = false; //!< "dry-run" mode flag
-      const session * _mother_session_ = nullptr; //!< Not in "dry-run" mode
+      bool _initialized_  = false;  //!< Initialization flag
+      bool _run_mode_     = false ; //!< "run" mode flag (default is "dry-run" mode)
+      bool _run_prepared_ = false ; //!< prepared run flag (only in "run" mode)
+      bool _run_depth_    = running::RUN_RESOURCE_DEPTH_FUNCTIONAL_WORK; //!< Resource running depth
+      const session * _run_session_ = nullptr; //!< (only in "run" mode)
 
       // Configuration:
 

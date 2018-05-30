@@ -129,8 +129,9 @@ namespace vire {
           return;
         }
 
-        void _at_run_functional_work_loop_iteration_() override
+        running::run_functional_work_loop_status_type _at_run_functional_work_loop_iteration_() override
         {
+          running::run_functional_work_loop_status_type ret = running::RUN_FUNCTIONAL_WORK_LOOP_STOP;
           std::cerr << "dummy_use_case: work functional: entering..." << std::endl;
           for (unsigned int tick = 1; tick <= _functional_work_time_sec_; tick++) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -138,7 +139,7 @@ namespace vire {
                       << tick << '/'<< _functional_work_time_sec_ << " sec" << std::endl;
           }
           std::cerr << "dummy_use_case: work functional: exiting." << std::endl;
-          return;
+          return ret;
         }
 
         void _at_run_functional_down_() override

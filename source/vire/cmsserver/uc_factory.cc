@@ -48,8 +48,8 @@ namespace vire {
                   "Invalid use case info record!");
       std::shared_ptr<base_use_case> uc_ptr
         = _base_create_(uc_info_.get_use_case_type_id());
-      uc_ptr->_dry_run_ = true;
-      uc_ptr->_mother_session_ = nullptr;
+      uc_ptr->_run_mode_ = false;
+      uc_ptr->_run_session_ = nullptr;
       datatools::properties uc_config;
       const datatools::properties * uc_config_p = nullptr;
       if (uc_info_.has_use_case_config()) {
@@ -68,12 +68,12 @@ namespace vire {
 
     std::shared_ptr<base_use_case>
     uc_factory::create_run(const session_info & sinfo_,
-                           const session * mother_)
+                           const session * run_session_)
     {
       std::shared_ptr<base_use_case> uc_ptr;
       /*
-      uc_ptr->_dry_run_ = false;
-      uc_ptr->_mother_session_ = mother_;
+      uc_ptr->_run_mode_ = true;
+      uc_ptr->_run_session_ = run_session_;
       */
       return uc_ptr;
     }

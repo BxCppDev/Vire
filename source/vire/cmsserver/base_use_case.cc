@@ -107,8 +107,8 @@ namespace vire {
  
     base_use_case::base_use_case(const uint32_t flags_)
     {
-      if (flags_ & INIT_DRY_RUN) {
-        _dry_run_ = true;
+      if (flags_ & INIT_RUN) {
+        _run_mode_ = true;
       }
       return;
     }
@@ -137,9 +137,14 @@ namespace vire {
       return _initialized_;
     }
 
-    bool base_use_case::is_dry_run() const
+    bool base_use_case::is_dry_run_mode() const
     {
-      return _dry_run_;
+      return !_run_mode_;
+    }
+
+    bool base_use_case::is_run_mode() const
+    {
+      return _run_mode_;
     }
 
     bool base_use_case::has_resource_constraints() const
@@ -193,7 +198,7 @@ namespace vire {
 
       _at_initialize_(config_);
 
-      if (! is_dry_run()) {
+      if (! is_dry_run_mode()) {
         // Install a run control structure:
         _rc_.reset(new running::run_control);
         _rc_->run_stage = running::RUN_STAGE_READY;
@@ -209,7 +214,7 @@ namespace vire {
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Use case is not initialized!");
       /*
-        if (!is_dry_run()) {
+        if (!is_dry_run_mode()) {
         if (has_rc()) {
         DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_TERMINATED, std::logic_error,
         "Use case run is not terminated!");
@@ -282,8 +287,8 @@ namespace vire {
     void base_use_case::_basic_initialize_(const datatools::properties & config_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      if (!is_dry_run()) {
-        // DT_THROW_IF(_mother_session_ == nullptr, std::logic_error,
+      if (!is_dry_run_mode()) {
+        // DT_THROW_IF(_run_session_ == nullptr, std::logic_error,
         //             "No mother session is set!");
       }
       
@@ -298,8 +303,8 @@ namespace vire {
     void base_use_case::_basic_finalize_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      if (!is_dry_run()) {
-        _mother_session_ = nullptr;
+      if (!is_dry_run_mode()) {
+        _run_session_ = nullptr;
         _rc_.reset();
       }
       _resource_constraints_.reset();
@@ -334,7 +339,7 @@ namespace vire {
                     std::logic_error,
                     "Use case cannot prepare for running!");
         _rc_->run_stage = running::RUN_STAGE_PREPARING;
-        _at_run_prepare_();
+        running::run_preparation_status_type _at_run_prepare_();
         completion.run_termination = running::RUN_TERMINATION_NORMAL;
         completion.timestamp = vire::time::now_utc();
         completion.run_stage = _rc_->run_stage;
@@ -429,18 +434,6 @@ namespace vire {
       return completion;
     }
 
-    void base_use_case::_run_functional_work_loop_status_continue()
-    {
-      _rc_->run_functional_work_loop_status = running::RUN_FUNCTIONAL_WORK_LOOP_ITERATE;
-      return;
-    }
-
-    void base_use_case::_run_functional_work_loop_status_stop()
-    {
-      _rc_->run_functional_work_loop_status = running::RUN_FUNCTIONAL_WORK_LOOP_STOP;
-      return;
-    }
-
     // void base_use_case::_run_work_init_()
     // {
     //   return;
@@ -479,21 +472,23 @@ namespace vire {
         DT_THROW_IF(_rc_->run_stage != running::RUN_STAGE_FUNCTIONAL_UP_DONE,
                     std::logic_error,
                     "Functional up is not done!");
-        _run_functional_work_loop_status_continue();
-        DT_LOG_TRACE(get_logging_priority(), "Default loop status...");
         _rc_->run_stage = running::RUN_STAGE_FUNCTIONAL_WORK_RUNNING;
         // LOOP STAT INIT/RESET
         DT_LOG_TRACE(get_logging_priority(), "Starting loop...");
-        while (_rc_->run_functional_work_loop_status == running::RUN_FUNCTIONAL_WORK_LOOP_ITERATE) {
-          _run_functional_work_loop_status_stop();
+        running::run_functional_work_loop_status_type continue_flag = running::RUN_FUNCTIONAL_WORK_LOOP_CONTINUE;
+        while (continue_flag == running::RUN_FUNCTIONAL_WORK_LOOP_CONTINUE
+               && !_rc_->check_run_stop_requested()) {
+          DT_LOG_TRACE(get_logging_priority(), "Loop...");
+          _rc_->run_functional_work_loop_counter++;
+
           // LOOP STAT LAST BEGIN
           //_run_work_begin_(),
-          _at_run_functional_work_loop_iteration_();
+
+          continue_flag = _at_run_functional_work_loop_iteration_();
+          
           //_run_work_end_(),
           // LOOP STAT LAST END
           // LOOP STAT UPDATE
-          // STAT_run_functional_work_loop_stat_.loop_count++;
-          _rc_->run_functional_work_loop_counter++;
         }
         // (LOOP STAT FINI)
         completion.run_termination = running::RUN_TERMINATION_NORMAL;
@@ -624,27 +619,19 @@ namespace vire {
       return completion;
     }
 
-    void base_use_case::_at_run_prepare_()
+    running::run_preparation_status_type base_use_case::_at_run_prepare_()
     {
-      return;
+      running::run_preparation_status_type ret = running::RUN_PREPARE_STATUS_OK;
+      return ret;
+    }
+
+    running::run_preparation_status_type base_use_case::_at_run_terminate_()
+    {
+      running::run_preparation_status_type ret = running::RUN_PREPARE_STATUS_OK;
+      return ret;
     }
 
     void base_use_case::_at_run_distributable_up_()
-    {
-      return;
-    }
-
-    void base_use_case::_at_run_functional_up_()
-    {
-      return;
-    }
-
-    void base_use_case::_at_run_functional_work_loop_iteration_()
-    {
-      return;
-    }
-
-    void base_use_case::_at_run_functional_down_()
     {
       return;
     }
@@ -654,9 +641,23 @@ namespace vire {
       return;
     }
 
-    void base_use_case::_at_run_terminate_()
+    void base_use_case::_at_run_functional_up_()
     {
       return;
+    }
+
+    void base_use_case::_at_run_functional_down_()
+    {
+      return;
+    }
+
+    running::run_functional_work_loop_status_type
+    base_use_case::_at_run_functional_work_loop_iteration_()
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      running::run_functional_work_loop_status_type ret = running::RUN_FUNCTIONAL_WORK_LOOP_STOP;
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return ret;
     }
 
     void base_use_case::dry_run_generate(session_info & sinfo_) const
@@ -664,7 +665,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Use case is not initialized!");
-      DT_THROW_IF(!is_dry_run(), std::logic_error,
+      DT_THROW_IF(!is_dry_run_mode(), std::logic_error,
                   "Use case is not in 'dry-run' mode!");
       _at_dry_run_generate_(sinfo_);
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -789,14 +790,14 @@ namespace vire {
            << std::endl;
       
       out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Dry-run : " << std::boolalpha << is_dry_run()
+           << "Dry-run : " << std::boolalpha << is_dry_run_mode()
            << std::endl;
 
-      if (!is_dry_run()) {
+      if (is_run_mode()) {
         out_ << popts.indent << datatools::i_tree_dumpable::tag
              << "Mother session : ";
-        if (_mother_session_ != nullptr) {
-          out_ << _mother_session_;
+        if (_run_session_ != nullptr) {
+          out_ << _run_session_;
         } else {
           out_ << "<none>";
         }
@@ -821,7 +822,7 @@ namespace vire {
     /*
     // static
     use_case_ptr_type base_use_case::_create_use_case_(const std::string & use_case_type_id_,
-                                                       session * mother_session_)
+                                                       session * run_session_)
     {
       use_case_ptr_type new_use_case;
       const factory_register_type & the_factory_register
@@ -832,7 +833,7 @@ namespace vire {
                   "Use case factory has no type with identifier '" << use_case_type_id_ << "'!");
       const factory_register_type::factory_type & the_factory = the_factory_register.get(use_case_type_id_);
       new_use_case.reset(the_factory());
-      new_use_case->_mother_session_ = mother_session_;
+      new_use_case->_run_session_ = run_session_;
       return new_use_case;
     }
     */
