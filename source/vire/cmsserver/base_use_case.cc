@@ -339,11 +339,18 @@ namespace vire {
                     std::logic_error,
                     "Use case cannot prepare for running!");
         _rc_->run_stage = running::RUN_STAGE_PREPARING;
-        running::run_preparation_status_type _at_run_prepare_();
-        completion.run_termination = running::RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now_utc();
-        completion.run_stage = _rc_->run_stage;
-        _rc_->run_stage = running::RUN_STAGE_PREPARED;
+        running::run_preparation_status_type ret = _at_run_prepare_();
+        if (ret != running::RUN_PREPARE_STATUS_OK) {
+          completion.timestamp = vire::time::now_utc();
+          completion.run_termination = running::RUN_TERMINATION_ERROR;
+          completion.error_class_id = "";
+          completion.error_data.put("what", "Run preparation failed");
+        } else {
+          completion.run_termination = running::RUN_TERMINATION_NORMAL;
+          completion.timestamp = vire::time::now_utc();
+          completion.run_stage = _rc_->run_stage;
+          _rc_->run_stage = running::RUN_STAGE_PREPARED;
+        }
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
         completion.run_termination = running::RUN_TERMINATION_ERROR;
@@ -594,10 +601,17 @@ namespace vire {
       running::run_stage_completion completion;
       try {
         _rc_->run_stage = running::RUN_STAGE_TERMINATING;
-        _at_run_terminate_();
-        completion.run_termination = running::RUN_TERMINATION_NORMAL;
-        completion.timestamp = vire::time::now_utc();
-        _rc_->run_stage = running::RUN_STAGE_TERMINATED;
+        running::run_preparation_status_type ret = _at_run_terminate_();
+        if (ret != running::RUN_PREPARE_STATUS_OK) {
+          completion.timestamp = vire::time::now_utc();
+          completion.run_termination = running::RUN_TERMINATION_ERROR;
+          completion.error_class_id = "";
+          completion.error_data.put("what", "Run termination failed");
+        } else {
+          completion.run_termination = running::RUN_TERMINATION_NORMAL;
+          completion.timestamp = vire::time::now_utc();
+          _rc_->run_stage = running::RUN_STAGE_TERMINATED;
+        }
       } catch (base_exception & x) {
         completion.timestamp = vire::time::now_utc();
         completion.run_termination = running::RUN_TERMINATION_ERROR;

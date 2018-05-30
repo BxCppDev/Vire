@@ -114,6 +114,8 @@ namespace vire {
       running::run_preparation_status_type ret = running::RUN_PREPARE_STATUS_OK;
       _run_start_time_ = vire::time::now_utc();
       _run_stop_time_ = _run_start_time_ + _duration_;
+      DT_LOG_TRACE(get_logging_priority(), "Run start time = " << _run_start_time_);
+      DT_LOG_TRACE(get_logging_priority(), "Run stop time  = " << _run_stop_time_);
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return ret;
     }
@@ -127,8 +129,10 @@ namespace vire {
       // Note: Algorithm to be reviewed and use std::this_thread::sleep_until
 
       boost::posix_time::ptime now = vire::time::now_utc();
+      DT_LOG_TRACE(get_logging_priority(), "Now = " << now);
       // Compute remaining time:
       boost::posix_time::time_duration sleep_amount = _run_stop_time_ - now;
+      DT_LOG_TRACE(get_logging_priority(), "Remaining time " << sleep_amount << " us");
       if (sleep_amount > _tick_) {
         sleep_amount = _tick_;
       }
