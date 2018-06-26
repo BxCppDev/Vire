@@ -30,6 +30,7 @@
 #include <boost/algorithm/string/find.hpp>
 // - Bayeux/datatools:
 #include <bayeux/datatools/utils.h>
+#include <bayeux/datatools/exception.h>
 
 // This Project:
 // #include <vire/version.h>
@@ -94,16 +95,31 @@ namespace vire {
     }
 
     // static
+    bool path::validate_setup(const std::string & setup_)
+    {
+      static const uint32_t nv_flags = datatools::NV_NO_COLON
+        | datatools::NV_NO_DOT
+        | datatools::NV_NO_HYPHEN;
+      return datatools::name_validation(setup_, nv_flags);
+    }
+
+    // static
+    bool path::validate_path_segment(const std::string & token_)
+    {
+      static const uint32_t nv_flags = datatools::NV_NO_COLON
+        | datatools::NV_NO_DOT
+        | datatools::NV_NO_HYPHEN;
+      return datatools::name_validation(token_, nv_flags);
+    }
+
+    // static
     bool path::build(const std::string & setup_,
                      const std::vector<std::string> & segments_,
                      std::string & path_)
     {
       path_.clear();
       if (setup_.empty()) return false;
-      static const uint32_t nv_flags = datatools::NV_NO_COLON
-        | datatools::NV_NO_DOT
-        | datatools::NV_NO_HYPHEN;
-      if (! datatools::name_validation(setup_, nv_flags)) {
+      if (! validate_setup(setup_)) {
         return false;
       }
       std::ostringstream opath;
@@ -113,7 +129,7 @@ namespace vire {
       if (segments_.size()) {
         opath << path::root_symbol();
         for (std::size_t i = 0; i < segments_.size(); i++) {
-          if (! datatools::name_validation(segments_[i], nv_flags)) {
+          if (! validate_path_segment(segments_[i])) {
             return false;
           }
           if (i > 0) opath << path_separator();
@@ -219,7 +235,6 @@ namespace vire {
     {
       segments_.clear();
       std::string dirs = dirs_;
-      // std::cerr << "DEVEL: dirs_to_segments: dirs='" << dirs << "'" << std::endl;
       if (dirs.empty()) {
         return false;
       }
@@ -227,17 +242,12 @@ namespace vire {
         return false;
       }
       dirs = dirs.substr(1); // skip the root symbol
-      // std::cerr << "DEVEL: dirs_to_segments: dirs.substr='" << dirs << "'" << std::endl;
       if (dirs.length()) {
         std::vector<std::string> segs_tokens;
         boost::split(segs_tokens, dirs, boost::is_from_range(path_separator(),path_separator()));
-        static const uint32_t nv_flags = datatools::NV_NO_COLON
-          | datatools::NV_NO_DOT
-          | datatools::NV_NO_HYPHEN;
         for (std::size_t i = 0; i < segs_tokens.size(); i++) {
           const std::string & seg = segs_tokens[i];
-          // std::cerr << "DEVEL: dirs_to_segments: i=" << i << " seg='" << seg << "'" << std::endl;
-          if (! datatools::name_validation(seg, nv_flags)) {
+          if (! validate_path_segment(seg)) {
             segments_.clear();
             return false;
           }
@@ -262,8 +272,7 @@ namespace vire {
         return false;
       }
       setup = path.substr(0, found_setup_sep);
-      // std::cerr << "[devel] path::extract: setup ='" << setup << "'" << std::endl;
-      if (setup.empty()) {
+      if (setup.empty() || !validate_setup(setup)) {
         return false;
       }
       path = path.substr(found_setup_sep + 1);
@@ -280,14 +289,10 @@ namespace vire {
           return false;
         }
         boost::split(segs, path, boost::is_from_range(path_separator(), path_separator()));
-        static const uint32_t segment_nv_flags
-          = datatools::NV_NO_COLON
-          | datatools::NV_NO_DOT
-          | datatools::NV_NO_HYPHEN;
         for (std::size_t i = 0; i < segs.size() - 1; i++) {
           const std::string & segment = segs[i];
           if (segment.empty()) return false;
-          if (! datatools::name_validation(segment, segment_nv_flags)) {
+          if (! validate_path_segment(segment)) {
             return false;
           }
         }
@@ -341,12 +346,9 @@ namespace vire {
       std::vector<std::string> address_tokens;
       boost::split(address_tokens, address_, boost::is_from_range(address_separator(), address_separator()));
       if (address_tokens.size() < 2) return false;
-      static const uint32_t nv_flags = datatools::NV_NO_COLON
-        | datatools::NV_NO_DOT
-        | datatools::NV_NO_HYPHEN;
       for (std::size_t i = 0; i < address_tokens.size(); i++) {
         const std::string & addr = address_tokens[i];
-        if (! datatools::name_validation(addr, nv_flags)) {
+        if (! validate_path_segment(addr)) {
           return false;
         }
       }
@@ -478,8 +480,30 @@ namespace vire {
       return;
     }
 
+    path::path(const std::string & setup_,
+               const std::string & dirs_,
+               const std::string & leaf_)
+    {
+      set_setup(setup_);
+      std::vector<std::string> segments;
+      DT_THROW_IF(!dirs_to_segments(dirs_, segments),
+                  std::logic_error,
+                  "Invalid dirs expression '" << dirs_ << "'!");
+      _segments_ = segments;
+      if (!leaf_.empty()) {
+        DT_THROW_IF(! validate_path_segment(leaf_),
+                    std::logic_error,
+                    "Invalid leaf '" << leaf_ << "'!");
+        _segments_.push_back(leaf_);
+      }
+      return;
+    }
+
     void path::set_setup(const std::string & setup_)
     {
+      DT_THROW_IF(! validate_setup(setup_),
+                  std::logic_error,
+                  "Invalid setup '" << setup_ << "'!");
       _setup_ = setup_;
       return;
     }
@@ -494,8 +518,15 @@ namespace vire {
       return _segments_;
     }
 
-    void path::set_segments(const std::vector<std::string> & segments_)
+    void path::set_segments(const std::vector<std::string> & segments_,  const bool no_check_)
     {
+      if (!no_check_) {
+        for (const auto & token : segments_) {
+          DT_THROW_IF(! validate_path_segment(token),
+                      std::logic_error,
+                      "Invalid path segment '" << token << "'!");
+        }
+      }
       _segments_ = segments_;
       return;
     }
@@ -517,6 +548,265 @@ namespace vire {
     {
       if (!is_valid()) return false;
       return (_segments_.size() == 0);
+    }
+
+    std::size_t path::get_depth() const
+    {
+      return _segments_.size();
+    }
+
+    bool path::operator==(const path & p_) const
+    {
+      if (_setup_ != p_._setup_) return false;
+      if (_segments_.size() != p_._segments_.size()) return false;
+      for (std::size_t i = 0; i < _segments_.size(); i++) {
+        if (_segments_[i] == p_._segments_[i])  return false;
+      }
+      return true;
+    }
+
+    bool path::operator<(const path & p_) const
+    {
+      if (_setup_ < p_._setup_) return true;
+      if (_segments_.size() < p_._segments_.size()) return true;
+      for (std::size_t i = 0; i < _segments_.size(); i++) {
+        if (_segments_[i] < p_._segments_[i])  return true;
+      }
+      return false;
+    }
+
+    void path::to_string(std::string & repr_) const
+    {
+      build(_setup_, _segments_, repr_);
+      return;
+    }
+
+    std::string path::to_string() const
+    {
+      return build(_setup_, _segments_);
+    }
+
+    bool path::from_string(const std::string & repr_)
+    {
+      std::string setup;
+      std::vector<std::string> segments;
+      if (extract(repr_, setup, segments)) {
+        _setup_ = setup;
+        _segments_ = segments;
+        return true;
+      }
+      return false;
+    }
+
+    void path::append_segment(const std::string & segment_, const bool no_check_)
+    {
+      if (!no_check_) {
+        DT_THROW_IF(! validate_path_segment(segment_),
+                    std::logic_error,
+                    "Invalid path segment '" << segment_ << "'!");
+      }
+      _segments_.push_back(segment_);
+      return;
+    }
+
+    void path::append_segments(const std::vector<std::string> & segments_, const bool no_check_)
+    {
+      for (const std::string & seg : segments_) {
+        append_segment(seg, no_check_);
+      }
+      return;
+    }
+
+    void path::append(const relative_path & relpath_)
+    {
+      append_segments(relpath_.get_segments(), true);
+      return;
+    }
+ 
+    path path::make_child(const std::string & leaf_) const
+    {
+      path child = *this;
+      child.append_segment(leaf_);
+      return child;
+    }
+
+    bool path::is_parent_of(const path & other_, bool direct_) const
+    {
+      if (_setup_ != other_._setup_) {
+        return false;
+      }
+      std::size_t sz = _segments_.size();
+      std::size_t osz = other_._segments_.size();
+      if (sz >= osz) {
+        // std::cerr << "devel **** sz=" << sz << std::endl;
+        // std::cerr << "devel **** osz=" << osz << std::endl;
+        return false;
+      }
+      if (direct_ && (sz + 1 != osz)) {
+        // std::cerr << "devel **** !direct" << std::endl;
+        return false;
+      }
+      for (std::size_t i = 0; i < _segments_.size(); i++) {
+        if (_segments_[i] != other_._segments_[i]) {
+          // std::cerr << "devel **** invalid segment[" << i << "]='" << _segments_[i] << "'" << std::endl;
+          return false;
+        }
+      }
+      return true;
+    }
+
+    bool path::is_child_of(const path & other_, bool direct_) const
+    {
+      return other_.is_parent_of(*this, direct_);
+    }
+
+    path path::operator+(const relative_path & rp_) const
+    {
+      path p = *this;
+      p.append(rp_);
+      return p;
+    }
+
+    relative_path path::operator-(const path & p_) const
+    {
+      return this->subtract(p_);
+    }
+
+    relative_path path::subtract(const path & other_) const
+    {
+      DT_THROW_IF(_setup_ != other_._setup_,
+                  std::logic_error,
+                  "Subtraction is not applicable; incompatible setups!");
+      DT_THROW_IF(_segments_.size() < other_._segments_.size(),
+                  std::logic_error,
+                  "Subtraction is not applicable; incompatible path depth!");
+      for (std::size_t i = 0; i < other_._segments_.size(); i++) {
+        DT_THROW_IF(_segments_[i] != other_._segments_[i],
+                    std::logic_error,
+                    "Subtraction is not applicable; not a parent!");
+      }
+      relative_path rp;
+      for (std::size_t i = other_._segments_.size(); i < _segments_.size(); i++) {
+        rp.append_segment(_segments_[i]);
+      }
+      return rp;
+    }
+
+    bool path::has_leaf() const
+    {
+      return _segments_.size() > 0;
+    }
+    
+    const std::string & path::get_leaf() const
+    {
+      DT_THROW_IF(! has_leaf(),
+                  std::logic_error,
+                  "There is no leaf in this path!");
+      return _segments_.back();
+    }
+
+    // friend
+    std::ostream & operator<<(std::ostream & out_, const path & p_)
+    {
+      out_ << p_.to_string();
+      return out_;
+    }
+
+    relative_path::relative_path()
+    {
+      return;
+    }
+
+    bool relative_path::is_empty() const
+    {
+      return _segments_.size() == 0;
+    }
+
+    void relative_path::to_string(std::string & repr_) const
+    {
+      std::ostringstream out;
+      for (std::size_t i = 0; i < _segments_.size();) {
+        out << _segments_[i];
+        if (++i < _segments_.size()) {
+          out << path::path_separator();
+        }
+      }
+      repr_ = out.str();
+      return;
+    }
+
+    std::string relative_path::to_string() const
+    {
+      std::string repr;
+      this->to_string(repr);
+      return repr;
+    }
+
+    bool relative_path::from_string(const std::string & repr_)
+    {
+      std::vector<std::string> segments;
+      std::string work = path::root_symbol() + repr_;
+      if (path::dirs_to_segments(work, segments)) {
+        _segments_ = segments;
+        return true;
+      }
+      return false;
+    }
+
+    void relative_path::append_segment(const std::string & leaf_)
+    {
+      DT_THROW_IF(!path::validate_path_segment(leaf_),
+                  std::logic_error,
+                  "Invalid path leaf '" << leaf_ << "'!");
+      _segments_.push_back(leaf_);
+      return;
+    }
+                        
+    void relative_path::append_segments(const std::vector<std::string> & more_)
+    {
+      for (std::size_t i = 0; i < more_.size(); i++) {
+        append_segment(more_[i]);
+      }
+      return;
+   }
+                        
+    void relative_path::set_segments(const std::vector<std::string> & segments_)
+    {
+      _segments_.clear();
+      for (std::size_t i = 0; i < segments_.size(); i++) {
+        append_segment(segments_[i]);
+      }
+      return;
+    }
+
+    const std::vector<std::string> & relative_path::get_segments() const
+    {
+      return _segments_;
+    }
+
+    std::size_t relative_path::get_length() const
+    {
+      return _segments_.size();
+    }
+
+    void relative_path::clear()
+    {
+      _segments_.clear();
+      return;
+    }
+
+    // friend
+    std::ostream & operator<<(std::ostream & out_, const relative_path & rp_)
+    {
+      out_ << rp_.to_string();
+      return out_;
+    }
+
+    // static
+    const relative_path & empty_relative_path()
+    {
+      static const relative_path _erp;
+      return _erp;
     }
 
   } // namespace utility

@@ -12,6 +12,7 @@
 #include <vire/utility/path.h>
 
 void test_path_1();
+void test_path_2();
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -22,6 +23,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
               << std::endl;
 
     test_path_1();
+    test_path_2();
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -274,5 +276,44 @@ void test_path_1()
     }
     std::clog << std::endl;
   }
+  return;
+}
+
+void test_path_2()
+{
+  std::clog << "\ntest_path_2: more" << std::endl;
+
+  vire::utility::path p1;
+  p1.from_string("SuperNEMO:/Demonstrator/CMS/Calorimeter/HV");
+  std::clog << "Path p1 =  '" << p1 << "'" << std::endl;
+
+  vire::utility::path p2;
+  p2.from_string("SuperNEMO:/Demonstrator/CMS/Calorimeter/HV/Foo/Bar");
+  std::clog << "Path p2 =  '" << p2 << "'" << std::endl;
+                 
+  bool direct = false;
+  // direct = true;
+  if (p1.is_parent_of(p2, direct)) {
+    std::clog << "Path p1 is parent of p2" << std::endl;
+  } else {
+    std::clog << "Path p1 is not parent of p2" << std::endl;
+  }
+
+  if (p2.is_child_of(p1, direct)) {
+    std::clog << "Path p2 is child of p1" << std::endl;
+  } else {
+    std::clog << "Path p2 is not child of p1" << std::endl;
+  }
+
+  vire::utility::relative_path p12 = p2.subtract(p1);
+  std::clog << "Relative path p12 =  '" << p12 << "'" << std::endl;
+  
+  vire::utility::path p3;
+  p3.from_string("SuperNEMO:/Demonstrator/CMS/Doo");
+  std::clog << "Path p3 =  '" << p3 << "'" << std::endl;
+  p3.append(p12);
+  std::clog << "Path p3 =  '" << p3 << "' (append)" << std::endl;
+  
+  std::clog << std::endl;
   return;
 }

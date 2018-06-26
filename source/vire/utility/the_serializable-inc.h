@@ -10,6 +10,7 @@
 #include <vire/utility/invalid_setup_id_error-serial.ipp>
 #include <vire/utility/metadata_record-serial.ipp>
 #include <vire/utility/properties-serial.ipp>
+#include <vire/utility/path-serial.ipp>
 
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_payload)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::base_identifier)
@@ -21,6 +22,8 @@ DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::invalid_c
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::invalid_setup_id_error)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::metadata_record)
 DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::properties)
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::path)
+DATATOOLS_SERIALIZATION_CLASS_SERIALIZE_INSTANTIATE_ALL(vire::utility::relative_path)
 
 // Export classes:
 BOOST_CLASS_EXPORT_IMPLEMENT(vire::utility::base_alarm)

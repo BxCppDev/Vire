@@ -1,5 +1,5 @@
 //! \file    vire/utility/path.h
-//! \brief   Utilities for device/resource... path
+//! \brief   Utilities for device/resource... path and relative path
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -22,13 +22,20 @@
 #define VIRE_UTILITY_PATH_H
 
 // Standard Library:
+#include <iostream>
 #include <string>
 #include <vector>
+
+// Third party:
+// - Bayeux/datatools:
+#include <bayeux/datatools/serialization_macros.h>
 
 namespace vire {
 
   //! Nested namespace for the Vire library's utility module
   namespace utility {
+
+    class relative_path;
 
     //! \brief Utilities for the manipulation of Vire resource/device paths and addresses
     //!
@@ -171,6 +178,12 @@ namespace vire {
                           std::string & dirs_,
                           std::string & leaf_);
 
+      //! Validate a setup label
+      static bool validate_setup(const std::string & setup_);
+
+      //! Validate a path segment
+      static bool validate_path_segment(const std::string & token_);
+
       //! Validate a path
       static bool validate_path(const std::string & path_);
 
@@ -208,6 +221,9 @@ namespace vire {
       //! Constructor
       path(const std::string & setup_, const std::vector<std::string> & segments_);
 
+      //! Constructor
+      path(const std::string & setup_, const std::string & dirs_, const std::string & leaf_ = "");
+
       //! Reset the path
       void reset();
 
@@ -216,6 +232,9 @@ namespace vire {
 
       //! Check if path is root
       bool is_root() const;
+
+      //! Return the path depth
+      std::size_t get_depth() const;
 
       //! Return the setup identifier
       const std::string & get_setup() const;
@@ -227,14 +246,104 @@ namespace vire {
       const std::vector<std::string> & get_segments() const;
 
       //! Set the ordered list of path segments
-      void set_segments(const std::vector<std::string> &);
+      void set_segments(const std::vector<std::string> & segments_, const bool no_check_ = false);
 
+      //! Append a leaf to the current list of path segments
+      void append_segment(const std::string & segment_, const bool no_check_ = false);
+ 
+      //! Append a sequence of additional segments to the current list of path segments
+      void append_segments(const std::vector<std::string> & segments_, const bool no_check_ = false);
+ 
+      //! Append a relative path to the current list of path segments
+      void append(const relative_path & relpath_);
+
+      relative_path subtract(const path & other_) const;
+
+      bool is_parent_of(const path & other_, bool direct_ = false) const;
+  
+      bool is_child_of(const path & other_, bool direct_ = false) const;
+      
+      path make_child(const std::string & leaf_) const;
+
+      bool has_leaf() const;
+
+      const std::string & get_leaf() const;
+     
+      //! Equality operator
+      bool operator==(const path & p_) const;
+
+      //! Comparison operator
+      bool operator<(const path & p_) const;
+      
+      relative_path operator-(const path & p_) const;
+      
+      path operator+(const relative_path & rp_) const;
+      
+      void to_string(std::string &) const;
+      
+      //! Return a string representation
+      std::string to_string() const;
+
+      //! Build from a string representation
+      bool from_string(const std::string & repr_);
+ 
+      friend std::ostream & operator<<(std::ostream & out_, const path & p_);
+     
     private:
 
       std::string              _setup_;    //!< Setup identifier (as URI/URN scheme)
       std::vector<std::string> _segments_; //!< Ordered list of path segments (as URI path)
 
+      BOOST_SERIALIZATION_BASIC_DECLARATION();
+ 
     };
+
+    /// \brief A relative path made of named segments
+    ///
+    /// Exemple:
+    /// \code
+    /// ""
+    /// "Bar"
+    /// "Bar/Booz"
+    /// "Foo/Bar/Baz_0/Test"
+    /// \endcode
+    class relative_path
+    {
+    public:
+
+      relative_path();
+
+      bool is_empty() const;
+
+      void clear();
+
+      std::size_t get_length() const;
+
+      void append_segment(const std::string & leaf_);
+      
+      void append_segments(const std::vector<std::string> & more_);
+      
+      void set_segments(const std::vector<std::string> &);
+
+      const std::vector<std::string> & get_segments() const;
+ 
+      void to_string(std::string & repr_) const;
+ 
+      std::string to_string() const;
+
+      bool from_string(const std::string & repr_);
+     
+      friend std::ostream & operator<<(std::ostream & out_, const relative_path & rp_);
+
+    private:
+      
+      std::vector<std::string> _segments_; //!< Ordered list of path segments (as URI path)
+
+      BOOST_SERIALIZATION_BASIC_DECLARATION();
+      
+    };
+
+    const relative_path & empty_relative_path();
 
   } // namespace utility
 
