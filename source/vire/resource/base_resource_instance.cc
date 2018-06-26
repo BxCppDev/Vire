@@ -120,7 +120,7 @@ namespace vire {
       out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
-           << "Initialized : " << is_initialized() << std::endl;
+           << "Initialized : " << std::boolalpha << is_initialized() << std::endl;
 
       return;
     }

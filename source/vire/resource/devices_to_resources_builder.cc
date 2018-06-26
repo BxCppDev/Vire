@@ -160,7 +160,7 @@ namespace vire {
                   vire::utility::path::to_address(dp_read_path, dp_read_name);
                    dp_read_resource.set_name(dp_read_name);
                   method_resource_instance * dp_read_method_res_inst_ptr = new method_resource_instance;
-                  boost::shared_ptr<base_resource_instance> sh_ri(dp_read_method_res_inst_ptr);
+                  std::shared_ptr<base_resource_instance> sh_ri(dp_read_method_res_inst_ptr);
                   dp_read_method_res_inst_ptr->set_model(dp_read_method_port_model);
                   dp_read_method_res_inst_ptr->initialize_simple();
                   dp_read_resource.set_resource_instance(sh_ri);
@@ -193,7 +193,7 @@ namespace vire {
                   vire::utility::path::to_address(dp_write_path, dp_write_name);
                   dp_write_resource.set_name(dp_write_name);
                   method_resource_instance * dp_write_method_res_inst_ptr = new method_resource_instance;
-                  boost::shared_ptr<base_resource_instance> sh_ri(dp_write_method_res_inst_ptr);
+                  std::shared_ptr<base_resource_instance> sh_ri(dp_write_method_res_inst_ptr);
                   dp_write_method_res_inst_ptr->set_model(dp_write_method_port_model);
                   dp_write_method_res_inst_ptr->initialize_simple();
                   dp_write_resource.set_resource_instance(sh_ri);
@@ -234,16 +234,13 @@ namespace vire {
                 DT_THROW_IF(!vire::utility::path::to_address(the_path, meth_name), std::logic_error,
                             "Invalid conversion for method path '" << the_path << "'!");
                 meth_resource.set_name(meth_name);
-                method_resource_instance * meth_res_inst_ptr
-                  = new method_resource_instance;
+                std::shared_ptr<method_resource_instance> meth_res_inst_ptr
+                  = std::make_shared<method_resource_instance>();
                 meth_res_inst_ptr->set_model(meth_model);
                 meth_res_inst_ptr->initialize_simple();
                 meth_resource.set_resource_instance(meth_res_inst_ptr);
                 meth_resource.initialize_simple();
                 resource_manager.add_resource(meth_resource);
-                // std::cerr << "*** DEVEL *** "
-                //           << "Method Port Resource: '" << meth_name << "'"
-                //           << std::endl;
               }
             }
           }

@@ -26,6 +26,7 @@
 // Standard Library:
 #include <string>
 #include <set>
+#include <memory>
 
 // Third party:
 // - Boost:
@@ -96,13 +97,13 @@ namespace vire {
       //! Set the non blocking execution flag
       void set_allowed_non_blocking(bool anb_);
 
-      //! Set the resource instance
-      //! Only available at configuration
-      void set_resource_instance(base_resource_instance *);
+      // //! Set the resource instance
+      // //! Only available at configuration
+      // void set_resource_instance(base_resource_instance *);
 
       //! Set the resource instance
       //! Only available at configuration
-      void set_resource_instance(boost::shared_ptr<base_resource_instance> &);
+      void set_resource_instance(const std::shared_ptr<base_resource_instance> &);
 
       //! Return resource instance
       base_resource_instance & grab_resource_instance();
@@ -316,8 +317,7 @@ namespace vire {
       uint32_t          _max_number_of_tokens_; //!< Maximum number of tokens
       bool              _allowed_subscription_; //!< Allow subscription
       bool              _allowed_non_blocking_; //!< Allow non blocking execution
-      boost::shared_ptr<base_resource_instance> _resource_instance_; //!< Handle to the instance of the resource
-      // const device * _owner_device_; //!< Owner device
+      std::shared_ptr<base_resource_instance> _resource_instance_; //!< Handle to the instance of the resource
       // Dependency scheme:
       //
       //   +----+  +----+  +----+
@@ -338,8 +338,8 @@ namespace vire {
       std::set<const resource *> _dependees_; //!< List of resources by which the resources depends on
 
       // Cached data:
-      boost::scoped_ptr<std::set<int32_t> > _cached_dependee_ids_; //!< Cached enumerated set of dependee resource identifiers
-      boost::scoped_ptr<std::set<int32_t> > _cached_depender_ids_; //!< Cached enumerated set of depender resource identifiers
+      std::unique_ptr<std::set<int32_t> > _cached_dependee_ids_; //!< Cached enumerated set of dependee resource identifiers
+      std::unique_ptr<std::set<int32_t> > _cached_depender_ids_; //!< Cached enumerated set of depender resource identifiers
 
       friend manager;
 

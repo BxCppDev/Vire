@@ -99,6 +99,27 @@ namespace vire {
       return;
     }
 
+    void datapoint_resource_instance::print_tree(std::ostream & out_,
+                                                 const boost::property_tree::ptree & options_) const
+    {
+      datatools::i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+
+      base_resource_instance::tree_dump(out_, popts.title, popts.indent, true);
+
+      out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
+           << "Model  : ";
+      if (_model_ == nullptr) {
+        out_ << "<none>";
+      } else {
+        out_ << "'" << _model_->get_name() << "'";
+      }
+      out_ << std::endl;
+ 
+      return;
+    }
+      
+
   } // namespace resource
 
 } // namespace vire

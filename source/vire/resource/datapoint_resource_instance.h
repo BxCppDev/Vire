@@ -63,6 +63,11 @@ namespace vire {
       //! Reset
       virtual void reset();
 
+      //! Smart print
+     void print_tree(std::ostream & out_ = std::clog,
+                     const boost::property_tree::ptree & options_
+                      = datatools::i_tree_dumpable::empty_options()) const override;
+
     private:
 
       // Management:

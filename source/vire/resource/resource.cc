@@ -234,15 +234,15 @@ namespace vire {
       return _resource_instance_.get() != 0;
     }
 
-    void resource::set_resource_instance(base_resource_instance * ri_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Resource is already initialized!");
-      _resource_instance_.reset(ri_);
-      return;
-    }
+    // void resource::set_resource_instance(base_resource_instance * ri_)
+    // {
+    //   DT_THROW_IF(is_initialized(), std::logic_error,
+    //               "Resource is already initialized!");
+    //   _resource_instance_.reset(ri_);
+    //   return;
+    // }
 
-    void resource::set_resource_instance(boost::shared_ptr<base_resource_instance> & shri_)
+    void resource::set_resource_instance(const std::shared_ptr<base_resource_instance> & shri_)
     {
       _resource_instance_ = shri_;
       return;
