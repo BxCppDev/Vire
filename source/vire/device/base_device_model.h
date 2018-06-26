@@ -65,6 +65,7 @@ namespace vire {
     public:
 
       typedef uint32_t device_model_key;
+      
       static const device_model_key INVALID_DEVICE_MODEL_KEY = 0xFFFFFFFF;
 
       //! Type alias for a dictionary of physical devices
@@ -308,14 +309,14 @@ namespace vire {
     private:
 
       // Internal management:
-      bool                       _initialized_; //!< Initialization flag
+      bool                       _initialized_ = false; //!< Initialization flag
 
       // Configuration:
       device_type                _type_;                      //!< Type of the device model
-      bool                       _virtual_;                   //!< Virtual device flag
+      bool                       _virtual_ = false;           //!< Virtual device flag
       device_model_key           _model_key_;                 //!< Device model unique identifier
       datatools::version_id      _version_;                   //!< Device model version identifier
-      bool                       _allow_embedded_devices_;    //!< Flag to allow embedded devices
+      bool                       _allow_embedded_devices_ = true; //!< Flag to allow embedded devices
       physical_device_dict_type  _embedded_physical_devices_; //!< Embedded physical devices
       physical_port_dict_type    _physical_ports_;            //!< Physical ports
       physical_link_dict_type    _physical_links_;            //!< Physical links

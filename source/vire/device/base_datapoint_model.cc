@@ -290,13 +290,6 @@ namespace vire {
     {
       this->base_device_model::tree_dump(out_, title_, indent_, true);
 
-      // Default interface:
-      out_ << indent_
-           << i_tree_dumpable::tag
-           << "Standard interface : "
-           << is_standard_interface()
-           << std::endl;
-
       // R/W access:
       out_ << indent_
            << i_tree_dumpable::tag
@@ -308,9 +301,16 @@ namespace vire {
       }
       out_ << std::endl;
 
+      // Default interface:
+      out_ << indent_
+           << i_tree_dumpable::tag
+           << "Standard interface : "
+           << is_standard_interface()
+           << std::endl;
+
       // Data description:
       out_ << indent_
-           << i_tree_dumpable::inherit_skip_tag(inherit_)
+           << tag
            << "Data description : ";
       if (! has_data_description()) {
         out_ << "<none>";
@@ -318,10 +318,39 @@ namespace vire {
       out_ << std::endl;
       if (has_data_description()) {
         std::ostringstream indent2;
-        indent2 << indent_ << i_tree_dumpable::inherit_skip_tag(inherit_);
+        indent2 << indent_ << skip_tag;
         _dd_.tree_dump(out_, "", indent2.str());
       }
 
+      // Standard interface:
+      out_ << indent_
+           << i_tree_dumpable::inherit_tag(inherit_)
+           << "Standard interface : "
+           << _si_mpm_.size() << " method(s)"
+           << std::endl;
+      if (_si_mpm_.size()) {
+        std::size_t count = 0;
+        for (method_port_model_dict_type::const_iterator i = _si_mpm_.begin();
+             i != _si_mpm_.end();
+             i++) {
+          out_ << indent_ << i_tree_dumpable::inherit_skip_tag(inherit_);
+          std::ostringstream indent2ss;
+          indent2ss << indent_ << i_tree_dumpable::inherit_skip_tag(inherit_);
+          if (++count == _si_mpm_.size()) {
+            out_ << last_tag;
+            indent2ss << last_skip_tag;
+          } else {
+            out_ << tag;
+            out_ << skip_tag;
+          }
+          out_ << "Method model : '" << i->first << "'";
+          out_ << std::endl;
+          {
+            i->second->get_method().tree_dump(out_, "", indent2ss.str());
+          }
+        }
+      }
+      
       return;
     }
 

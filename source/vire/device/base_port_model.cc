@@ -283,19 +283,19 @@ namespace vire {
       this->enriched_base::tree_dump(out_, title_, indent_, true);
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Virtual : " << is_virtual()
+           << "Virtual port  : " << std::boolalpha << is_virtual()
            << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Type : '" << get_port_type_label(_type_)
+           << "Port Type     : '" << get_port_type_label(_type_)
            << "'" << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "I/O type : '" << get_port_io_type_label(_io_type_)
+           << "Port I/O type : '" << get_port_io_type_label(_io_type_)
            << "'" << std::endl;
 
       out_ << indent_ << i_tree_dumpable::inherit_tag(inherit_)
-           << "Format : ";
+           << "Port format   : ";
       if (has_format()) {
         out_ << "'" << _format_ << "'";
       } else {

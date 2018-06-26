@@ -370,10 +370,10 @@ namespace vire {
       bool print_links_list = options_.get<bool>("list_links", false);
 
       out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Initialized : " << std::boolalpha << _initialized_ << std::endl;
+           << "Initialized      : " << std::boolalpha << _initialized_ << std::endl;
 
       out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Model : ";
+           << "Model            : ";
       if (_model_) {
         out_ << "'" << _model_->get_name() << "'";
         out_ << " (as '" << _model_->system_factory_auto_registration_id() << "' of type '"

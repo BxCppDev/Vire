@@ -33,6 +33,7 @@
 #include <vire/device/single_instance.h>
 #include <vire/device/regular_1d_instance.h>
 #include <vire/device/multiple_instance.h>
+#include <vire/device/base_datapoint_model.h>
 
 int main( int argc_, char * argv_[])
 {
@@ -105,6 +106,12 @@ int main( int argc_, char * argv_[])
     setup_model.tree_dump(std::clog, "Virtual setup model: ");
     std::clog << std::endl;
 
+    // Datapoint model:
+    vire::device::base_datapoint_model dp_model;
+    dp_model.tree_dump(std::clog, "Virtual datapoint model: ");
+    std::clog << std::endl;
+
+    
   } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL,
                  error.what());

@@ -81,12 +81,12 @@ namespace vire {
       return _allow_embedded_devices_;
     }
 
-    void base_device_model::set_allow_embedded_devices(bool a_)
+    void base_device_model::set_allow_embedded_devices(bool allow_)
     {
       DT_THROW_IF(is_initialized(),
                   std::logic_error,
                   "Device model '" << get_name() << "' is already initialized !");
-      _allow_embedded_devices_ = a_;
+      _allow_embedded_devices_ = allow_;
       return;
     }
 

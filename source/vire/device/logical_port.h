@@ -41,7 +41,8 @@ namespace vire {
     class base_port_model;
 
     //! \brief The logical port
-    class logical_port : public datatools::enriched_base
+    class logical_port
+      : public datatools::enriched_base
     {
     public:
 

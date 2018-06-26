@@ -75,6 +75,9 @@ namespace vire {
     void manager::set_setup_label(const std::string & label_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Manager is already initialized !");
+      static const uint32_t nv_flags = datatools::NV_NO_HYPHEN | datatools::NV_NO_COLON | datatools::NV_NO_DOT;
+      DT_THROW_IF(!datatools::name_validation(label_,nv_flags),
+                  std::logic_error, "Invalid setup label '" << label_ << "'!");
       _setup_label_ = label_;
       return;
     }

@@ -128,10 +128,10 @@ namespace vire {
 
     private:
 
-      vire::utility::rw_access_type              _rw_access_; //!< Datapoint's read/write access
-      datatools::introspection::data_description _dd_; //!< Datapoint's data description
-      bool _standard_interface_; //!< Flag to activate the standard interface of the datapoint (read/write methods)
-      method_port_model_dict_type _si_mpm_; //!< Standard interface methods (store for private method port models)
+      vire::utility::rw_access_type              _rw_access_ = vire::utility::RW_INVALID; //!< Datapoint's read/write access
+      datatools::introspection::data_description _dd_;                                    //!< Datapoint's data description
+      bool                                       _standard_interface_ = true;             //!< Flag to activate the standard interface of the datapoint (read/write methods)
+      method_port_model_dict_type                _si_mpm_;                                //!< Standard interface methods (store for private method port models)
 
       //! Registration of a system factory
       VIRE_DEVICE_REGISTRATION_INTERFACE(base_datapoint_model);
