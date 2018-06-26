@@ -58,25 +58,19 @@ namespace vire {
       //! Dictionary of shared pointers on domain objects
       typedef std::map<std::string, std::shared_ptr<domain>> domain_dict_type;
 
+      static const std::string & default_service_name();
+
       //! Default constructor
       manager(uint32_t flags_ = 0);
 
       //! Destructor
       virtual ~manager();
 
-      // //! Check setup name
-      // bool has_setup_name() const;
+      bool has_resource_service_name() const;
 
-      // //! Set setup name
-      // //!
-      // //! Supported formats:
-      // //! - "supernemo"
-      // //! - "supernemo/demonstrator"
-      // //! - "supernemo/test"
-      // void set_setup_name(const std::string & name_);
-
-      // //! Return setup name
-      // const std::string & get_setup_name() const;
+      void set_resource_service_name(const std::string &);
+      
+      const std::string & get_resource_service_name() const;
 
       //! Check the actor
       bool has_actor() const;
@@ -186,17 +180,18 @@ namespace vire {
       bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
-      const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
-      actor                           _actor_;               //!< Actor
-      vire::utility::model_identifier _transport_type_id_;   //!< Default transport type identifier associated to the domains
-      vire::utility::model_identifier _encoding_type_id_;    //!< Default encoding type identifier associated to the domains
-      std::set<std::string>           _subcontractors_;      //!< Set of subcontractors
+      std::string                     _resource_service_name_; //!< Name of the resource management service
+      actor                           _actor_;                 //!< Actor
+      vire::utility::model_identifier _transport_type_id_;     //!< Default transport type identifier associated to the domains
+      vire::utility::model_identifier _encoding_type_id_;      //!< Default encoding type identifier associated to the domains
+      std::set<std::string>           _subcontractors_;        //!< Set of subcontractors
 
-      domain_builder   _domain_maker_; //!< Domain builder
-      std::unique_ptr<plug_factory> _factory_; //!< Plug factory
+      domain_builder                  _domain_maker_; //!< Domain builder
+      std::unique_ptr<plug_factory>   _factory_;      //!< Plug factory
 
       // Working data:
-      domain_dict_type _domains_;   //!< Dictionary of domains
+      const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
+      domain_dict_type                _domains_;   //!< Dictionary of domains
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(manager);

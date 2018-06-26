@@ -39,6 +39,13 @@ namespace vire {
     // a central service database of Bayeux/datatools:
     DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(manager, "vire::com::manager");
 
+    // static
+    const std::string & manager::default_service_name()
+    {
+      static std::string _name("com");
+      return _name;
+    }
+
     manager::manager(uint32_t /* flags_ */)
     {
       _initialized_ = false;
@@ -56,36 +63,6 @@ namespace vire {
       }
       return;
     }
-
-    // bool manager::has_setup_name() const
-    // {
-    //   return !_setup_name_.empty();
-    // }
-
-    // void manager::set_setup_name(const std::string & setup_name_)
-    // {
-    //   typedef std::vector<std::string > split_vector_type;
-    //   split_vector_type splitted;
-    //   boost::split(splitted, setup_name_, boost::is_any_of("/"));
-    //   DT_THROW_IF(splitted.size() < 1,
-    //               std::logic_error,
-    //               "Invalid setup name '" << setup_name_ << "'!");
-    //   uint32_t nv_flags = ::datatools::NV_NO_HYPHEN
-    //     | ::datatools::NV_NO_DOT
-    //     | ::datatools::NV_NO_COLON;
-    //   for (std::size_t i = 0; i < splitted.size(); i++) {
-    //     DT_THROW_IF(!datatools::name_validation(splitted[i], nv_flags),
-    //                 std::logic_error,
-    //                 "Invalid setup name '" << setup_name_ << "'!");
-    //   }
-    //   _setup_name_ = setup_name_;
-    //   return;
-    // }
-
-    // const std::string & manager::get_setup_name() const
-    // {
-    //   return _setup_name_;
-    // }
 
     bool manager::has_actor() const
     {
@@ -122,17 +99,11 @@ namespace vire {
 
     void manager::set_transport_type_id(const vire::utility::model_identifier & id_)
     {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Communication manager is initialized!");
       _transport_type_id_ = id_;
       return;
     }
-
-    // void manager::set_transport_type_id(const std::string & id_repr_)
-    // {
-    //   DT_THROW_IF(!_transport_type_id_.from_string(id_repr_),
-    //               std::logic_error,
-    //               "Invalid transport type ID representation '" << id_repr_ << "'!");
-    //   return;
-    // }
 
     const vire::utility::model_identifier & manager::get_transport_type_id() const
     {
@@ -146,15 +117,11 @@ namespace vire {
 
     void manager::set_encoding_type_id(const vire::utility::model_identifier & id_)
     {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Communication manager is initialized!");
       _encoding_type_id_ = id_;
       return;
     }
-
-    // void manager::set_encoding_type_id(const std::string & id_repr_)
-    // {
-    //   DT_THROW_IF(!_encoding_type_id_.from_string(id_repr_), std::logic_error, "Invalid encoding type ID representation '" << id_repr_ << "'!");
-    //   return;
-    // }
 
     const vire::utility::model_identifier & manager::get_encoding_type_id() const
     {
@@ -168,8 +135,28 @@ namespace vire {
 
     void manager::add_subcontractor(const std::string & name_)
     {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Communication manager is initialized!");
       _subcontractors_.insert(name_);
       return;
+    }
+
+    bool manager::has_resource_service_name() const
+    {
+      return !_resource_service_name_.empty();
+    }
+    
+    void manager::set_resource_service_name(const std::string & resource_service_name_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Communication manager is initialized!");
+      _resource_service_name_ = resource_service_name_;
+      return;
+    }
+                        
+    const std::string & manager::get_resource_service_name() const
+    {
+      return _resource_service_name_;
     }
 
     bool manager::has_resources() const
@@ -179,8 +166,8 @@ namespace vire {
 
     void manager::set_resources(const vire::resource::manager & resources_)
     {
-      // DT_THROW_IF(is_initialized(), std::logic_error,
-      //             "Communication manager is initialized!");
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Communication manager is initialized!");
       _resources_ = &resources_;
       return;
     }
@@ -349,6 +336,18 @@ namespace vire {
 
       this->::datatools::base_service::common_initialize(config_);
 
+      if (!has_resources()) {
+        if (!has_resource_service_name()) {
+          std::string resource_service_name;
+          if (config_.has_key("resource_service_name")) {
+            resource_service_name = config_.fetch_string("resource_service_name");
+          } else {
+            resource_service_name = vire::resource::manager::default_service_name();
+          }
+          set_resource_service_name(resource_service_name);
+        }
+      }
+ 
       if (! has_actor()) {
         std::string actor_setup_name;
         std::string actor_id;
