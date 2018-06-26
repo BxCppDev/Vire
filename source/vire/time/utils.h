@@ -23,7 +23,6 @@
 
 // Standard library:
 #include <string>
-#include <chrono>
 
 // Third party:
 // - Boost:
