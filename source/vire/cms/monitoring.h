@@ -30,6 +30,7 @@
 #include <boost/optional.hpp>
 // - Bayeux/datatools:
 #include <datatools/i_tree_dump.h>
+#include <datatools/exception.h>
 
 // This project:
 #include <vire/cms/image_status.h>
@@ -58,7 +59,7 @@ namespace vire {
     enum value_monitoring_mode_type {
       VALUE_MONITORING_INVALID  = 0, //!< Invalid value monitoring mode
       VALUE_MONITORING_POLLING  = 1, //!< Instantaneous value monitoring mode (automated polling)
-      VALUE_MONITORING_ONCHANGE = 2  //!< On change valuemonitoring mode (Pub/Sub event driven sampling)
+      VALUE_MONITORING_ONCHANGE = 2  //!< On change value monitoring mode (Pub/Sub event driven sampling)
     };
 
     //! Return the label associated to a value monitoring mode
@@ -73,45 +74,7 @@ namespace vire {
       int32_t,
       double,
       std::string> monitored_value_type;
-
-    //! \brief Value monitoring record
-    class monitored_value_record
-      : public datatools::i_tree_dumpable
-    {
-    public:
-
-      void reset();
-      bool has_status() const;
-      const image_status & get_status() const;
-      image_status & grab_status();
-      void set_status(const image_status &);
-      bool has_value() const;
-      bool is_boolean() const;
-      bool is_integer() const;
-      bool is_real() const;
-      bool is_string() const;
-      void set_boolean_value(const bool);
-      void set_integer_value(const int);
-      void set_real_value(const double);
-      void set_string_value(const std::string &);
-      bool get_boolean_value() const;
-      int get_integer_value() const;
-      double get_real_value() const;
-      const std::string & get_string_value() const;
-      const monitored_value_type & get_value() const;
-      monitored_value_type & grab_value();
-      void reset_value();
-      virtual void print_tree(std::ostream & out_ = std::clog,
-                              const boost::property_tree::ptree & options_
-                              = datatools::i_tree_dumpable::empty_options()) const;
-
-    private:
-
-      image_status                          _status_; //!< The status of the monitored object
-      boost::optional<monitored_value_type> _value_;  //!< The value of the monitored datapoint
-
-    };
-
+ 
   } // namespace cms
 
 } // namespace vire

@@ -19,31 +19,79 @@
 
 // Standard library:
 #include <iostream>
+#include <thread>
+#include <random>
+#include <chrono>
 
 // Third party:
+// - Qt:
+#include <QApplication>
+#include <QVBoxLayout>
+
 // - Bayeux/datatools
 #include <datatools/logger.h>
 #include <datatools/exception.h>
 
 // This project:
 #include <vire/cms/image_status.h>
+#include <vire/cms/ui/image_status_panel.h>
 #include <vire/time/utils.h>
+#include <vire/vire.h>
+
+#include "image_status_runner.h"
 
 int main( int argc_, char * argv_[])
 {
+  vire::initialize();
   int error_code = EXIT_SUCCESS;
   try {
 
-    {
-      vire::cms::image_status imgStatus;
-      imgStatus.set_timestamp(vire::time::now());
-      imgStatus.set_missing(true);
-      imgStatus.set_disabled(false);
-      imgStatus.set_pending(false);
-      imgStatus.set_failed(false);
-      imgStatus.tree_dump(std::clog, "Image status : ");
-      std::clog << std::endl;
+    bool gui = false;
+    bool no_labels = false;
+
+    int iarg = 1;
+    while (iarg < argc_) {
+      std::string arg = argv_[iarg];
+      if (arg == "--gui") {
+        gui = true;
+      }
+      if (arg == "--nolabels") {
+        no_labels = true;
+      }
+      iarg++;
     }
+    
+    vire::cms::image_status imgStatus;
+    imgStatus.set_timestamp(vire::time::now());
+    imgStatus.set_missing(true);
+    imgStatus.set_disabled(false);
+    imgStatus.set_pending(false);
+    imgStatus.set_failed(false);
+    imgStatus.tree_dump(std::clog, "Image status : ");
+
+    vire::cms::testing::image_status_runner stRunner(imgStatus);
+    std::thread t1(stRunner);
+    
+    if (gui) {
+      int argc = 1;
+      const char * argv[] = { "test-cms-image_status" };
+      QApplication app(argc, (char **) argv);
+
+      using vire::cms::ui::image_status_panel;
+      image_status_panel * imgStatusPanel = new image_status_panel;
+      if (no_labels) {
+        imgStatusPanel->set_no_labels(no_labels);
+      }
+      imgStatusPanel->set_status(imgStatus);
+
+      QWidget window;
+      QVBoxLayout * layout = new QVBoxLayout;
+      layout->addWidget(imgStatusPanel);
+      window.setLayout(layout);
+      window.show();
+      app.exec();
+    }
+    t1.join();
 
   } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL, error.what());
@@ -52,5 +100,6 @@ int main( int argc_, char * argv_[])
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL, "Unexpected error!");
     error_code = EXIT_FAILURE;
   }
+  vire::terminate();
   return error_code;
 }

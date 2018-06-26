@@ -1,10 +1,26 @@
-list(APPEND VireLibrary_HEADERS
+ set(VIRE_CMS_HEADERS_QT_TO_BE_MOCCED
+   cms/image_status.h
+   cms/ui/image_status_panel.h
+   cms/base_image.h 
+   cms/ui/image_panel.h
+   cms/monitoring_record.h 
+   )
+ 
+ QT5_WRAP_CPP(VIRE_CMS_HEADERS_QT_MOC
+   ${VIRE_CMS_HEADERS_QT_TO_BE_MOCCED}
+   )
+  
+ list(APPEND VireLibrary_HEADERS
   cms/utils.h
   cms/status.h
   cms/status-reflect.h
   cms/monitoring.h
   cms/image_status.h
-  #cms/image.h
+  cms/ui/image_status_panel.h
+  cms/monitoring_record.h
+  cms/base_image.h
+  cms/resource_image.h
+  cms/device_image.h
   cms/resource_status_record.h
   cms/resource_status_record-serial.ipp
   cms/method_argument.h
@@ -75,13 +91,19 @@ list(APPEND VireLibrary_PRIVATE_HEADERS
 )
 
 list(APPEND VireLibrary_SOURCES
+  ${VIRE_CMS_HEADERS_QT_MOC}
   cms/utils.cc
   cms/status.cc
   cms/monitoring.cc
   cms/image_status.cc
-  #cms/image.cc
+  cms/ui/image_status_panel.cc
+  cms/monitoring_record.cc
   cms/resource_status_record.cc
   cms/method_argument.cc
+  cms/base_image.cc
+  cms/ui/image_panel.cc
+  cms/resource_image.cc
+  cms/device_image.cc
   #cms/experiment_image_registry.cc
 
   cms/invalid_resource_error.cc
@@ -121,7 +143,7 @@ list(APPEND VireLibrary_TESTS
   cms/testing/test-cms-utils.cxx
   cms/testing/test-cms-image_status.cxx
   cms/testing/test-cms-monitoring.cxx
-  #cms/testing/test-cms-image.cxx
+  cms/testing/test-cms-image.cxx
   cms/testing/test-cms-resource_status_record.cxx
 
   cms/testing/test-cms-invalid_resource_error.cxx

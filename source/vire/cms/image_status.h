@@ -1,5 +1,5 @@
 //! \file  vire/cms/image_status.h
-//! \brief Image status status of a device or resource
+//! \brief Image status of a device or resource
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -23,22 +23,50 @@
 
 // Standard Library:
 #include <string>
+#include <iostream>
+#include <memory>
 // Third Party:
 // - Boost:
 #include <boost/logic/tribool.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+// Third party:
+// - Qt:
+#include <QObject>
 // - Bayeux/datatools:
 #include <datatools/i_tree_dump.h>
 #ifndef Q_MOC_RUN
 #include <datatools/reflection_interface.h>
 #endif // Q_MOC_RUN
 
-// This project:
-
 namespace vire {
 
   namespace cms {
+    
+    class image_status;
 
+    /// \brief Qt-based signal emitter for image status 
+    struct image_status_signal_emitter
+      : public QObject
+    {
+      Q_OBJECT
+    public:
+      
+      image_status_signal_emitter(const image_status & status_);
+
+      const image_status & get_status() const;
+
+      void emit_change();
+      
+    signals:
+      
+      void status_changed();
+  
+    private:
+      
+      const image_status & _status_;
+      
+    };
+    
     //! \brief Dynamic timestamped status of a device or resource
     class image_status
       : public datatools::i_tree_dumpable
@@ -48,6 +76,10 @@ namespace vire {
 
       //! Default constructor
       image_status();
+
+      image_status(const image_status & other_);
+      
+      image_status & operator=(const image_status & other_);
 
       //! Destructor
       virtual ~image_status();
@@ -133,11 +165,20 @@ namespace vire {
       //! Reset the failed flag
       void reset_failed();
 
+      //! Streaming
+      friend std::ostream & operator<<(std::ostream & out_, const image_status & status_);
+
       //! Smart print
       virtual void print_tree(std::ostream & out_ = std::clog,
                               const boost::property_tree::ptree & options_
                               = datatools::i_tree_dumpable::empty_options()) const;
 
+      void on_change();
+
+      const image_status_signal_emitter & get_emitter() const; 
+      
+      image_status_signal_emitter & grab_emitter(); 
+      
     private:
 
       // Internal data:
@@ -147,6 +188,9 @@ namespace vire {
       boost::logic::tribool       _pending_  = boost::logic::indeterminate; //!< Pending flag
       boost::logic::tribool       _failed_   = boost::logic::indeterminate; //!< Failed flag
 
+      // Qt signal emitter wrapper:
+      std::unique_ptr<image_status_signal_emitter> _emitter_;
+      
 #ifndef Q_MOC_RUN
       //! Reflection interface
       DR_CLASS_RTTI();
@@ -154,7 +198,7 @@ namespace vire {
 
     };
 
-  } // namespace resource
+  } // namespace cms
 
 } // namespace vire
 

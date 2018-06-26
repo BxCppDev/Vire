@@ -28,9 +28,69 @@ namespace vire {
 
   namespace cms {
 
+    image_status_signal_emitter::image_status_signal_emitter(const image_status & status_)
+      : _status_(status_)
+    {
+      return;
+    }
+    
+    void image_status_signal_emitter::emit_change()
+    {
+      emit status_changed();
+      return;
+    }
+    
+    const image_status & image_status_signal_emitter::get_status() const
+    {
+      return _status_;
+    }
+ 
+    image_status_signal_emitter & image_status::grab_emitter()
+    {
+      if (!_emitter_) {
+        _emitter_.reset(new image_status_signal_emitter(*this));
+      }
+      return *_emitter_.get();
+    }
+
+    const image_status_signal_emitter & image_status::get_emitter() const
+    {
+      image_status * mutable_this = const_cast<image_status*>(this);
+      return mutable_this->grab_emitter();
+    }
+ 
+    void image_status::on_change()
+    {
+      grab_emitter().emit_change();
+      return;
+    }
+
     image_status::image_status()
     {
       return;
+    }
+
+    image_status::image_status(const image_status & other_)
+    {
+      _timestamp_ = other_._timestamp_;
+      _missing_ = other_._missing_;
+      _disabled_ = other_._disabled_;
+      _pending_ = other_._pending_;
+      _failed_ = other_._failed_;
+      return;
+    }
+    
+    image_status & image_status::operator=(const image_status & other_)
+    {
+      if (this != &other_) {
+        _timestamp_ = other_._timestamp_;
+        _missing_ = other_._missing_;
+        _disabled_ = other_._disabled_;
+        _pending_ = other_._pending_;
+        _failed_ = other_._failed_;
+        on_change();
+      }
+      return *this;
     }
 
     image_status::~image_status()
@@ -54,6 +114,7 @@ namespace vire {
     void image_status::reset_timestamp()
     {
       vire::time::invalidate_time(_timestamp_);
+      on_change();
       return;
     }
 
@@ -65,6 +126,7 @@ namespace vire {
     void image_status::set_timestamp(const boost::posix_time::ptime & t_)
     {
       _timestamp_ = t_;
+      on_change();
       return;
     }
 
@@ -75,7 +137,7 @@ namespace vire {
 
     bool image_status::has_missing() const
     {
-      return _missing_;
+      return ! boost::logic::indeterminate(_missing_);
     }
 
     bool image_status::is_present() const
@@ -96,14 +158,27 @@ namespace vire {
 
     void image_status::set_missing(bool m_)
     {
+      if (has_missing()) {
+        if (_missing_ && m_) return;
+        if (!_missing_ && !m_) return;
+      }
       _missing_ = m_;
+      on_change();
       return;
     }
 
     void image_status::reset_missing()
     {
-      _missing_ = boost::logic::indeterminate;
+      if (has_missing()) {
+        _missing_ = boost::logic::tribool::indeterminate_value;
+        on_change();
+      }
       return;
+    }
+
+    bool image_status::has_disabled() const
+    {
+      return ! boost::logic::indeterminate(_disabled_);
     }
 
     bool image_status::is_enabled() const
@@ -124,13 +199,21 @@ namespace vire {
 
     void image_status::set_disabled(bool d_)
     {
+      if (has_disabled()) {
+        if (_disabled_ && d_) return;
+        if (!_disabled_ && !d_) return;
+      }
       _disabled_ = d_;
+      on_change();
       return;
     }
 
     void image_status::reset_disabled()
     {
-      _disabled_ = boost::logic::indeterminate;
+      if (has_disabled()) {
+        _disabled_ = boost::logic::tribool::indeterminate_value;
+        on_change();
+      }
       return;
     }
 
@@ -140,6 +223,11 @@ namespace vire {
         return true;
       }
       return false;
+    }
+
+    bool image_status::has_pending() const
+    {
+      return ! boost::logic::indeterminate(_pending_);
     }
 
     bool image_status::is_pending() const
@@ -152,13 +240,21 @@ namespace vire {
 
     void image_status::set_pending(bool p_)
     {
+      if (has_pending()) {
+        if (_pending_ && p_) return;
+        if (!_pending_ && !p_) return;
+      }
       _pending_ = p_;
+      on_change();
       return;
     }
 
     void image_status::reset_pending()
     {
-      _pending_ = boost::logic::indeterminate;
+      if (has_pending()) {
+        _pending_ = boost::logic::tribool::indeterminate_value;
+        on_change();
+      }
       return;
     }
 
@@ -170,6 +266,11 @@ namespace vire {
       return false;
     }
 
+    bool image_status::has_failed() const
+    {
+      return ! boost::logic::indeterminate(_failed_);
+    }
+
     bool image_status::is_failed() const
     {
       if (_failed_) {
@@ -178,25 +279,70 @@ namespace vire {
       return false;
     }
 
-    void image_status::set_failed(bool e_)
+    void image_status::set_failed(bool f_)
     {
-      _failed_ = e_;
+      if (has_failed()) {
+        if (_failed_ && f_) return;
+        if (!_failed_ && !f_) return;
+      }
+      _failed_ = f_;
+      on_change();
       return;
     }
 
     void image_status::reset_failed()
     {
-      _failed_ = boost::logic::indeterminate;
+      if (has_failed()) {
+        _failed_ = boost::logic::tribool::indeterminate_value;
+        on_change();
+      }
       return;
     }
 
     void image_status::indeterminate_flags()
     {
-      reset_missing();
-      reset_disabled();
-      reset_pending();
-      reset_failed();
+      _pending_ = boost::logic::indeterminate;
+      _disabled_ = boost::logic::indeterminate;
+      _failed_ = boost::logic::indeterminate;
+      _missing_ = boost::logic::indeterminate;
+      on_change();
       return;
+    }
+
+    // friend
+    std::ostream & operator<<(std::ostream & out_, const image_status & status_)
+    {
+      if (status_.has_missing()) {
+        out_ << '?';
+      } else {
+        if (status_.is_missing()) out_ << 'm';
+        else out_ << '-';
+      }
+      if (status_.has_disabled()) {
+        out_ << '?';
+      } else {
+        if (status_.is_disabled()) out_ << 'd';
+        else out_ << '-';
+      }
+      if (status_.has_pending()) {
+        out_ << '?';
+      } else {
+        if (status_.is_pending()) out_ << 'p';
+        else out_ << '-';
+      }
+      if (status_.has_failed()) {
+        out_ << '?';
+      } else {
+        if (status_.is_failed()) out_ << 'f';
+        else out_ << '-';
+      }
+      out_ << ' ';
+      if (status_.has_timestamp()) {
+        out_ << vire::time::to_string(status_._timestamp_);
+      } else {
+        out_ << "?";
+      }
+      return out_;
     }
 
     void image_status::print_tree(std::ostream & out_,

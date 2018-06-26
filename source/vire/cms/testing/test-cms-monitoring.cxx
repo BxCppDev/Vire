@@ -28,6 +28,7 @@
 
 // This project:
 #include <vire/cms/monitoring.h>
+#include <vire/cms/monitoring_record.h>
 #include <vire/time/utils.h>
 
 int main( int argc_, char * argv_[])
@@ -43,7 +44,7 @@ int main( int argc_, char * argv_[])
     }
 
     {
-      vire::cms::monitored_value_record record;
+      vire::cms::monitoring_record record;
       record.grab_status().set_timestamp(vire::time::now());
       record.grab_status().set_missing(false);
       record.grab_status().set_disabled(false);
