@@ -319,10 +319,18 @@ namespace vire {
 
       std::size_t get_length() const;
 
+      void prepend_segment(const std::string & head_);
+ 
+      void prepend_segments(const std::vector<std::string> & more_);
+ 
       void append_segment(const std::string & leaf_);
       
       void append_segments(const std::vector<std::string> & more_);
-      
+
+      void cut_back(const std::size_t ncut_);
+
+      void cut_front(const std::size_t ncut_);
+        
       void set_segments(const std::vector<std::string> &);
 
       const std::vector<std::string> & get_segments() const;
@@ -334,7 +342,19 @@ namespace vire {
       bool from_string(const std::string & repr_);
      
       friend std::ostream & operator<<(std::ostream & out_, const relative_path & rp_);
+   
+      //! Equality operator
+      bool operator==(const relative_path & rp_) const;
 
+      //! Comparison operator
+      bool operator<(const relative_path & rp_) const;
+     
+      relative_path make_child(const std::string & leaf_) const;
+     
+      relative_path make_child(const std::vector<std::string> & more_) const;
+           
+      relative_path operator+(const relative_path & rp_) const;
+ 
     private:
       
       std::vector<std::string> _segments_; //!< Ordered list of path segments (as URI path)

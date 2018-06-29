@@ -683,7 +683,7 @@ namespace vire {
       for (std::size_t i = 0; i < other_._segments_.size(); i++) {
         DT_THROW_IF(_segments_[i] != other_._segments_[i],
                     std::logic_error,
-                    "Subtraction is not applicable; not a parent!");
+                    "Subtraction is not applicable: '" << other_ << "' is not a parent of '" << *this << "'!");
       }
       relative_path rp;
       for (std::size_t i = other_._segments_.size(); i < _segments_.size(); i++) {
@@ -753,6 +753,43 @@ namespace vire {
       return false;
     }
 
+    void relative_path::prepend_segments(const std::vector<std::string> & more_)
+    {
+      for (std::vector<std::string>::const_reverse_iterator i = more_.rbegin();
+           i != more_.rend();
+           i++) {
+        prepend_segment(*i);
+      }
+      return;
+    }
+ 
+    void relative_path::prepend_segment(const std::string & head_)
+    {
+      DT_THROW_IF(!path::validate_path_segment(head_),
+                  std::logic_error,
+                  "Invalid path head '" << head_ << "'!");
+      _segments_.insert(_segments_.begin(), head_);
+      return;
+    }
+
+    void relative_path::cut_back(const std::size_t ncut_)
+    {
+      DT_THROW_IF(ncut_ > _segments_.size(),
+                  std::logic_error,
+                  "Cannot cut by a too large number of segments!");
+      _segments_.resize(_segments_.size() - ncut_);
+      return;
+    }
+
+    void relative_path::cut_front(const std::size_t ncut_)
+    {
+      DT_THROW_IF(ncut_ > _segments_.size(),
+                  std::logic_error,
+                  "Cannot cut by a too large number of segments!");
+      _segments_.erase(_segments_.begin(), _segments_.begin() + ncut_);
+      return;
+    }
+
     void relative_path::append_segment(const std::string & leaf_)
     {
       DT_THROW_IF(!path::validate_path_segment(leaf_),
@@ -802,6 +839,45 @@ namespace vire {
       return out_;
     }
 
+    bool relative_path::operator==(const relative_path & rp_) const
+    {
+      if (_segments_.size() != rp_._segments_.size()) return false;
+      for (std::size_t i = 0; i < _segments_.size(); i++) {
+        if (_segments_[i] == rp_._segments_[i]) return false;
+      }
+      return true;
+    }
+
+    bool relative_path::operator<(const relative_path & rp_) const
+    {
+      if (_segments_.size() < rp_._segments_.size()) return true;
+      for (std::size_t i = 0; i < _segments_.size(); i++) {
+        if (_segments_[i] < rp_._segments_[i]) return true;
+      }
+      return false;
+    }
+    
+    relative_path relative_path::make_child(const std::string & leaf_) const
+    {
+      relative_path rp = *this;
+      rp.append_segment(leaf_);
+      return rp;
+    }
+  
+    relative_path relative_path::make_child(const std::vector<std::string> & more_) const
+    {
+      relative_path rp = *this;
+      rp.append_segments(more_);
+      return rp;
+    }
+
+    relative_path relative_path::operator+(const relative_path & rp_) const
+    {
+      relative_path rp = *this;
+      rp.append_segments(rp_._segments_);
+      return rp;
+    }    
+ 
     // static
     const relative_path & empty_relative_path()
     {
