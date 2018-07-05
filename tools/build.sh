@@ -40,6 +40,7 @@ vire_version="develop"
 bayeux_version="3.3.0"
 install_dir=$(pwd)/_install.d
 build_dir=$(pwd)/_build.d
+with_tests=false
 
 function cl_parse()
 {
@@ -50,6 +51,8 @@ function cl_parse()
 	    my_exit 0
 	elif [ "${arg}" = "--debug" ]; then
 	    debug=1
+	elif [ "${arg}" = "--with-tests" ]; then
+	    with_tests=true
 	elif [ "${arg}" = "--rebuild" ]; then
 	    rebuild=1
 	elif [ "${arg}" = "--only-configure" ]; then
@@ -125,6 +128,9 @@ which bxrabbitmq-query > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo >&2 "[error] BxRabbitMQ is not setup!"
     my_exit 1
+else
+   echo >&2 "[info] Found BxRabbitMQ $(bxrabbitmq-query --version) in $(bxrabbitmq-query --cmakedir)"
+    
 fi
 
 which bxprotobuftools-query > /dev/null 2>&1
@@ -185,12 +191,14 @@ if [ ${only_configure} -eq 0 ]; then
 	my_exit 1
     fi
 
-    echo >&2 ""
-    echo >&2 "[info] Testing..."
-    ninja test
-    if [ $? -ne 0 ]; then
-	echo >&2 "[error] Vire ${vire_version} testing failed!"
-	my_exit 1
+    if [ ${with_tests} = true ]; then
+	echo >&2 ""
+	echo >&2 "[info] Testing..."
+	ninja test
+	if [ $? -ne 0 ]; then
+	    echo >&2 "[error] Vire ${vire_version} testing failed!"
+	    my_exit 1
+	fi
     fi
 
     echo >&2 ""

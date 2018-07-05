@@ -108,7 +108,7 @@ endif()
 # BxRabbitMQ support
 #
 message (STATUS "[info] Searching for BxRabbitMQ...")
-find_package(BxRabbitMQ 0.4.1 REQUIRED CONFIG COMPONENTS manager)
+find_package(BxRabbitMQ 0.4.3 REQUIRED CONFIG COMPONENTS manager)
 if (BxRabbitMQ_FOUND)
   message( STATUS "[info] Found the BxRabbitMQ library:")
   message( STATUS "[info]   BxRabbitMQ_VERSION           = '${BxRabbitMQ_VERSION}'")
@@ -152,4 +152,11 @@ if (VIRE_WITH_QT_GUI)
 endif()
 
 #-----------------------------------------------------------------------
+# Readline support
+#
+find_package(Readline MODULE)
+
+#-----------------------------------------------------------------------
 message( STATUS "[info] End of Vire dependencies")
+
+# end
