@@ -37,13 +37,15 @@ namespace vire {
     public:
     
       //! Default constructor
-      lock_use_case(const uint32_t flags_ = 0);
+      lock_use_case();
 
       //! Destructor
       virtual ~lock_use_case();
 
       void set_duration(const boost::posix_time::time_duration & duration_);
 
+      bool has_duration() const;
+      
       const boost::posix_time::time_duration & get_duration() const;
 
       void set_tick(const boost::posix_time::time_duration & tick_);
@@ -63,10 +65,9 @@ namespace vire {
 
       virtual void _at_finalize_() override;
 
-      virtual std::shared_ptr<uc_time_constraints> _build_time_constraints() override;
+      virtual std::shared_ptr<uc_time_constraints> _build_time_constraints_() const override;
        
-      virtual running::run_preparation_status_type
-      _at_run_prepare_() override;
+      virtual void _at_run_prepare_() override;
 
       /**
        *
@@ -77,8 +78,8 @@ namespace vire {
        *                     tick
        *
        */
-      virtual running::run_functional_work_loop_status_type
-      _at_run_functional_work_loop_iteration_() override;
+      virtual running::run_work_loop_status_type
+      _at_run_work_loop_iteration_() override;
 
     private:
 
@@ -89,7 +90,9 @@ namespace vire {
       // Working data:
       boost::posix_time::ptime _run_start_time_; //!< Start time (UTC)
       boost::posix_time::ptime _run_stop_time_;  //!< Stop time (UTC)
-    
+
+      VIRE_USE_CASE_REGISTRATION_INTERFACE(lock_use_case)
+      
     };
 
   } // namespace cmsserver

@@ -34,25 +34,94 @@
 
 // This project:
 #include <vire/resource_files.h>
+#include <vire/logging/simple_logging_service.h>
 #include <vire/com/manager.h>
 #include <vire/device/manager.h>
 #include <vire/resource/manager.h>
-#include <vire/cmsserver/gate.h>
-// #include <vire/cmsserver/agenda.h>
+#include <vire/resource/resource.h>
 #include <vire/user/manager.h>
 #include <vire/auth/manager.h>
-#include <vire/logging/simple_logging_service.h>
+#include <vire/cmsserver/sc_manager.h>
+#include <vire/cmsserver/sc_info.h>
 // #include <vire/cmsserver/session_manager.h>
+// #include <vire/cmsserver/gate.h>
+// #include <vire/cmsserver/agenda.h>
 #include <vire/utility/path.h>
 
 namespace vire {
 
   namespace cmsserver {
 
+    /* Qt signal emitter */
+
+    server_signal_emitter::server_signal_emitter(server & server_)
+      : _server_(server_)
+    {
+      return;
+    }
+
+    const server & server_signal_emitter::get_server() const
+    {
+      return _server_;
+    }
+      
+    server & server_signal_emitter::grab_server() const
+    {
+      return _server_;
+    }
+
+    void server_signal_emitter::emit_stop()
+    {
+      emit sig_stop();
+    }
+
+    /* CMS server PIMPL */
+    struct server::pimpl_type
+    {
+      pimpl_type()
+      {
+        return;
+      }
+
+      vire::logging::simple_logging_service * log = nullptr;
+      vire::com::manager * com = nullptr;
+      const vire::user::manager * users = nullptr;
+      const vire::auth::manager * auth = nullptr;
+      const vire::device::manager * devices = nullptr;
+      const vire::resource::manager * resources = nullptr;
+      sc_manager * sc = nullptr;
+
+      std::map<std::string, std::thread> runners;
+     
+    };
+    
+    /* CMS server */
+
+    server_signal_emitter & server::grab_emitter()
+    {
+      if (!_emitter_) {
+        _emitter_.reset(new server_signal_emitter(*this));
+      }
+      return *_emitter_.get();
+    }
+
+    const server_signal_emitter & server::get_emitter() const
+    {
+      server * mutable_this = const_cast<server*>(this);
+      return mutable_this->grab_emitter();
+    }
+
     // static
     std::string server::log_service_name()
     {
       static const std::string _n("log");
+      return _n;
+    }
+
+    // static
+    std::string server::sc_service_name()
+    {
+      static const std::string _n("sc");
       return _n;
     }
 
@@ -135,6 +204,8 @@ namespace vire {
 
     server::server()
     {
+      _rc_.set_status(vire::running::RUN_STATUS_UNDEF);
+      _pimpl_.reset(new pimpl_type);
       return;
     }
 
@@ -143,6 +214,7 @@ namespace vire {
       if (is_initialized()) {
         reset();
       }
+      _pimpl_.reset();
       return;
     }
 
@@ -248,7 +320,6 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(_logging_);
       DT_THROW_IF(is_initialized(), std::logic_error, "Server is already initialized!");
-      _run_status_ = RUN_STATUS_INVALID;
 
       _at_init_(config_);
 
@@ -268,19 +339,9 @@ namespace vire {
           DT_LOG_TRACE(_logging_, "Key='" << p.first << "'");
         }
       }
-      _stop_requested_ = false;
-      _run_status_ = RUN_STATUS_STOPPED;
-      _initialized_ = true;
 
-      // // Running:
-      // {
-      //   _stop_requested_ = false;
-      //   _run_status_ = RUN_STATUS_STOPPED;
-      //   // _guard_thread_.reset(new std::thread(&server::_run_guard_, this));
-      //   // _guard_thread_->detach();
-      //   DT_LOG_NOTICE(_logging_, "Starting main thread...");
-      //   start();
-      // }
+      _initialized_ = true;
+      _rc_.set_status(vire::running::RUN_STATUS_READY);
 
       DT_LOG_TRACE_EXITING(_logging_);
       return;
@@ -292,15 +353,12 @@ namespace vire {
       DT_THROW_IF(!is_initialized(), std::logic_error, "Server is not initialized!");
 
       {
-        if (is_running()) {
+        if (_rc_.is_running()) {
           DT_LOG_NOTICE(_logging_, "Forcing run stop...");
-          request_stop();
+          _rc_.request_stop();
         }
-        _run_status_ = RUN_STATUS_STOPPED;
       }
-      _run_status_ = RUN_STATUS_STOPPED;
-      _stop_requested_ = false;
-
+ 
       _initialized_ = false;
 
       DT_LOG_NOTICE(_logging_, "Stopping post system services...");
@@ -315,7 +373,6 @@ namespace vire {
       _at_reset_();
 
       _reset_core_();
-      _run_status_ = RUN_STATUS_INVALID;
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
@@ -535,18 +592,28 @@ namespace vire {
                                                          _logging_,
                                                          false);
 
+      // 
       _init_dlls_(config_);
       _init_core_(config_);
 
       // Initialize the service manager:
       DT_LOG_NOTICE(_logging_, "Initializing the service manager...");
+      datatools::logger::priority services_logging = datatools::logger::PRIO_FATAL;
+      if (config_.has_key("service_manager.logging.priority")) {
+        datatools::properties service_manager_config;
+        config_.export_and_rename_starting_with(service_manager_config, "service_manager.", "");
+        services_logging
+          = datatools::logger::extract_logging_configuration(service_manager_config,
+                                                             services_logging,
+                                                             false);
+      }
       _services_.reset(new datatools::service_manager());
       _services_->set_name("CMSServerServices");
+      _services_->set_logging_priority(services_logging);
       _services_->set_description("CMS server service manager");
       _services_->set_allow_dynamic_services(true);
       _services_->set_force_initialization_at_load(true);
       _services_->initialize();
-
 
       DT_LOG_TRACE_EXITING(_logging_);
       return;
@@ -593,7 +660,31 @@ namespace vire {
         log.tree_dump(std::cerr, "Log service:", "[trace] ");
       }
       _services_->sync();
+      _pimpl_->log = &_services_->grab<vire::logging::simple_logging_service>(log_service_name());
 
+      // Com manager:
+      DT_LOG_TRACE(_logging_, "Com manager...");
+      datatools::properties com_config;
+      if (_mconfig_.has_section("com")) {
+        com_config = _mconfig_.get_section("com");
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading 'com' service...");
+      _services_->load(com_service_name(),
+                      "vire::com::manager",
+                      com_config);
+      if (datatools::logger::is_trace(_logging_)) {
+        _services_->tree_dump(std::cerr, "Services:", "[trace] ");
+      }
+      DT_LOG_TRACE(_logging_, "com service is setup.");
+      vire::com::manager & com = _services_->grab<vire::com::manager>(com_service_name());
+      // vire::com::actor server_actor("vire.cmsserver", vire::com::actor::CATEGORY_SERVER);
+      // com.set_actor(server_actor);
+      if (datatools::logger::is_trace(_logging_)) {
+        com.tree_dump(std::cerr, "Com service:", "[trace] ");
+      }
+      _services_->sync();
+      _pimpl_->com = &_services_->grab<vire::com::manager>(com_service_name());
+      
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
@@ -654,27 +745,6 @@ namespace vire {
       _services_->sync();
       */
 
-      // Com manager:
-      DT_LOG_TRACE(_logging_, "Com manager...");
-      datatools::properties com_config;
-      if (_mconfig_.has_section("com")) {
-        com_config = _mconfig_.get_section("com");
-      }
-      _services_->load(com_service_name(),
-                      "vire::com::manager",
-                      com_config);
-      if (datatools::logger::is_trace(_logging_)) {
-        _services_->tree_dump(std::cerr, "Services:", "[trace] ");
-      }
-      DT_LOG_TRACE(_logging_, "com service is setup.");
-      vire::com::manager & com = _services_->grab<vire::com::manager>(com_service_name());
-      // vire::com::actor server_actor("vire.cmsserver", vire::com::actor::CATEGORY_SERVER);
-      // com.set_actor(server_actor);
-      if (datatools::logger::is_trace(_logging_)) {
-        com.tree_dump(std::cerr, "Com service:", "[trace] ");
-      }
-      _services_->sync();
-
       // // Agenda:
       // DT_LOG_TRACE(_logging_, "Agenda...");
       // datatools::properties agenda_config;
@@ -697,26 +767,26 @@ namespace vire {
       // }
        _services_->sync();
 
-      // Gate:
-      DT_LOG_TRACE(_logging_, "Gate...");
-      datatools::properties gate_config;
-      if (_mconfig_.has_section("gate")) {
-        gate_config = _mconfig_.get_section("gate");
-      }
-      _services_->load(gate_service_name(),
-                      "vire::cmsserver::gate",
-                      gate_config);
-      if (datatools::logger::is_trace(_logging_)) {
-        _services_->tree_dump(std::cerr, "Services:", "[trace] ");
-      }
-      DT_LOG_TRACE(_logging_, "gate service is setup.");
-      vire::cmsserver::gate & gate = _services_->grab<vire::cmsserver::gate>(gate_service_name());
-      if (datatools::logger::is_trace(_logging_)) {
-        gate.tree_dump(std::cerr, "Gate service:", "[trace] ");
-      }
-      _services_->sync();
+     //  // Gate:
+     //  DT_LOG_TRACE(_logging_, "Gate...");
+     //  datatools::properties gate_config;
+     //  if (_mconfig_.has_section("gate")) {
+     //    gate_config = _mconfig_.get_section("gate");
+     //  }
+     //  _services_->load(gate_service_name(),
+     //                  "vire::cmsserver::gate",
+     //                  gate_config);
+     //  if (datatools::logger::is_trace(_logging_)) {
+     //    _services_->tree_dump(std::cerr, "Services:", "[trace] ");
+     //  }
+     //  DT_LOG_TRACE(_logging_, "gate service is setup.");
+     //  vire::cmsserver::gate & gate = _services_->grab<vire::cmsserver::gate>(gate_service_name());
+     //  if (datatools::logger::is_trace(_logging_)) {
+     //    gate.tree_dump(std::cerr, "Gate service:", "[trace] ");
+     //  }
+     //  _services_->sync();
 
-     _services_->tree_dump(std::cerr, "Vire CMS server's service manager:", "[trace] ");
+     // _services_->tree_dump(std::cerr, "Vire CMS server's service manager:", "[trace] ");
 
       DT_LOG_TRACE_EXITING(_logging_);
       return;
@@ -726,11 +796,11 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(_logging_);
 
-      if (_services_->has(gate_service_name())) {
-        if (_services_->is_a<vire::cmsserver::gate>(gate_service_name())) {
-          _services_->drop(gate_service_name());
-        }
-      }
+      // if (_services_->has(gate_service_name())) {
+      //   if (_services_->is_a<vire::cmsserver::gate>(gate_service_name())) {
+      //     _services_->drop(gate_service_name());
+      //   }
+      // }
 
       // if (_services_->has(sessions_service_name())) {
       //        if (_services_->is_a<vire::cmsserver::session_manager>(sessions_service_name())) {
@@ -744,16 +814,10 @@ namespace vire {
       //   }
       // }
 
-      if (_services_->has(com_service_name())) {
-        if (_services_->is_a<vire::com::manager>(com_service_name())) {
-          _services_->drop(com_service_name());
-        }
-      }
-
-      std::string rabbitmq_service_name = "RabbitMgr";
-      if (_services_->has(rabbitmq_service_name)) {
-        _services_->drop(rabbitmq_service_name);
-      }
+      // std::string rabbitmq_service_name = "RabbitMgr";
+      // if (_services_->has(rabbitmq_service_name)) {
+      //   _services_->drop(rabbitmq_service_name);
+      // }
 
       DT_LOG_TRACE_EXITING(_logging_);
       return;
@@ -763,8 +827,14 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(_logging_);
 
+      if (_services_->has(com_service_name())) {
+        if (_services_->is_a<vire::com::manager>(com_service_name())) {
+          _services_->drop(com_service_name());
+        }
+      }
+
       if (_services_->has(log_service_name())) {
-        if (_services_->is_a<vire::com::manager>(log_service_name())) {
+        if (_services_->is_a<vire::logging::simple_logging_service>(log_service_name())) {
           _services_->drop(log_service_name());
         }
       }
@@ -782,21 +852,25 @@ namespace vire {
       if (_mconfig_.has_section("devices")) {
         devices_config = _mconfig_.get_section("devices");
       }
+      DT_LOG_DEBUG(get_logging(), "Loading 'devices' service...");
       _services_->load(devices_service_name(),
                       "vire::device::manager",
                       devices_config);
       _services_->sync();
+      _pimpl_->devices = &_services_->get<vire::device::manager>(devices_service_name());
 
       // Resources manager:
       datatools::properties resources_config;
       if (_mconfig_.has_section("resources")) {
         resources_config = _mconfig_.get_section("resources");
       }
+      DT_LOG_DEBUG(get_logging(), "Loading 'resources' service...");
       _services_->load(resources_service_name(),
                       "vire::resource::manager",
                       resources_config);
       _services_->sync();
-
+      _pimpl_->resources = &_services_->get<vire::resource::manager>(resources_service_name());
+     
       // vire::resource::manager & resources = _services_->grab<vire::resource::manager>("resources");
       // resources.tree_dump(std::cerr, "Resources:", "[debug] ");
 
@@ -805,27 +879,76 @@ namespace vire {
       if (_mconfig_.has_section("users")) {
         users_config = _mconfig_.get_section("users");
       }
+      DT_LOG_DEBUG(get_logging(), "Loading 'users' service...");
       _services_->load(users_service_name(),
                       "vire::user::manager",
                       users_config);
       _services_->sync();
-
+      _pimpl_->users = &_services_->grab<vire::user::manager>(users_service_name());
+ 
       // Auth manager:
-      // DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Configuring Auth service...");
+      // DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Configuring 'auth' service...");
       datatools::properties auth_config;
       if (_mconfig_.has_section("auth")) {
         auth_config = _mconfig_.get_section("auth");
         // auth_config.tree_dump(std::cerr,"Auth service config: ", "[devel] ");
        }
+      DT_LOG_DEBUG(get_logging(), "Loading 'auth' service...");
       _services_->load(auth_service_name(),
                       "vire::auth::manager",
                       auth_config);
       _services_->sync();
+      _pimpl_->auth = &_services_->grab<vire::auth::manager>(auth_service_name());
+
+      // Subcontractor manager:
+      // DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Configuring 'sc' (Subcontractor) service...");
+      datatools::properties sc_config;
+      if (_mconfig_.has_section("sc")) {
+        sc_config = _mconfig_.get_section("sc");
+        // sc_config.tree_dump(std::cerr,"Subcontractor service config: ", "[devel] ");
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading 'sc' service...");
+      _services_->load(sc_service_name(),
+                      "vire::cmsserver::sc_manager",
+                      sc_config);
+      _services_->sync();
+      _pimpl_->sc = &_services_->grab<vire::cmsserver::sc_manager>(sc_service_name());
+      DT_LOG_DEBUG(get_logging(), "Service 'sc' logging is : "
+                   << datatools::logger::get_priority_label(_pimpl_->sc->get_logging_priority()));
+
+      // Compute the 'responsible' of resources:
+      _compute_resource_responsible_();
 
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
 
+    void server::_compute_resource_responsible_()
+    {
+      vire::resource::manager & resources = const_cast<vire::resource::manager &>(*_pimpl_->resources);
+      const vire::cmsserver::sc_manager & sc = *_pimpl_->sc;
+      std::set<std::string> sc_names;
+      sc.build_subcontractor_names(sc_names);
+      for (const auto & sc_name : sc_names) {
+        const sc_info & scInfo = sc.get_subcontractor_info(sc_name);
+        std::set<std::string> mdevices;
+        scInfo.build_mounted_devices(mdevices);
+        for (const auto & dev_name : mdevices) {
+          std::set<int32_t> resource_ids;
+          const vire::cmsserver::sc_info::device_info & devInfo = scInfo.get_mounted_device_info(dev_name);
+          resources.build_set_of_resource_ids_from_path_regexp_within_device(dev_name,
+                                                                             devInfo.selection,
+                                                                             resource_ids);
+                                                                             
+          for (auto res_id : resource_ids) {
+            const vire::resource::resource & res = resources.get_resource_by_id(res_id);
+            const_cast<vire::resource::resource &>(res).set_responsible(sc_name);
+          }
+        }
+      }
+      return;
+    }
+    
     void server::_stop_business_services()
     {
       DT_LOG_TRACE_ENTERING(_logging_);
@@ -854,6 +977,12 @@ namespace vire {
       }
       */
 
+      if (_services_->has(sc_service_name())) {
+        if (_services_->is_a<sc_manager>(sc_service_name())) {
+          _services_->drop(sc_service_name());
+        }
+      }
+
       if (_services_->has(auth_service_name())) {
         if (_services_->is_a<vire::auth::manager>(auth_service_name())) {
           _services_->drop(auth_service_name());
@@ -881,66 +1010,48 @@ namespace vire {
       DT_LOG_TRACE_EXITING(_logging_);
     }
 
-    server::run_status_t server::get_run_status() const
+    const vire::running::run_control & server::get_rc() const
     {
-      return _run_status_;
+      return _rc_;
     }
 
-    bool server::is_running() const
+    void server::stop()
     {
-      return _run_status_ == RUN_STATUS_RUNNING;
-    }
-
-    bool server::is_stopped() const
-    {
-      return _run_status_ == RUN_STATUS_STOPPED;
-    }
-
-    bool server::is_requested_stop() const
-    {
-      return _stop_requested_;
-    }
-
-    bool server::_at_run_loop_()
-    {
-      bool terminate_run = false;
-      std::this_thread::sleep_for(std::chrono::milliseconds(_tick_ms_));
-      if (_stop_requested_) {
-        terminate_run = true;
-      }
-      return terminate_run;
+      _rc_.request_stop();
+      return;
     }
 
     void server::_at_run_start_()
     {
-      DT_LOG_DEBUG(_logging_, "Starting...");
-      _stop_requested_ = false;
-      _run_status_ = RUN_STATUS_RUNNING;
-      _start_time_ = std::chrono::system_clock::now();
-      return;
-    }
+     DT_LOG_DEBUG(_logging_, "Starting run...");
+     _rc_.set_status(vire::running::RUN_STATUS_STARTING);
 
-    std::size_t server::get_uptime_us() const
-    {
-      // typedef std::chrono::duration<std::size_t, std::milli> milliseconds_type;
-      std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-      auto uptime = std::chrono::system_clock::now() - _start_time_;
-      std::size_t count = std::chrono::duration_cast<std::chrono::microseconds>(uptime).count();
-      return count;
-    }
-
-    double server::compute_uptime() const
-    {
-      return get_uptime_us() * CLHEP::microsecond;
+     if (_pimpl_->sc) {
+       DT_LOG_DEBUG(_logging_, "Starting the 'sc' manager...");
+       std::thread t(&sc_manager::run, _pimpl_->sc);
+       t.detach();
+       _pimpl_->runners["sc"] = std::move(t);
+     }
+     
+     DT_LOG_DEBUG(_logging_, "Run is started.");
+     return;
     }
 
     void server::_at_run_stop_()
     {
-      DT_LOG_DEBUG(_logging_, "Stopping...");
-      _run_status_ = RUN_STATUS_STOPPED;
-      _stop_requested_ = false;
-      std::chrono::system_clock::time_point epoch;
-      _start_time_ = epoch;
+      DT_LOG_DEBUG(_logging_, "Stopping run...");
+      _rc_.set_status(vire::running::RUN_STATUS_STOPPING);
+      for (std::map<std::string, std::thread>::iterator thd_iter = _pimpl_->runners.begin();
+           thd_iter != _pimpl_->runners.end();
+           thd_iter++) {
+        const std::string & key = thd_iter->first;
+        if (key == "sc") {
+          DT_LOG_DEBUG(_logging_, "Stopping the 'sc' manager...");
+          _pimpl_->sc->stop();
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+      }
+      DT_LOG_DEBUG(_logging_, "Run is stopped.");
       return;
     }
 
@@ -948,39 +1059,42 @@ namespace vire {
     {
       DT_LOG_DEBUG(_logging_, "Running...");
       DT_THROW_IF(!is_initialized(), std::logic_error, "CMS server is not initialized!");
-      DT_THROW_IF(is_running(), std::logic_error, "CMS server is already running!");
-      if (_stop_requested_) {
+      DT_THROW_IF(!_rc_.is_ready(), std::logic_error,
+                  "Subcontractor manager is not ready to run!");
+      if (_rc_.is_stop_requested()) {
+        _rc_.set_status(vire::running::RUN_STATUS_STOPPED);
         return;
       }
-      _manage_run_();
-      return;
-    }
-
-    void server::_manage_run_()
-    {
+      _rc_.set_start_time(std::chrono::system_clock::now());
       _at_run_start_();
-      DT_LOG_DEBUG(_logging_, "Entering run loop...");
-      while (!_stop_requested_) {
-        bool terminate_run = _at_run_loop_();
-        if (terminate_run) {
-          _stop_requested_ = true;
-          break;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(_tick_ms_));
-      }
+      _at_run_();
       _at_run_stop_();
+      _rc_.set_stop_time(std::chrono::system_clock::now());
+      _rc_.set_status(vire::running::RUN_STATUS_STOPPED);
+      grab_emitter().emit_stop();
       return;
     }
 
-    void server::_set_run_status_(const run_status_t status_)
+    void server::_at_run_()
     {
-      _run_status_ = status_;
-      return;
+      _rc_.set_status(vire::running::RUN_STATUS_RUNNING);
+
+      DT_LOG_DEBUG(_logging_, "Entering run loop...");
+      while (!_rc_.is_stop_requested()) {
+        vire::time::system_time_point tp_now = std::chrono::system_clock::now();
+        vire::time::system_time_point tp_elapsed_tick = tp_now + _rc_.get_sys_tick();
+        _at_run_loop_();
+        _rc_.increment_loop_counter();
+        tp_now = std::chrono::system_clock::now();
+        if (tp_now < tp_elapsed_tick) {
+          std::this_thread::sleep_until(tp_elapsed_tick);
+        }
+      }
+       return;
     }
 
-    void server::request_stop()
+    void server::_at_run_loop_()
     {
-      _stop_requested_ = true;
       return;
     }
 

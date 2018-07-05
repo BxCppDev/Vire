@@ -24,11 +24,13 @@ namespace vire {
 
   namespace cmsserver {
 
-    lock_use_case::lock_use_case(const uint32_t flags_)
-      : base_use_case(flags_)
+    VIRE_USE_CASE_REGISTRATION_IMPLEMENT(lock_use_case, "vire::cmsserver::lock_use_case")
+
+    lock_use_case::lock_use_case()
     {
       vire::time::invalidate(_duration_);
-      _tick_ = boost::posix_time::seconds(1);
+      _set_defaults_();
+      // _tick_ = boost::posix_time::seconds(1);
       return;
     }
     
@@ -46,7 +48,7 @@ namespace vire {
 
     void lock_use_case::set_tick(const boost::posix_time::time_duration & tick_)
     {
-      DT_THROW_IF(tick_.is_negative() || tick_.total_microseconds() < 1,
+      DT_THROW_IF(tick_.is_negative() || tick_.total_microseconds() < 10,
                   std::domain_error,
                   "Invalid tick time duration!");
       _tick_ = tick_;
@@ -56,6 +58,11 @@ namespace vire {
     const boost::posix_time::time_duration & lock_use_case::get_tick() const
     {
       return _tick_;
+    }
+
+    bool lock_use_case::has_duration() const
+    {
+      return vire::time::is_valid(_duration_);
     }
 
     void lock_use_case::set_duration(const boost::posix_time::time_duration & duration_)
@@ -76,14 +83,20 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
 
-      if (config_.has_key("duration")) {
-        std::string duration_repr = config_.fetch_string("duration");
-        // XXX
+      if (!has_duration()) {
+        if (config_.has_key("duration")) {
+          std::string duration_repr = config_.fetch_string("duration");
+          boost::posix_time::time_duration duration;
+          DT_THROW_IF(!vire::time::parse_positive_time_duration(duration_repr, duration),
+                      std::logic_error,
+                      "Invalid time duration format '" << duration_repr << "'!");
+          set_duration(duration);
+        }
       }
       
-      DT_THROW_IF(!vire::time::is_valid(_duration_),
-                  std::logic_error,
-                  "Missing duration!");
+      // DT_THROW_IF(!vire::time::is_valid(_duration_),
+      //             std::logic_error,
+      //             "Missing duration!");
       
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
@@ -97,34 +110,35 @@ namespace vire {
     }
 
     // virtual
-    std::shared_ptr<uc_time_constraints> lock_use_case::_build_time_constraints()
+    std::shared_ptr<uc_time_constraints> lock_use_case::_build_time_constraints_() const
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::shared_ptr<uc_time_constraints> utc_p;
-      utc_p.reset(new uc_time_constraints);
-      utc_p->set_functional_work_duration_max(_duration_);
+      if (has_duration()) {
+        utc_p.reset(new uc_time_constraints);
+        utc_p->add_constraint(running::RUN_STAGE_FUNCTIONAL_WORK_RUNNING,
+                              vire::time::duration_interval(_duration_, _duration_));
+      }
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return utc_p;
     }
 
-    running::run_preparation_status_type
-    lock_use_case::_at_run_prepare_()
+    void lock_use_case::_at_run_prepare_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      running::run_preparation_status_type ret = running::RUN_PREPARE_STATUS_OK;
       _run_start_time_ = vire::time::now_utc();
       _run_stop_time_ = _run_start_time_ + _duration_;
       DT_LOG_TRACE(get_logging_priority(), "Run start time = " << _run_start_time_);
       DT_LOG_TRACE(get_logging_priority(), "Run stop time  = " << _run_stop_time_);
       DT_LOG_TRACE_EXITING(get_logging_priority());
-      return ret;
+      return;
     }
 
-    running::run_functional_work_loop_status_type
-    lock_use_case::_at_run_functional_work_loop_iteration_()
+    running::run_work_loop_status_type
+    lock_use_case::_at_run_work_loop_iteration_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      running::run_functional_work_loop_status_type ret = running::RUN_FUNCTIONAL_WORK_LOOP_STOP;
+      running::run_work_loop_status_type ret = running::RUN_WORK_LOOP_STOP;
       
       // Note: Algorithm to be reviewed and use std::this_thread::sleep_until
 
@@ -143,7 +157,7 @@ namespace vire {
       if (now < _run_stop_time_) {
         DT_LOG_TRACE(get_logging_priority(), "Sleep for " << sleep_time.count() << " us");
         std::this_thread::sleep_for(sleep_time);
-        ret = running::RUN_FUNCTIONAL_WORK_LOOP_CONTINUE;
+        ret = running::RUN_WORK_LOOP_CONTINUE;
       }
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return ret;
@@ -154,16 +168,21 @@ namespace vire {
                                    const boost::property_tree::ptree & options_) const
     {
       {
-        boost::property_tree::ptree popts = i_tree_dumpable::base_print_options::force_inheritance(options_);
+        boost::property_tree::ptree popts
+          = i_tree_dumpable::base_print_options::force_inheritance(options_);
         this->base_use_case::print_tree(out_, popts);
       }
       datatools::i_tree_dumpable::base_print_options popts;
       popts.configure_from(options_);
 
       out_ << popts.indent << datatools::i_tree_dumpable::tag
-           << "Duration : "
-           << vire::time::to_string(_duration_)
-           << std::endl;
+           << "Duration : ";
+      if (has_duration()) {
+        out_ << vire::time::to_string(_duration_);
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
       
       out_ << popts.indent << datatools::i_tree_dumpable::tag
            << "Tick : "

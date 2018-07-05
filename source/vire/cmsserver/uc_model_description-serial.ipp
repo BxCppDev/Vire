@@ -1,5 +1,5 @@
-//! \file    vire/cmsserver/use_case_info-serial.ipp
-//! \brief   Vire cmsserver session info serialization support
+//! \file    vire/cmsserver/uc_model_description-serial.ipp
+//! \brief   Serialization support for use case description
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,34 +18,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSSERVER_USE_CASE_INFO_SERIAL_IPP
-#define VIRE_CMSSERVER_USE_CASE_INFO_SERIAL_IPP
+#ifndef VIRE_CMSSERVER_UC_MODEL_DESCRIPTION_SERIAL_IPP
+#define VIRE_CMSSERVER_UC_MODEL_DESCRIPTION_SERIAL_IPP
 
 // Ourselves:
-#include <vire/cmsserver/use_case_info.h>
+#include <vire/cmsserver/uc_model_description.h>
 
 // Third party:
 // - Boost:
 #include <boost/serialization/string.hpp>
-#include <boost/serialization/map.hpp>
 #include <boost/serialization/optional.hpp>
+
+// This project:
+#include <vire/cmsserver/uc_composition_description-serial.ipp>
 
 namespace vire {
 
   namespace cmsserver {
 
     template<class Archive>
-    void use_case_info::serialize(Archive & archive_,
-                                  const unsigned int /* version_*/)
+    void uc_model_description::serialize(Archive & archive_,
+                                         const unsigned int /* version_*/)
     {
       archive_ & DATATOOLS_SERIALIZATION_I_SERIALIZABLE_BASE_OBJECT_NVP;
-
       archive_ & boost::serialization::make_nvp("name", _name_);
-      archive_ & boost::serialization::make_nvp("description", _description_);
-      archive_ & boost::serialization::make_nvp("role_definition", _role_definition_);
       archive_ & boost::serialization::make_nvp("use_case_type_id", _use_case_type_id_);
+      archive_ & boost::serialization::make_nvp("description", _description_);
       archive_ & boost::serialization::make_nvp("use_case_config_path", _use_case_config_path_);
       archive_ & boost::serialization::make_nvp("use_case_config", _use_case_config_);
+      archive_ & boost::serialization::make_nvp("composition_description", _composition_description_);
       return;
     }
 
@@ -54,9 +55,9 @@ namespace vire {
 } // end of namespace vire
 
 // #include <boost/serialization/version.hpp>
-// BOOST_CLASS_VERSION(vire::cmsserver::use_case_info, 0)
+// BOOST_CLASS_VERSION(vire::cmsserver::uc_model_description, 0)
 
-#endif // VIRE_CMSSERVER_USE_CASE_INFO_SERIAL_IPP
+#endif // VIRE_CMSSERVER_UC_MODEL_DESCRIPTION_SERIAL_IPP
 
 // Local Variables: --
 // mode: c++ --

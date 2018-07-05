@@ -14,6 +14,7 @@
 #include <vire/vire.h>
 
 #include "dummy_use_case.h"
+#include "foo_use_case.h"
 #include "tools.h"
 
 void test_use_case_1();

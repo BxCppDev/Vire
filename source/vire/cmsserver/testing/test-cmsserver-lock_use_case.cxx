@@ -47,6 +47,7 @@ void test_lock_use_case_1()
   std::clog << "\ntest_lock_use_case_1: dry run..." << std::endl;
 
   vire::cmsserver::lock_use_case lock;
+  lock.set_run_mode(vire::cmsserver::base_use_case::RUN_MODE_DRYRUN);
   lock.set_name("lock");
   lock.set_display_name("Lock");
   lock.set_terse_description("Test lock use case");
@@ -54,10 +55,8 @@ void test_lock_use_case_1()
   lock.set_duration(boost::posix_time::time_duration(0, 0, 5));
   lock.set_tick(boost::posix_time::time_duration(0, 0, 1));
   std::clog << "Initialization..." << std::endl;
-  lock.initialize_simple();
-  
+  lock.initialize_simple(); 
   lock.print_tree(std::clog);
-  
   std::clog << "Termination." << std::endl;
   lock.finalize();
   
@@ -69,7 +68,8 @@ void test_lock_use_case_2()
 {
   std::clog << "\ntest_lock_use_case_2: running..." << std::endl;
 
-  vire::cmsserver::lock_use_case lock(vire::cmsserver::lock_use_case::INIT_RUN);
+  vire::cmsserver::lock_use_case lock;
+  lock.set_run_mode(vire::cmsserver::base_use_case::RUN_MODE_RUN);
   lock.set_name("lock");
   lock.set_display_name("Lock");
   lock.set_terse_description("Test lock use case");
@@ -77,25 +77,48 @@ void test_lock_use_case_2()
   lock.set_duration(boost::posix_time::time_duration(0, 0, 8));
   lock.set_tick(boost::posix_time::milliseconds(500));
   std::clog << "Initialization..." << std::endl;
+  std::shared_ptr<vire::cmsserver::running::run_control> rc = std::make_shared<vire::cmsserver::running::run_control>();
+  lock.set_rc(rc);
   lock.initialize_simple();
-  
   lock.print_tree(std::clog);
 
-  vire::cmsserver::running::run_stage_completion rsc = lock.run_prepare();
-
-  rsc = lock.run_distributable_up();
-  rsc = lock.run_functional_up();
-  rsc = lock.run_functional_work();
-  rsc = lock.run_functional_down();
-  rsc = lock.run_distributable_down();
-
-  rsc = lock.run_distributable_up();
-  rsc = lock.run_functional_up();
-  rsc = lock.run_functional_work();
-  rsc = lock.run_functional_down();
-  rsc = lock.run_distributable_down();
-
-  rsc = lock.run_terminate();
+  
+  vire::cmsserver::running::run_stage_completion rsc;
+  
+  if (! rsc.is_error()) {
+    rsc = lock.run_prepare();
+    if (rsc.is_error()) {
+      std::cerr << "[error] Run stage failed..." << std::endl;
+    }
+  }
+  
+  if (! rsc.is_error()) {
+    rsc = lock.run_up();
+    if (rsc.is_error()) {
+      std::cerr << "[error] Run stage failed..." << std::endl;
+    }
+  }
+  
+  if (! rsc.is_error()) {
+    rsc = lock.run_work();
+    if (rsc.is_error()) {
+      std::cerr << "[error] Run stage failed..." << std::endl;
+    }
+  }
+  
+  if (! rsc.is_error()) {
+    rsc = lock.run_down();
+    if (rsc.is_error()) {
+      std::cerr << "[error] Run stage failed..." << std::endl;
+    }
+  }
+  
+  if (! rsc.is_error()) {
+    rsc = lock.run_terminate();
+    if (rsc.is_error()) {
+      std::cerr << "[error] Run stage failed..." << std::endl;
+    }
+  } 
   
   std::clog << "Termination." << std::endl;
   lock.finalize();

@@ -21,8 +21,6 @@
 #include <vire/resource/role.h>
 #include <vire/resource/manager.h>
 #include <vire/cmsserver/base_use_case.h>
-#include <vire/cmsserver/session.h>
-#include <vire/cmsserver/task_utils.h>
 
 #include "dummy_use_case.h"
 
@@ -33,7 +31,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
   vire::initialize();
   int error_code = EXIT_SUCCESS;
   try {
-    std::clog << "Test program for the 'vire::resource::manager' class."
+    std::clog << "Test program for the 'vire::cmsserver::base_use_case' class."
               << std::endl;
 
     boost::filesystem::remove("_roles.def");
@@ -94,30 +92,26 @@ void test_use_case_0()
     std::clog << std::endl;
   }
 
-  vire::cmsserver::session dummySession;
-
   vire::cmsserver::test::dummy_use_case dummyUse(4,8,3);
+  dummyUse.set_run_mode(vire::cmsserver::base_use_case::RUN_MODE_DRYRUN);
   dummyUse.set_name("dummy");
   dummyUse.set_display_name("Dummy");
   dummyUse.set_terse_description("A dummy use case");
   dummyUse.set_logging_priority(datatools::logger::PRIO_DEBUG);
-  dummyUse.set_mother_session(dummySession);
-  dummyUse.set_functional_up_max_duration(boost::posix_time::seconds(dummyUse.get_up_time_sec()));
-  dummyUse.set_functional_work_min_duration(boost::posix_time::seconds(dummyUse.get_work_time_sec()));
-  // dummyUse.set_functional_work_max_duration(boost::posix_time::seconds(dummyUse.get_work_time_sec()));
-  dummyUse.set_functional_down_max_duration(boost::posix_time::seconds(dummyUse.get_down_time_sec()));
+  dummyUse.set_up_time_sec(4);
+  dummyUse.set_work_time_sec(8);
+  dummyUse.set_down_time_sec(3);
   dummyUse.initialize_simple();
   std::clog << "Dummy use case: " << std::endl;
-  dummyUse.print_tree(std::clog);
   {
-    dummyUse.up();
-    std::packaged_task<vire::cmsserver::work_report_type()> use_case_task(std::bind(&vire::cmsserver::base_use_case::work, &dummyUse));
-    std::future<vire::cmsserver::work_report_type> work_report = use_case_task.get_future();
-    std::thread use_case_thread(std::move(use_case_task));
-    use_case_thread.join();
-    dummyUse.down();
+    // boost::property_tree::ptree popts;
+    // popts.put(datatools::i_tree_dumpable::base_print_options::indent_key(),
+    //           popts.indent + datatools::i_tree_dumpable::tags::skip_item());
+    // popts.put(datatools::i_tree_dumpable::base_print_options::title_key(),
+    //           "Dummy use case: ");
+    dummyUse.print_tree(std::clog /*, popts*/);
   }
-  dummyUse.reset();
+  dummyUse.finalize();
 
   return;
 }

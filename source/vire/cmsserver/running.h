@@ -26,7 +26,9 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <atomic>
 
+// Third party:
 // - Boost:
 #include <boost/property_tree/ptree.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -34,84 +36,59 @@
 #include <bayeux/mygsl/min_max.h>
 #include <bayeux/mygsl/mean.h>
 
+// This project:
+// #include <vire/running/scheduling.h>
+
 namespace vire {
 
   namespace cmsserver {
 
     namespace running {
       
-      /// \brief Supported run stages
+      /// \brief Run stages
       ///
       /// [READY]
       ///    |
-      ///    v
-      /// [PREPARING]
+      ///    | action [SYSTEM_PREPARING]
       ///    |
       ///    v
-      /// [PREPARED]
+      /// [SYSTEM_PREPARED]
       ///    |
-      ///    v
-      /// [DISTRIBUTABLE_UP_RUNNING]
-      ///    |
-      ///    v
-      /// [DISTRIBUTABLE_UP_DONE]
-      ///    |
-      ///    v
-      /// [FUNCTIONAL_UP_RUNNING]
+      ///    | action [FUNCTIONAL_UP_RUNNING]
       ///    |
       ///    v
       /// [FUNCTIONAL_UP_DONE]
       ///    |
-      ///    v
-      /// [FUNCTIONAL_WORK_RUNNING]
+      ///    | action [FUNCTIONAL_WORK_RUNNING]
       ///    |
       ///    v
       /// [FUNCTIONAL_WORK_DONE]
       ///    |
-      ///    v
-      /// [FUNCTIONAL_DOWN_RUNNING]
+      ///    | action [FUNCTIONAL_DOWN_RUNNING]
       ///    |
       ///    v
       /// [FUNCTIONAL_DOWN_DONE]
       ///    |
-      ///    v
-      /// [DISTRIBUTABLE_DOWN_RUNNING]
+      ///    | action [SYSTEM_TERMINATING]
       ///    |
       ///    v
-      /// [DISTRIBUTABLE_DOWN_DONE]
-      ///    |
-      ///    v
-      /// [TERMINATING]
-      ///    |
-      ///    v
-      /// [TERMINATED]
+      /// [SYSTEM_TERMINATED]
       ///
       ///
       enum run_stage_type {
         RUN_STAGE_NA = -1,                         ///< Not applicable running concept
         RUN_STAGE_UNDEF = 0,                       ///< Run stage is not defined (yet)
         RUN_STAGE_READY = 1,                       ///< Ready for running stage
-        RUN_STAGE_PREPARING = 2,                   ///< Preparing stage
-        RUN_STAGE_PREPARED = 3,                    ///< Prepared stage
-        RUN_STAGE_DISTRIBUTABLE_UP_RUNNING = 4,    ///< Distributable up running stage
-        RUN_STAGE_DISTRIBUTABLE_UP_DONE = 5,       ///< Distributable up done stage
-        RUN_STAGE_FUNCTIONAL_UP_RUNNING = 6,       ///< Functional up running stage
-        RUN_STAGE_FUNCTIONAL_UP_DONE = 7,          ///< Functional up done stage
-        RUN_STAGE_FUNCTIONAL_WORK_RUNNING = 8,     ///< Functional work running stage
-        RUN_STAGE_FUNCTIONAL_WORK_DONE = 9,        ///< Functional work done stage
-        RUN_STAGE_FUNCTIONAL_DOWN_RUNNING = 10,    ///< Functional down running stage
-        RUN_STAGE_FUNCTIONAL_DOWN_DONE = 11,       ///< Functional down done stage
-        RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING = 12, ///< Distributable down running stage
-        RUN_STAGE_DISTRIBUTABLE_DOWN_DONE = 13,    ///< Distributable down done stage
-        RUN_STAGE_TERMINATING = 14,                ///< Terminating stage
-        RUN_STAGE_TERMINATED = 15                  ///< terminated stage
-      };
-
-      /// \brief Resource running depth 
-      enum run_resource_depth_type {
-        RUN_RESOURCE_DEPTH_DISTRIBUTABLE   = 1, ///< Run distributable up/down 
-        RUN_RESOURCE_DEPTH_FUNCTIONAL_AUTO = 2, ///< Run functional up/down
-        RUN_RESOURCE_DEPTH_FUNCTIONAL_WORK = 3  ///< Run functional work
+        RUN_STAGE_SYSTEM_PREPARING = 2,            ///< System preparing stage
+        RUN_STAGE_SYSTEM_PREPARED = 3,             ///< System prepared stage
+        RUN_STAGE_FUNCTIONAL_UP_RUNNING = 4,       ///< Functional up running stage
+        RUN_STAGE_FUNCTIONAL_UP_DONE = 5,          ///< Functional up done stage
+        RUN_STAGE_FUNCTIONAL_WORK_RUNNING = 6,     ///< Functional work running stage
+        RUN_STAGE_FUNCTIONAL_WORK_DONE = 7,        ///< Functional work done stage
+        RUN_STAGE_FUNCTIONAL_DOWN_RUNNING = 8,     ///< Functional down running stage
+        RUN_STAGE_FUNCTIONAL_DOWN_DONE = 9,        ///< Functional down done stage
+        RUN_STAGE_SYSTEM_TERMINATING = 10,         ///< System terminating stage
+        RUN_STAGE_SYSTEM_TERMINATED = 11           ///< Terminated stage
       };
       
       /// Return the label associated to a given run stage
@@ -128,9 +105,9 @@ namespace vire {
       //! \brief Run report data structure returned by each running steps of the use case
       struct run_stage_completion
       {
+        run_stage_type              run_stage       = RUN_STAGE_UNDEF;       ///< Run stage at termination (mandatory)
         boost::posix_time::ptime    timestamp;      ///< Report UTC timestamp (mandatory)
         run_termination_type        run_termination = RUN_TERMINATION_UNDEF; ///< Type of run termination (mandatory)
-        run_stage_type              run_stage       = RUN_STAGE_UNDEF;       ///< Run stage at termination (mandatory)
         std::string                 error_class_id; ///< Error/exception type/class identifier (optional)
         boost::property_tree::ptree error_data;     ///< Specific data associated to the error/exception (optional)
 
@@ -163,52 +140,73 @@ namespace vire {
       /// \brief Dictionary of stage report records associated to different running stages
       typedef std::map<run_stage_type, run_stage_report_record> run_report_type;
 
-      /// \brief Preparation run status
-      enum run_preparation_status_type {
-        RUN_PREPARE_STATUS_OK = 0, 
-        RUN_PREPARE_STATUS_ERROR = 1
-      };
-
       /// \brief Control status for functional work loop
-      enum run_functional_work_loop_status_type {
-        RUN_FUNCTIONAL_WORK_LOOP_CONTINUE = 0, 
-        RUN_FUNCTIONAL_WORK_LOOP_STOP     = 1
+      enum run_work_loop_status_type {
+        RUN_WORK_LOOP_CONTINUE = 0, 
+        RUN_WORK_LOOP_STOP     = 1
       };
 
-      // struct run_base_signal {};
-      // struct run_termination_signal : public run_base_signal {};
-      // struct run_timeout_signal : public run_base_signal {};
-      // struct run_user1_signal : public run_base_signal {};
-      // struct run_user2_signal : public run_base_signal {};
+      /// \brief Resource running depth 
+      enum run_depth_type {
+        RUN_DEPTH_NONE   = 0, ///< No run at all (skip all running operations) 
+        RUN_DEPTH_SYSTEM = 1, ///< Run system prepare/terminate 
+        RUN_DEPTH_AUTO   = 2, ///< Run functional resource up/down
+        RUN_DEPTH_WORK   = 3  ///< Run functional resource work
+      };
 
-      //! \brief Run control structure for an use case 
+      std::string run_depth_label(const run_depth_type);
+
+      class base_use_base;
+      // class session;
+      
+      //! \brief Run control structure for a given use case 
       struct run_control
       {
         /// Constructor
-        run_control();
-
-        /// Check run inhibition
-        bool can_run() const;
+        run_control(const run_depth_type = running::RUN_DEPTH_WORK);
 
         /// Request a run stop
         void run_stop_request();
 
         /// Check is run stop is requested
         bool check_run_stop_requested() const;
+
+        /// Return the run depth
+        run_depth_type get_run_depth() const;
+
+        /// Return the current run stage
+        run_stage_type get_run_stage() const;
+
+        /// Set the current run stage
+        void set_run_stage(const run_stage_type);
+
+        /// Check if the current run stage has a given value
+        bool is_run_stage(const run_stage_type stage_) const;
+
+        /// Return the current run work loop counter
+        std::size_t get_run_work_loop_counter() const;
+
+        /// Increment the current run work loop counter
+        void increment_run_work_loop_counter();
         
-        //! Run stage status
-        run_stage_type                       run_stage   = RUN_STAGE_UNDEF;
-        //! Counter of functional work loop
-        std::size_t                          run_functional_work_loop_counter = 0;
-        //! Run report
-        run_report_type                      run_report;                    
+      public:
+        
+        run_report_type run_report;  //!< Run report                  
 
       private:
-        // std::thread  _thread(s)_ // ??? main thread/stage thread/watchdog thread (or in the use case's mother session)
-        std::mutex                _run_stop_request_mutex_;        //!< Mutex for the stop request flag
-        // Atomic bool
-        bool                      _run_stop_requested_ = false;    //!< Stop request flag
-        
+
+        // Configuration:
+        run_depth_type _run_depth_ = running::RUN_DEPTH_WORK; //!< Running depth
+
+        // Running informations:
+        run_stage_type   _run_stage_ = RUN_STAGE_UNDEF;   //!< Run stage status     
+        std::atomic<std::size_t> _run_work_loop_counter_; //!< Counter of functional work loop      
+        std::atomic<bool> _run_stop_requested_;           //!< Stop request flag
+        std::mutex       _run_mutex_;                     //!< Mutex for run actions
+
+        friend class base_use_base;
+        friend class session;
+       
       };
      
     } // namespace running

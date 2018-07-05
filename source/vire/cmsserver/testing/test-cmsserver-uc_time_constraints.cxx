@@ -13,9 +13,6 @@
 // This project:
 #include <vire/vire.h>
 
-#include "dummy_use_case.h"
-#include "tools.h"
-
 void test_uctc_1();
 
 int main(int /* argc_ */, char ** /* argv_ */)
@@ -45,10 +42,22 @@ void test_uctc_1()
   std::clog << "\ntest_uctc_1: basics" << std::endl;
 
   vire::cmsserver::uc_time_constraints uctc;
-  uctc.set_distributable_up_duration_max(boost::posix_time::seconds(2));
-  uctc.set_functional_work_duration_min(boost::posix_time::seconds(10));
-  uctc.set_functional_work_duration_max(boost::posix_time::seconds(20));
-  uctc.set_distributable_down_duration_max(boost::posix_time::seconds(2));
+  uctc.add_constraint(vire::cmsserver::running::RUN_STAGE_SYSTEM_PREPARING,
+                      vire::time::duration_interval::make_max(boost::posix_time::milliseconds(4500)));
+  
+  uctc.add_constraint(vire::cmsserver::running::RUN_STAGE_FUNCTIONAL_UP_RUNNING,
+                      vire::time::duration_interval(boost::posix_time::seconds(6),
+                                                    boost::posix_time::seconds(10)));
+  
+  uctc.add_constraint(vire::cmsserver::running::RUN_STAGE_FUNCTIONAL_WORK_RUNNING,
+                      vire::time::duration_interval::make_min(boost::posix_time::seconds(600)));
+  
+  uctc.add_constraint(vire::cmsserver::running::RUN_STAGE_FUNCTIONAL_DOWN_RUNNING,
+                      vire::time::duration_interval(boost::posix_time::seconds(10),
+                                                    boost::posix_time::seconds(20)));
+  
+  uctc.add_constraint(vire::cmsserver::running::RUN_STAGE_SYSTEM_TERMINATING,
+                      vire::time::duration_interval::make_max(boost::posix_time::seconds(2)));
 
   boost::property_tree::ptree options;
   {

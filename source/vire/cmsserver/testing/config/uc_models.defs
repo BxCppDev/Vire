@@ -1,0 +1,159 @@
+# -*- mode: conf-unix; -*-
+
+#@description List of use case models
+#@key_label  "name"
+#@meta_label "type"
+# -*- mode: conf-unix; -*-
+
+# #########################################################
+# [name="bad" type="vire::cmsserver::unsupported_use_case"]
+# #@config Use case model of unsupported type
+# dummy : string = "foo"
+
+
+################################################################
+[name="DummyUseCaseModel" type="vire::cmsserver::base_use_case"]
+
+
+###########################################################
+[name="StartProcess" type="vire::cmsserver::base_use_case"]
+
+
+
+#############################################################
+[name="LockRunProcess" type="vire::cmsserver::lock_use_case"]
+
+duration : string = "2:00:00" 
+
+
+#############################################################
+[name="AlgoRunProcess" type="vire::cmsserver::base_use_case"]
+
+duration : string = "2:00:00" 
+
+
+#########################################################
+[name="RunProcess" type="vire::cmsserver::base_use_case"]
+
+#@config Setup of the RunProcess use case model
+
+duration : string = "2:00:00" 
+toto : string = "2:00:00" 
+
+# Composition:
+
+composition.scheduling : string  = "parallel"
+
+composition.names : string[3] = "Lock" "Algo" "Monitor"
+
+composition.Lock.model_id    : string = "LockRunProcess"
+composition.Lock.description : string = "Lock resources for the process"
+
+composition.Algo.model_id    : string = "AlgoRunProcess"
+composition.Algo.description : string = "Process algorithm"
+
+composition.Monitor.model_id    : string = "TempMonitor"
+composition.Monitor.description : string = "Temperature monitor"
+
+
+##########################################################
+[name="StopProcess" type="vire::cmsserver::base_use_case"]
+
+######################################################
+[name="Process" type="vire::cmsserver::base_use_case"]
+
+composition.scheduling : string  = "serial"
+
+composition.names : string[3] = "Start" "Run" "Stop"
+
+composition.Start.model_id    : string = "StartProcess"
+composition.Start.description : string = "Start the process"
+
+composition.Run.model_id      : string = "RunProcess"
+composition.Run.description   : string = "Run the process"
+
+composition.Stop.model_id     : string = "StopProcess"
+composition.Stop.description  : string = "Stop the process"
+
+
+#############################################################################
+[name="TempMonitor1" type="vire::cmsserver::temperature_monitoring_use_case"]
+
+#@config Temperature monitoring use case model 1
+
+alarm.min      : real as temperature = 280 K
+alarm.max      : real as temperature = 320 K
+collect.mode   : string         = "polling"
+polling.period : real as time   = 10 s
+
+
+#############################################################################
+[name="TempMonitor2" type="vire::cmsserver::temperature_monitoring_use_case"]
+
+#@config Temperature monitoring use case model 2
+
+alarm.min      : real as temperature = 250 K
+alarm.max      : real as temperature = 350 K
+collect.mode   : string         = "polling"
+polling.period : real as time   = 60 s
+
+
+#############################################################################
+[name="TempMonitor3" type="vire::cmsserver::temperature_monitoring_use_case"]
+
+#@config Temperature monitoring use case model 3
+
+alarm.min      : real as temperature = 260 K
+alarm.max      : real as temperature = 330 K
+collect.mode   : string         = "pubsub"
+
+
+##########################################################
+[name="TempMonitor" type="vire::cmsserver::base_use_case"]
+
+#@config Temperature monitoring agregator use case model
+
+composition.scheduling : string  = "parallel"
+
+composition.names : string[3] = "T1mon" "T2mon" "T3mon"
+
+composition.T1mon.model_id    : string = "TempMonitor1"
+composition.T1mon.description : string = "Monitor #1"
+
+composition.T2mon.model_id    : string = "TempMonitor2"
+composition.T2mon.description : string = "Monitor #2"
+
+composition.T3mon.model_id    : string = "TempMonitor3"
+composition.T3mon.description : string = "Monitor #3"
+
+
+# ###########################################################
+# [name="CyclicModel1" type="vire::cmsserver::base_use_case"]
+
+# composition.scheduling : string  = "parallel"
+# composition.names : string[1] = "Child1"
+# composition.Child1.model_id    : string = "CyclicModel2"
+
+
+# ###########################################################
+# [name="CyclicModel2" type="vire::cmsserver::base_use_case"]
+
+# composition.scheduling : string  = "parallel"
+# composition.names : string[2] = "Child1" "Child2"
+# composition.Child1.model_id    : string = "CyclicModel1"
+# composition.Child2.model_id    : string = "CyclicModel3"
+
+
+# ###############################################################
+# [name="UnsatisfiedModel" type="vire::cmsserver::base_use_case"]
+
+# composition.scheduling : string  = "parallel"
+# composition.names : string[1] = "Child1"
+# composition.Child1.model_id    : string = "MissingModel"
+
+
+###########################################################
+[name="CyclicModel3" type="vire::cmsserver::base_use_case"]
+
+
+# end

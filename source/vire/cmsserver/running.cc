@@ -35,20 +35,16 @@ namespace vire {
         switch (stage_) {
         case RUN_STAGE_UNDEF: return std::string("undefined");
         case RUN_STAGE_READY: return std::string("ready");
-        case RUN_STAGE_PREPARING: return std::string("preparing");
-        case RUN_STAGE_PREPARED: return std::string("prepared");
-        case RUN_STAGE_DISTRIBUTABLE_UP_RUNNING: return std::string("distributable-up-running");
-        case RUN_STAGE_DISTRIBUTABLE_UP_DONE: return std::string("distributable-up-done");
+        case RUN_STAGE_SYSTEM_PREPARING: return std::string("system-preparing");
+        case RUN_STAGE_SYSTEM_PREPARED: return std::string("system-prepared");
         case RUN_STAGE_FUNCTIONAL_UP_RUNNING: return std::string("functional-up-running");
         case RUN_STAGE_FUNCTIONAL_UP_DONE: return std::string("functional-up-done");
         case RUN_STAGE_FUNCTIONAL_WORK_RUNNING: return std::string("functional-work-running");
         case RUN_STAGE_FUNCTIONAL_WORK_DONE: return std::string("functional-work-done");
         case RUN_STAGE_FUNCTIONAL_DOWN_RUNNING: return std::string("functional-down-running");
         case RUN_STAGE_FUNCTIONAL_DOWN_DONE: return std::string("functional-down-done");
-        case RUN_STAGE_DISTRIBUTABLE_DOWN_RUNNING: return std::string("distributable-down-running");
-        case RUN_STAGE_DISTRIBUTABLE_DOWN_DONE: return std::string("distributable-down-done");
-        case RUN_STAGE_TERMINATING: return std::string("terminating");
-        case RUN_STAGE_TERMINATED: return std::string("terminated");
+        case RUN_STAGE_SYSTEM_TERMINATING: return std::string("system-terminating");
+        case RUN_STAGE_SYSTEM_TERMINATED: return std::string("system-terminated");
         default:
           return std::string("no-run"); 
         }
@@ -77,6 +73,16 @@ namespace vire {
         return this->run_termination == RUN_TERMINATION_NORMAL;
       }
 
+      std::string run_depth_label(const run_depth_type depth_)
+      {
+        switch (depth_) {
+        case RUN_DEPTH_NONE: return std::string("none");
+        case RUN_DEPTH_SYSTEM: return std::string("system");
+        case RUN_DEPTH_AUTO: return std::string("auto");
+        case RUN_DEPTH_WORK: return std::string("work");
+        }
+      }
+
       run_stage_time_statistics::run_stage_time_statistics()
         : loop_counter(0)
         , start_stop(vire::time::invalid_time_interval())
@@ -85,29 +91,55 @@ namespace vire {
         return;
       }
       
-      run_control::run_control()
+      run_control::run_control(const run_depth_type depth_)
       {
-        // Nothing special
+        _run_depth_ = depth_;
+        _run_stop_requested_.store(false);
+        _run_work_loop_counter_.store(0);
         return;
       }
-      
-      bool run_control::can_run() const
+
+      run_depth_type run_control::get_run_depth() const
       {
-        return run_stage != RUN_STAGE_NA;
+        return _run_depth_;
+      }
+
+      run_stage_type run_control::get_run_stage() const
+      {
+        return _run_stage_;
+      }
+
+      void run_control::set_run_stage(const run_stage_type stage_)
+      {
+        _run_stage_ = stage_;
+        return;
+      }
+
+      bool run_control::is_run_stage(const run_stage_type stage_) const
+      {
+        return _run_stage_ == stage_;
+      }
+      
+      std::size_t run_control::get_run_work_loop_counter() const
+      {
+        return _run_work_loop_counter_.load();
+      }
+
+      void run_control::increment_run_work_loop_counter()
+      {
+        _run_work_loop_counter_++;
+        return;
       }
  
       void run_control::run_stop_request()
       {
-        std::lock_guard<std::mutex> lck(_run_stop_request_mutex_);
-        _run_stop_requested_ = true;
+        _run_stop_requested_.store(true);
         return;
       }
       
       bool run_control::check_run_stop_requested() const
       {
-        run_control * mutable_this = const_cast<run_control *>(this);
-        std::lock_guard<std::mutex> lck(mutable_this->_run_stop_request_mutex_);
-        return _run_stop_requested_;
+        return _run_stop_requested_.load();
       }
       
     } // namespace running
@@ -115,3 +147,35 @@ namespace vire {
   } // namespace cmsserver
 
 } // namespace vire
+
+/*
+    // void base_use_case::_run_work_init_()
+    // {
+    //   return;
+    // }
+
+    // void base_use_case::_run_work_begin_()
+    // {
+    //   // run_report_record * record = nullptr;
+    //   // run_report_record_dict_type::iterator found = _run_reports_.find(_stage_);
+    //   // if (found == _run_reports_.end()) {
+    //   //   run_report_record new_record = run_report_record;
+    //   //   new_record.start_stop = boost::posix_time::time_period(vire::time::now_utc(),
+    //   //                                                                 vire::time::invalid_time());
+    //   //   _run_reports_[_stage_] = new_record;
+    //   // } else {
+    //   //   record = &found->second;
+    //   // }
+    //   return;
+    // }
+
+    // void base_use_case::_run_work_end_()
+    // {
+    //   return;
+    // }
+
+    // void base_use_case::_run_work_terminate_()
+    // {
+    //   return;
+    // }
+*/

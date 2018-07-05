@@ -11,15 +11,29 @@
 #include <sstream>
 #include <future>
 
+// Third party:
+// - Qt:
+#include <QApplication>
+#include <QVBoxLayout>
+// - Bayeux:
 #include <bayeux/datatools/library_loader.h>
 #include <bayeux/datatools/clhep_units.h>
+#include <bayeux/datatools/service_manager.h>
 
 // This project:
 #include <vire/vire.h>
+#include <vire/cmsserver/ui/server_panel.h>
+#include <vire/resource/manager.h>
 
-void test_server_1();
+struct params_type {
+  bool use_gui = false;
+  bool use_tui = false;
+  bool use_stopper = false;
+};
 
-int main(int /* argc_ */, char ** /* argv_ */)
+void test_server_1(const params_type &);
+
+int main(int argc_, char ** argv_)
 {
   vire::initialize();
   int error_code = EXIT_SUCCESS;
@@ -27,9 +41,27 @@ int main(int /* argc_ */, char ** /* argv_ */)
     std::clog << "Test program for the 'vire::cmsserver::server' class."
               << std::endl;
 
+    params_type params;
+
+    int iarg = 1;
+    while (iarg < argc_) {
+      std::string arg = argv_[iarg];
+      if (arg == "--gui") {
+        params.use_gui = true;
+      }
+      if (arg == "--tui") {
+        params.use_tui = true;
+      }
+      if (arg == "--stopper") {
+        params.use_stopper = true;
+      }
+      iarg++;
+    }
+    
     datatools::library_loader dll_loader;
     dll_loader.load("Vire_RabbitMQ");
-    test_server_1();
+    
+    test_server_1(params);
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -51,13 +83,13 @@ void cmsserver_signal_handler(int signum_)
 {
   std::cerr << "Interrupt signal (" << signum_ << ") received.\n";
   if (signum_ == SIGTERM) {
-    if (gCmsServerHandle && gCmsServerHandle->is_running()) {
+    if (gCmsServerHandle && gCmsServerHandle->get_rc().is_running()) {
       std::cerr << "Stop the CMS server...\n";
-      gCmsServerHandle->request_stop();
+      gCmsServerHandle->stop();
     }
   }
   if (signum_ == SIGABRT) {
-    if (gCmsServerHandle && gCmsServerHandle->is_running()) {
+    if (gCmsServerHandle && gCmsServerHandle->get_rc().is_running()) {
       std::cerr << "Abort the CMS server...\n";
       gCmsServerHandle->reset();
     }
@@ -71,7 +103,7 @@ void cmsserver_shell(vire::cmsserver::server & svr_)
   typedef std::pair<bool,std::string> result_type;
   std::cerr << "Entering shell...\n";
   bool stop_shell = false;
-  while (!svr_.is_stopped() && !stop_shell) {
+  while (!svr_.get_rc().is_stopped() && !stop_shell) {
     // Input command line:
     std::clog << "cmsserver> "; // prompt
     std::string command_line;
@@ -151,15 +183,18 @@ void cmsserver_shell(vire::cmsserver::server & svr_)
       continue;
     }
     if (command == "stop") {
-      if (svr_.is_running()) {
-        svr_.request_stop();
+      if (svr_.get_rc().is_running()) {
+        svr_.stop();
         break;
       } else {
         std::cerr << "[error] server is not running." << std::endl;
       }
     } else if (command == "uptime") {
-      if (svr_.is_running()) {
-        std::cout << svr_.compute_uptime() / CLHEP::second << " s" << std::endl;
+      if (svr_.get_rc().is_running()) {
+        vire::time::system_duration uptime;
+        svr_.get_rc().compute_uptime(uptime);
+        double uptime_unit = vire::time::to_real_with_unit(uptime);
+        std::cout << uptime_unit / CLHEP::second << " s" << std::endl;
       } else {
         std::cerr << "[error] server is not running." << std::endl;
       }
@@ -173,7 +208,10 @@ void cmsserver_shell(vire::cmsserver::server & svr_)
     } else {
       std::cerr << "[error] " << command << " : Unknown command." << std::endl;
     }
-    if (svr_.is_stopped() || svr_.is_requested_stop()) {
+    vire::running::run_status_type runStatus = svr_.get_rc().get_status();
+    if (runStatus == vire::running::RUN_STATUS_STOPPED
+        || runStatus == vire::running::RUN_STATUS_STOPPING
+        || svr_.get_rc().is_stop_requested()) {
       std::cerr << "[devel] Break shell.\n";
       break;
     }
@@ -186,11 +224,11 @@ void cmsserver_shell(vire::cmsserver::server & svr_)
 void cmsserver_stopper(vire::cmsserver::server & svr_)
 {
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  svr_.request_stop();
+  svr_.stop();
   return;
 }
 
-void test_server_1()
+void test_server_1(const params_type & params_)
 {
   std::clog << "\ntest_server_1: basics" << std::endl;
   void (*prev_handler)(int);
@@ -207,13 +245,56 @@ void test_server_1()
   cmsServer.initialize(cmsServerConfig);
   cmsServer.tree_dump(std::clog, "Vire CMS Server: ");
 
-  std::thread t(&vire::cmsserver::server::run, &cmsServer);
-  std::thread ui(cmsserver_shell, std::ref(cmsServer));
-  std::thread stopper(cmsserver_stopper, std::ref(cmsServer));
-  t.join();
-  ui.join();
-  stopper.join();
 
+  
+  const datatools::service_manager & services = cmsServer.get_services();
+  // const datatools::base_service & service = services.get_service("resources");
+  if (services.is_a<vire::resource::manager>("resources")) {
+    const vire::resource::manager & resources = services.get<vire::resource::manager>("resources");
+    resources.tree_dump(std::clog, "Resources: ");
+  }
+  
+
+  std::thread t(&vire::cmsserver::server::run, &cmsServer);
+  
+  std::unique_ptr<std::thread> tui;
+  if (params_.use_tui) {
+    tui.reset(new std::thread(cmsserver_shell, std::ref(cmsServer)));
+  }
+  std::unique_ptr<std::thread> stopper;
+  if (params_.use_stopper) {
+    stopper.reset(new std::thread(cmsserver_stopper, std::ref(cmsServer)));
+  }
+  
+  if (params_.use_gui) {
+    int argc = 1;
+    const char * argv[] = { "test-cmsserver-server" };
+    QApplication app(argc, (char **) argv);
+
+    using vire::cmsserver::ui::server_panel;
+    server_panel * serverPanel = new server_panel;
+    serverPanel->set_server(cmsServer);
+
+    QWidget window;
+    QVBoxLayout * layout = new QVBoxLayout;
+    layout->addWidget(serverPanel);
+    window.setLayout(layout);
+    QObject::connect(&cmsServer.grab_emitter(), SIGNAL(sig_stop()),
+                     QApplication::instance(), SLOT(quit()));
+    window.show();
+    app.exec();
+  }
+  
+  t.join();
+  if (stopper) {
+    tui->join();
+    tui.reset();
+  }
+  if (stopper) {
+    stopper->join();
+    stopper.reset();
+  }
+    
   cmsServer.reset();
   gCmsServerHandle = nullptr;
   std::clog << std::endl;

@@ -33,7 +33,7 @@ namespace vire {
       dev_mgr_config.read_configuration(dev_mgr_config_filename);
       std::vector<std::string> only_from_paths;
       only_from_paths.push_back("SuperNEMO:/Demonstrator/CMS");
-      dev_mgr_config.store("tree.debug", true);
+      // dev_mgr_config.store("tree.debug", true);
       dev_mgr_config.store("tree.only_from_paths", only_from_paths);
       dev_mgr_config.tree_dump(std::clog, "Virtual device manager's configuration: ");
       devices_.initialize_standalone(dev_mgr_config);

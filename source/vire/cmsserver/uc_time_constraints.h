@@ -31,36 +31,33 @@
 
 // This project:
 #include <vire/time/utils.h>
+#include <vire/time/duration_interval.h>
+#include <vire/cmsserver/running.h>
   
 namespace vire {
 
   namespace cmsserver {
 
-    /// \brief Use case time constraints
+    typedef std::map<running::run_stage_type, time::duration_interval> time_constraint_dict_type;
+    
+    /// \brief Use case time constraints per running stage
     ///
-    ///     preparation                                                                      termination
-    ///   --[----[---------------------------------------------------------------------------[------[----> time
-    ///
-    ///
-    ///             distributable                                              distributable
-    ///             up                                                         down
-    ///   ----------[-------------[--------------------------------------------[----------[--------------> time
-    ///
-    ///                             functional                             functional
-    ///                             up                                     down
-    ///   --------------------------[--------[-----------------------------[---[-------------------------> time
-    ///
-    ///                                         functional                                       
-    ///                                         work                                         
-    ///   --------------------------------------[------------------------[-------------------------------> time
-    ///                                
-    ///
+    /// Supported running stages are:
+    /// \code
+    /// running::RUN_STAGE_SYSTEM_PREPARING
+    /// running::RUN_STAGE_FUNCTIONAL_UP_RUNNING
+    /// running::RUN_STAGE_FUNCTIONAL_WORK_RUNNING
+    /// running::RUN_STAGE_FUNCTIONAL_DOWN_RUNNING
+    /// running::RUN_STAGE_SYSTEM_TERMINATING
+    /// \endcode
     class uc_time_constraints
       : public datatools::i_tree_dumpable
     {
 
     public:
 
+      static const std::set<running::run_stage_type> & supported_stages();
+      
       /// Default constructor
       uc_time_constraints();
 
@@ -69,168 +66,24 @@ namespace vire {
 
       //! Reset
       void reset();
- 
-      //! Check validity
-      bool is_valid() const;
+      
+      bool has_constraint(const running::run_stage_type) const;
 
-      //! Check if the minimum duration for run preparation action is set
-      bool has_preparation_duration_min() const;
+      void add_constraint(const running::run_stage_type, const time::duration_interval &);
 
-      //! Set the minimum duration for run preparation action is set
-      void set_preparation_duration_min(const boost::posix_time::time_duration &);
+      void remove_constraint(const running::run_stage_type);
 
-      //! Return the minimum duration for run preparation action is set
-      const boost::posix_time::time_duration & get_preparation_duration_min() const;
-
-      //! Check if the maximum duration for run preparation action is set
-      bool has_preparation_duration_max() const;
-
-      //! Set the maximum duration for run preparation action is set
-      void set_preparation_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for run preparation action is set
-      const boost::posix_time::time_duration & get_preparation_duration_max() const;
-
-      //! Check if the minimum duration for run termination action is set
-      bool has_termination_duration_min() const;
-
-      //! Set the minimum duration for run termination action is set
-      void set_termination_duration_min(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for run termination action is set
-      const boost::posix_time::time_duration & get_termination_duration_min() const;
-
-      //! Check if the maximum duration for run termination action is set
-      bool has_termination_duration_max() const;
-
-      //! Set the maximum duration for run termination action is set
-      void set_termination_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for run termination action is set
-      const boost::posix_time::time_duration & get_termination_duration_max() const;
-
-      //! Check if the minimum duration for distributable up action is set
-      bool has_distributable_up_duration_min() const;
-
-      //! Set the minimum duration for distributable up action is set
-      void set_distributable_up_duration_min(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for distributable up action is set
-      const boost::posix_time::time_duration & get_distributable_up_duration_min() const;
-
-      //! Check if the maximum duration for distributable up action is set
-      bool has_distributable_up_duration_max() const;
-
-      //! Set the maximum duration for distributable up action is set
-      void set_distributable_up_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for distributable up action is set
-      const boost::posix_time::time_duration & get_distributable_up_duration_max() const;
-
-      //! Check if the minimum duration for distributable down action is set
-      bool has_distributable_down_duration_min() const;
-
-      //! Set the minimum duration for distributable down action is set
-      void set_distributable_down_duration_min(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for distributable down action is set
-      const boost::posix_time::time_duration & get_distributable_down_duration_min() const;
-
-      //! Check if the maximum duration for distributable down action is set
-      bool has_distributable_down_duration_max() const;
-
-      //! Set the maximum duration for distributable down action is set
-      void set_distributable_down_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for distributable down action is set
-      const boost::posix_time::time_duration & get_distributable_down_duration_max() const;
-
-      //! Check if the minimum duration for functional up action is set
-      bool has_functional_up_duration_min() const;
-
-      //! Set the minimum duration for functional up action is set
-      void set_functional_up_duration_min(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for functional up action is set
-      const boost::posix_time::time_duration & get_functional_up_duration_min() const;
-
-      //! Check if the maximum duration for functional up action is set
-      bool has_functional_up_duration_max() const;
-
-      //! Set the maximum duration for functional up action is set
-      void set_functional_up_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for functional up action is set
-      const boost::posix_time::time_duration & get_functional_up_duration_max() const;
-
-      //! Check if the minimum duration for functional down action is set
-      bool has_functional_down_duration_min() const;
-
-      //! Set the minimum duration for functional down action is set
-      void set_functional_down_duration_min(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for functional down action is set
-      const boost::posix_time::time_duration & get_functional_down_duration_min() const;
-
-      //! Check if the maximum duration for functional down action is set
-      bool has_functional_down_duration_max() const;
-
-      //! Set the maximum duration for functional down action is set
-      void set_functional_down_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for functional down action is set
-      const boost::posix_time::time_duration & get_functional_down_duration_max() const;
-
-      //! Check if the minimum duration for functional work action is set
-      bool has_functional_work_duration_min() const;
-
-      //! Set the minimum duration for functional work action is set
-      void set_functional_work_duration_min(const boost::posix_time::time_duration &);
-
-      //! Return the minimum duration for functional work action is set
-      const boost::posix_time::time_duration & get_functional_work_duration_min() const;
-
-      //! Check if the maximum duration for functional work action is set
-      bool has_functional_work_duration_max() const;
-
-      //! Set the maximum duration for functional work action is set
-      void set_functional_work_duration_max(const boost::posix_time::time_duration &);
-
-      //! Return the maximum duration for functional work action is set
-      const boost::posix_time::time_duration & get_functional_work_duration_max() const;
-
-      // //! Return the minimum duration of all stages
-      // boost::posix_time::time_duration get_total_safe_duration_min() const;
-
-      // //! Return the maximum duration of all stages
-      // boost::posix_time::time_duration get_total_safe_duration_max() const;
-
-      // bool run_total_duration_match(const boost::posix_time::time_duration & total_duration_) const;
+      const time::duration_interval & get_constraint(const running::run_stage_type) const;
       
       //! Smart print
       virtual void print_tree(std::ostream & out_ = std::clog,
                               const boost::property_tree::ptree & options_
                               = datatools::i_tree_dumpable::empty_options()) const;
-
-
       
     private:
-      
-      boost::posix_time::time_duration _preparation_duration_min_;        //!< Minimum duration of the run preparation
-      boost::posix_time::time_duration _preparation_duration_max_;        //!< Maximum duration of the run preparation
-      boost::posix_time::time_duration _termination_duration_min_;        //!< Minimum duration of the run termination
-      boost::posix_time::time_duration _termination_duration_max_;        //!< Maximum duration of the run termination
-      boost::posix_time::time_duration _distributable_up_duration_min_;   //!< Minimum duration of the distributable up action
-      boost::posix_time::time_duration _distributable_up_duration_max_;   //!< Maximum duration of the distributable up action
-      boost::posix_time::time_duration _distributable_down_duration_min_; //!< Minimum duration of the distributable down action
-      boost::posix_time::time_duration _distributable_down_duration_max_; //!< Maximum duration of the distributable down action
-      boost::posix_time::time_duration _functional_up_duration_min_;      //!< Minimum duration of the functional up action
-      boost::posix_time::time_duration _functional_up_duration_max_;      //!< Maximum duration of the functional up action
-      boost::posix_time::time_duration _functional_down_duration_min_;    //!< Minimum duration of the functional down action
-      boost::posix_time::time_duration _functional_down_duration_max_;    //!< Maximum duration of the functional down action
-      boost::posix_time::time_duration _functional_work_duration_min_;    //!< Minimum duration of the functional work action
-      boost::posix_time::time_duration _functional_work_duration_max_;    //!< Maximum duration of the functional work action
-        
+
+      time_constraint_dict_type _constraints_; //!< Dictionary of time constraints per running stage
+       
     };
     
   } // namespace cmsserver

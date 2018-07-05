@@ -1,6 +1,6 @@
-//! \file  vire/cmsserver/dummy_process.cc
+//! \file vire/cmsserver/uc_error.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,32 +18,44 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmsserver/dummy_process.h>
+#include <vire/cmsserver/uc_error.h>
 
 namespace vire {
 
   namespace cmsserver {
 
-    VIRE_CMSSERVER_PROCESS_REGISTRATION_IMPLEMENT(dummy_process,
-                                                  "vire::cmsserver::dummy_process");
-
+    uc_error::uc_error(const std::string & what_)
+      : std::exception()
+      , _what_(what_)
+    {
+      return;
+    }
 
     // virtual
-    bool dummy_process::_is_subprocess_allowed() const
+    const char * uc_error::what() const noexcept
     {
-      return true;
+      return _what_.c_str();
     }
 
-    dummy_process::dummy_process()
+    // virtual
+    void uc_error::export_error_data(boost::property_tree::ptree & error_data_) const
+    {
+      error_data_.put("what", std::string(this->what()));
+      return;
+    }
+ 
+    uc_run_system_error::uc_run_system_error(const std::string & what_)
+      : uc_error(what_)
     {
       return;
     }
-
-    dummy_process::~dummy_process()
+ 
+    uc_run_work_error::uc_run_work_error(const std::string & what_)
+      : uc_error(what_)
     {
       return;
     }
-
+  
   } // namespace cmsserver
 
 } // namespace vire

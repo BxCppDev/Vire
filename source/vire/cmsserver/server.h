@@ -33,6 +33,8 @@
 //#include <atomic>
 
 // Third party:
+// - Qt:
+#include <QObject>
 // - Boost:
 #include <boost/noncopyable.hpp>
 // - Bayeux:
@@ -45,23 +47,47 @@
 
 // This project:
 #include <vire/utility/instance_identifier.h>
+#include <vire/running/run_control.h>
+#include <vire/running/i_runnable.h>
 
 namespace vire {
 
   namespace cmsserver {
 
+    class server;
+      
+    /// \brief Vire CMS server Qt-based signal emitter
+    struct server_signal_emitter
+      : public QObject
+    {
+      Q_OBJECT
+    public:
+      
+      server_signal_emitter(server & server_);
+
+      const server & get_server() const;
+      
+      server & grab_server() const;
+
+      void emit_stop();
+
+    signals:
+      
+      void sig_stop();
+  
+    private:
+
+      server & _server_;
+
+    };
+
     /// \brief Vire CMS server
     class server
       : public datatools::i_tree_dumpable
+      , public vire::running::i_runnable
       , private boost::noncopyable
     {
     public:
-
-      enum run_status_t {
-        RUN_STATUS_INVALID = 0,
-        RUN_STATUS_STOPPED = 1,
-        RUN_STATUS_RUNNING = 2
-      };
 
       static std::string log_service_name();
 
@@ -70,6 +96,8 @@ namespace vire {
       static std::string resources_service_name();
 
       static std::string users_service_name();
+
+      static std::string sc_service_name();
 
       static std::string auth_service_name();
 
@@ -163,30 +191,24 @@ namespace vire {
       //! Return the non mutable service manager
       const datatools::service_manager & get_services() const;
 
-
-      //! Return the run status
-      run_status_t get_run_status() const;
+      //! Run the server
+      void run() override;
 
       //! Request stop
-      void request_stop();
+      void stop() override;
 
-      //! Check if stop is requested
-      bool is_requested_stop() const;
+      const vire::running::run_control & get_rc() const override;
 
-      //! Check if server is running
-      bool is_running() const;
+      // //! Compute and return the sever's uptime
+      // double compute_uptime() const;
 
-      //! Check if server is stopped
-      bool is_stopped() const;
+      // //! Return the server's uptime in microsecond
+      // std::size_t get_uptime_us() const;
+    
 
-      //! Run the server
-      void run();
-
-      //! Compute and return the sever's uptime
-      double compute_uptime() const;
-
-      //! Return the server's uptime in microsecond
-      std::size_t get_uptime_us() const;
+     const server_signal_emitter & get_emitter() const; 
+     
+      server_signal_emitter & grab_emitter(); 
 
     private:
 
@@ -200,6 +222,8 @@ namespace vire {
 
       void _start_business_services();
 
+      void _compute_resource_responsible_();
+      
       void _start_post_system_services();
 
       void _stop_post_system_services();
@@ -215,22 +239,18 @@ namespace vire {
       void _at_reset_();
 
       // Running:
-      void _manage_run_();
+      void _at_run_();
 
       void _at_run_start_();
 
       void _at_run_stop_();
 
-      bool _at_run_loop_();
-
-      void _set_run_status_(const run_status_t);
+      void _at_run_loop_();
 
     private:
 
       // Management:
       bool                        _initialized_ = false;
-      run_status_t                _run_status_ = RUN_STATUS_INVALID;
-      bool                        _stop_requested_ = false;
       datatools::logger::priority _logging_;
 
       // Configuration:
@@ -244,8 +264,14 @@ namespace vire {
       // Working:
       std::unique_ptr<datatools::library_loader>  _dll_loader_;
       std::unique_ptr<datatools::service_manager> _services_;
-      std::mutex                                  _run_mutex_;
-      std::chrono::system_clock::time_point       _start_time_;
+
+      vire::running::run_control  _rc_; ///< Run control
+
+      struct pimpl_type;
+      std::unique_ptr<pimpl_type> _pimpl_;
+      
+      // Qt signal emitter wrapper:
+      std::unique_ptr<server_signal_emitter> _emitter_;
 
     };
 
