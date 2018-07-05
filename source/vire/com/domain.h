@@ -38,7 +38,6 @@
 #include <vire/com/mailbox.h>
 #include <vire/com/actor.h>
 #include <vire/com/i_encoding_driver.h>
-#include <vire/com/base_plug.h>
 #include <vire/com/i_transport_driver.h>
 
 namespace vire {
@@ -58,11 +57,12 @@ namespace vire {
 
       //! \brief Domain categories
       enum category_type {
-        CATEGORY_INVALID    = 0, ///< Invalid domain category
-        CATEGORY_GENERAL    = 1, ///< General multipurpose category
-        CATEGORY_SYSTEM     = 2, ///< System category
-        CATEGORY_CONTROL    = 3, ///< Control category
-        CATEGORY_MONITORING = 4  ///< Monitoring category
+        CATEGORY_INVALID              = 0, ///< Invalid domain category
+        CATEGORY_GATE                 = 1, ///< Gate category
+        CATEGORY_CLIENT_SYSTEM        = 2, ///< Client system category
+        CATEGORY_SUBCONTRACTOR_SYSTEM = 3, ///< Subcontractor system category
+        CATEGORY_CONTROL              = 4, ///< Control category
+        CATEGORY_MONITORING           = 5  ///< Monitoring category
       };
 
       //! \brief Mailbox entry categories
@@ -73,18 +73,15 @@ namespace vire {
       //! \brief Dictionary of mailbox entries
       typedef std::map<std::string, mailbox_entry> mailbox_dict_type;
 
-      //! \brief Dictionary of plug entries
-      typedef std::map<std::string, plug_ptr_type> plug_dict_type;
-
       //! Validate a domain name
       //! Domain name syntax is similar to an absolute filesystem path.
       //! This syntax is compatible with virtual host naming scheme in RabbitMQ.
       //! Examples:
-      //!  - "/snemo/vire/cms/control"
-      //!  - "/snemo/vire/cms/monitoring"
-      //!  - "/snemo/vire/cms/subcontractors/cmslapp/system"
-      //!  - "/snemo/vire/cms/clients/gate"
-      //!  - "/snemo/vire/cms/clients/system"
+      //!  - "/snemo/test/vire/cms/control"
+      //!  - "/snemo/test/vire/cms/monitoring"
+      //!  - "/snemo/test/vire/cms/subcontractors/system/cmslapp"
+      //!  - "/snemo/test/vire/cms/clients/gate"
+      //!  - "/snemo/test/vire/cms/clients/system/xgZTZ87e"
       static bool validate_domain_name(const std::string & candidate_);
 
       //! Return the domain category associated to a label
@@ -135,23 +132,20 @@ namespace vire {
       //! Return the category
       category_type get_category() const;
 
-      //! Check if the category is general
-      bool is_general() const;
+      //! Check if the category is subcontractor system
+      bool is_subcontractor_system() const;
 
-      //! Check if the category is system
-      bool is_system() const;
+      //! Check if the category is client system
+      bool is_client_system() const;
+
+      //! Check if the category is gate
+      bool is_gate() const;
 
       //! Check if the category is control
       bool is_control() const;
 
       //! Check if the category is monitoring
       bool is_monitoring() const;
-
-      //! Check if private mailboxes are forbidden
-      bool is_forbid_private_mailbox() const;
-
-      //! Check if public mailboxes are forbidden
-      bool is_forbid_public_mailbox() const;
 
       //! Check the transport type identifier
       bool has_transport_type_id() const;
@@ -205,10 +199,10 @@ namespace vire {
                        const std::string & perms_repr_,
                        const bool domain_ = false);
 
-      //! Add a private mailbox
-      std::string add_private_mailbox(const std::string & owner_id_,
-                                      const mailbox::mode_type mode_,
-                                      const mailbox::permissions_type perms_);
+      // //! Add a private mailbox
+      // std::string add_private_mailbox(const std::string & owner_id_,
+      //                                 const mailbox::mode_type mode_,
+      //                                 const mailbox::permissions_type perms_);
 
       //! Check a mailbox by name
       bool has_mailbox(const std::string & name_) const;
@@ -224,17 +218,16 @@ namespace vire {
                         const actor::category_type actor_cat_,
                         const mailbox::usage_permission_flag useperm_) const;
 
-      //! Generate a new unique name for a private mailbox
-      //! Format is: "__mb.{OWNER_ID}.{service|event}.{RANDOMIZED_UUID}"
-      std::string generate_private_mailbox_name(const std::string & id_,
-                                                const mailbox::mode_type);
+      // //! Generate a new unique name for a private mailbox
+      // //! Format is: "__mb.{OWNER_ID}.{service|event}.{RANDOMIZED_UUID}"
+      // std::string generate_private_mailbox_name(const std::string & id_,
+      //                                           const mailbox::mode_type);
 
       //! Return a non mutable handle to the encoding driver
       const i_encoding_driver & get_encoding_driver() const;
 
-      //! Return a mutable handle to the encoding driver
-      i_encoding_driver & grab_encoding_driver();
-
+      const std::shared_ptr<i_encoding_driver> & get_encoding_driver_ptr() const;
+      
       const datatools::properties & get_transport_driver_params() const;
 
       void set_transport_driver_params(const datatools::properties & params_);
@@ -249,40 +242,10 @@ namespace vire {
       //! Return a mutable handle to the transport driver
       i_transport_driver & grab_transport_driver();
 
-      const plug_dict_type & get_plugs() const;
+      const std::shared_ptr<i_transport_driver> & get_transport_driver_ptr() const;
 
-      plug_dict_type grab_plugs();
-
-      bool has_plug(const std::string & plug_name_) const;
-
-      template<class PlugType>
-      bool is_a(const std::string & plug_name_) const
-      {
-        const plug_ptr_type & pp = get_plug(plug_name_);
-        const std::type_info & ti = typeid(PlugType);
-        const std::type_info & tf = typeid(pp);
-        return (typeid(ti) == typeid(tf));
-      }
-
-      template<class PlugType>
-      PlugType & grab_plug_as(const std::string & plug_name_)
-      {
-        return dynamic_cast<PlugType&>(grab_plug(plug_name_));
-      }
-
-      template<class PlugType>
-      const PlugType & get_plug_as(const std::string & plug_name_) const
-      {
-        domain* mutable_this = const_cast<domain*>(this);
-        return const_cast<PlugType&>(mutable_this->grab_plug_as<PlugType>(plug_name_));
-      }
-
-      void remove_plug(const std::string & plug_name_);
-
-      const plug_ptr_type & get_plug(const std::string & plug_name_) const;
-
-      plug_ptr_type & grab_plug(const std::string & plug_name_);
-
+      std::shared_ptr<i_transport_driver> & grab_transport_driver_ptr();
+     
     private:
 
       i_encoding_driver & _encoding_driver_instance_();
@@ -296,18 +259,15 @@ namespace vire {
       category_type                   _category_ = CATEGORY_INVALID;    //!< Domain category
       vire::utility::model_identifier _transport_type_id_;              //!< Transport type identifier associated to the domain
       vire::utility::model_identifier _encoding_type_id_;               //!< Encoding type identifier associated to the domain
-      bool                            _forbid_private_mailbox_ = false; //!< Flag to forbid the hosting of private mailboxes
-      bool                            _forbid_public_mailbox_  = false; //!< Flag to forbid the hosting of public mailboxes
       mailbox_dict_type               _mailboxes_;                      //!< Dictionary of mailboxes
       boost::uuids::random_generator  _mailbox_uuid_gen_;
       datatools::properties           _transport_driver_params_;
       datatools::properties           _encoding_driver_params_;
 
       // Working data:
-      std::shared_ptr<i_encoding_driver>  _encoding_driver_;  //!< Encoding driver instance
-      std::shared_ptr<i_transport_driver> _transport_driver_; //!< Transport driver instance
-      plug_dict_type                      _plugs_;            //!< Dictionary of plugs
-
+      encoding_driver_ptr  _encoding_driver_;  //!< Encoding driver instance
+      transport_driver_ptr _transport_driver_; //!< Transport driver instance
+ 
     };
 
   } // namespace com

@@ -369,8 +369,8 @@ namespace vire {
     {
       std::size_t perm_flag = 3;
       switch(flag_) {
-      case USAGE_PERMISSION_PUT: perm_flag = 0; break;
-      case USAGE_PERMISSION_PRIVATE_PICKUP: perm_flag = 1; break;
+      case USAGE_PERMISSION_PUT:              perm_flag = 0; break;
+      case USAGE_PERMISSION_PRIVATE_PICKUP:   perm_flag = 1; break;
       case USAGE_PERMISSION_PUBLIC_SUBSCRIBE: perm_flag = 2; break;
       default:
         perm_flag = 3;
@@ -378,9 +378,14 @@ namespace vire {
       if (perm_flag == 3) return false;
       std::size_t actor_flag = 3;
       switch(actor_.get_category()) {
-      case actor::CATEGORY_SERVER: actor_flag = 0; break;
-      case actor::CATEGORY_CLIENT: actor_flag = 1; break;
-      case actor::CATEGORY_SUBCONTRACTOR: actor_flag = 2; break;
+      case actor::CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: actor_flag = 0; break;
+      case actor::CATEGORY_SERVER_CLIENT_SYSTEM:        actor_flag = 0; break;
+      case actor::CATEGORY_SERVER_GATE:                 actor_flag = 0; break;
+      case actor::CATEGORY_SERVER_CMS:                  actor_flag = 0; break;
+      case actor::CATEGORY_CLIENT_SYSTEM:               actor_flag = 1; break;
+      case actor::CATEGORY_CLIENT_CMS:                  actor_flag = 1; break;
+      case actor::CATEGORY_CLIENT_GATE:                 actor_flag = 1; break;
+      case actor::CATEGORY_SUBCONTRACTOR:               actor_flag = 2; break;
       default:
         actor_flag = 3;
       }

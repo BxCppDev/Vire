@@ -1,7 +1,7 @@
-//! \file  vire/com/server_rpc_plug.h
-//! \brief Vire com server rpc plug
+//! \file  vire/com/transport_utils.h
+//! \brief Vire com transport utilities
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -18,41 +18,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_COM_SERVER_RPC_PLUG_H
-#define VIRE_COM_SERVER_RPC_PLUG_H
+#ifndef VIRE_COM_TRANSPORT_UTILS_H
+#define VIRE_COM_TRANSPORT_UTILS_H
 
 // Standard library:
-#include <cstdint>
+#include <memory>
+#include <set>
 
 // This project:
-#include <vire/com/base_plug.h>
+#include <vire/utility/model_identifier.h>
 
 namespace vire {
 
   namespace com {
 
-   //! \brief User credentials data
-    class server_rpc_plug : public vire::com::base_plug
+    struct transport
     {
-    public:
-
-      //! Default constructor
-      server_rpc_plug(const manager & mgr_);
-
-      //! Destructor
-      virtual ~server_rpc_plug();
-
-      // //! Receive a request message and send back a response
-      // virtual int receive_send(vire::utility::base_request & request_,
-      //                          vire::utility::base_response & response_) = 0;
-
+      static const std::set<vire::utility::model_identifier> & supported_transport_systems();
     };
 
   } // namespace com
 
 } // namespace vire
 
-#endif // VIRE_COM_SERVER_RPC_PLUG_H
+#endif // VIRE_COM_TRANSPORT_UTILS_H
 
 // Local Variables: --
 // mode: c++ --

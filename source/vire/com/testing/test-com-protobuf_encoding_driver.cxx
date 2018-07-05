@@ -25,6 +25,7 @@
 #include <atomic>
 #include <iostream>
 #include <map>
+#include <memory>
 
 // This project:
 #include <vire/vire.h>
@@ -71,8 +72,8 @@ void test_com_pbed_1(bool interactive_)
   vire::com::raw_message_type raw_msg;
   {
     // Create an error event payload:
-    vire::utility::base_alarm my_alarm("warning", "A simple warning");
-    my_alarm.tree_dump(std::clog, "Alarm event: ");
+    auto my_alarm = std::make_shared<vire::utility::base_alarm>("warning", "A simple warning");
+    my_alarm->tree_dump(std::clog, "Alarm event: ");
     std::clog << std::endl;
 
     // Create a message:

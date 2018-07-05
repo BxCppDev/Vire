@@ -1,6 +1,6 @@
 //! \file vire/com/manager.cc
 //
-// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -20,16 +20,22 @@
 // Ourselves:
 #include <vire/com/manager.h>
 
+// Standard library:
+#include <mutex>
+
 // Third party
 // - Boost:
 #include <boost/algorithm/string.hpp>
 // - Bayeux/datatools
 #include <bayeux/datatools/utils.h>
 #include <bayeux/datatools/exception.h>
+// - BxRabbitMQ
+//#include <bayeux/rabbitmq/rabbit_mgr.h>
 
 // This project:
 #include <vire/com/domain.h>
 #include <vire/resource/manager.h>
+// #include <vire/rabbitmq/manager_service.h>
 
 namespace vire {
 
@@ -37,7 +43,24 @@ namespace vire {
 
     // Auto-registration of this service class in
     // a central service database of Bayeux/datatools:
-    DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(manager, "vire::com::manager");
+    DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(manager, "vire::com::manager")
+
+    struct manager::pimpl_type
+    {
+      pimpl_type(manager & com_);
+
+      // Attributes:
+      manager & com;
+      // std::unique_ptr<vire::rabbitmq::manager_service> rabbitmgr;
+      
+    };
+
+    manager::pimpl_type::pimpl_type(manager & com_)
+      : com(com_)
+    {
+      // Load some cached infos ?
+      return;
+    }
 
     // static
     const std::string & manager::default_service_name()
@@ -64,81 +87,53 @@ namespace vire {
       return;
     }
 
-    bool manager::has_actor() const
-    {
-      return _actor_.is_valid();
-    }
-
-    void manager::set_actor(const actor & a_)
+    void manager::set_domain_name_prefix(const std::string & prefix_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Communication manager is already initialized!");
-      if (!a_.is_valid()) {
-        a_.tree_dump(std::cerr, "Actor: ", "[error] ");
-        DT_THROW(std::logic_error, "Invalid actor!");
-      }
-      _actor_ = a_;
+      _domain_name_prefix_ = prefix_;
       return;
     }
-
-    void manager::reset_actor()
+      
+    const std::string & manager::get_domain_name_prefix() const
     {
-      _actor_.reset();
-      return;
+      return _domain_name_prefix_;
+    }
+    
+    bool manager::has_default_transport_type_id() const
+    {
+      return _default_transport_type_id_.is_valid();
     }
 
-    const actor & manager::get_actor() const
-    {
-      return _actor_;
-    }
-
-    bool manager::has_transport_type_id() const
-    {
-      return _transport_type_id_.is_valid();
-    }
-
-    void manager::set_transport_type_id(const vire::utility::model_identifier & id_)
+    void manager::set_default_transport_type_id(const vire::utility::model_identifier & id_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Communication manager is initialized!");
-      _transport_type_id_ = id_;
+      _default_transport_type_id_ = id_;
       return;
     }
 
-    const vire::utility::model_identifier & manager::get_transport_type_id() const
+    const vire::utility::model_identifier & manager::get_default_transport_type_id() const
     {
-      return _transport_type_id_;
+      return _default_transport_type_id_;
     }
 
-    bool manager::has_encoding_type_id() const
+    bool manager::has_default_encoding_type_id() const
     {
-      return _encoding_type_id_.is_valid();
+      return _default_encoding_type_id_.is_valid();
     }
 
-    void manager::set_encoding_type_id(const vire::utility::model_identifier & id_)
+    void manager::set_default_encoding_type_id(const vire::utility::model_identifier & id_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Communication manager is initialized!");
-      _encoding_type_id_ = id_;
+      _default_encoding_type_id_ = id_;
       return;
     }
 
-    const vire::utility::model_identifier & manager::get_encoding_type_id() const
+    const vire::utility::model_identifier & manager::get_default_encoding_type_id() const
     {
-      return _encoding_type_id_;
-    }
-
-    bool manager::has_subcontractor(const std::string & name_) const
-    {
-      return _subcontractors_.count(name_);
-    }
-
-    void manager::add_subcontractor(const std::string & name_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Communication manager is initialized!");
-      _subcontractors_.insert(name_);
-      return;
+      return _default_encoding_type_id_;
     }
 
     bool manager::has_resource_service_name() const
@@ -190,9 +185,79 @@ namespace vire {
       return _domain_maker_;
     }
 
+    void manager::build_actor_names(std::set<std::string> & names_) const
+    {
+      names_.clear();
+      for (const auto & p : _actors_) {
+        names_.insert(p.first);
+      }
+      return;
+    }
+
+    bool manager::has_actors() const
+    {
+      return _actors_.size();
+    }
+
+    bool manager::has_actor(const std::string & actor_name_) const
+    {
+      return _actors_.find(actor_name_) != _actors_.end();
+    }
+
+    const actor & manager::get_actor(const std::string & actor_name_) const
+    {
+      actor_dict_type::const_iterator found = _actors_.find(actor_name_);
+      DT_THROW_IF(found == _actors_.end(),
+                  std::logic_error,
+                  "No actor with name '" << actor_name_ << "'!");
+      return *found->second;
+    }
+
+    actor & manager::grab_actor(const std::string & actor_name_)
+    {
+      actor_dict_type::iterator found = _actors_.find(actor_name_);
+      DT_THROW_IF(found == _actors_.end(),
+                  std::logic_error,
+                  "No actor with name '" << actor_name_ << "'!");
+      return *found->second;
+    }
+
+    void manager::remove_actor(const std::string & actor_name_)
+    {
+      DT_THROW_IF(!has_actor(actor_name_),
+                  std::logic_error,
+                  "Manager has no actor with name '" << actor_name_ << "'!");
+      _actors_.erase(actor_name_);
+      return;
+    }
+
+    void manager::create_actor(const std::string & actor_name_,
+                               const std::string & actor_password_,
+                               const actor::category_type & actor_category_,
+                               const std::string & target_id_)
+    {
+      DT_THROW_IF(has_actor(actor_name_),
+                  std::logic_error,
+                  "Manager already has an actor with name '" << actor_name_ << "'!");
+      DT_THROW_IF(actor_category_ == actor::CATEGORY_INVALID,
+                  std::logic_error, "Invalid actor category!");
+      std::cerr << "********** devel ************" << std::endl;
+      _actors_[actor_name_] = std::make_shared<actor>(*this, actor_category_, target_id_, actor_name_, actor_password_);
+      return; 
+    }
+
     bool manager::has_domains() const
     {
       return _domains_.size();
+    }
+
+    void manager::build_domain_names(std::set<std::string> & names_) const
+    {
+      names_.clear();
+      for (const auto & p : _domains_) {
+        names_.insert(p.first);
+      }
+      return;
     }
 
     bool manager::has_domain(const std::string & domain_name_) const
@@ -237,27 +302,6 @@ namespace vire {
       return *_domains_.find(domain_name_)->second;
     }
 
-    domain &
-    manager::create_domain(const std::string & domain_name_,
-                           const std::string & domain_category_repr_,
-                           const std::string & domain_protocol_id_repr_,
-                           const std::string & domain_encoding_id_repr_)
-    {
-      domain::category_type dom_cat = domain::category_from_label(domain_category_repr_);
-      DT_THROW_IF(dom_cat == domain::CATEGORY_INVALID,
-                  std::logic_error,
-                  "Invalid domain category '" << domain_category_repr_ << "' for domain ID '" << domain_name_ << "'!");
-      vire::utility::model_identifier protocol_id;
-      DT_THROW_IF(!protocol_id.from_string(domain_protocol_id_repr_),
-                  std::logic_error,
-                  "Invalid protocol ID '" << domain_protocol_id_repr_ << "'!");
-      vire::utility::model_identifier encoding_id;
-      DT_THROW_IF(!encoding_id.from_string(domain_encoding_id_repr_),
-                  std::logic_error,
-                  "Invalid encoding ID '" << domain_encoding_id_repr_ << "'!");
-      return create_domain(domain_name_, dom_cat, protocol_id, encoding_id);
-    }
-
     void manager::remove_domain(const std::string & domain_name_)
     {
       domain_dict_type::iterator found = _domains_.find(domain_name_);
@@ -268,27 +312,12 @@ namespace vire {
       return;
     }
 
-    const plug_factory & manager::get_plug_factory() const
-    {
-      return *_factory_.get();
-    }
-
     void manager::tree_dump(std::ostream & out_,
                             const std::string & title_,
                             const std::string & indent_,
                             bool inherit_) const
     {
       this->datatools::base_service::tree_dump(out_, title_, indent_, true);
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Actor : ";
-      if (has_actor()) {
-        out_ << "'" << get_actor().get_name() << "' "
-             << "(category='" << actor::category_label(get_actor().get_category()) << "')";
-      } else {
-        out_ << "<none>";
-      }
-      out_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Resources service : ";
@@ -313,11 +342,29 @@ namespace vire {
           } else {
             out_ << datatools::i_tree_dumpable::tag;
           }
-          out_ << "id='" << i->first << "' (category='" << domain::label_from_category(i->second.get()->get_category()) << "')" << std::endl;
+          out_ << "id='" << i->first << "' (category='"
+               << domain::label_from_category(i->second.get()->get_category()) << "')"
+               << std::endl;
         }
       } else {
         out_ << "<none>" << std::endl;
       }
+      return;
+    }
+
+    bool manager::has_app_category() const
+    {
+      return _app_category_ != vire::cms::application::CATEGORY_UNDEF;
+    }
+
+    const vire::cms::application::category_type manager::get_app_category() const
+    {
+      return _app_category_;
+    }
+
+    void manager::set_app_category(const vire::cms::application::category_type appcat_)
+    {
+      _app_category_ = appcat_;
       return;
     }
 
@@ -336,6 +383,17 @@ namespace vire {
 
       this->::datatools::base_service::common_initialize(config_);
 
+      if (!has_app_category()) {
+        if (config_.has_key("cms_application_category")) {
+          std::string appcat_repr = config_.fetch_string("cms_application_category");
+          vire::cms::application::category_type appcat = vire::cms::application::CATEGORY_UNDEF;
+          DT_THROW_IF(!vire::cms::application::from_string(appcat_repr, appcat),
+                      std::logic_error,
+                      "Invalid CMS application category '" << appcat_repr << "'!");
+          set_app_category(appcat);
+        }
+      }
+      
       if (!has_resources()) {
         if (!has_resource_service_name()) {
           std::string resource_service_name;
@@ -348,27 +406,31 @@ namespace vire {
         }
       }
  
-      if (! has_actor()) {
-        std::string actor_setup_name;
-        std::string actor_id;
-        std::string actor_category_repr;
-        if (config_.has_key("actor.setup_name")) {
-          actor_setup_name = config_.fetch_string("actor.setup_name");
+      if (!has_default_transport_type_id()) {
+        if (config_.has_key("default_transport_type_id")) {
+          std::string ttid = config_.fetch_string("default_transport_type_id");
+          vire::utility::model_identifier transport_type_id;
+          transport_type_id.from_string(ttid);
+          set_default_transport_type_id(transport_type_id);
         }
-        if (config_.has_key("actor.id")) {
-          actor_id = config_.fetch_string("actor.id");
+      }
+ 
+      if (!has_default_encoding_type_id()) {
+        if (config_.has_key("default_encoding_type_id")) {
+          std::string etid = config_.fetch_string("default_encoding_type_id");
+          vire::utility::model_identifier encoding_type_id;
+          encoding_type_id.from_string(etid);
+          set_default_encoding_type_id(encoding_type_id);
         }
-        if (config_.has_key("actor.category")) {
-          actor_category_repr = config_.fetch_string("actor.category");
-        }
-        actor::category_type cat = actor::category(actor_category_repr);
-        actor a;
-        a.set_name(actor::build_name(cat, actor_setup_name, actor_id));
-        a.set_category(cat);
-        set_actor(a);
+      }    
+
+      if (config_.has_key("domain_name_prefix")) {
+        std::string domain_name_prefix = config_.fetch_string("domain_name_prefix");
+        set_domain_name_prefix(domain_name_prefix);
+        
       }
 
-      _at_init_();
+      _at_init_(config_);
 
       _initialized_ = true;
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -393,29 +455,144 @@ namespace vire {
       return;
     }
 
-    void manager::_at_init_()
+    void manager::_at_reset_transport_managers_()
+    {
+      // if (_pimpl_->rabbitmgr) {
+      //   if (_pimpl_->rabbitmgr->is_initialized()) {
+      //     _pimpl_->rabbitmgr->reset();
+      //   }
+      //   _pimpl_->rabbitmgr.reset();
+      // }
+      return;
+    }
+
+    void manager::_at_init_transport_managers_(const datatools::properties & config_)
+    {
+      std::set<std::string> transmgr_names;
+      config_.fetch("names", transmgr_names);
+      if (_default_transport_type_id_.get_name() == "rabbitmq") {
+        for (const auto & trans_name : transmgr_names) {
+
+          // if (trans_name == "rabbitmq") {
+          //   _pimpl_->rabbitmgr.reset(new vire::rabbitmq::manager_service);
+          //   std::ostringstream transmgr_config_path_key ;
+          //   transmgr_config_path_key << trans_name << ".config_path";
+          //   DT_THROW_IF(!config_.has_key(transmgr_config_path_key.str()),
+          //               std::logic_error,
+          //               "Missing '" << trans_name << "' transport manager config path!");
+          //   std::string transmgr_config_path = config_.fetch_path(transmgr_config_path_key.str());
+          //   datatools::fetch_path_with_env(transmgr_config_path);
+          //   datatools::properties transmgr_config;
+          //   transmgr_config.read_configuration(transmgr_config_path);
+          //   _pimpl_->rabbitmgr->initialize_standalone(transmgr_config);
+          
+          // } else {
+          //   DT_THROW(std::logic_error,
+          //            "Unsupported transport manager of type '" << trans_name << "'!");
+          // }          
+        }
+      }
+      return;
+    }
+    
+    void manager::_at_init_(const datatools::properties & config_)
     {
       // DT_THROW_IF(!has_resources(), std::logic_error, "Missing 'resources' service!");
+      
+      _domain_maker_.set_domain_name_prefix(_domain_name_prefix_);
+      _domain_maker_.set_transport_type_id(_default_transport_type_id_);
+      _domain_maker_.set_encoding_type_id(_default_encoding_type_id_);
 
-      if (_actor_.is_server()) {
+      _pimpl_.reset(new pimpl_type(*this));
 
-      } else if (_actor_.is_client()) {
-
-      } else if (_actor_.is_subcontractor()) {
-
+      {
+        datatools::properties transport_manager_config;
+        config_.export_and_rename_starting_with(transport_manager_config,
+                                                "transport_manager.",
+                                                "");
+        _at_init_transport_managers_(transport_manager_config);
       }
+      
+      _build_default_domains_();
 
-      _factory_.reset(new plug_factory(*this));
-
+      // XXX
+      // if (get_actor().get_category() == vire::com::actor::CATEGORY_SYSTEM) {
+        
+      //   if (_transport_type_id_.get_name() == "rabbitmq") {
+      //     _pimpl_->rabbitmgr.reset(new vire::rabbitmq::manager_service);
+          
+      //     vire::rabbitmq::manager_service & rabbitmq = *_pimpl_->rabbitmgr;
+      //     rabbitmq.set_name("RabbitMQManager");
+      //     rabbitmq.set_display_name("RabbitMQ Manager Service");
+      //     rabbitmq.set_terse_description("The service dedicated to the RabbitMQ server management");
+      //     //rabbitmq.set_logging_priority();
+      //     rabbitmq.set_server_host("localhost");
+      //     rabbitmq.set_server_port(15672);
+      //     rabbitmq.set_vhost_name_prefix(get_domain_name_prefix());
+      //     rabbitmq.set_admin_login("supernemo_adm");
+      //     rabbitmq.set_admin_password("sesame");
+      //   }
+        
+      // }
+      
       return;
     }
 
     void manager::_at_reset_()
     {
-      _factory_.reset();
+      if (_pimpl_) {
+        _pimpl_.reset();
+      }
+      _actors_.clear();
       _domains_.clear();
       _resources_ = nullptr;
-      _actor_.reset();
+      return;
+    }
+
+    void manager::_build_default_domains_()
+    {
+ 
+      if (_app_category_ == vire::cms::application::CATEGORY_SERVER
+          || _app_category_ == vire::cms::application::CATEGORY_CLIENT) {
+        // Check and create client gate:
+        std::string gate_sys_domain_name
+          = vire::com::domain_builder::build_cms_clients_gate_name(this->get_domain_maker().get_domain_name_prefix());
+        if (!this->has_domain(gate_sys_domain_name)) {
+          vire::com::domain & gate_sys_domain = this->create_domain(gate_sys_domain_name,
+                                                                    vire::com::domain::CATEGORY_GATE,
+                                                                    this->get_default_transport_type_id(),
+                                                                    this->get_default_encoding_type_id()); 
+          this->get_domain_maker().build_clients_gate_domain(gate_sys_domain);
+        }
+      }
+     
+      {
+        // Check and create monitoring domain:
+        std::string monitoring_domain_name
+          = vire::com::domain_builder::build_cms_monitoring_name(this->get_domain_maker().get_domain_name_prefix());
+        if (!this->has_domain(monitoring_domain_name)) {
+          vire::com::domain & monitoring_domain = this->create_domain(monitoring_domain_name,
+                                                                      vire::com::domain::CATEGORY_MONITORING,
+                                                                      this->get_default_transport_type_id(),
+                                                                      this->get_default_encoding_type_id()); 
+          this->get_domain_maker().build_monitoring_domain(monitoring_domain);
+        }
+      }
+      
+      if (_app_category_ == vire::cms::application::CATEGORY_SERVER
+          || _app_category_ == vire::cms::application::CATEGORY_CLIENT) {
+        // Check and create control domain:
+        std::string control_domain_name
+          = vire::com::domain_builder::build_cms_control_name(this->get_domain_maker().get_domain_name_prefix());
+        if (!this->has_domain(control_domain_name)) {
+          vire::com::domain & control_domain = this->create_domain(control_domain_name,
+                                                                   vire::com::domain::CATEGORY_CONTROL,
+                                                                   this->get_default_transport_type_id(),
+                                                                   this->get_default_encoding_type_id()); 
+          this->get_domain_maker().build_control_domain(control_domain);
+        }
+      }
+      
       return;
     }
 

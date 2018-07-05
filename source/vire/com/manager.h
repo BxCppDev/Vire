@@ -33,11 +33,11 @@
 #include <bayeux/datatools/bit_mask.h>
 #include <bayeux/datatools/base_service.h>
 
-// // This project:
+// This project:
 #include <vire/com/actor.h>
 #include <vire/com/utils.h>
 #include <vire/com/domain_builder.h>
-#include <vire/com/plug_factory.h>
+#include <vire/cms/application.h>
 
 namespace vire {
 
@@ -58,6 +58,9 @@ namespace vire {
       //! Dictionary of shared pointers on domain objects
       typedef std::map<std::string, std::shared_ptr<domain>> domain_dict_type;
 
+      //! Dictionary of shared pointers on actor objects
+      typedef std::map<std::string, std::shared_ptr<actor>> actor_dict_type;
+
       static const std::string & default_service_name();
 
       //! Default constructor
@@ -72,39 +75,29 @@ namespace vire {
       
       const std::string & get_resource_service_name() const;
 
-      //! Check the actor
-      bool has_actor() const;
+      //! Set the domain name prefix 
+      void set_domain_name_prefix(const std::string &);
+      
+      //! Return the domain name prefix
+      const std::string & get_domain_name_prefix() const;   
 
-      //! Set the actor
-      void set_actor(const actor &);
+      //! Check the default transport type identifier
+      bool has_default_transport_type_id() const;
 
-      //! Set the actor
-      void reset_actor();
+      //! Set the default transport type identifier
+      void set_default_transport_type_id(const vire::utility::model_identifier &);
 
-      //! Return the actor
-      const actor & get_actor() const;
+      //! Return the default transport type identifier
+      const vire::utility::model_identifier & get_default_transport_type_id() const;
 
-      //! Check the transport type identifier
-      bool has_transport_type_id() const;
+      //! Check the default encoding type identifier
+      bool has_default_encoding_type_id() const;
 
-      //! Set the transport type identifier
-      void set_transport_type_id(const vire::utility::model_identifier &);
+      //! Set the default encoding type identifier
+      void set_default_encoding_type_id(const vire::utility::model_identifier &);
 
-      //! Return the transport type identifier
-      const vire::utility::model_identifier & get_transport_type_id() const;
-
-      //! Check the encoding type identifier
-      bool has_encoding_type_id() const;
-
-      //! Set the encoding type identifier
-      void set_encoding_type_id(const vire::utility::model_identifier &);
-
-      //! Return the encoding type identifier
-      const vire::utility::model_identifier & get_encoding_type_id() const;
-
-      bool has_subcontractor(const std::string &) const;
-
-      void add_subcontractor(const std::string &);
+      //! Return the default encoding type identifier
+      const vire::utility::model_identifier & get_default_encoding_type_id() const;
 
       //! Check the resources service handle is set
       bool has_resources() const;
@@ -120,10 +113,33 @@ namespace vire {
 
       const domain_builder & get_domain_maker() const;
 
-      const plug_factory & get_plug_factory() const;
+      //! Check the actors
+      bool has_actors() const;
 
+      void build_actor_names(std::set<std::string> & names_) const;
+      
+      //! Check a actors by name
+      bool has_actor(const std::string & actor_name_) const;
+
+      //! Create and insert a new actor of given name and category
+      void create_actor(const std::string & actor_name_,
+                        const std::string & actor_password_,
+                        const actor::category_type & actor_category_,
+                        const std::string & target_id_ = "");
+
+      //! Return a actor by name
+      const actor & get_actor(const std::string & actor_name_) const;
+
+      //! Return a actor by name
+      actor & grab_actor(const std::string & actor_name_);
+
+      //! Remove an actor of given name
+      void remove_actor(const std::string & actor_name_);
+      
       //! Check the domains
       bool has_domains() const;
+
+      void build_domain_names(std::set<std::string> & names_) const;
 
       //! Check a domain by name
       bool has_domain(const std::string & domain_name_) const;
@@ -136,12 +152,6 @@ namespace vire {
 
       //! Create and insert a new domain of given name and category
       domain & create_domain(const std::string & domain_name_,
-                             const std::string & domain_category_repr_,
-                             const std::string & domain_protocol_id_repr_,
-                             const std::string & domain_encoding_id_repr_);
-
-      //! Create and insert a new domain of given name and category
-      domain & create_domain(const std::string & domain_name_,
                              const domain::category_type & domain_category_,
                              const vire::utility::model_identifier & domain_protocol_id_,
                              const vire::utility::model_identifier & domain_encoding_id_);
@@ -149,6 +159,12 @@ namespace vire {
       //! Remove a domain given its name
       void remove_domain(const std::string & domain_name_);
 
+      bool has_app_category() const;
+      
+      const vire::cms::application::category_type get_app_category() const;
+
+      void set_app_category(const vire::cms::application::category_type);
+      
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
                              const std::string & title_  = "",
@@ -164,13 +180,19 @@ namespace vire {
 
       //! Reset the service
       virtual int reset();
-
+    
     private:
+
+      void _build_default_domains_();
 
       //! Set default attribute values
       void _set_defaults_();
 
-      void _at_init_();
+      void _at_init_(const datatools::properties & config_);
+
+      void _at_init_transport_managers_(const datatools::properties & config_);
+
+      void _at_reset_transport_managers_();
 
       void _at_reset_();
 
@@ -180,19 +202,22 @@ namespace vire {
       bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
+      vire::cms::application::category_type _app_category_ = vire::cms::application::CATEGORY_UNDEF;
       std::string                     _resource_service_name_; //!< Name of the resource management service
-      actor                           _actor_;                 //!< Actor
-      vire::utility::model_identifier _transport_type_id_;     //!< Default transport type identifier associated to the domains
-      vire::utility::model_identifier _encoding_type_id_;      //!< Default encoding type identifier associated to the domains
-      std::set<std::string>           _subcontractors_;        //!< Set of subcontractors
-
+      std::string                     _domain_name_prefix_;    //!< Prefix of domain names
+      vire::utility::model_identifier _default_transport_type_id_; //!< Default transport type identifier associated to the domains
+      vire::utility::model_identifier _default_encoding_type_id_;  //!< Default encoding type identifier associated to the domains
+      
       domain_builder                  _domain_maker_; //!< Domain builder
-      std::unique_ptr<plug_factory>   _factory_;      //!< Plug factory
 
       // Working data:
       const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
-      domain_dict_type                _domains_;   //!< Dictionary of domains
-
+      domain_dict_type                _domains_;             //!< Dictionary of domains
+      actor_dict_type                 _actors_;              //!< Dictionary of actors
+      
+      struct pimpl_type;
+      std::unique_ptr<pimpl_type>     _pimpl_;
+      
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(manager);
 

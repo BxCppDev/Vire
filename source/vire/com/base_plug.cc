@@ -22,81 +22,38 @@
 
 // This project:
 #include <vire/com/manager.h>
+#include <vire/time/utils.h>
+#include <vire/message/message.h>
 
 namespace vire {
 
   namespace com {
 
-    std::string plug_category_to_label(const plug_category_type cat_)
+    base_plug::base_plug(const std::string & name_,
+                         const actor & parent_,
+                         const domain & domain_,
+                         const datatools::logger::priority logging_)
+      : _name_(name_)
+      , _parent_(parent_)
+      , _domain_(domain_)
+      , _logging_(logging_)
     {
-      switch(cat_) {
-      case PLUG_EVENT_EMITTER: return std::string("event_emitter");
-      case PLUG_EVENT_LISTENER: return std::string("event_listener");
-      case PLUG_SERVICE_CLIENT: return std::string("service_client");
-      case PLUG_SERVICE_SERVER: return std::string("service_server");
-      default: return std::string();
-      }
-    }
-
-    base_plug::base_plug()
-    {
-      return;
-    }
-
-    base_plug::base_plug(domain & dom_,
-                         const std::string & name_,
-                         const plug_category_type category_)
-    {
-      set_domain(dom_);
-      set_name(name_);
-      set_category(category_);
       return;
     }
 
     base_plug::~base_plug()
     {
-      if (is_initialized()) {
-        DT_THROW(std::logic_error, "Plug has not been properly reset!");
-      }
-      return;
+       return;
     }
-
-    bool base_plug::is_valid() const
+    
+    datatools::logger::priority base_plug::get_logging() const
     {
-      if (!has_domain()) return false;
-      if (!has_name()) return false;
-      if (!has_category()) return false;
-      return true;
+      return _logging_;
     }
-
-    bool base_plug::has_domain() const
+                        
+    void base_plug::set_logging(const datatools::logger::priority logging_)
     {
-      return _dom_ != nullptr;
-    }
-
-    void base_plug::set_domain(domain & dom_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Plug is already initialized!");
-      _dom_ = &dom_;
-      return;
-    }
-
-    const domain & base_plug::get_domain() const
-    {
-      return *_dom_;
-    }
-
-    bool base_plug::has_name() const
-    {
-      return !_name_.empty();
-    }
-
-    void base_plug::set_name(const std::string & name_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Plug is already initialized!");
-      _name_ = name_;
+      _logging_ = logging_;
       return;
     }
 
@@ -104,54 +61,35 @@ namespace vire {
     {
       return _name_;
     }
-
-    bool base_plug::has_category() const
+ 
+    const actor & base_plug::get_parent() const
     {
-      return _category_ != PLUG_INVALID;
+      return _parent_;
     }
 
-    void base_plug::set_category(const plug_category_type & category_)
+    const domain & base_plug::get_domain() const
     {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Plug is already initialized!");
-      _category_ = category_;
-      return;
+      return _domain_;
     }
 
-    plug_category_type base_plug::get_category() const
+    const datatools::properties & base_plug::get_metadata() const
     {
-      return _category_;
+      return _metadata_;
     }
 
-    bool base_plug::is_initialized() const
+    datatools::properties & base_plug::grab_metadata()
     {
-      return _initialized_;
+      return _metadata_;
     }
-
-    void base_plug::_set_initialized(bool i_)
+    
+    int base_plug::get_next_message_id() const
     {
-      _initialized_ = i_;
-      return;
+      return _next_message_id_;
     }
-
-    void base_plug::_base_init()
+       
+    int base_plug::_pop_next_message_id()
     {
-      DT_THROW_IF(!has_domain(), std::logic_error,
-                  "Plug has no domain!");
-      DT_THROW_IF(!has_name(), std::logic_error,
-                  "Plug has no name!");
-      DT_THROW_IF(!has_category(), std::logic_error,
-                  "Plug '" << get_name() << "' has no category!");
-      return;
-    }
-
-    void base_plug::_base_reset()
-    {
-      _initialized_ = false;
-      _category_ = PLUG_INVALID;
-      _name_.clear();
-      _dom_ = nullptr;
-      return;
+      return _next_message_id_++;
     }
 
     void base_plug::tree_dump(std::ostream & out_,
@@ -163,20 +101,20 @@ namespace vire {
         out_ << indent_ << title_ << std::endl;
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Initialized : " << std::boolalpha << is_initialized() << std::endl;
+      out_ << indent_ << tag
+           << "Name:   '" << get_name() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Domain : '" << _dom_->get_name() << "'" << std::endl;
+      out_ << indent_ << tag
+           << "Parent: '" << get_parent().get_name() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Name : '" << _name_ << "'" << std::endl;
+      out_ << indent_ << tag
+           << "Domain: '" << get_domain().get_name() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Category : '" << _category_ << "'" << std::endl;
+      out_ << indent_ << tag
+           << "Category : '" << to_string(get_category()) << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
-           << "Initialized : " << std::boolalpha << is_initialized() << std::endl;
+      out_ << indent_ << inherit_tag(inherit_)
+           << "Logging: '" << _logging_ << "'" << std::endl;
 
       return;
     }

@@ -32,6 +32,41 @@ namespace vire {
       return;
     }
 
+    std::string to_string(const plug_category_type cat_)
+    {
+      switch(cat_) {
+      case PLUG_EVENT_EMITTER: return std::string("event_emitter");
+      case PLUG_EVENT_LISTENER: return std::string("event_listener");
+      case PLUG_SERVICE_CLIENT: return std::string("service_client");
+      case PLUG_SERVICE_SERVER: return std::string("service_server");
+      default: return std::string();
+      }
+    }
+
+    const std::string & message_id_key()
+    {
+      static const std::string _k("message_id");
+      return _k;
+    }
+    
+    const std::string & correlation_id_key()
+    {
+      static const std::string _k("correlation_id");
+      return _k;
+    }
+    
+    const std::string & address_key()
+    {
+      static const std::string _k("address");
+      return _k;
+    }
+
+    const std::string & system_connection_key()
+    {
+      static const std::string _k("connection");
+      return _k;
+    }
+
   } // namespace com
 
 } // namespace vire

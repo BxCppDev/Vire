@@ -63,8 +63,8 @@ void test_com_actor_1(bool interactive_)
   // Actor #0:
   std::clog << "\ntest_com_actor_1: Actor #0" << std::endl;
   vire::com::actor n0;
-  n0.set_name("snemo.vire.server");
-  n0.set_category(vire::com::actor::CATEGORY_SERVER);
+  n0.set_name("snemo.vire.server.gate");
+  n0.set_category(vire::com::actor::CATEGORY_SERVER_GATE);
   n0.tree_dump(std::clog, "Actor 0: ");
   std::clog << std::endl;
 
@@ -72,7 +72,7 @@ void test_com_actor_1(bool interactive_)
   std::clog << "\ntest_com_actor_1: Actor #1" << std::endl;
   vire::com::actor n1;
   n1.set_name("snemo.vire.client.DZAEDH83DZED");
-  n1.set_category(vire::com::actor::CATEGORY_CLIENT);
+  n1.set_category(vire::com::actor::CATEGORY_CLIENT_CMS);
   n1.grab_metadata().store("rabbitmq.login", "foo");
   n1.grab_metadata().store("rabbitmq.passwd", "toto");
   n1.tree_dump(std::clog, "Actor 1: ");
@@ -82,7 +82,7 @@ void test_com_actor_1(bool interactive_)
   std::clog << "\ntest_com_actor_2: Actor #2" << std::endl;
   vire::com::actor n2;
   n2.set_name("snemo.vire.client.78DKZHFDZF");
-  n2.set_category(vire::com::actor::CATEGORY_CLIENT);
+  n2.set_category(vire::com::actor::CATEGORY_CLIENT_CMS);
   n2.grab_metadata().store("rabbitmq.login", "bar");
   n2.grab_metadata().store("rabbitmq.passwd", "baz");
   n2.tree_dump(std::clog, "Actor 2: ");

@@ -23,6 +23,7 @@
 
 // Standard library:
 #include <vector>
+#include <memory>
 
 // Third party:
 // - Bayeux/datatools:
@@ -80,10 +81,10 @@ namespace vire {
       void reset();
 
       //! Encode a message object to a target raw message
-      int encode(const vire::message::message & msg_, raw_message_type & msg_data_);
+      int encode(const vire::message::message & msg_, raw_message_type & msg_data_) const;
 
       //! Decode a message object from a raw message
-      int decode(const raw_message_type & msg_data_, vire::message::message & msg_);
+      int decode(const raw_message_type & msg_data_, vire::message::message & msg_) const;
 
       //! Return the class unique identifier
       std::string class_guid() const;
@@ -101,11 +102,11 @@ namespace vire {
 
       //! Encode a message object to a raw message
       virtual int _encode_impl_(const vire::message::message & msg_,
-                                raw_message_type & raw_msg_) = 0;
+                                raw_message_type & raw_msg_) const = 0;
 
       //! Decode a message object from a raw message
       virtual int _decode_impl_(const raw_message_type & raw_msg_,
-                                vire::message::message & msg_) = 0;
+                                vire::message::message & msg_) const = 0;
 
     private:
 
@@ -116,6 +117,8 @@ namespace vire {
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(i_encoding_driver)
 
     };
+
+    typedef std::shared_ptr<i_encoding_driver> encoding_driver_ptr; 
 
   } // namespace com
 

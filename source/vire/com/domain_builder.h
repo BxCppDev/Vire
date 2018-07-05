@@ -109,19 +109,19 @@ namespace vire {
       const vire::utility::model_identifier & get_transport_type_id() const;
 
       //! Build the clients gate domain
-      void build_clients_gate_domain(domain &);
+      void build_clients_gate_domain(domain &) const;
 
       //! Build the control domain
-      void build_control_domain(domain &);
+      void build_control_domain(domain &) const;
 
       //! Build the monitoring domain
-      void build_monitoring_domain(domain &);
+      void build_monitoring_domain(domain &) const;
 
       //! Build the client system domain
-      void build_client_system_domain(domain &, const std::string & client_id_);
+      void build_client_system_domain(domain &, const std::string & client_id_) const;
 
       //! Build the subcontractor system domain
-      void build_subcontractor_system_domain(domain &, const std::string & subcontractor_id_);
+      void build_subcontractor_system_domain(domain &, const std::string & subcontractor_id_) const;
 
     private:
 

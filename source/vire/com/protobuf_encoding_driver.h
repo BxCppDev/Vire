@@ -1,5 +1,5 @@
-//! \file  vire/utility/protobuf_encoding_driver.h
-//! \brief Vire utility Protobuf encoding driver
+//! \file  vire/com/protobuf_encoding_driver.h
+//! \brief Vire com Protobuf encoding driver
 //
 // Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -36,7 +36,8 @@ namespace vire {
   namespace com {
 
     //! \brief Protobuf encoding driver
-    class protobuf_encoding_driver : public i_encoding_driver
+    class protobuf_encoding_driver
+      : public i_encoding_driver
     {
     public:
 
@@ -49,22 +50,21 @@ namespace vire {
     private:
 
       //! Initialization
-      virtual std::string _class_guid_() const;
+      std::string _class_guid_() const override;
 
       //! Initialization
-      virtual void _initialize_impl_(const datatools::properties &);
+      void _initialize_impl_(const datatools::properties &) override;
 
       //! Reset
-      virtual void _reset_impl_();
-
+      void _reset_impl_() override;
 
       //! Encode a message object to a raw message
-      virtual int _encode_impl_(const vire::message::message & msg_,
-                                raw_message_type & raw_msg_);
+      int _encode_impl_(const vire::message::message & msg_,
+                        raw_message_type & raw_msg_) const override;
 
       //! Decode a message object from a raw message
-      virtual int _decode_impl_(const raw_message_type & raw_msg__,
-                                vire::message::message & msg_);
+      int _decode_impl_(const raw_message_type & raw_msg__,
+                        vire::message::message & msg_) const override;
 
     private:
 

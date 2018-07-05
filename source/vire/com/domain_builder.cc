@@ -208,13 +208,13 @@ namespace vire {
       return _transport_type_id_;
     }
 
-    void domain_builder::build_clients_gate_domain(domain & dom_)
+    void domain_builder::build_clients_gate_domain(domain & dom_) const 
     {
       if (!dom_.has_name()) {
         dom_.set_name(domain_builder::build_cms_clients_gate_name(_domain_name_prefix_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_GENERAL);
+        dom_.set_category(vire::com::domain::CATEGORY_GATE);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);
@@ -233,7 +233,7 @@ namespace vire {
       return;
     }
 
-    void domain_builder::build_control_domain(domain & dom_)
+    void domain_builder::build_control_domain(domain & dom_) const
     {
       if (!dom_.has_name()) {
         dom_.set_name(domain_builder::build_cms_control_name(_domain_name_prefix_));
@@ -258,7 +258,7 @@ namespace vire {
       return;
     }
 
-    void domain_builder::build_monitoring_domain(domain & dom_)
+    void domain_builder::build_monitoring_domain(domain & dom_) const
     {
       if (!dom_.has_name()) {
         dom_.set_name(domain_builder::build_cms_monitoring_name(_domain_name_prefix_));
@@ -302,13 +302,13 @@ namespace vire {
       return;
     }
 
-    void domain_builder::build_client_system_domain(domain & dom_, const std::string & client_id_)
+    void domain_builder::build_client_system_domain(domain & dom_, const std::string & client_id_) const
     {
       if (!dom_.has_name()) {
         dom_.set_name(domain_builder::build_cms_client_system_name(_domain_name_prefix_, client_id_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
+        dom_.set_category(vire::com::domain::CATEGORY_CLIENT_SYSTEM);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);
@@ -335,13 +335,13 @@ namespace vire {
       return;
     }
 
-    void domain_builder::build_subcontractor_system_domain(domain & dom_, const std::string & subcontractor_id_)
+    void domain_builder::build_subcontractor_system_domain(domain & dom_, const std::string & subcontractor_id_) const
     {
       if (!dom_.has_name()) {
         dom_.set_name(build_cms_subcontractor_system_name(_domain_name_prefix_, subcontractor_id_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_SYSTEM);
+        dom_.set_category(vire::com::domain::CATEGORY_SUBCONTRACTOR_SYSTEM);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);

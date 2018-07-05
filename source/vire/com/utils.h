@@ -39,9 +39,15 @@ namespace vire {
       COM_TIMEOUT     = 4  //!< Timeout error
     };
 
+    enum rpc_status {
+      RPC_STATUS_SUCCESS = 0,
+      RPC_STATUS_FAILURE = 1,
+      RPC_STATUS_TIMEOUT = 2
+    };
+
     struct raw_message_type
     {
-      typedef std::vector<char>     buffer_type;
+      typedef std::vector<char> buffer_type;
 
       //! Clear the raw message internals
       void reset();
@@ -51,6 +57,21 @@ namespace vire {
 
     };
 
+    const std::string & message_id_key();
+    const std::string & correlation_id_key();
+    const std::string & address_key();
+    const std::string & system_connection_key();
+    
+    enum plug_category_type {
+      PLUG_INVALID        = 0,
+      PLUG_EVENT_EMITTER  = 1,
+      PLUG_EVENT_LISTENER = 2,
+      PLUG_SERVICE_CLIENT = 3,
+      PLUG_SERVICE_SERVER = 4
+    };
+
+    std::string to_string(const plug_category_type);
+ 
   } // namespace com
 
 } // namespace vire

@@ -60,10 +60,12 @@ namespace vire {
     // static
     domain::category_type domain::category_from_label(const std::string & cat_repr_)
     {
-      if (cat_repr_ == "vire::com::domain::general") {
-        return CATEGORY_GENERAL;
-      } else  if (cat_repr_ == "vire::com::domain::system") {
-        return CATEGORY_SYSTEM;
+      if (cat_repr_ == "vire::com::domain::gate") {
+        return CATEGORY_GATE;
+      } else if (cat_repr_ == "vire::com::domain::client_system") {
+        return CATEGORY_CLIENT_SYSTEM;
+      } else if (cat_repr_ == "vire::com::domain::subcontractor_system") {
+        return CATEGORY_SUBCONTRACTOR_SYSTEM;
       } else if (cat_repr_ == "vire::com::domain::control") {
         return CATEGORY_CONTROL;
       } else if (cat_repr_ == "vire::com::domain::monitoring") {
@@ -76,12 +78,13 @@ namespace vire {
     std::string domain::label_from_category(const category_type cat_)
     {
       switch (cat_) {
-      case CATEGORY_GENERAL: return std::string("vire::com::domain::general");
-      case CATEGORY_SYSTEM: return std::string("vire::com::domain::system");
-      case CATEGORY_CONTROL: return std::string("vire::com::domain::control");
-      case CATEGORY_MONITORING: return std::string("vire::com::domain::monitoring");
+      case CATEGORY_GATE:                 return std::string("vire::com::domain::gate");
+      case CATEGORY_CLIENT_SYSTEM:        return std::string("vire::com::domain::client_system");
+      case CATEGORY_SUBCONTRACTOR_SYSTEM: return std::string("vire::com::domain::subcontractor_system");
+      case CATEGORY_CONTROL:              return std::string("vire::com::domain::control");
+      case CATEGORY_MONITORING:           return std::string("vire::com::domain::monitoring");
       default:
-        return std::string("!");
+        return std::string("");
       }
     }
 
@@ -154,20 +157,6 @@ namespace vire {
     void domain::set_category(const category_type cat_)
     {
       _category_ = cat_;
-      switch (_category_) {
-      case CATEGORY_SYSTEM:
-        _forbid_private_mailbox_ = true;
-        _forbid_public_mailbox_  = false;
-        break;
-      case CATEGORY_CONTROL:
-      case CATEGORY_MONITORING:
-        _forbid_private_mailbox_ = true;
-        _forbid_public_mailbox_  = false;
-        break;
-      default:
-        _forbid_private_mailbox_ = false;
-        _forbid_public_mailbox_  = false;
-      }
       return;
     }
 
@@ -182,14 +171,19 @@ namespace vire {
       return _category_;
     }
 
-    bool domain::is_general() const
+    bool domain::is_gate() const
     {
-      return _category_ == CATEGORY_GENERAL;
+      return _category_ == CATEGORY_GATE;
     }
 
-    bool domain::is_system() const
+    bool domain::is_subcontractor_system() const
     {
-      return _category_ == CATEGORY_SYSTEM;
+      return _category_ == CATEGORY_SUBCONTRACTOR_SYSTEM;
+    }
+
+    bool domain::is_client_system() const
+    {
+      return _category_ == CATEGORY_CLIENT_SYSTEM;
     }
 
     bool domain::is_control() const
@@ -200,16 +194,6 @@ namespace vire {
     bool domain::is_monitoring() const
     {
       return _category_ == CATEGORY_MONITORING;
-    }
-
-    bool domain::is_forbid_private_mailbox() const
-    {
-      return _forbid_private_mailbox_;
-    }
-
-    bool domain::is_forbid_public_mailbox() const
-    {
-      return _forbid_public_mailbox_;
     }
 
     bool domain::has_transport_type_id() const
@@ -325,16 +309,15 @@ namespace vire {
 
     void domain::reset()
     {
-      _plugs_.clear();
       _name_.clear();
       _category_ = CATEGORY_INVALID;
       _transport_type_id_.reset();
       _transport_driver_params_.clear();
       _encoding_type_id_.reset();
       _encoding_driver_params_.clear();
-      _forbid_private_mailbox_ = false;
-      _forbid_public_mailbox_ = false;
       _mailboxes_.clear();
+      _encoding_driver_.reset();
+      _transport_driver_.reset();
       return;
     }
 
@@ -347,10 +330,6 @@ namespace vire {
     {
       DT_THROW_IF(has_mailbox(name_), std::logic_error,
                   "Domain '" << _name_ << "' already host a mailbox named '" << name_ <<"'!");
-      DT_THROW_IF(privacy_ == mailbox::PRIVACY_PRIVATE && _forbid_private_mailbox_, std::logic_error,
-                  "Domain '" << _name_ << "' forbids the creation of a 'private' mailbox named '" << name_ <<"'!");
-      DT_THROW_IF(privacy_ == mailbox::PRIVACY_PUBLIC && _forbid_public_mailbox_, std::logic_error,
-                  "Domain '" << _name_ << "' forbids the creation of a 'public' mailbox named '" << name_ <<"'!");
       mailbox_entry mbe;
       mbe.mb.set_name(name_);
       mbe.mb.set_mode(mode_);
@@ -375,6 +354,7 @@ namespace vire {
       return;
     }
 
+    /*
     std::string domain::add_private_mailbox(const std::string & owner_id_,
                                             const mailbox::mode_type mode_,
                                             const mailbox::permissions_type perms_)
@@ -392,7 +372,8 @@ namespace vire {
                   false);
       return mb_name;
     }
-
+    */
+    
     bool domain::has_mailbox(const std::string & name_) const
     {
       return _mailboxes_.count(name_) == 1;
@@ -414,64 +395,19 @@ namespace vire {
       return found->second.mb;
     }
 
-    std::string domain::generate_private_mailbox_name(const std::string & owner_id_,
-                                                      const mailbox::mode_type m_)
-    {
-       boost::uuids::uuid mb_uuid = _mailbox_uuid_gen_();
-       std::ostringstream out;
-       out << "__mb." << owner_id_ << "." << mailbox::mode_label(m_) << "." << mb_uuid;
-       return out.str();
-    }
-
-    const domain::plug_dict_type & domain::get_plugs() const
-    {
-      return _plugs_;
-    }
-
-    domain::plug_dict_type domain::grab_plugs()
-    {
-      return _plugs_;
-    }
-
-    bool domain::has_plug(const std::string & plug_name_) const
-    {
-      return _plugs_.count(plug_name_) == 1;
-    }
-
-    void domain::remove_plug(const std::string & plug_name_)
-    {
-      plug_dict_type::iterator found = _plugs_.find(plug_name_);
-      DT_THROW_IF(found == _plugs_.end(), std::logic_error,
-                  "No plug '" << plug_name_ << "'!");
-      _plugs_.erase(found);
-      return;
-    }
-
-    const plug_ptr_type & domain::get_plug(const std::string & plug_name_) const
-    {
-      plug_dict_type::const_iterator found = _plugs_.find(plug_name_);
-      DT_THROW_IF(found == _plugs_.end(), std::logic_error,
-                  "No plug '" << plug_name_ << "'!");
-      return found->second;
-    }
-
-    plug_ptr_type & domain::grab_plug(const std::string & plug_name_)
-    {
-      plug_dict_type::iterator found = _plugs_.find(plug_name_);
-      DT_THROW_IF(found == _plugs_.end(), std::logic_error,
-                  "No plug '" << plug_name_ << "'!");
-      return found->second;
-    }
+    // std::string domain::generate_private_mailbox_name(const std::string & owner_id_,
+    //                                                   const mailbox::mode_type m_)
+    // {
+    //    boost::uuids::uuid mb_uuid = _mailbox_uuid_gen_();
+    //    std::ostringstream out;
+    //    out << "__mb." << owner_id_ << "." << mailbox::mode_label(m_) << "." << mb_uuid;
+    //    return out.str();
+    // }
 
     const i_encoding_driver & domain::get_encoding_driver() const
     {
       domain * mutable_this = const_cast<domain*>(this);
       return mutable_this->_encoding_driver_instance_();
-    }
-
-    i_encoding_driver & domain::grab_encoding_driver()
-    {
-      return _encoding_driver_instance_();
     }
 
     i_encoding_driver & domain::_encoding_driver_instance_()
@@ -520,6 +456,24 @@ namespace vire {
       return *_transport_driver_.get();
     }
 
+    const std::shared_ptr<i_encoding_driver> & domain::get_encoding_driver_ptr() const
+    {
+      const_cast<domain*>(this)->_encoding_driver_instance_();
+      return _encoding_driver_;
+    }
+ 
+    const std::shared_ptr<i_transport_driver> & domain::get_transport_driver_ptr() const
+    {
+      const_cast<domain*>(this)->_transport_driver_instance_();
+      return _transport_driver_;
+    }
+    
+    std::shared_ptr<i_transport_driver> & domain::grab_transport_driver_ptr()
+    {
+      _transport_driver_instance_();
+      return _transport_driver_;
+    }
+  
     void domain::tree_dump(std::ostream & out_,
                            const std::string & title_,
                            const std::string & indent_,
@@ -564,23 +518,10 @@ namespace vire {
       }
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Plugs             : [" << _plugs_.size() << "]" << std::endl;
-      for (plug_dict_type::const_iterator i = _plugs_.begin();
-            i != _plugs_.end();
-           i++) {
-        plug_dict_type::const_iterator j = i;
-        out_ << indent_ << datatools::i_tree_dumpable::skip_tag;
-        if (++j == _plugs_.end()) {
-          out_ << datatools::i_tree_dumpable::last_tag;
-        } else {
-          out_ << datatools::i_tree_dumpable::tag;
-        }
-        const plug_ptr_type & pp = i->second;
-        out_ << "Plug '" << i->first << "' : "  ;
-        out_ << "{category=" << plug_category_to_label(pp->get_category())
-             << '}';
-        out_ << std::endl;
-      }
+           << "Encoding driver   : " << _encoding_driver_ << std::endl;
+
+      out_ << indent_ << datatools::i_tree_dumpable::tag
+           << "Transport driver  : " << _transport_driver_ << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Validity          : " << std::boolalpha << is_valid() << std::endl;

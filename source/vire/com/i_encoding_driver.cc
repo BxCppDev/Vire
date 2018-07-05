@@ -40,8 +40,8 @@ namespace vire {
 
     i_encoding_driver::~i_encoding_driver()
     {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "Encoding driver was not properly reset!");
+      // DT_THROW_IF(is_initialized(), std::logic_error,
+      //             "Encoding driver was not properly reset!");
       return;
     }
 
@@ -92,15 +92,15 @@ namespace vire {
     }
 
     int i_encoding_driver::encode(const vire::message::message & msg_,
-                                  raw_message_type & raw_msg_)
+                                  raw_message_type & raw_msg_) const
     {
-      int error_code = 0;
+      int error_code = 0;      
       error_code = _encode_impl_(msg_, raw_msg_);
       return error_code;
     }
 
     int i_encoding_driver::decode(const raw_message_type & raw_msg_,
-                                  vire::message::message & msg_)
+                                  vire::message::message & msg_) const
     {
       int error_code = 0;
       msg_.reset();

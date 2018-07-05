@@ -66,35 +66,35 @@ void test_com_domain_1(bool interactive_)
 
   // Domain #0:
   std::clog << "\ntest_com_domain_1: Domain #0" << std::endl;
-  vire::com::domain dom0;
-  dom0.set_name("/");
-  dom0.set_category(vire::com::domain::CATEGORY_GENERAL);
-  dom0.set_transport_type_id(transport_id);
-  dom0.set_encoding_type_id(encoding_id);
-  dom0.add_mailbox("X1",
-                   vire::com::mailbox::MODE_SERVICE,
-                   vire::com::mailbox::PRIVACY_PUBLIC,
-                   "vire.snemo.cms.main.service1",
-                   "p-------s");
-  dom0.add_mailbox("X2",
-                   vire::com::mailbox::MODE_SERVICE,
-                   vire::com::mailbox::PRIVACY_PUBLIC,
-                   "vire.snemo.cms.main.service2",
-                   "p-------s");
-  dom0.add_mailbox("Q3",
-                   vire::com::mailbox::MODE_EVENT,
-                   vire::com::mailbox::PRIVACY_PRIVATE,
-                   "vire.snemo.cms.main.alarm",
-                   "-k----p--");
-  dom0.tree_dump(std::clog, "Default communication domain: ");
-  std::clog << std::endl;
+  // vire::com::domain dom0;
+  // dom0.set_name("/");
+  // dom0.set_category(vire::com::domain::CATEGORY_GATE);
+  // dom0.set_transport_type_id(transport_id);
+  // dom0.set_encoding_type_id(encoding_id);
+  // dom0.add_mailbox("X1",
+  //                  vire::com::mailbox::MODE_SERVICE,
+  //                  vire::com::mailbox::PRIVACY_PUBLIC,
+  //                  "vire.snemo.cms.main.service1",
+  //                  "p-------s");
+  // dom0.add_mailbox("X2",
+  //                  vire::com::mailbox::MODE_SERVICE,
+  //                  vire::com::mailbox::PRIVACY_PUBLIC,
+  //                  "vire.snemo.cms.main.service2",
+  //                  "p-------s");
+  // dom0.add_mailbox("Q3",
+  //                  vire::com::mailbox::MODE_EVENT,
+  //                  vire::com::mailbox::PRIVACY_PRIVATE,
+  //                  "vire.snemo.cms.main.alarm",
+  //                  "-k----p--");
+  // dom0.tree_dump(std::clog, "Default communication domain: ");
+  // std::clog << std::endl;
 
   // Domain #1:
   std::clog << "\ntest_com_domain_1: Domain #1" << std::endl;
   vire::com::domain dom1;
   std::string subcontractor_name = "cmslapp";
   dom1.set_name("/" + setup_name + "/cms/vire/subcontractors/system/" + subcontractor_name);
-  dom1.set_category(vire::com::domain::CATEGORY_SYSTEM);
+  dom1.set_category(vire::com::domain::CATEGORY_SUBCONTRACTOR_SYSTEM);
   dom1.add_mailbox("RequestToServer",
                    vire::com::mailbox::MODE_SERVICE,
                    vire::com::mailbox::PRIVACY_PUBLIC,
@@ -114,7 +114,7 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #2" << std::endl;
   vire::com::domain dom2;
   dom2.set_name("/" + setup_name + "/cms/vire/clients/system/" + "clientFoo");
-  dom2.set_category(vire::com::domain::CATEGORY_SYSTEM);
+  dom2.set_category(vire::com::domain::CATEGORY_CLIENT_SYSTEM);
   dom2.set_transport_type_id(transport_id);
   dom2.set_encoding_type_id(encoding_id);
   dom2.tree_dump(std::clog, "Server to clients system communication domain: ");
@@ -144,7 +144,7 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #5" << std::endl;
   vire::com::domain dom5;
   dom5.set_name("/" + setup_name + "/cms/vire/clients/gate");
-  dom5.set_category(vire::com::domain::CATEGORY_CONTROL);
+  dom5.set_category(vire::com::domain::CATEGORY_GATE);
   dom5.set_transport_type_id(transport_id);
   dom5.set_encoding_type_id(encoding_id);
   dom5.tree_dump(std::clog, "Clients gate communication domain: ");

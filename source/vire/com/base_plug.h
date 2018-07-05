@@ -1,7 +1,7 @@
 //! \file  vire/com/base_plug.h
 //! \brief Vire com base plug
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -22,77 +22,66 @@
 #define VIRE_COM_BASE_PLUG_H
 
 // Standard library:
-#include <cstdint>
+#include <string>
+#include <memory>
 
 // Third party:
 // - Bayeux/datatools:
 #include <bayeux/datatools/i_tree_dump.h>
+#include <bayeux/datatools/logger.h>
 #include <bayeux/datatools/properties.h>
 
 // This project:
-// #include <vire/utility/model_identifier.h>
+#include <vire/com/utils.h>
+#include <vire/com/i_encoding_driver.h>
+// #include <vire/com/i_transport_driver.h>
 
 namespace vire {
 
   namespace com {
 
-    enum plug_category_type {
-      PLUG_INVALID        = 0,
-      PLUG_EVENT_EMITTER  = 1,
-      PLUG_EVENT_LISTENER = 2,
-      PLUG_SERVICE_CLIENT = 3,
-      PLUG_SERVICE_SERVER = 4
-    };
-
-    std::string plug_category_to_label(const plug_category_type);
-
+    class actor;
     class domain;
-
+    class plug_factory;
+   
     //! \brief Base communication plug
     class base_plug
       : public datatools::i_tree_dumpable
     {
-    public:
-
-      //! Default constructor
-      base_plug();
+    protected:
 
       //! Constructor
-      base_plug(domain & dom_,
-                const std::string & name_,
-                const plug_category_type category_);
+      base_plug(const std::string & name_,
+                const actor & parent_,
+                const domain & domain_,
+                const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
 
+    public:
+
+      datatools::logger::priority get_logging() const;
+      
+      void set_logging(const datatools::logger::priority);
+       
       //! Destructor
       virtual ~base_plug();
 
-      bool is_valid() const;
-
-      //! Check domain
-      bool has_domain() const;
-
-      //! Set domain
-      void set_domain(domain &);
-
-      //! Return the domain
-      const domain & get_domain() const;
-
-      //! Check name
-      bool has_name() const;
-
-      //! Set name
-      void set_name(const std::string & name_);
-
-      //! Return name
+      //! Return the name
       const std::string & get_name() const;
 
-      //! Check category
-      bool has_category() const;
+      //! Return the parent actor
+      const actor & get_parent() const;
 
-      //! Set category
-      void set_category(const plug_category_type & category_);
+      const domain & get_domain() const;
+      
+      const datatools::properties & get_metadata() const;
+
+      datatools::properties & grab_metadata();
 
       //! Return category
-      plug_category_type get_category() const;
+      virtual plug_category_type get_category() const = 0;
+     
+      //! Return the next message unique ID
+      int get_next_message_id() const;
 
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
@@ -100,25 +89,22 @@ namespace vire {
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      bool is_initialized() const;
-
     protected:
-
-      void _set_initialized(bool);
-
-      void _base_init();
-
-      void _base_reset();
+      
+      //! Pop the next message unique ID
+      int _pop_next_message_id();
 
     private:
 
-      // Management:
-      bool _initialized_ = false; //!< Initialization flag
-
       // Configuration:
-      domain *           _dom_ = nullptr;
-      std::string        _name_;    //!< Identifier
-      plug_category_type _category_ = PLUG_INVALID; //!< Plug category
+      std::string    _name_;   //!< Plug name (unique key for the parent actor)
+      const actor &  _parent_; //!< parent actor
+      const domain & _domain_; //!< Domain scope
+      datatools::logger::priority _logging_;
+      datatools::properties _metadata_;
+      int32_t               _next_message_id_ = 0;
+
+      friend plug_factory;
 
     };
 

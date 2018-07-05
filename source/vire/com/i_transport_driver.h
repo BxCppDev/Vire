@@ -22,7 +22,7 @@
 #define VIRE_COM_I_TRANSPORT_DRIVER_H
 
 // Standard library:
-// #include <vector>
+#include <memory>
 
 // Third party:
 // - Bayeux/datatools:
@@ -123,6 +123,8 @@ namespace vire {
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(i_transport_driver)
 
     };
+
+    typedef std::shared_ptr<i_transport_driver> transport_driver_ptr; 
 
   } // namespace com
 
