@@ -95,7 +95,9 @@ namespace vire {
 
     };
 
-    typedef std::shared_ptr<base_payload> payload_ptr_type;
+    typedef std::shared_ptr<base_payload>       payload_ptr_type
+    ;
+    typedef std::shared_ptr<const base_payload> const_payload_ptr_type;
 
   } // namespace utility
 

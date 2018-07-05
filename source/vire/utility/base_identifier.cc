@@ -62,6 +62,23 @@ namespace vire {
       return;
     }
 
+    bool base_identifier::operator<(const base_identifier & other_) const
+    {
+      if (_name_ < other_._name_) {
+        return true;
+      } else if (_name_ == other_._name_) {
+        if (!has_version() && other_.has_version()) {
+          return true;
+        } else if (has_version() && other_.has_version()) {
+          if (datatools::version_id::compare(this->get_version(),
+                                             other_.get_version()) < 0) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
     bool base_identifier::is_valid() const
     {
       if (_name_.empty()) return false;

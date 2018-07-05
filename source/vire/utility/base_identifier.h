@@ -109,6 +109,8 @@ namespace vire {
       virtual void protobufize(protobuftools::message_node & node_,
                                const unsigned long int version_ = 0);
 
+      bool operator<(const base_identifier & other_) const;
+      
     protected:
 
       std::string & _grab_name();
