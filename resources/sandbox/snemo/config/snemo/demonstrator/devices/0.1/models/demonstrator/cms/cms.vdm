@@ -36,7 +36,7 @@ aux.model        : string = "urn:snemo:demonstrator:cms"
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[1] = "Coil" # "Calorimeter" "Tracker"
+embedded_devices.labels : string[2] = "Coil" "Calorimeter" "Tracker"
 
 #@description The device model associated to the Coil
 embedded_devices.model.Coil        : string = "sndemo.cms.coil"

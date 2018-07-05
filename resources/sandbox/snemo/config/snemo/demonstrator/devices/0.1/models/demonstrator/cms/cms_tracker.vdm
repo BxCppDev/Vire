@@ -6,6 +6,18 @@
 #@meta_label "type"
 
 
+#####################################################################################
+[name="sndemo.cms.tracker.gas_factory@device" type="vire::device::base_device_model"]
+
+#@config Parameters describing the SuperNEMO demonstrator CMS tracker gas factory
+
+#@parameter Logging priority threshold
+logging.priority : string = "fatal"
+
+#@description Type of device
+type      : string  = "generic"
+
+
 ############################################################################
 [name="sndemo.cms.tracker.hv@device" type="vire::device::base_device_model"]
 
@@ -25,7 +37,7 @@ virtual : boolean  = true
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[3] = "PS_0" "PS_1" "PS_2"
+embedded_devices.labels : string[3] = "PS_0" "PS_1" "PS_2" 
 
 #@description The device model associated to the PS_0
 embedded_devices.model.PS_0 : string = "sndemo.mos.Tracker.HV.TRACKER_HVPS_1.HVPS"
@@ -56,10 +68,13 @@ virtual : boolean  = true
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[1] = "HV"
+embedded_devices.labels : string[1] = "HV" "GasFactory"
 
 #@description The device model associated to the HV
 embedded_devices.model.HV : string = "sndemo.cms.tracker.hv"
+
+#@description The device model associated to the GasFactory
+embedded_devices.model.GasFactory : string = "sndemo.cms.tracker.gas_factory"
 
 
 # end of cms_tracker.vdm

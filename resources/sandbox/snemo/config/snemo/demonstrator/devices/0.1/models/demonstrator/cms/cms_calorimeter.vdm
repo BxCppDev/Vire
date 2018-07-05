@@ -53,13 +53,13 @@ virtual : boolean  = true
 ####################
 
 #@description The list of embedded devices
-embedded_devices.labels : string[2] = "HV" "LIS"
+embedded_devices.labels : string[2] = "HV" "LightInjectionSystem"
 
 #@description The device model associated to the HV
 embedded_devices.model.HV : string = "sndemo.cms.calorimeter.hv"
 
 #@description The device model associated to the HV
-embedded_devices.model.LIS : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight"
+embedded_devices.model.LightInjectionSystem : string = "sndemo.mos.Calorimeter.LIGHT_INJECTION_1.CalibrationLight"
 
 
 # end of cms_calorimeter.vdm
