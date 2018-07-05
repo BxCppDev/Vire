@@ -120,6 +120,9 @@ include(ui/Lists.cmake)
 # Logging service:
 include(logging/Lists.cmake)
 
+# Running utilities:
+include(running/Lists.cmake)
+
 # User/group service
 include(user/Lists.cmake)
 
@@ -141,11 +144,20 @@ include(cms/Lists.cmake)
 # Communication service
 include(com/Lists.cmake)
 
+# Automaton:
+include(automaton/Lists.cmake)
+
+# Simulation:
+include(simulation/Lists.cmake)
+
 # CMS server kernel and utilities:
 include(cmsserver/Lists.cmake)
 
 # CMS client kernel and utilities:
 include(cmsclient/Lists.cmake)
+
+# # CMS subcontractor:
+# include(cmssubcontractor/Lists.cmake)
 
 list(APPEND VireLibrary_HEADERS
   )
