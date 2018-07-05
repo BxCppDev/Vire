@@ -26,6 +26,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <memory>
 
 // Third party:
 // - Bayeux/datatools:
@@ -71,7 +72,7 @@ void test_message_body_1()
 
   {
     // Create an error object payload:
-    vire::utility::base_error my_error(3, "A basic error");
+    auto my_error = std::make_shared<vire::utility::base_error>(3, "A basic error");
 
     // Create a message body with embeded error event payload:
     vire::message::message_body msgbody;
@@ -79,9 +80,8 @@ void test_message_body_1()
     msgbody.tree_dump(std::clog, "Created message body: ");
     std::clog << std::endl;
 
-    const vire::utility::base_error & be_cref =
-      msgbody.get_payload_as<vire::utility::base_error>();
-    be_cref.tree_dump(std::clog, "The base error: ");
+    auto be_cref = msgbody.get_payload_as<vire::utility::base_error>();
+    be_cref->tree_dump(std::clog, "The base error: ");
 
     {
       std::clog << "test_message_body_1: Boost-serializing the message body..." << std::endl;

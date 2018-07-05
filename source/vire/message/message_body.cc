@@ -48,25 +48,10 @@ namespace vire {
       return;
     }
 
-    message_body::message_body(const message_body & mb_)
-    {
-      _payload_ = nullptr;
-      _copy_(mb_);
-      return;
-    }
-
     message_body::~message_body()
     {
       reset();
       return;
-    }
-
-    message_body & message_body::operator=(const message_body & mb_)
-    {
-      if (&mb_ != this) {
-        _copy_(mb_);
-      }
-      return *this;
     }
 
     bool message_body::is_valid() const
@@ -100,59 +85,36 @@ namespace vire {
 
     bool message_body::has_payload() const
     {
-       return _payload_ != nullptr;
+      return _payload_.get() != nullptr;
     }
 
-    void message_body::set_payload(const vire::utility::base_payload & payload_)
+    void message_body::set_payload(const vire::utility::const_payload_ptr_type & payload_ptr_)
     {
-      vire::utility::base_payload * pl = dynamic_cast<vire::utility::base_payload *>(payload_.clone());
-      _payload_ = const_cast<const vire::utility::base_payload *>(pl);
-      if (!_payload_type_id_.is_valid()) {
-        vire::utility::model_identifier id;
-        id.set_name(_payload_->get_serial_tag());
-        set_payload_type_id(id);
-      }
-      return;
-    }
-
-    void message_body::set_payload(const vire::utility::base_payload * payload_)
-    {
-      if (!payload_) {
-        remove_payload();
-        return;
-      }
-      _payload_ = payload_;
-      if (_payload_ != nullptr) {
+      _payload_ = payload_ptr_;
+      if (has_payload()) {
         if (!_payload_type_id_.is_valid()) {
           vire::utility::model_identifier id;
           id.set_name(_payload_->get_serial_tag());
+          datatools::version_id vid("1");
+          // vid.set_major(1);
+          id.set_version(vid);
           set_payload_type_id(id);
         }
-      }
+      } 
       return;
     }
 
     void message_body::remove_payload()
     {
-      if (_payload_ != nullptr) {
-        delete _payload_;
-        _payload_ = nullptr;
+      if (has_payload()) {
+        _payload_.reset();
         _payload_type_id_.reset();
       }
       return;
     }
 
-    const vire::utility::base_payload & message_body::get_payload_ref() const
+    const vire::utility::const_payload_ptr_type & message_body::get_payload() const
     {
-      DT_THROW_IF(!has_payload(), std::logic_error, "Missing payload object!");
-      return *_payload_;
-    }
-
-    const vire::utility::base_payload * message_body::get_payload() const
-    {
-      if (!has_payload()) {
-        return nullptr;
-      }
       return _payload_;
     }
 
@@ -175,7 +137,7 @@ namespace vire {
       out_ << indent_ << ::datatools::i_tree_dumpable::tag
            << "Payload : ";
       if (has_payload()) {
-        out_ << "[@" << _payload_ << "]";
+        out_ << "[@" << _payload_.get() << "]";
         out_ << " (as '" << typeid(*_payload_).name() << "')";
       } else {
         out_ << "<none>";
@@ -192,19 +154,7 @@ namespace vire {
 
       return;
     }
-
-    void message_body::_copy_(const message_body & source_)
-    {
-      this->remove_payload();
-      if (source_._payload_ != nullptr) {
-        if (has_payload_type_id()) {
-          _payload_type_id_ = source_._payload_type_id_;
-        }
-        this->set_payload(dynamic_cast<vire::utility::base_payload*>(source_._payload_->clone()));
-      }
-      return;
-    }
-
+    
     void message_body::protobufize(protobuftools::message_node & node_,
                                    const unsigned long int /* version_ */)
     {
@@ -216,7 +166,7 @@ namespace vire {
           node_[payload_type_id_field_name] % _payload_type_id_;
           if (has_payload()) {
             vire::utility::base_payload * mutable_payload
-              = const_cast<vire::utility::base_payload *>(_payload_);
+              = const_cast<vire::utility::base_payload *>(_payload_.get());
             const google::protobuf::FieldDescriptor * payload_field_desc
               = node_.get_message().GetDescriptor()->FindFieldByName(payload_field_name);
             std::string payload_type_id = get_payload_type_id().get_name();
@@ -277,8 +227,9 @@ namespace vire {
                         "Unknown payload type identifier '" << payload_type_id << "'!");
             const vire::utility::base_payload::factory_register_type::factory_type & the_factory
               = the_factory_register.get(payload_type_id);
-            vire::utility::base_payload * payload_ptr = the_factory();
-            DT_THROW_IF(payload_ptr == nullptr, std::logic_error,
+            vire::utility::payload_ptr_type payload_ptr(the_factory());
+            // vire::utility::base_payload * payload_ptr = the_factory();
+            DT_THROW_IF(payload_ptr.get() == nullptr, std::logic_error,
                         "Cannot instantiate a payload object of type '" << payload_type_id << "'!");
             payload_ptr->protobufize(payload_item_node);
             set_payload(payload_ptr);
@@ -309,9 +260,8 @@ namespace jsontools {
         Json::Value & payloadValue = node_.grab_value()["payload"];
         node_value newNode(payloadValue, node_.is_serializing(), false);
         vire::utility::base_payload * bp
-          = const_cast<vire::utility::base_payload *>(mb_.get_payload());
+          = const_cast<vire::utility::base_payload *>(mb_.get_payload().get());
         bp->jsonize(newNode);
-        // newNode % const_cast<vire::utility::base_payload &>(*mb_.get_payload());
       }
     }
 
@@ -346,9 +296,9 @@ namespace jsontools {
                   "Unknown payload type identifier '" << payload_type_id_name << "'!");
       const vire::utility::base_payload::factory_register_type::factory_type & the_factory
                 = the_factory_register.get(payload_type_id_name);
-      vire::utility::base_payload * bp = the_factory();
-      bp->jsonize(newNode);
-      mb_.set_payload(bp);
+      vire::utility::payload_ptr_type payload_ptr(the_factory());
+      payload_ptr->jsonize(newNode);
+      mb_.set_payload(payload_ptr);
     }
 
     return;

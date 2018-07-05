@@ -26,6 +26,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <memory>
 
 // Third party:
 // - Bayeux/datatools:
@@ -71,8 +72,8 @@ void test_message_1()
 
   {
     // Create an error event payload:
-    vire::utility::base_error my_error(3, "A basic error");
-    my_error.tree_dump(std::clog, "Error event: ");
+    auto my_error = std::make_shared<vire::utility::base_error>(3, "A basic error");
+    my_error->tree_dump(std::clog, "Error event: ");
     std::clog << std::endl;
 
     // Create a message:

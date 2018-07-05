@@ -21,6 +21,9 @@
 #ifndef VIRE_MESSAGE_MESSAGE_BODY_H
 #define VIRE_MESSAGE_MESSAGE_BODY_H
 
+// Standard library:
+#include <memory>
+
 // Third party:
 // - Boost:
 #include <boost/utility.hpp>
@@ -58,14 +61,8 @@ namespace vire {
       //! Default constructor
       message_body();
 
-      //! Copy constructor
-      message_body(const message_body & msg_body_);
-
       //! Destructor
       virtual ~message_body();
-
-      //! Assignment operator
-      message_body & operator=(const message_body & msg_body_);
 
       // Check validity
       bool is_valid() const;
@@ -76,19 +73,12 @@ namespace vire {
       //! Check if payload object handle is set
       bool has_payload() const;
 
-      //! Set the payload object handle
-      //! This method automatically computes the payload type ID if not set
-      void set_payload(const vire::utility::base_payload *);
-
       //! Set the payload object by copy
       //! This method automatically computes the payload type ID if not set
-      void set_payload(const vire::utility::base_payload &);
+      void set_payload(const vire::utility::const_payload_ptr_type &);
 
-      //! Return the payload object handle
-      const vire::utility::base_payload & get_payload_ref() const;
-
-      //! Return the payload object shared pointer
-      const vire::utility::base_payload * get_payload() const;
+      //! Return the payload object pointer
+      const vire::utility::const_payload_ptr_type & get_payload() const;
 
       //! Remove the payload object
       void remove_payload();
@@ -112,9 +102,9 @@ namespace vire {
       template<class T>
       bool payload_is_a() const;
 
-      /// Return a reference to a non mutable payload of given type
+      /// Return a shared pointer on a non mutable payload of given type
       template<class T>
-      const T & get_payload_as() const;
+      std::shared_ptr<const T> get_payload_as() const;
 
       /// Main Protobuf (de-)serialization method
       virtual void protobufize(protobuftools::message_node & node_,
@@ -122,13 +112,8 @@ namespace vire {
 
     private:
 
-      /// Private copy using the cloneable interface of the payload objects
-      void _copy_(const message_body & msg_body_);
-
-    private:
-
-      vire::utility::model_identifier     _payload_type_id_;   //!< Payload type identifier
-      const vire::utility::base_payload * _payload_ = nullptr; //!< Handle to the payload object
+      vire::utility::model_identifier       _payload_type_id_; //!< Payload type identifier
+      vire::utility::const_payload_ptr_type _payload_;         //!< Handle to the payload object
 
       //! Support for Boost-based serialization
       DATATOOLS_SERIALIZATION_DECLARATION_ADVANCED(message_body)

@@ -31,26 +31,26 @@ namespace vire {
     template<class T>
     bool message_body::payload_is_a() const
     {
-      const std::type_info& ti = typeid(T);
-      const vire::utility::base_payload & cur = *_payload_;
-      const std::type_info& tf = typeid(cur);
+      const std::type_info & ti = typeid(T);
+      const vire::utility::base_payload & current_payload = *_payload_;
+      const std::type_info & tf = typeid(current_payload);
       return (ti == tf);
     }
 
-    // Return a reference to a non mutable payload of given type
+    // Return a shared pointer to a non mutable payload of given type
     template<class T>
-    const T & message_body::get_payload_as() const
+    std::shared_ptr<const T> message_body::get_payload_as() const
     {
       const std::type_info & ti = typeid(T);
-      const vire::utility::base_payload & cur = *_payload_;
-      const std::type_info & tf = typeid(cur);
+      const vire::utility::base_payload & current_payload = *_payload_;
+      const std::type_info & tf = typeid(current_payload);
       static const T tmp;
       DT_THROW_IF(ti != tf, std::logic_error,
                   "Request type '" << ti.name() << "' ('" << tmp.get_serial_tag()
                   << "') does not match the type '"
                   << tf.name() << "' of the stored payload object ('"
                   << _payload_->get_serial_tag() << "') !");
-      return *(dynamic_cast<const T*>(_payload_));
+      return std::dynamic_pointer_cast<const T>(_payload_);
     }
 
   } // namespace message
