@@ -229,6 +229,22 @@ namespace vire {
       return vire::utility::is_writable(_access_);
     }
 
+    bool resource::has_responsible() const
+    {
+      return !_responsible_.empty();
+    }
+    
+    const std::string & resource::get_responsible() const
+    {
+      return _responsible_;
+    }
+    
+    void resource::set_responsible(const std::string & responsible_id_)
+    {
+      _responsible_ = responsible_id_;
+      return;
+    }
+
     bool resource::has_resource_instance() const
     {
       return _resource_instance_.get() != 0;
@@ -799,6 +815,15 @@ namespace vire {
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Allowed non blocking : " << _allowed_non_blocking_ << std::endl;
+
+      out_ << indent_ << i_tree_dumpable::tag
+           << "Responsible : ";
+      if (has_responsible()) {
+        out_ << "'" << _responsible_ << "'";
+      } else {
+        out_ << "<unknown>";
+      }
+      out_ << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Resource instance : ";

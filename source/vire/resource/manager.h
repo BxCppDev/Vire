@@ -213,9 +213,21 @@ namespace vire {
       void build_set_of_resource_ids_from_path_regexp(const std::string & path_regexp_,
                                                       std::set<int32_t> & resource_ids_) const;
 
+      //! Build a set of resource identifiers (RID) from a regexp applied to paths
+      //!
+      //! Path regular expressions use the POSIX Extended Regular Expression Syntax
+      //! from the Boost/Regex library.
+      void build_set_of_resource_ids_from_path_regexp_within_device(const std::string & device_path_,
+                                                                  const std::string & path_regexp_,
+                                                                  std::set<int32_t> & resource_ids_) const;
+
       //! Build a set of resource identifiers (RID) from a list of resource paths
       void build_set_of_resource_ids_from_paths(const std::vector<std::string> & rpath_,
                                                 std::set<int32_t> & resource_ids_) const;
+
+      //! Build a set of resource identifiers (RID) from a responsible
+      void build_set_of_resource_ids_from_responsible(const std::string & responsible_,
+                                                      std::set<int32_t> & resource_ids_) const;
 
       //! Check the existence of a role given its path
       bool has_role_by_path(const std::string & path_) const;

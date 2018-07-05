@@ -176,6 +176,15 @@ namespace vire {
       //! Check if the resource is writable
       bool is_writable() const;
 
+      //! Check if the ID of the responible is set
+      bool has_responsible() const;
+
+      //! Return the ID of the responible of the resource
+      const std::string & get_responsible() const;
+
+      //! Set the ID of the responible of the resource
+      void set_responsible(const std::string &);
+      
       //! Check if resource instance is set
       bool has_resource_instance() const;
 
@@ -317,6 +326,7 @@ namespace vire {
       uint32_t          _max_number_of_tokens_; //!< Maximum number of tokens
       bool              _allowed_subscription_; //!< Allow subscription
       bool              _allowed_non_blocking_; //!< Allow non blocking execution
+      std::string       _responsible_;          //!< Identifier of the responsible of the resource
       std::shared_ptr<base_resource_instance> _resource_instance_; //!< Handle to the instance of the resource
       // Dependency scheme:
       //

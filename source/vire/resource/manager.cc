@@ -49,6 +49,7 @@
 #include <vire/resource/devices_to_resources_builder.h>
 #include <vire/user/user.h>
 #include <vire/user/group.h>
+#include <vire/utility/path.h>
 
 namespace vire {
 
@@ -962,6 +963,47 @@ namespace vire {
       return;
     }
 
+    void manager::build_set_of_resource_ids_from_responsible(const std::string & responsible_,
+                                                             std::set<int32_t> & resource_ids_) const
+    {
+       for (resource_set_by_id::const_iterator i
+             = _data_->resources.get<resource_tag_id>().begin();
+           i != _data_->resources.get<resource_tag_id>().end();
+           i++) {
+         if (i->has_responsible() && i->get_responsible() == responsible_) {
+           resource_ids_.insert(i->get_id());
+         }
+       }
+      return;
+    }
+
+    void manager::build_set_of_resource_ids_from_path_regexp_within_device(const std::string & device_path_,
+                                                                           const std::string & path_regexp_,
+                                                                           std::set<int32_t> & resource_ids_) const
+    {
+      vire::utility::path devPath;
+      DT_THROW_IF(!devPath.from_string(device_path_),
+                  std::logic_error,
+                  "Invalid device path '" << device_path_ << "'!");
+      boost::regex e(path_regexp_, boost::regex::extended);
+      for (resource_set_by_id::const_iterator i
+             = _data_->resources.get<resource_tag_id>().begin();
+           i != _data_->resources.get<resource_tag_id>().end();
+           i++) {
+        const std::string & rpath = i->get_path();
+        vire::utility::path resPath;
+        resPath.from_string(rpath);
+        if (devPath.is_parent_of(resPath)) {
+          vire::utility::relative_path relResPath = resPath - devPath;
+          std::string resRelPathStr = relResPath.to_string();
+          if (boost::regex_match(resRelPathStr, e)) {
+            resource_ids_.insert(i->get_id());
+          }
+        }
+      }
+      return;
+    }
+    
     void manager::build_set_of_resource_ids_from_paths(const std::vector<std::string> & rpaths_,
                                                        std::set<int32_t> & resource_ids_) const
     {
@@ -1069,6 +1111,9 @@ namespace vire {
           }
           out_ << ") : ";
           out_ << "Path='" << r.get_path() << "'";
+          if (r.has_responsible()) {
+            out_ << " (resp='" << r.get_responsible() << "')";
+          }
           out_ << std::endl;
         }
       }
