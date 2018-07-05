@@ -29,15 +29,19 @@
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/ConnectionRequest.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::connection_request",
-                               vire::cms::ConnectionRequest)
+// BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::connection_request",
+//                                vire::cms::ConnectionRequest)
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cmslapp::connection_request",
+                               vire::cmslapp::ConnectionRequest)
 
 namespace vire {
 
   namespace cms {
 
+    // VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_request,
+    //                                     "vire::cms::connection_request")
     VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_request,
-                                        "vire::cms::connection_request")
+                                        "vire::cmslapp::connection_request")
 
     connection_request::connection_request()
     {

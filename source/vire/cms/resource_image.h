@@ -60,37 +60,6 @@ namespace vire {
       //! Return the resource description
       const vire::resource::resource & get_resource() const;
 
-      /*
-      bool has_value(std::size_t index_ = 0) const;
-
-      //! Reset the value
-      void reset_value(std::size_t index_ = 0);
-
-      //! Reset the values
-      void reset_values();
-
-      //! Return the size of the value
-      std::size_t get_values_size() const;
-
-      //! Return the number of the set value
-      std::size_t get_number_of_set_values() const;
-
-      //! Return the boolean value
-      bool get_boolean_value(std::size_t index_ = 0) const;
-
-      //! Set the boolean value
-      void set_boolean_value(const bool value_, std::size_t index_ = 0);
-
-      //! Return the integer value
-      int32_t get_integer_value(std::size_t index_ = 0) const;
-
-      //! Return the real value
-      double get_real_value(std::size_t index_ = 0) const;
-
-      //! Return the string value
-      const std::string & get_string_value(std::size_t index_ = 0) const;
-      */
-
       //! Smart print
       void print_tree(std::ostream & out_ = std::clog,
                       const boost::property_tree::ptree & options_

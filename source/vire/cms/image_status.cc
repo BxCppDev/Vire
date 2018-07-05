@@ -312,31 +312,31 @@ namespace vire {
     // friend
     std::ostream & operator<<(std::ostream & out_, const image_status & status_)
     {
-      if (status_.has_missing()) {
+      if (!status_.has_missing()) {
         out_ << '?';
       } else {
         if (status_.is_missing()) out_ << 'm';
         else out_ << '-';
       }
-      if (status_.has_disabled()) {
+      if (!status_.has_disabled()) {
         out_ << '?';
       } else {
         if (status_.is_disabled()) out_ << 'd';
         else out_ << '-';
       }
-      if (status_.has_pending()) {
+      if (!status_.has_pending()) {
         out_ << '?';
       } else {
         if (status_.is_pending()) out_ << 'p';
         else out_ << '-';
       }
-      if (status_.has_failed()) {
+      if (!status_.has_failed()) {
         out_ << '?';
       } else {
         if (status_.is_failed()) out_ << 'f';
         else out_ << '-';
       }
-      out_ << ' ';
+      out_ << '@';
       if (status_.has_timestamp()) {
         out_ << vire::time::to_string(status_._timestamp_);
       } else {

@@ -123,7 +123,7 @@ BOOST_CLASS_EXPORT_KEY2(vire::cms::connection_success,"vire::cms::connection_suc
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
 BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::connection_success,
-                                                  "vire::cms::connection_success")
+                                                  "vire::cmslapp::connection_success")
 
 #endif // VIRE_CMS_CONNECTION_SUCCESS_H
 

@@ -32,15 +32,15 @@
 // This project:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/ConnectionFailure.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::connection_failure",
-                               vire::cms::ConnectionFailure)
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cmslapp::connection_failure",
+                               vire::cmslapp::ConnectionFailure)
 
 namespace vire {
 
   namespace cms {
 
     VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_failure,
-                                        "vire::cms::connection_failure")
+                                        "vire::cmslapp::connection_failure")
 
     connection_failure::connection_failure()
     {

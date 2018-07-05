@@ -66,6 +66,10 @@ namespace vire {
 
         void set_no_labels(const bool);
 
+        bool has_no_value() const;
+
+        void set_no_value(const bool);
+
         bool has_no_status() const;
 
         void set_no_status(const bool);
@@ -91,6 +95,7 @@ namespace vire {
         // Configure:
         bool _no_labels_ = false;
         bool _no_id_     = false;
+        bool _no_value_  = false;
         bool _no_status_ = false;
         const base_image *                _image_   = nullptr;
         const base_image_signal_emitter * _image_emitter_ = nullptr;

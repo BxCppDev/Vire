@@ -269,6 +269,27 @@ namespace vire {
       return;
     }
 
+    // friend
+    std::ostream & operator<<(std::ostream & out_,
+                              const monitoring_record & record_)
+    {
+      out_ << "[status=" << record_._status_;
+      if (record_._allowed_value_) {
+        out_ << ";value=";
+        if (!record_.has_value()) {
+          out_ << "<none>";
+        } else {
+          int idx = record_._value_->which();
+          if (idx == 0) out_ << std::boolalpha;
+          if (idx == 3) out_ << '"';
+          out_ << *record_._value_;
+          if (idx == 3) out_ << '"';
+        }
+      }
+      out_ << ']';  
+      return out_;
+    }
+
     void monitoring_record::print_tree(std::ostream & out_,
                                        const boost::property_tree::ptree & options_) const
     {

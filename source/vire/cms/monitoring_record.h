@@ -22,6 +22,7 @@
 #define VIRE_CMS_MONITORING_RECORD_H
 
 // Standard Library:
+#include <iostream>
 #include <memory>
 
 // Third Party:
@@ -129,6 +130,8 @@ namespace vire {
       const monitoring_record_signal_emitter & get_emitter() const; 
       
       monitoring_record_signal_emitter & grab_emitter();
+
+      friend std::ostream & operator<<(std::ostream & out_, const monitoring_record & record_);
       
     private:
       

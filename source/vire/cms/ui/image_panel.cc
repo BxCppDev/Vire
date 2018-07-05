@@ -64,6 +64,28 @@ namespace vire {
         return;
       }
  
+      bool image_panel::has_no_labels() const
+      {
+        return _no_labels_;
+      }
+
+      void image_panel::set_no_labels(const bool no_labels_)
+      {
+        _no_labels_ = no_labels_;
+        return;
+      }
+
+      bool image_panel::has_no_value() const
+      {
+        return _no_value_;
+      }
+
+      void image_panel::set_no_value(const bool no_value_)
+      {
+        _no_value_ = no_value_;
+        return;
+      }
+
       bool image_panel::has_no_status() const
       {
         return _no_status_;
@@ -75,24 +97,42 @@ namespace vire {
         return;
       }
 
+      bool image_panel::has_no_id() const
+      {
+        return _no_id_;
+      }
+
+      void image_panel::set_no_id(const bool no_id_)
+      {
+        _no_id_ = no_id_;
+        return;
+      }
+
       void image_panel::slot_update()
       {
-        slot_update_value();
+        if (!_no_value_) {
+          slot_update_value();
+        }
         return;
       }
 
       void image_panel::slot_update_real_value()
       {
-        double value = _image_->get_monitoring().get_real_value();
-        double unit_value = 1.0;
-        if (_unit_dimension_ != nullptr && _value_unit_combo_ != nullptr) {
-          QString unitSymbol = _value_unit_combo_->currentText();
-          unit_value = datatools::units::get_unit(unitSymbol.toStdString());
+        double value = datatools::invalid_real();
+        if (_image_->get_monitoring().has_value()) {
+          value = _image_->get_monitoring().get_real_value();
+          double unit_value = 1.0;
+          if (_unit_dimension_ != nullptr && _value_unit_combo_ != nullptr) {
+            QString unitSymbol = _value_unit_combo_->currentText();
+            unit_value = datatools::units::get_unit(unitSymbol.toStdString());
+          }
+          double value_repr = value / unit_value;
+          std::ostringstream value_repr_ss;
+          value_repr_ss << value_repr;
+          _value_label_->setText(value_repr_ss.str().c_str());
+        } else {
+          _value_label_->setText("<none>");
         }
-        double value_repr = value / unit_value;
-        std::ostringstream value_repr_ss;
-        value_repr_ss << value_repr;
-        _value_label_->setText(value_repr_ss.str().c_str());
         return;
       }
 
@@ -100,32 +140,33 @@ namespace vire {
       {
         if (_value_label_ == nullptr) return;
 
-        if (datatools::introspection::is_boolean(_value_type_)) {
+        if (_image_->get_monitoring().has_value()) {
+          if (datatools::introspection::is_boolean(_value_type_)) {
           
-          bool value = _image_->get_monitoring().get_boolean_value();
-          std::ostringstream value_repr_ss;
-          value_repr_ss << std::boolalpha << value;
-          _value_label_->setText(value_repr_ss.str().c_str());
+            bool value = _image_->get_monitoring().get_boolean_value();
+            std::ostringstream value_repr_ss;
+            value_repr_ss << std::boolalpha << value;
+            _value_label_->setText(value_repr_ss.str().c_str());
           
-        } else if (datatools::introspection::is_integer(_value_type_)) {
+          } else if (datatools::introspection::is_integer(_value_type_)) {
           
-          int value = _image_->get_monitoring().get_integer_value();
-          std::ostringstream value_repr_ss;
-          value_repr_ss << std::dec << value;
-          _value_label_->setText(value_repr_ss.str().c_str());
+            int value = _image_->get_monitoring().get_integer_value();
+            std::ostringstream value_repr_ss;
+            value_repr_ss << std::dec << value;
+            _value_label_->setText(value_repr_ss.str().c_str());
           
-        } else if (datatools::introspection::is_string(_value_type_)) {
+          } else if (datatools::introspection::is_string(_value_type_)) {
           
-          std::string value = _image_->get_monitoring().get_string_value();
-          _value_label_->setText(value.c_str());
+            std::string value = _image_->get_monitoring().get_string_value();
+            _value_label_->setText(value.c_str());
           
-        } else if (datatools::introspection::is_real(_value_type_)) {
-          slot_update_real_value();
+          } else if (datatools::introspection::is_real(_value_type_)) {
+            slot_update_real_value();
 
-        } else {
-          _value_label_->setText("<unsupported type>");
+          } else {
+            _value_label_->setText("<unsupported type>");
+          }
         }
-        
         return;
       }
 
@@ -135,9 +176,12 @@ namespace vire {
         
         bool display_labels = !_no_labels_;
         bool display_id     = !_no_id_;
-        bool display_value  = false;
+        bool display_value  = false; 
         if (_image_->can_store_value()) {
           display_value = true;
+        }
+        if (_no_value_) {
+          display_value = false;
         }
         bool display_status = !_no_status_;
 

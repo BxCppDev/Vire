@@ -35,15 +35,15 @@
 // This project:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/ConnectionSuccess.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::connection_success",
-                               vire::cms::ConnectionSuccess)
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cmslapp::connection_success",
+                               vire::cmslapp::ConnectionSuccess)
 
 namespace vire {
 
   namespace cms {
 
     VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_success,
-                                        "vire::cms::connection_success")
+                                        "vire::cmslapp::connection_success")
 
     connection_success::connection_success()
     {
@@ -104,6 +104,19 @@ namespace vire {
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Resource snapshots : " << _resource_snapshots_.size() << std::endl;
+      {
+        std::size_t count = 0;
+        for (const auto & resRecord : _resource_snapshots_) {
+          out_ << indent_ << ::datatools::i_tree_dumpable::inherit_skip_tag(inherit_);
+          if (++count == _resource_snapshots_.size()) {
+            out_ << last_tag;
+          } else {
+            out_ << tag;
+          }
+          out_ << "Resource : '" << resRecord.get_path() << "' : " << resRecord.get_status_string();
+          out_ << std::endl;
+        }
+      }
 
       return;
     }
