@@ -26,8 +26,6 @@
 #include <string>
 
 // Third party:
-// - Vire:
-#include <vire/com/actor.h>
 // - Bayeux:
 #include <bayeux/datatools/properties.h>
 
@@ -35,17 +33,25 @@ namespace vire {
 
   namespace rabbitmq {
 
+    class manager_service;
+    
     ///! RabbitMQ user for the Vire system
     struct user
     {
+      enum user_category {
+        CATEGORY_INVALID       = 0,
+        CATEGORY_SERVER        = 1,
+        CATEGORY_SUBCONTRACTOR = 2,
+        CATEGORY_CLIENT        = 3,
+        CATEGORY_SYSTEM        = 4
+      };
     private:
-      std::string _login_;  //!< Login of the RabbitMQ Vire user
+      std::string   _login_;    //!< Login of the RabbitMQ Vire user
+      std::string   _password_; //!< Password
+      user_category _category_ = CATEGORY_INVALID; //!< User category
     public:
-      std::string password; //!< Password
-      vire::com::actor::category_type category = vire::com::actor::CATEGORY_INVALID;
-      std::string system_domain;   //!< Special name of the system domain
-      bool use_monitoring = true;  //!< Access to the monitoring domain (client)
-      bool use_control    = false; //!< Access to the control domain (client)
+      bool          use_monitoring = true;  //!< Access to the monitoring domain (client)
+      bool          use_control    = false; //!< Access to the control domain (client)
 
       /// Default constructor
       user();
@@ -53,27 +59,27 @@ namespace vire {
       /// Constructor
       user(const std::string & login_,
            const std::string & password_,
-           const vire::com::actor::category_type category_,
-           const std::string & system_domain_ = "");
+           const user_category category_);
 
       static bool validate_login(const std::string & login_);
       void set_login(const std::string & login_);
       const std::string & get_login() const;
+      bool has_password() const;
       void set_password(const std::string & password_);
-      const std::string & get_password() const;
-      void set_category(const vire::com::actor::category_type & category_);
-      const vire::com::actor::category_type & get_category() const;
-      bool is_valid() const;
+      bool match_password(const std::string & word_) const;
       bool is_server() const;
       bool is_client() const;
-      bool is_system() const;
       bool is_subcontractor() const;
-      std::string get_system_domain() const;
-
+      bool is_system() const;
+      void set_category(const user_category category_);
+      const user_category get_category() const;
+      bool is_complete() const;
       void initialize();
-      void initialize(const datatools::properties &);
+      void initialize(const datatools::properties & config_);
       void reset();
-
+      
+      friend manager_service;
+      
     };
 
   } // namespace rabbitmq

@@ -24,7 +24,6 @@ namespace vire {
 
   namespace rabbitmq {
 
-
     void permissions::add_exchange_service_client_perms (::rabbitmq::permissions & perms_,
                                                          const std::string & exchange_name_)
     {

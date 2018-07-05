@@ -1,8 +1,8 @@
 //! \file  vire/rabbitmq/manager_service.h
 //! \brief Vire CMS RabbitMQ manager service
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -125,12 +125,14 @@ namespace vire {
 
       void add_subcontractor_system_domain(const std::string & domain_name_);
 
-      // Management of permanent users:
+      // Management of permanent (static) users:
       void add_static_user(const user & user_);
       void add_server_user(const user & user_);
+      void add_system_user(const user & user_);
       void add_subcontractor_user(const user & user_);
       bool has_static_user(const std::string & login_) const;
       bool has_server_user() const;
+      void fetch_system_users(std::set<std::string> & logins_) const;
       void fetch_static_users(std::set<std::string> & logins_) const;
       bool fetch_server_user(std::string & login_) const;
       void fetch_subcontractor_users(std::set<std::string> & logins_) const;
@@ -149,6 +151,7 @@ namespace vire {
       void fetch_client_users(std::set<std::string> & logins_) const;
 
       // Management of dynamic real users:
+      /*
       bool has_real_user(const std::string & login_) const;
       void add_real_user(const std::string & login_, const std::string & password_);
       void remove_real_user(const std::string & login_);
@@ -157,6 +160,7 @@ namespace vire {
       void change_real_user_password(const std::string & login_,
                                      const std::string & password_);
       void sync_real_users();
+      */
 
     private:
 
@@ -174,9 +178,9 @@ namespace vire {
       void _force_destroy_vire_cms_();
 
       // Add/remove dynamic real users permissions for the gate domain
-      void _setup_vire_cms_domains_clients_gate_add_real_user(const std::string & name_);
-      void _setup_vire_cms_domains_clients_gate_remove_real_user(const std::string & name_);
-      void _destroy_vire_cms_real_users_();
+      // void _setup_vire_cms_domains_clients_gate_add_real_user(const std::string & name_);
+      // void _setup_vire_cms_domains_clients_gate_remove_real_user(const std::string & name_);
+      // void _destroy_vire_cms_real_users_();
 
     private:
 
@@ -191,15 +195,14 @@ namespace vire {
       std::string _admin_login_;       //!< Administrator login
       std::string _admin_password_;    //!< Administrator password
       std::string _com_service_name_;
-      std::string _gate_service_name_;
-      std::string _users_service_name_;
-      std::string _auth_service_name_;
+      // std::string _users_service_name_;
+      // std::string _auth_service_name_;
 
       std::set<std::string>       _static_domains_; //!< List of managed static domains/vhosts
-      std::map<std::string, user> _static_users_;   //!< List of static users (1 server + N subcontractors)
+      std::map<std::string, user> _static_users_;   //!< List of static users (1 server + N subcontractors + N' system (gate))
 
       // Working data:
-      std::map<std::string, user> _real_users_;    //!< List of real users for gate access (sync with external database/LDAP)
+      // std::map<std::string, user> _real_users_;    //!< List of real users for gate access (sync with external database/LDAP)
       std::map<std::string, user> _client_users_;  //!< List of temporary client users (only for session connections)
 
       // Private implementation:

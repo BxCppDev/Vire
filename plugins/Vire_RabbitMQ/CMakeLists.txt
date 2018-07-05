@@ -2,7 +2,7 @@
 
 #-----------------------------------------------------------------------
 # Copyright 2017 François Mauger <mauger@lpccaen.in2p3.fr>
-#                Jean Hommer <hommet@lpccaen.in2p3.fr>
+#                Jean Hommet <hommet@lpccaen.in2p3.fr>
 #
 # This file is part of Vire.
 #

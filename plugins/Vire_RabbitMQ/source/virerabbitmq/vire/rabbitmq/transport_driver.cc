@@ -70,7 +70,7 @@ namespace vire {
       }
 
       DT_THROW_IF(server_host.empty(), std::logic_error, "Missing RabbitMQ server host!");
-      // DT_THROW_IF(server_port < 0, std::logic_error, "Missing RabbitMQ server host!");
+      // DT_THROW_IF(server_port < 0, std::logic_error, "Missing RabbitMQ server port!");
       DT_THROW_IF(user_login.empty(), std::logic_error, "Missing RabbitMQ user login!");
       DT_THROW_IF(user_passwd.empty(), std::logic_error, "Missing RabbitMQ user password!");
 
@@ -111,13 +111,12 @@ namespace vire {
       queue_params.name = "";
       queue_params.auto_delete = true;
        ::rabbitmq::error_response err;
-      bool success = true;
       try {
         _pimpl_->channel_handle->queue_declare(queue_params);
         address = queue_params.name;
       } catch (std::exception & x) {
         DT_THROW(std::logic_error,
-                 "RabbitMQ error: " << "Failed to declare a new queue!");
+                 "RabbitMQ error: " << "Failed to declare a new queue:" << x.what());
       }
       return address;
     }

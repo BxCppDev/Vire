@@ -44,13 +44,11 @@ namespace vire {
 
     user::user(const std::string & login_,
                const std::string & password_,
-               const vire::com::actor::category_type category_,
-               const std::string & system_domain_)
+               const user_category category_)
     {
       set_login(login_);
-      password = password_;
-      category = category_;
-      if (!system_domain_.empty()) system_domain = system_domain_;
+      set_password(password_);
+      set_category(category_);
       return;
     }
 
@@ -67,60 +65,59 @@ namespace vire {
       return;
     }
 
-    const std::string & user::get_password() const
+    bool user::has_password() const
     {
-      return password;
+      return _password_.length();
     }
-
+    
     void user::set_password(const std::string & password_)
     {
-      password = password_;
+      _password_ = password_;
       return;
     }
 
-    void user::set_category(const vire::com::actor::category_type & category_)
+    bool user::match_password(const std::string & word_) const
     {
-      category = category_;
-      return;
+      return word_ == _password_;
     }
 
-    const vire::com::actor::category_type & user::get_category() const
-    {
-      return category;
-    }
-
-    bool user::is_valid() const
+    bool user::is_complete() const
     {
       if (_login_.empty()) return false;
-      if (password.empty()) return false;
-      if (category == vire::com::actor::CATEGORY_INVALID) return false;
+      if (_password_.empty()) return false;
+      if (_category_ == CATEGORY_INVALID) return false;
       return true;
     }
 
     bool user::is_server() const
     {
-      return category == vire::com::actor::CATEGORY_SERVER;
+      return _category_ == CATEGORY_SERVER;
     }
 
     bool user::is_client() const
     {
-      return category == vire::com::actor::CATEGORY_CLIENT;
-    }
-
-    bool user::is_system() const
-    {
-      return category == vire::com::actor::CATEGORY_SYSTEM;
+      return _category_ == CATEGORY_CLIENT;
     }
 
     bool user::is_subcontractor() const
     {
-      return category == vire::com::actor::CATEGORY_SUBCONTRACTOR;
+      return _category_ == CATEGORY_SUBCONTRACTOR;
     }
 
-    std::string user::get_system_domain() const
+    bool user::is_system() const
     {
-      if (system_domain.empty()) return _login_;
-      return system_domain;
+      return _category_ == CATEGORY_SYSTEM;
+    }
+
+    const user::user_category user::get_category() const
+    {
+      return _category_;
+    }
+  
+    void user::set_category(const user_category category_)
+    {
+      _category_ = category_;
+      return;
     }
 
     void user::initialize()
@@ -137,29 +134,31 @@ namespace vire {
           set_login(config_.fetch_string("login"));
         }
       }
-      if (password.empty()) {
+      
+      if (_password_.empty()) {
         if (config_.has_key("password")) {
-          password = config_.fetch_string("password");
+          set_password(config_.fetch_string("password"));
         }
       }
-      if (category == vire::com::actor::CATEGORY_INVALID) {
+
+      if (_category_ == CATEGORY_INVALID) {
         if (config_.has_key("category")) {
-          category = vire::com::actor::category(config_.fetch_string("category"));
+          std::string category_repr = config_.fetch_string("category");
+          if (category_repr == "server") {
+            set_category(CATEGORY_SERVER);
+          } else if (category_repr == "client") {
+            set_category(CATEGORY_CLIENT);
+          } else if (category_repr == "system") {
+            set_category(CATEGORY_SYSTEM);
+          } else if (category_repr == "subcontractor") {
+            set_category(CATEGORY_SUBCONTRACTOR);
+          } else {
+            DT_THROW(std::logic_error,
+                     "Not a valid use category '" << category_repr << "'!");
+          }
         }
       }
-      DT_THROW_IF(category == vire::com::actor::CATEGORY_INVALID,
-                  std::logic_error,
-                  "Invalid user category!");
-
-      if (system_domain.empty()) {
-        if (config_.has_key("system_domain")) {
-          system_domain = config_.fetch_string("system_domain");
-        }
-      }
-      DT_THROW_IF(is_server() && !system_domain.empty(),
-                  std::logic_error,
-                  "No system domain is associated to a server user!");
-
+ 
       if (config_.has_key("use_monitoring")) {
         use_monitoring = config_.fetch_boolean("use_monitoring");
       }
@@ -167,16 +166,21 @@ namespace vire {
       if (config_.has_key("use_control")) {
         use_control = config_.fetch_boolean("use_control");
       }
-
+      
+      DT_THROW_IF(!is_complete(),
+                  std::logic_error,
+                  "RabbitMQ user is not complete!");
+ 
       return;
     }
 
     void user::reset()
     {
       _login_.clear();
-      password.clear();
-      category = vire::com::actor::CATEGORY_INVALID;
-      system_domain.clear();
+      _password_.clear();
+      _category_ = CATEGORY_INVALID;
+      use_monitoring = true;
+      use_control    = false;
       return;
     }
 

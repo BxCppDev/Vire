@@ -52,9 +52,9 @@ Create an administrator user for the Vire CMS server:
 
 .. code:: sh
 
-   $ sudo rabbitmqctl add_user supernemo_adm {password}
-   $ sudo rabbitmqctl change_password supernemo_adm sesame
-   $ sudo rabbitmqctl set_user_tags supernemo_adm administrator
+   $ sudo rabbitmqctl add_user             supernemo_adm {password}
+   $ sudo rabbitmqctl change_password      supernemo_adm sesame
+   $ sudo rabbitmqctl set_user_tags        supernemo_adm administrator
    $ sudo rabbitmqctl set_permissions -p / supernemo_adm  ".*" ".*" ".*"
    $ sudo rabbitmqctl list_users
 
@@ -81,10 +81,10 @@ Vire CMS native Vhosts
    $ sudo rabbitmqctl add_vhost /supernemo/demonstrator/cms/clients/gate
    $ sudo rabbitmqctl list_vhosts
 
-   $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/monitoring supernemo_adm  ".*" ".*" ".*"
-   $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/control supernemo_adm  ".*" ".*" ".*"
+   $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/monitoring             supernemo_adm  ".*" ".*" ".*"
+   $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/control                supernemo_adm  ".*" ".*" ".*"
    $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/subcontractors/cmslapp supernemo_adm  ".*" ".*" ".*"
-   $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/clients/gate supernemo_adm  ".*" ".*" ".*"
+   $ sudo rabbitmqctl set_permissions -p /supernemo/demonstrator/cms/clients/gate           supernemo_adm  ".*" ".*" ".*"
 
 ..
    the end

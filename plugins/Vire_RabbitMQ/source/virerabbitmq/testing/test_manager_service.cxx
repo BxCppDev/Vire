@@ -72,34 +72,40 @@ void test0()
   serv.set_admin_password("sesame");
   // serv.set_destroy_all_at_reset(true);
 
-  // // The Vire server user (default):
-  // vire::rabbitmq::user server_user("vireserver", "vireserver", vire::com::actor::CATEGORY_SERVER);
-  // if (!serv.has_server_user()) {
-  //   DT_LOG_DEBUG(logging, "Add server user '" << server_user.login << "'...");
-  //   serv.add_server_user(server_user);
-  // }
-
-  // The Vire subcontractor users:
-  vire::rabbitmq::user cmslapp_user("cmslapp", "cmslapp", vire::com::actor::CATEGORY_SUBCONTRACTOR);
-  // cmslapp_user.static_domain = "cmslapp";
-  if (!serv.has_static_user(cmslapp_user.get_login())) {
-    DT_LOG_DEBUG(logging, "Add static user '" << cmslapp_user.get_login() << "'...");
-    serv.add_static_user(cmslapp_user);
+  // The Vire server user (default):
+  vire::rabbitmq::user server_user("vireserver", "vireserver", vire::rabbitmq::user::CATEGORY_SERVER);
+  if (!serv.has_server_user()) {
+    DT_LOG_DEBUG(logging, "Add server user '" << server_user.get_login() << "'...");
+    serv.add_server_user(server_user);
   }
 
-  vire::rabbitmq::user orleans_user("orleans", "orleans", vire::com::actor::CATEGORY_SUBCONTRACTOR);
+  // The Vire subcontractor users:
+  vire::rabbitmq::user cmslapp_user("cmslapp", "cmslapp", vire::rabbitmq::user::CATEGORY_SUBCONTRACTOR);
+  if (!serv.has_static_user(cmslapp_user.get_login())) {
+    DT_LOG_DEBUG(logging, "Add static subcontractor user '" << cmslapp_user.get_login() << "'...");
+    serv.add_subcontractor_user(cmslapp_user);
+  }
+
+  vire::rabbitmq::user orleans_user("orleans", "orleans", vire::rabbitmq::user::CATEGORY_SUBCONTRACTOR);
   if (!serv.has_static_user(orleans_user.get_login())) {
-    DT_LOG_DEBUG(logging, "Add static user '" << orleans_user.get_login() << "'...");
-    serv.add_static_user(orleans_user);
+    DT_LOG_DEBUG(logging, "Add static subcontractor user '" << orleans_user.get_login() << "'...");
+    serv.add_subcontractor_user(orleans_user);
+  }
+
+  vire::rabbitmq::user gate_user("gate", "gate", vire::rabbitmq::user::CATEGORY_SYSTEM);
+  if (!serv.has_static_user(gate_user.get_login())) {
+    DT_LOG_DEBUG(logging, "Add static system user '" << gate_user.get_login() << "'...");
+    serv.add_system_user(gate_user);
   }
 
   serv.initialize_simple();
   serv.tree_dump(std::clog, "RabbitMQ manager service: ", "[info] ");
 
   // Add a client with access to both monitoring and control domains:
-  serv.add_client_user("wxCVbn", "wxCVbn", true, true);
+  serv.add_client_user("wxCVbn", "Gez9dZdf", true, true);
+  
   // Add a client with access to only monitoring domain:
-  serv.add_client_user("gtrYzD", "gtrYzD", true , false);
+  serv.add_client_user("gtrYzD", "Yi56dDJD", true , false);
 
   // Checks:
   ::rabbitmq::rabbit_mgr & mgr = serv.grab_manager();
