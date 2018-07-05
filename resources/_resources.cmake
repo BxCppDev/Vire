@@ -294,6 +294,7 @@ ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/mos_
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/server/main.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/server/conf.d/post_system.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/server/conf.d/pre_system.conf
+${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/server/conf.d/com_transport_rabbitmqmgr.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/server/conf.d/business.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/cms/clients/client-devel1.conf
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/README.rst
@@ -395,5 +396,13 @@ ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/demonstrator/detector/detector.vmr
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/setup.vmr
 ${PROJECT_SOURCE_DIR}/resources/sandbox/snemo/config/snemo/demonstrator/devices/0.1/mapping/setup.vdc
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/README.rst
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/models/common/door.vdm
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/models/common/lighting.vdm
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/models/district/town_hall.vdm
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/models/district/main_street.vdm
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/models/district/district.vdm
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/models/models.lis
+${PROJECT_SOURCE_DIR}/resources/sandbox/orleans/config/devices/1.0/manager.conf
 ${PROJECT_SOURCE_DIR}/resources/data/time/date_time_zonespec.csv
 )
