@@ -45,6 +45,20 @@ namespace vire {
       static const std::string _n("__dp_write__");
       return _n;
     }
+    
+    // static
+    const std::string & base_datapoint_model::read_method_shortcut()
+    {
+      static const std::string _s("?");
+      return _s;
+    }
+
+    // static
+    const std::string & base_datapoint_model::write_method_shortcut()
+    {
+      static const std::string _s("=");
+      return _s;
+    }
 
     void base_datapoint_model::_set_defaults()
     {

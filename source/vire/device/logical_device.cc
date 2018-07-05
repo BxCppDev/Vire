@@ -31,10 +31,23 @@
 #include <vire/device/physical_link.h>
 #include <vire/device/logical_port.h>
 #include <vire/device/base_port_model.h>
+#include <vire/utility/path.h>
 
 namespace vire {
 
   namespace device {
+
+    // static
+    std::string logical_device::build_child_name(const std::string & prefix_,
+                                                 const std::vector<uint32_t> & item_indexes_)
+    {
+      std::ostringstream name_out;
+      name_out << prefix_;
+      for (std::size_t i = 0; i < item_indexes_.size(); i++) {
+        name_out << vire::utility::path::index_separator() << std::dec << item_indexes_[i];
+      }
+      return name_out.str();
+    }
 
     logical_device::logical_device()
     {
@@ -343,6 +356,9 @@ namespace vire {
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Logical device '"
                   << get_name() << "' is already initialized !");
+      _compute_daughter_names_();
+      _compute_port_names_();
+      _compute_link_names_();
       _initialized_ = true;
       return;
     }
@@ -352,11 +368,84 @@ namespace vire {
       DT_THROW_IF(! is_initialized(), std::logic_error, "Logical device '"
                   << get_name() << "' is not initialized !");
       _initialized_ = false;
-      _model_ = 0;
+      _link_names_.clear();
+      _port_names_.clear();
+      _daughter_names_.clear();
+      _model_ = nullptr;
       _daughters_.clear();
       _ports_.clear();
       _links_.clear();
       return;
+    }
+
+    void logical_device::_compute_daughter_names_()
+    {
+      for (daughters_dict_type::const_iterator i = _daughters_.begin();
+           i != _daughters_.end();
+           i++) {
+        const std::string & daughter_label = i->first;
+        const physical_device & daughter_phys = *i->second;
+        const i_instance & phys_instance = daughter_phys.get_instance();
+        // Loop on replicated embedded devices:
+        for (size_t item = 0; item < phys_instance.get_number_of_items(); item++) {
+          slot item_slot;
+          phys_instance.fetch_slot(item, item_slot);
+          std::vector<uint32_t> indexes;
+          item_slot.fetch_coordinates(indexes, true);
+          std::string child_name = build_child_name(daughter_label, indexes);
+          DT_THROW_IF(_daughter_names_.count(child_name),
+                      std::logic_error,
+                      "Logical device '" << get_name() << "' already has a daughter instance with name '" << child_name << "'!"
+                      << " Ambiguous naming/instantiation of physical embedded device in model '" << get_model().get_name() << "' must be fixed!");
+          _daughter_names_[child_name] = daughter_label; 
+        }
+      }
+      return;
+    }
+    
+    void logical_device::_compute_port_names_()
+    {
+      for (ports_dict_type::const_iterator i = _ports_.begin();
+           i != _ports_.end();
+           i++) {
+        const std::string & port_label = i->first;
+        const physical_port & port_phys = *i->second;
+        const i_instance & phys_instance = port_phys.get_instance();
+        // Loop on replicated embedded devices:
+        for (size_t item = 0; item < phys_instance.get_number_of_items(); item++) {
+          slot item_slot;
+          phys_instance.fetch_slot(item, item_slot);
+          std::vector<uint32_t> indexes;
+          item_slot.fetch_coordinates(indexes, true);
+          std::string child_name = build_child_name(port_label, indexes);
+          DT_THROW_IF(_port_names_.count(child_name),
+                      std::logic_error,
+                      "Logical device '" << get_name() << "' already has a port instance with name '" << child_name << "'!"
+                      << " Ambiguous naming/instantiation of physical port in model '" << get_model().get_name() << "' must be fixed!");
+          _port_names_[child_name] = port_label; 
+        }
+      }
+      return;
+    }
+    
+    void logical_device::_compute_link_names_()
+    {
+      return;
+    }
+
+    const std::map<std::string, std::string> & logical_device::get_daughter_names() const
+    {
+      return _daughter_names_;
+    }
+
+    const std::map<std::string, std::string> & logical_device::get_port_names() const
+    {
+      return _port_names_;
+    }
+
+    const std::map<std::string, std::string> & logical_device::get_link_names() const
+    {
+      return _link_names_;
     }
 
     void logical_device::print_tree(std::ostream & out_,
@@ -366,7 +455,9 @@ namespace vire {
       popts.configure_from(options_);
       this->enriched_base::tree_dump(out_, popts.title, popts.indent, true);
       bool print_daughters_list = options_.get<bool>("list_daughters", false);
+      bool print_daughter_names = options_.get<bool>("list_daughter_names", false);
       bool print_ports_list = options_.get<bool>("list_ports", false);
+      bool print_port_names = options_.get<bool>("list_port_names", false);
       bool print_links_list = options_.get<bool>("list_links", false);
 
       out_ << popts.indent << datatools::i_tree_dumpable::tag
@@ -424,6 +515,26 @@ namespace vire {
 
       {
         out_ << popts.indent << datatools::i_tree_dumpable::tag
+             << "Port names : ";
+        out_ << _port_names_.size();
+        out_ << std::endl;
+        if (print_port_names) {
+          std::size_t count = 0;
+          for (const auto & p : _port_names_) {
+            out_ << popts.indent;
+            out_ << datatools::i_tree_dumpable::skip_tag;
+            if (++count == _port_names_.size()) {
+              out_ <<  datatools::i_tree_dumpable::last_tag;
+            } else {
+              out_ <<  datatools::i_tree_dumpable::tag;
+            }
+            out_ << "Port : '" << p.first << "'" << std::endl;
+          }
+        }
+      }
+
+      {
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
              << "Daughter physical devices : ";
         if (_daughters_.size() == 0) {
           out_ << "<none>";
@@ -461,6 +572,26 @@ namespace vire {
         }
       }
 
+      {
+        out_ << popts.indent << datatools::i_tree_dumpable::tag
+             << "Daughter names : ";
+        out_ << _daughter_names_.size();
+        out_ << std::endl;
+        if (print_daughter_names) {
+          std::size_t count = 0;
+          for (const auto & p : _daughter_names_) {
+            out_ << popts.indent;
+            out_ << datatools::i_tree_dumpable::skip_tag;
+            if (++count == _daughter_names_.size()) {
+              out_ <<  datatools::i_tree_dumpable::last_tag;
+            } else {
+              out_ <<  datatools::i_tree_dumpable::tag;
+            }
+            out_ << "Daughter : '" << p.first << "'" << std::endl;
+          }
+        }
+      }
+      
       {
         out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
              << "Physical links : ";

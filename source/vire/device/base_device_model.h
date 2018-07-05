@@ -223,7 +223,7 @@ namespace vire {
 
       /// Get a non mutable reference to the embedded logical device
       const logical_device & get_logical() const;
-
+      
     protected:
 
       //! Check is a device type can be embedded in the current device model
@@ -235,7 +235,7 @@ namespace vire {
       //! Add an embedded device
       physical_device & _add_embedded_physical(const std::string &,
                                                const logical_device &,
-                                               const i_instance * instance_ = 0,
+                                               const i_instance * instance_ = nullptr,
                                                bool owned_instance_ = false);
 
       //! Remove an embedded device
@@ -244,7 +244,7 @@ namespace vire {
       //! Add a port
       physical_port & _add_physical_port(const std::string &,
                                          const logical_port &,
-                                         const i_instance * instance_ = 0,
+                                         const i_instance * instance_ = nullptr,
                                          bool owned_instance_ = false);
 
       //! Remove a port
@@ -299,7 +299,7 @@ namespace vire {
       void _set_defaults();
 
     private:
-
+     
       //! Set initialization flag
       void _set_initialized_(bool);
 

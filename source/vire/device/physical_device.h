@@ -37,7 +37,8 @@ namespace vire {
     class logical_device;
 
     //! \brief The physical device
-    class physical_device : public base_physical
+    class physical_device
+      : public base_physical
     {
     public:
 

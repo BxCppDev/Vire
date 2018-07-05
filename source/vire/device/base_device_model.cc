@@ -593,7 +593,7 @@ namespace vire {
       physical_device & physical = _embedded_physical_devices_[device_label_];
       physical.set_name(base_physical::make_physical_name(get_name() + "." + device_label_));
       physical.set_logical(logical_);
-      if (instance_ != 0) {
+      if (instance_ != nullptr) {
         physical.set_instance(instance_, owned_instance_);
       } else {
         physical.set_instance(default_instance());

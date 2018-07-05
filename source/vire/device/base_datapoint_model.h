@@ -58,6 +58,8 @@ namespace vire {
 
       static const std::string & read_method_name();
       static const std::string & write_method_name();
+      static const std::string & read_method_shortcut();
+      static const std::string & write_method_shortcut();
 
       //! Default constructor
       base_datapoint_model();

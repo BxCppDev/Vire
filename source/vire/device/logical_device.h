@@ -58,6 +58,9 @@ namespace vire {
       //! Dictionary of const physical link pointers
       typedef std::map<std::string, const physical_link *> links_dict_type;
 
+      static std::string build_child_name(const std::string & prefix_,
+                                          const std::vector<uint32_t> & item_indexes_);
+      
       //! Default constructor
       logical_device();
 
@@ -136,6 +139,15 @@ namespace vire {
       //! Initialize
       void initialize();
 
+      //! Return the dictionary of daughter names associated to their model name
+      const std::map<std::string, std::string> & get_daughter_names() const;
+
+      //! Return the dictionary of port names associated to their model name
+      const std::map<std::string, std::string> & get_port_names() const;
+
+      //! Return the dictionary of link names associated to their model name
+      const std::map<std::string, std::string> & get_link_names() const;
+
       //! Reset
       void reset();
 
@@ -154,14 +166,23 @@ namespace vire {
       //! \endcode
       virtual void print_tree(std::ostream & out_ = std::clog,
                               const boost::property_tree::ptree & options_ = datatools::i_tree_dumpable::empty_options()) const;
-
+ 
     private:
 
-      bool                      _initialized_; //!< Initialization flag
-      const base_device_model * _model_;       //!< Pointer to the device model from which the logical is constructed
-      daughters_dict_type       _daughters_;   //!< Dictionary of daughter physical devices addressed by label
-      ports_dict_type           _ports_;       //!< Dictionary of physical ports addressed by label
-      links_dict_type           _links_;       //!< Dictionary of physical links addressed by label
+      void _compute_daughter_names_();
+      void _compute_port_names_();
+      void _compute_link_names_();
+ 
+    private:
+
+      bool                      _initialized_;      //!< Initialization flag
+      const base_device_model * _model_ = nullptr;  //!< Pointer to the device model from which the logical is constructed
+      daughters_dict_type       _daughters_;        //!< Dictionary of daughter physical devices addressed by label
+      ports_dict_type           _ports_;            //!< Dictionary of physical ports addressed by label
+      links_dict_type           _links_;            //!< Dictionary of physical links addressed by label
+      std::map<std::string, std::string> _daughter_names_;
+      std::map<std::string, std::string> _port_names_;
+      std::map<std::string, std::string> _link_names_;
 
     };
 
