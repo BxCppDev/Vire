@@ -59,21 +59,39 @@ namespace vire {
 
       const boost::posix_time::ptime & get_deadline() const;
 
-      void set_login(const std::string &);
+      bool has_system_login() const;
+      
+      void set_system_login(const std::string &);
 
-      const std::string & get_login() const;
+      const std::string & get_system_login() const;
 
-      void set_password(const std::string &);
+      bool has_system_password() const;
 
-      const std::string & get_password() const;
+      void set_system_password(const std::string &);
+
+      const std::string & get_system_password() const;
+
+      bool has_cms_login() const;
+  
+      void set_cms_login(const std::string &);
+
+      const std::string & get_cms_login() const;
+
+      bool has_cms_password() const;
+
+      void set_cms_password(const std::string &);
+
+      const std::string & get_cms_password() const;
 
     private:
 
       std::string _id_;   //!< Session identifier
       std::string _role_; //!< Role
       boost::posix_time::ptime _deadline_; //!< Session deadline
-      std::string _login_;    //!< Login
-      std::string _password_; //!< Password
+      std::string _system_login_;    //!< System login
+      std::string _system_password_; //!< System password
+      std::string _cms_login_;       //!< CMS login
+      std::string _cms_password_;    //!< CMS password
 
     };
 

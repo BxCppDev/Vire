@@ -45,8 +45,10 @@ namespace vire {
       if (_id_.empty()) return false;
       if (_role_.empty()) return false;
       if (!vire::time::is_valid(_deadline_)) return false;
-      if (_login_.empty()) return false;
-      if (_password_.empty()) return false;
+      if (_system_login_.empty()) return false;
+      if (_system_password_.empty()) return false;
+      if (_cms_login_.empty()) return false;
+      if (_cms_password_.empty()) return false;
       return true;
     }
 
@@ -88,26 +90,68 @@ namespace vire {
       return _deadline_;
     }
 
-    void session_connection_parameters::set_login(const std::string & login_)
+    bool session_connection_parameters::has_system_login() const
     {
-      _login_ = login_;
+      return !_system_login_.empty();
+    }
+
+    void session_connection_parameters::set_system_login(const std::string & login_)
+    {
+      _system_login_ = login_;
       return;
     }
 
-    const std::string & session_connection_parameters::get_login() const
+    const std::string & session_connection_parameters::get_system_login() const
     {
-      return _login_;
+      return _system_login_;
     }
 
-    void session_connection_parameters::set_password(const std::string & password_)
+    bool session_connection_parameters::has_system_password() const
+    {
+      return !_system_password_.empty();
+    }
+
+    void session_connection_parameters::set_system_password(const std::string & password_)
      {
-       _password_ = password_;
+       _system_password_ = password_;
       return;
     }
 
-    const std::string & session_connection_parameters::get_password() const
+    const std::string & session_connection_parameters::get_system_password() const
     {
-      return _password_;
+      return _system_password_;
+    }
+
+    bool session_connection_parameters::has_cms_login() const
+    {
+      return !_cms_login_.empty();
+    }
+
+    void session_connection_parameters::set_cms_login(const std::string & login_)
+    {
+      _cms_login_ = login_;
+      return;
+    }
+
+    const std::string & session_connection_parameters::get_cms_login() const
+    {
+      return _cms_login_;
+    }
+
+    bool session_connection_parameters::has_cms_password() const
+    {
+      return !_cms_password_.empty();
+    }
+
+    void session_connection_parameters::set_cms_password(const std::string & password_)
+     {
+       _cms_password_ = password_;
+      return;
+    }
+
+    const std::string & session_connection_parameters::get_cms_password() const
+    {
+      return _cms_password_;
     }
 
   } // namespace cmsclient

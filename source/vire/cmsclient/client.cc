@@ -36,6 +36,14 @@ namespace vire {
 
   namespace cmsclient {
 
+    struct client::pimpl_type
+    {
+      vire::com::manager            * com       = nullptr;
+      const vire::device::manager   * devices   = nullptr;
+      const vire::resource::manager * resources = nullptr;
+      vire::cmsclient::session_manager * session = nullptr;       
+    };
+    
     // static
     std::string client::com_service_name()
     {
@@ -73,6 +81,7 @@ namespace vire {
 
     client::client()
     {
+      _pimpl_.reset(new pimpl_type);
       return;
     }
 
@@ -81,6 +90,7 @@ namespace vire {
       if (is_initialized()) {
         reset();
       }
+      _pimpl_.reset();
       return;
     }
 
@@ -341,6 +351,32 @@ namespace vire {
       return;
     }
 
+    void client::_init_com_()
+    {
+      if (_pimpl_->com) {
+        if (!_setup_infos_.has_gate_login()) {
+          DT_THROW(std::logic_error, "No login is provided for client gate access!");
+        }
+        if (!_setup_infos_.has_gate_password()) {
+          DT_THROW(std::logic_error, "No password is provided for client gate access!");
+        }
+        _pimpl_->com->create_actor(_setup_infos_.get_gate_login(),
+                                   _setup_infos_.get_gate_password(),
+                                   vire::com::actor::CATEGORY_CLIENT_GATE);
+      }
+      return;
+    }
+
+    void client::_terminate_com_()
+    {
+      if (_pimpl_->com) {
+        if (_pimpl_->com->has_actor(_setup_infos_.get_gate_login())) {
+          _pimpl_->com->remove_actor(_setup_infos_.get_gate_login());
+        }
+      }
+      return;
+    }
+
     void client::_start_system_services()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
@@ -358,10 +394,10 @@ namespace vire {
       }
       DT_LOG_TRACE(get_logging_priority(), "com service is setup.");
       vire::com::manager & com = _services_.grab<vire::com::manager>(com_service_name());
-      vire::com::actor client_actor("client", vire::com::actor::CATEGORY_CLIENT);
       if (datatools::logger::is_trace(get_logging_priority())) {
         com.tree_dump(std::cerr, "Com service:", "[trace] ");
       }
+      _pimpl_->com = &com;
       _services_.sync();
 
       {
@@ -393,10 +429,14 @@ namespace vire {
           DT_LOG_TRACE(get_logging_priority(), "Key='" << p.first << "'");
         }
       }
+      _pimpl_->session = &session;
       _services_.sync();
 
       DT_LOG_TRACE(get_logging_priority(), "session service is setup.");
 
+
+      _init_com_();
+      
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
@@ -405,11 +445,15 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
 
+      _terminate_com_();
+
       if (_services_.is_a<vire::cmsclient::session_manager>(session_service_name())) {
+        _pimpl_->session = nullptr;
         _services_.drop(session_service_name());
       }
 
       if (_services_.is_a<vire::com::manager>(com_service_name())) {
+        _pimpl_->com = nullptr;
         _services_.drop(com_service_name());
       }
 
@@ -428,6 +472,7 @@ namespace vire {
       _services_.load(devices_service_name(),
                       "vire::device::manager",
                       devices_config);
+      _pimpl_->devices = &_services_.get<vire::device::manager>(devices_service_name());
       _services_.sync();
 
       // Resources manager:
@@ -438,6 +483,7 @@ namespace vire {
       _services_.load(resources_service_name(),
                       "vire::resource::manager",
                       resources_config);
+      _pimpl_->resources = &_services_.get<vire::resource::manager>(resources_service_name());
       _services_.sync();
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -467,10 +513,12 @@ namespace vire {
       }
 
       if (_services_.is_a<vire::resource::manager>(resources_service_name())) {
+        _pimpl_->resources = nullptr;
         _services_.drop(resources_service_name());
       }
 
       if (_services_.is_a<vire::device::manager>(devices_service_name())) {
+        _pimpl_->devices = nullptr;
         _services_.drop(devices_service_name());
       }
 

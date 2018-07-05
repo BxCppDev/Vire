@@ -156,7 +156,7 @@ namespace vire {
       std::string _host_;               ///< The server host identifier
       int         _port_ = -1;          ///< The server port
       std::string _domain_name_prefix_; ///< The domain name prefix
-      /// The default transport protocol ID (ex: "RabbitMQ-0.9")
+      /// The default transport protocol ID (ex: "rabbitmq-0.9")
       ::vire::utility::model_identifier _transport_protocol_id_;
       /// The default encoding protocol ID (ex: "protobuf-3.3")
       ::vire::utility::model_identifier _encoding_protocol_id_;

@@ -257,8 +257,8 @@ namespace vire {
                   "Can only start run from 'idle' state!");
       vire::utility::model_identifier transport_protocol_id = _client_->get_setup_infos().get_transport_protocol_id();
       vire::utility::model_identifier encoding_protocol_id = _client_->get_setup_infos().get_encoding_protocol_id();
-      _com_->set_transport_type_id(transport_protocol_id);
-      _com_->set_encoding_type_id(encoding_protocol_id);
+      _com_->set_default_transport_type_id(transport_protocol_id);
+      _com_->set_default_encoding_type_id(encoding_protocol_id);
       _com_->set_resources(get_resources());
 
       while (true) {
@@ -294,7 +294,7 @@ namespace vire {
                   "Already have a gate domain '" << gate_domain_name << "'!");
       // Create the gate domain:
       ::vire::com::domain & gatedom = com.create_domain(gate_domain_name,
-                                                     ::vire::com::domain::CATEGORY_GENERAL,
+                                                     ::vire::com::domain::CATEGORY_GATE,
                                                      _client_->get_setup_infos().get_transport_protocol_id(),
                                                      _client_->get_setup_infos().get_encoding_protocol_id()
                                                      );

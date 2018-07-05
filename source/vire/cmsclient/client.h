@@ -141,6 +141,10 @@ namespace vire {
 
       void _at_reset_();
 
+      void _init_com_();
+
+      void _terminate_com_();
+
     private:
 
       // Management:
@@ -155,6 +159,9 @@ namespace vire {
       setup_infos                _setup_infos_; //!< Setup infos
       datatools::service_manager _services_;
 
+      struct pimpl_type;
+      std::unique_ptr<pimpl_type> _pimpl_;
+      
     };
 
   } // namespace cmsclient
