@@ -73,7 +73,6 @@ namespace vire {
       // Positional options:
       _grab_args().add("pattern", 1);
 
-
       return;
     }
 
