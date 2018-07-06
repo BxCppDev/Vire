@@ -57,6 +57,11 @@ namespace vire {
 
     };
 
+    const std::string & domain_gate_label();
+    const std::string & domain_system_label();
+    const std::string & domain_control_label();
+    const std::string & domain_monitoring_label();
+
     const std::string & message_id_key();
     const std::string & correlation_id_key();
     const std::string & address_key();

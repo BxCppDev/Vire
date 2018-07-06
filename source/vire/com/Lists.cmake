@@ -10,6 +10,7 @@ list(APPEND VireLibrary_HEADERS
   com/domain.h
   com/domain_builder.h
   com/i_transport_driver.h
+  com/i_transport_manager.h
   com/base_plug.h
   com/i_service_client_plug.h
   com/rabbitmq_service_client_plug.h
@@ -33,6 +34,7 @@ list(APPEND VireLibrary_SOURCES
   com/domain.cc
   com/domain_builder.cc
   com/i_transport_driver.cc
+  com/i_transport_manager.cc
   com/base_plug.cc
   com/i_service_client_plug.cc
   com/rabbitmq_service_client_plug.cc

@@ -1,7 +1,7 @@
 //! \file  vire/com/actor.h
 //! \brief Vire communication actor
 //
-// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
@@ -25,6 +25,7 @@
 // Standard library:
 #include <string>
 #include <map>
+#include <set>
 #include <memory>
 
 // Third party:
@@ -175,6 +176,10 @@ namespace vire {
       
       const domain & get_domain(const std::string & domain_label_) const;
 
+      void build_list_of_domain_local_labels(std::set<std::string> & domain_labels_) const;
+
+      void build_list_of_domain_names(std::set<std::string> & domain_names_) const;
+
     private:
            
       void _build_default_plugs_();
@@ -184,7 +189,7 @@ namespace vire {
     private:
 
       bool                  _locked_ = false;
-      const manager *       _com_ = nullptr;
+      const manager *       _com_    = nullptr;
       category_type         _category_; //!< Actor category
       std::string           _name_;     //!< Actor name
       std::string           _password_; //!< Actor password to access the underlying com system

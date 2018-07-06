@@ -1,7 +1,8 @@
 //! \file  vire/com/manager.h
 //! \brief Vire com manager
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -164,6 +165,8 @@ namespace vire {
       const vire::cms::application::category_type get_app_category() const;
 
       void set_app_category(const vire::cms::application::category_type);
+
+      bool has_transport_management() const;
       
       //! Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
@@ -203,8 +206,9 @@ namespace vire {
 
       // Configuration:
       vire::cms::application::category_type _app_category_ = vire::cms::application::CATEGORY_UNDEF;
-      std::string                     _resource_service_name_; //!< Name of the resource management service
-      std::string                     _domain_name_prefix_;    //!< Prefix of domain names
+      bool                            _transport_management_ = false;
+      std::string                     _resource_service_name_;     //!< Name of the resource management service
+      std::string                     _domain_name_prefix_;        //!< Prefix of domain names
       vire::utility::model_identifier _default_transport_type_id_; //!< Default transport type identifier associated to the domains
       vire::utility::model_identifier _default_encoding_type_id_;  //!< Default encoding type identifier associated to the domains
       

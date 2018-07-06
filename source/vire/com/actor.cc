@@ -124,12 +124,7 @@ namespace vire {
       return out.str();
     }
     */
-    
-    // actor::actor()
-    // {
-    //   return;
-    // }
-
+ 
     actor::actor(const manager & com_,
                  const category_type category_,
                  const std::string & target_,
@@ -374,124 +369,146 @@ namespace vire {
                   "No domain labelled '" << domain_label_ << "'");
       return *found->second;
     }
-         
+    
+    void actor::build_list_of_domain_local_labels(std::set<std::string> & domain_labels_) const
+    {
+      domain_labels_.clear();
+      for (const auto & p : _domains_) {
+        domain_labels_.insert(p.first);
+      }
+      return;
+    }
+ 
+    void actor::build_list_of_domain_names(std::set<std::string> & domain_names_) const
+    {
+      domain_names_.clear();
+      for (const auto & p : _domains_) {
+        const domain & domainRef = *p.second;
+        bool doInsert = true;
+        if (doInsert) {
+          domain_names_.insert(domainRef.get_name());
+        }
+      }
+      return;
+    }
+       
     void actor::_build_default_plugs_()
     {
       plug_factory & factory = this->grab_plug_factory();
       
       if (_category_ == CATEGORY_SERVER_GATE) {
         std::string plug_name = "gate.service.server";
-        factory.make_service_server_plug(get_domain("gate"), plug_name);
+        factory.make_service_server_plug(get_domain(domain_gate_label()), plug_name);
       }
 
       if (_category_ == CATEGORY_CLIENT_GATE) {
         std::string plug_name = "gate.service.client";
-        factory.make_service_client_plug(get_domain("gate"), plug_name);
+        factory.make_service_client_plug(get_domain(domain_gate_label()), plug_name);
       }
 
       if (_category_ == CATEGORY_SERVER_CLIENT_SYSTEM) {
         {
           std::string plug_name = "vireserver.service.server";
-          factory.make_service_server_plug(get_domain("system"), plug_name);
+          factory.make_service_server_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "vireserver.event.emitter";
-          factory.make_event_emitter_plug(get_domain("system"), plug_name);
+          factory.make_event_emitter_plug(get_domain(domain_system_label()), plug_name);
         }
       }
   
       if (_category_ == CATEGORY_CLIENT_SYSTEM) {
         {
           std::string plug_name = "vireserver.service.client";
-          factory.make_service_client_plug(get_domain("system"), plug_name);
+          factory.make_service_client_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "vireserver.event.listener";
-          factory.make_event_listener_plug(get_domain("system"), plug_name);
+          factory.make_event_listener_plug(get_domain(domain_system_label()), plug_name);
         }
       }
   
       if (_category_ == CATEGORY_CLIENT_CMS) {
         {
           std::string plug_name = "control.service.server";
-          factory.make_service_server_plug(get_domain("control"), plug_name);
+          factory.make_service_server_plug(get_domain(domain_control_label()), plug_name);
         }
         {
           std::string plug_name = "monitoring.service.client";
-          factory.make_service_client_plug(get_domain("monitoring"), plug_name);
+          factory.make_service_client_plug(get_domain(domain_monitoring_label()), plug_name);
         }
         {
           std::string plug_name = "monitoring.event.listener";
-          factory.make_event_listener_plug(get_domain("monitoring"), plug_name);
+          factory.make_event_listener_plug(get_domain(domain_monitoring_label()), plug_name);
         }
       }
  
       if (_category_ == CATEGORY_SERVER_CMS) {  
         {
           std::string plug_name = "control.service.client";
-          factory.make_service_client_plug(get_domain("control"), plug_name);
+          factory.make_service_client_plug(get_domain(domain_control_label()), plug_name);
         }
         { 
           std::string plug_name = "monitoring.service.client";
-          factory.make_service_client_plug(get_domain("monitoring"), plug_name);
+          factory.make_service_client_plug(get_domain(domain_monitoring_label()), plug_name);
         }
         { 
           std::string plug_name = "monitoring.service.server";
-          factory.make_service_server_plug(get_domain("monitoring"), plug_name);
+          factory.make_service_server_plug(get_domain(domain_monitoring_label()), plug_name);
         }
         {
           std::string plug_name = "monitoring.event.emitter";
-          factory.make_event_emitter_plug(get_domain("monitoring"), plug_name);
+          factory.make_event_emitter_plug(get_domain(domain_monitoring_label()), plug_name);
         }
         {
           std::string plug_name = "monitoring.event.listener";
-          factory.make_event_listener_plug(get_domain("monitoring"), plug_name);
+          factory.make_event_listener_plug(get_domain(domain_monitoring_label()), plug_name);
         }
       }
 
       if (_category_ == CATEGORY_SUBCONTRACTOR) {
         {
           std::string plug_name = "monitoring.service.server";
-          factory.make_service_server_plug(get_domain("monitoring"), plug_name);
+          factory.make_service_server_plug(get_domain(domain_monitoring_label()), plug_name);
         }
         {
           std::string plug_name = "monitoring.event.emitter";
-          factory.make_event_emitter_plug(get_domain("monitoring"), plug_name);       
+          factory.make_event_emitter_plug(get_domain(domain_monitoring_label()), plug_name);       
         }    
         {
           std::string plug_name = "vireserver.service.client";
-          factory.make_service_client_plug(get_domain("system"), plug_name);
+          factory.make_service_client_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "vireserver.event.listener";
-          factory.make_event_listener_plug(get_domain("system"), plug_name);
+          factory.make_event_listener_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "subcontractor.service.server";
-          factory.make_service_server_plug(get_domain("system"), plug_name);
+          factory.make_service_server_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "subcontractor.event.emitter";
-          factory.make_event_emitter_plug(get_domain("system"), plug_name);
+          factory.make_event_emitter_plug(get_domain(domain_system_label()), plug_name);
         }
       }
 
       if (_category_ == CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
         {
           std::string plug_name = "vireserver.service.server";
-          factory.make_service_server_plug(get_domain("system"), plug_name);
+          factory.make_service_server_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "vireserver.event.emitter";
-          factory.make_event_emitter_plug(get_domain("system"), plug_name);
+          factory.make_event_emitter_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "subcontractor.service.client";
-          factory.make_service_client_plug(get_domain("system"), plug_name);
+          factory.make_service_client_plug(get_domain(domain_system_label()), plug_name);
         }
         {
           std::string plug_name = "subcontractor.event.listener";
-          factory.make_event_listener_plug(get_domain("system"), plug_name);
+          factory.make_event_listener_plug(get_domain(domain_system_label()), plug_name);
         }
       }
 

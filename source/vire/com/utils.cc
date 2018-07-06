@@ -67,6 +67,30 @@ namespace vire {
       return _k;
     }
 
+    const std::string & domain_gate_label()
+    {
+      static const std::string _l("gate");
+      return _l;
+    }
+
+    const std::string & domain_system_label()
+    {
+      static const std::string _l("system");
+      return _l;
+    }
+
+    const std::string & domain_control_label()
+    {
+      static const std::string _l("control");
+      return _l;
+    }
+
+    const std::string & domain_monitoring_label()
+    {
+      static const std::string _l("monitoring");
+      return _l;
+    }
+
   } // namespace com
 
 } // namespace vire

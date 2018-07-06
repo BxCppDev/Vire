@@ -206,11 +206,8 @@ namespace vire {
 
     const actor & manager::get_actor(const std::string & actor_name_) const
     {
-      actor_dict_type::const_iterator found = _actors_.find(actor_name_);
-      DT_THROW_IF(found == _actors_.end(),
-                  std::logic_error,
-                  "No actor with name '" << actor_name_ << "'!");
-      return *found->second;
+      manager * mutable_this = const_cast<manager*>(this);
+      return const_cast<actor &>(mutable_this->grab_actor(actor_name_));
     }
 
     actor & manager::grab_actor(const std::string & actor_name_)
@@ -241,8 +238,13 @@ namespace vire {
                   "Manager already has an actor with name '" << actor_name_ << "'!");
       DT_THROW_IF(actor_category_ == actor::CATEGORY_INVALID,
                   std::logic_error, "Invalid actor category!");
-      std::cerr << "********** devel ************" << std::endl;
       _actors_[actor_name_] = std::make_shared<actor>(*this, actor_category_, target_id_, actor_name_, actor_password_);
+      if (has_transport_management()) {
+        std::cerr << "********** devel ************" << std::endl;
+        std::cerr << "Create actor from the transport manager..." << std::endl;
+        std::cerr << "*****************************" << std::endl;
+        
+      } 
       return; 
     }
 
@@ -299,6 +301,11 @@ namespace vire {
       if (sp.get() != nullptr) {
         _domains_[domain_name_] = sp;
       }
+      if (has_transport_management()) {
+        std::cerr << "********** devel ************" << std::endl;
+        std::cerr << "Create domain from the transport manager..." << std::endl;
+        std::cerr << "*****************************" << std::endl;   
+      } 
       return *_domains_.find(domain_name_)->second;
     }
 
@@ -364,8 +371,18 @@ namespace vire {
 
     void manager::set_app_category(const vire::cms::application::category_type appcat_)
     {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Manager is initialized and locked!");
       _app_category_ = appcat_;
+      if (_app_category_ == vire::cms::application::CATEGORY_SERVER) {
+        _transport_management_ = true;
+      }
       return;
+    }
+
+    bool manager::has_transport_management() const
+    {
+      return _transport_management_;
     }
 
     bool manager::is_initialized() const
@@ -382,7 +399,7 @@ namespace vire {
                   "Communication manager is already initialized!");
 
       this->::datatools::base_service::common_initialize(config_);
-
+      
       if (!has_app_category()) {
         if (config_.has_key("cms_application_category")) {
           std::string appcat_repr = config_.fetch_string("cms_application_category");
@@ -391,6 +408,13 @@ namespace vire {
                       std::logic_error,
                       "Invalid CMS application category '" << appcat_repr << "'!");
           set_app_category(appcat);
+        }
+      }
+
+      if (config_.has_key("no_transport_management")) {
+        bool ntm = config_.fetch_boolean("no_transport_management");
+        if (ntm) {
+          _transport_management_ = false;
         }
       }
       
