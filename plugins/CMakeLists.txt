@@ -24,6 +24,13 @@ message (STATUS "=  P L U G I N S  =")
 message (STATUS "===================")
 
 #-----------------------------------------------------------------------
+# - List of built plugins:
+set(VIRE_PLUGINS
+  Vire_MOS              # The Vire to Multipurpose OPCUA Server (MOS) plugin and utilities
+  Vire_CMSLAPPInterface # The Vire CMS/LAPP interface plugin
+)
+
+#-----------------------------------------------------------------------
 # Plugins are compiled code, so need to be installed under libdir...
 #
 message(STATUS "[devel] VIRE_LIBDIR_TO_PLUGINDIR = '${VIRE_LIBDIR_TO_PLUGINDIR}'")
