@@ -362,7 +362,7 @@ namespace vire {
         }
         _pimpl_->com->create_actor(_setup_infos_.get_gate_login(),
                                    _setup_infos_.get_gate_password(),
-                                   vire::com::actor::CATEGORY_CLIENT_GATE);
+                                   vire::com::ACTOR_CATEGORY_CLIENT_GATE);
       }
       return;
     }

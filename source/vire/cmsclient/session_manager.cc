@@ -294,7 +294,7 @@ namespace vire {
                   "Already have a gate domain '" << gate_domain_name << "'!");
       // Create the gate domain:
       ::vire::com::domain & gatedom = com.create_domain(gate_domain_name,
-                                                     ::vire::com::domain::CATEGORY_GATE,
+                                                     ::vire::com::DOMAIN_CATEGORY_GATE,
                                                      _client_->get_setup_infos().get_transport_protocol_id(),
                                                      _client_->get_setup_infos().get_encoding_protocol_id()
                                                      );
