@@ -144,6 +144,9 @@ include(cms/Lists.cmake)
 # Communication service
 include(com/Lists.cmake)
 
+# RabbitMQ communication
+include(rabbitmq/Lists.cmake)
+
 # Automaton:
 include(automaton/Lists.cmake)
 
