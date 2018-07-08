@@ -21,6 +21,9 @@
 // Ourselves:
 #include <vire/com/mailbox.h>
 
+// This project:
+#include <vire/com/actor.h>
+
 namespace vire {
 
   namespace com {
@@ -378,14 +381,14 @@ namespace vire {
       if (perm_flag == 3) return false;
       std::size_t actor_flag = 3;
       switch(actor_.get_category()) {
-      case actor::CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: actor_flag = 0; break;
-      case actor::CATEGORY_SERVER_CLIENT_SYSTEM:        actor_flag = 0; break;
-      case actor::CATEGORY_SERVER_GATE:                 actor_flag = 0; break;
-      case actor::CATEGORY_SERVER_CMS:                  actor_flag = 0; break;
-      case actor::CATEGORY_CLIENT_SYSTEM:               actor_flag = 1; break;
-      case actor::CATEGORY_CLIENT_CMS:                  actor_flag = 1; break;
-      case actor::CATEGORY_CLIENT_GATE:                 actor_flag = 1; break;
-      case actor::CATEGORY_SUBCONTRACTOR:               actor_flag = 2; break;
+      case ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: actor_flag = 0; break;
+      case ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM:        actor_flag = 0; break;
+      case ACTOR_CATEGORY_SERVER_GATE:                 actor_flag = 0; break;
+      case ACTOR_CATEGORY_SERVER_CMS:                  actor_flag = 0; break;
+      case ACTOR_CATEGORY_CLIENT_SYSTEM:               actor_flag = 1; break;
+      case ACTOR_CATEGORY_CLIENT_CMS:                  actor_flag = 1; break;
+      case ACTOR_CATEGORY_CLIENT_GATE:                 actor_flag = 1; break;
+      case ACTOR_CATEGORY_SUBCONTRACTOR:               actor_flag = 2; break;
       default:
         actor_flag = 3;
       }

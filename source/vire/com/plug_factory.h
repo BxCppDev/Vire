@@ -67,7 +67,8 @@ namespace vire {
 
       /// Create a new event emitter plug in a domain
       bool make_event_emitter_plug(const domain & domain_,
-                                   std::string & plug_name_);
+                                   std::string & plug_name_,
+                                   const std::string & event_label_ = "");
       
     private:
 

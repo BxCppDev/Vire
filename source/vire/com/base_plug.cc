@@ -22,6 +22,8 @@
 
 // This project:
 #include <vire/com/manager.h>
+#include <vire/com/actor.h>
+#include <vire/com/domain.h>
 #include <vire/time/utils.h>
 #include <vire/message/message.h>
 

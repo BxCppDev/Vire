@@ -61,36 +61,13 @@ namespace vire {
       , private boost::noncopyable
     {
     public:
-
-      //! \brief Actor categories
-      enum category_type {
-        CATEGORY_INVALID                     =  0, ///< Invalid actor category
-        CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM = 10, ///< Server subcontractor system category (in CMS server)
-        CATEGORY_SERVER_CLIENT_SYSTEM        = 11, ///< Server client system category (in CMS server)
-        CATEGORY_SERVER_GATE                 = 12, ///< Server gate system category (in CMS server)
-        CATEGORY_SERVER_CMS                  = 13, ///< Server CMS category (in CMS server)
-        CATEGORY_CLIENT_SYSTEM               = 20, ///< Client system category (in CMS clients)
-        CATEGORY_CLIENT_CMS                  = 21, ///< Client CMS category (in CMS server or clients)
-        CATEGORY_CLIENT_GATE                 = 22, ///< Server gate system category (in CMS server)
-        CATEGORY_SUBCONTRACTOR               = 30, ///< Subcontractor category (in CMS subcontractors)
-      };
  
-      //! Return the label associated to a category type
-      static std::string to_string(const category_type);
-
-      static bool category_requires_target(const category_type);
- 
-      static bool category_is_persistant(const category_type);
-      
-      //! Return the category type associated to a label
-      static bool from_string(const std::string &, category_type &);
-
       typedef std::map<std::string, std::shared_ptr<base_plug>> plug_dict_type;
       typedef std::map<std::string, const domain *> domain_dict_type;
 
       //! Constructor
       actor(const manager & com_,
-            const category_type category_,
+            const actor_category_type category_,
             const std::string & target_,
             const std::string & name_,
             const std::string & password_);
@@ -114,10 +91,10 @@ namespace vire {
       bool has_category() const;
 
       //! Set the actor category
-      void set_category(const category_type & category_);
+      void set_category(const actor_category_type & category_);
 
       //! Return the actor category
-      category_type get_category() const;
+      actor_category_type get_category() const;
 
       //! Check if actor password is set
       bool has_password() const;
@@ -190,7 +167,7 @@ namespace vire {
 
       bool                  _locked_ = false;
       const manager *       _com_    = nullptr;
-      category_type         _category_; //!< Actor category
+      actor_category_type   _category_; //!< Actor category
       std::string           _name_;     //!< Actor name
       std::string           _password_; //!< Actor password to access the underlying com system
       std::string           _target_;   //!< Client or subcontractor unique identifier

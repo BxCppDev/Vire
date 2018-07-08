@@ -33,11 +33,13 @@
 #include <bayeux/datatools/properties.h>
 
 // This project:
-#include <vire/com/actor.h>
+#include <vire/com/utils.h>
 
 namespace vire {
 
   namespace com {
+
+    class actor;
 
     //! \brief Mailbox description
     class mailbox

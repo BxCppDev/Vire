@@ -91,6 +91,130 @@ namespace vire {
       return _l;
     }
 
+    std::string to_string(const actor_category_type category_)
+    {
+      switch(category_) {
+      case ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: return "server-subcontractor-system";
+      case ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM: return "server-client-system";
+      case ACTOR_CATEGORY_SERVER_GATE: return "server-gate";
+      case ACTOR_CATEGORY_SERVER_CMS: return "server-cms";
+      case ACTOR_CATEGORY_CLIENT_SYSTEM : return "client-system";
+      case ACTOR_CATEGORY_CLIENT_CMS : return "client-cms";
+      case ACTOR_CATEGORY_CLIENT_GATE : return "client-gate";
+      case ACTOR_CATEGORY_SUBCONTRACTOR : return "subcontractor";
+      default:
+        break;
+      }
+      return "";
+    }
+
+    bool from_string(const std::string & label_, actor_category_type & category_)
+    {
+      category_ = ACTOR_CATEGORY_INVALID;
+      if (label_ == to_string(ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM)) {
+        category_ = ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM)) {
+        category_ = ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_SERVER_GATE)) {
+        category_ = ACTOR_CATEGORY_SERVER_GATE;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_SERVER_CMS)) {
+        category_ = ACTOR_CATEGORY_SERVER_CMS;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_CLIENT_SYSTEM)) {
+        category_ = ACTOR_CATEGORY_CLIENT_SYSTEM;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_CLIENT_CMS)) {
+        category_ = ACTOR_CATEGORY_CLIENT_CMS;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_CLIENT_GATE)) {
+        category_ = ACTOR_CATEGORY_CLIENT_GATE;
+      }
+      if (label_ == to_string(ACTOR_CATEGORY_SUBCONTRACTOR)) {
+        category_ = ACTOR_CATEGORY_SUBCONTRACTOR;
+      }
+      return category_ != ACTOR_CATEGORY_INVALID;
+    }
+
+    bool actor_category_requires_target(const actor_category_type category_)
+    {
+      switch(category_) {
+      case ACTOR_CATEGORY_SERVER_GATE:
+      case ACTOR_CATEGORY_SERVER_CMS:
+      case ACTOR_CATEGORY_CLIENT_CMS:
+      case ACTOR_CATEGORY_CLIENT_GATE:
+        return false;
+      }
+      return true;
+    }
+
+    bool actor_category_is_persistant(const actor_category_type category_)
+    {
+      switch(category_) {
+      case ACTOR_CATEGORY_SERVER_GATE:
+      case ACTOR_CATEGORY_SERVER_CMS:
+      case ACTOR_CATEGORY_SUBCONTRACTOR:
+        return true;
+     }
+      return false;
+    }
+
+    std::string to_string(const domain_category_type category_)
+    {
+      switch(category_) {
+      case DOMAIN_CATEGORY_GATE:                 return "vire::com::domain::gate";
+      case DOMAIN_CATEGORY_CLIENT_SYSTEM:        return "vire::com::domain::client_system";
+      case DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM: return "vire::com::domain::subcontractor_system";
+      case DOMAIN_CATEGORY_CONTROL:              return "vire::com::domain::control";
+      case DOMAIN_CATEGORY_MONITORING:           return "vire::com::domain::monitoring";
+      default:
+        break;
+      }
+      return "";
+    }
+
+    bool from_string(const std::string & label_, domain_category_type & category_)
+    {
+      category_ = DOMAIN_CATEGORY_INVALID;
+      if (label_ == to_string(DOMAIN_CATEGORY_GATE)) {
+        category_ = DOMAIN_CATEGORY_GATE;
+      }
+      if (label_ == to_string(DOMAIN_CATEGORY_CLIENT_SYSTEM)) {
+        category_ = DOMAIN_CATEGORY_CLIENT_SYSTEM;
+      }
+      if (label_ == to_string(DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM)) {
+        category_ = DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM;
+      }
+      if (label_ == to_string(DOMAIN_CATEGORY_CONTROL)) {
+        category_ = DOMAIN_CATEGORY_CONTROL;
+      }
+      if (label_ == to_string(DOMAIN_CATEGORY_MONITORING)) {
+        category_ = DOMAIN_CATEGORY_MONITORING;
+      }
+      return category_ != DOMAIN_CATEGORY_INVALID;
+    }
+
+    const std::string & alarm_event_monitoring_label()
+    {
+      static const std::string _l("alarm");
+      return _l;
+    }
+
+    const std::string & log_event_monitoring_label()
+    {
+      static const std::string _l("log");
+      return _l;
+    }
+
+    const std::string & pubsub_event_monitoring_label()
+    {
+      static const std::string _l("pubsub");
+      return _l;
+    }
+
+ 
   } // namespace com
 
 } // namespace vire

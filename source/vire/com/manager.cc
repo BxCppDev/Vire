@@ -34,8 +34,8 @@
 
 // This project:
 #include <vire/com/domain.h>
+#include <vire/com/actor.h>
 #include <vire/resource/manager.h>
-// #include <vire/rabbitmq/manager_service.h>
 
 namespace vire {
 
@@ -230,13 +230,13 @@ namespace vire {
 
     void manager::create_actor(const std::string & actor_name_,
                                const std::string & actor_password_,
-                               const actor::category_type & actor_category_,
+                               const actor_category_type & actor_category_,
                                const std::string & target_id_)
     {
       DT_THROW_IF(has_actor(actor_name_),
                   std::logic_error,
                   "Manager already has an actor with name '" << actor_name_ << "'!");
-      DT_THROW_IF(actor_category_ == actor::CATEGORY_INVALID,
+      DT_THROW_IF(actor_category_ == ACTOR_CATEGORY_INVALID,
                   std::logic_error, "Invalid actor category!");
       _actors_[actor_name_] = std::make_shared<actor>(*this, actor_category_, target_id_, actor_name_, actor_password_);
       if (has_transport_management()) {
@@ -287,7 +287,7 @@ namespace vire {
 
     domain &
     manager::create_domain(const std::string & domain_name_,
-                           const domain::category_type & domain_category_,
+                           const domain_category_type & domain_category_,
                            const vire::utility::model_identifier & domain_protocol_id_,
                            const vire::utility::model_identifier & domain_encoding_id_)
     {
@@ -350,7 +350,7 @@ namespace vire {
             out_ << datatools::i_tree_dumpable::tag;
           }
           out_ << "id='" << i->first << "' (category='"
-               << domain::label_from_category(i->second.get()->get_category()) << "')"
+               << to_string(i->second.get()->get_category()) << "')"
                << std::endl;
         }
       } else {
@@ -540,7 +540,7 @@ namespace vire {
       _build_default_domains_();
 
       // XXX
-      // if (get_actor().get_category() == vire::com::actor::CATEGORY_SYSTEM) {
+      // if (get_actor().get_category() == vire::com::ACTOR_CATEGORY_SYSTEM) {
         
       //   if (_transport_type_id_.get_name() == "rabbitmq") {
       //     _pimpl_->rabbitmgr.reset(new vire::rabbitmq::manager_service);
@@ -583,7 +583,7 @@ namespace vire {
           = vire::com::domain_builder::build_cms_clients_gate_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(gate_sys_domain_name)) {
           vire::com::domain & gate_sys_domain = this->create_domain(gate_sys_domain_name,
-                                                                    vire::com::domain::CATEGORY_GATE,
+                                                                    vire::com::DOMAIN_CATEGORY_GATE,
                                                                     this->get_default_transport_type_id(),
                                                                     this->get_default_encoding_type_id()); 
           this->get_domain_maker().build_clients_gate_domain(gate_sys_domain);
@@ -596,7 +596,7 @@ namespace vire {
           = vire::com::domain_builder::build_cms_monitoring_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(monitoring_domain_name)) {
           vire::com::domain & monitoring_domain = this->create_domain(monitoring_domain_name,
-                                                                      vire::com::domain::CATEGORY_MONITORING,
+                                                                      vire::com::DOMAIN_CATEGORY_MONITORING,
                                                                       this->get_default_transport_type_id(),
                                                                       this->get_default_encoding_type_id()); 
           this->get_domain_maker().build_monitoring_domain(monitoring_domain);
@@ -610,7 +610,7 @@ namespace vire {
           = vire::com::domain_builder::build_cms_control_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(control_domain_name)) {
           vire::com::domain & control_domain = this->create_domain(control_domain_name,
-                                                                   vire::com::domain::CATEGORY_CONTROL,
+                                                                   vire::com::DOMAIN_CATEGORY_CONTROL,
                                                                    this->get_default_transport_type_id(),
                                                                    this->get_default_encoding_type_id()); 
           this->get_domain_maker().build_control_domain(control_domain);

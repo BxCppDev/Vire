@@ -1,5 +1,5 @@
-//! \file  vire/com/i_service_client_plug.h
-//! \brief Vire com service client plug interface
+//! \file  vire/com/i_event_emitter_plug.h
+//! \brief Vire com event emitter plug interface
 //
 // Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 // Copyright (c) 2016-2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
@@ -19,8 +19,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_COM_I_SERVICE_CLIENT_PLUG_H
-#define VIRE_COM_I_SERVICE_CLIENT_PLUG_H
+#ifndef VIRE_COM_I_EVENT_EMITTER_PLUG_H
+#define VIRE_COM_I_EVENT_EMITTER_PLUG_H
 
 // This project:
 #include <vire/com/base_plug.h>
@@ -30,9 +30,9 @@
 namespace vire {
 
   namespace com {
-   
-    //! \brief Base communication plug
-    class i_service_client_plug 
+
+    //! \brief User credentials data
+    class i_event_emitter_plug
       : public base_plug
     {
     public:
@@ -40,47 +40,50 @@ namespace vire {
     protected:
 
       //! Constructor
-      i_service_client_plug(const std::string & name_,
-                            const actor & parent_,
-                            const domain & domain_,
-                            const std::string & mailbox_name_,
-                            const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
-      
-    public:
+      i_event_emitter_plug(const std::string & name_,
+                           const actor & parent_,
+                           const domain & domain_,
+                           const std::string & mailbox_name_ = "",
+                           const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
+     public:
       
       //! Destructor
-      virtual ~i_service_client_plug();
+      virtual ~i_event_emitter_plug();
 
+      bool has_mailbox_name() const;
+      
       //! Return the mailbox name
       const std::string & get_mailbox_name() const;
 
       //! Return category
       plug_category_type get_category() const override final;
 
-      // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
-      rpc_status send_receive(const std::string & address_,
-                              const vire::utility::const_payload_ptr_type & request_payload_,
-                              vire::utility::const_payload_ptr_type & response_payload_,
-                              const double timeout_ = -1.0);
+      //! Send an event payload to the implicit mailbox of the domain
+      com_status send_event(const std::string & address_,
+                            const vire::utility::const_payload_ptr_type & event_payload_);
+
+      //! Send an event payload to an explicit mailbox of the domain
+      com_status send_event(const std::string & mailbox_,
+                            const std::string & address_,
+                            const vire::utility::const_payload_ptr_type & event_payload_);
 
     private:
       
-      virtual rpc_status _at_send_receive_(const std::string & address_,
-                                           const raw_message_type & raw_request_,
-                                           raw_message_type & raw_response_,
-                                           const float timeout_) = 0;
+      virtual com_status _at_send_event_(const std::string & mailbox_,
+                                         const std::string & address_,
+                                         const raw_message_type & raw_event_) = 0;
 
     private:
-      
+     
       std::string _mailbox_name_; ///< Domain mailbox (exchange)
-      
+
     };
 
   } // namespace com
 
 } // namespace vire
 
-#endif // VIRE_COM_I_SERVICE_CLIENT_PLUG_H
+#endif // VIRE_COM_I_EVENT_EMITTER_PLUG_H
 
 // Local Variables: --
 // mode: c++ --

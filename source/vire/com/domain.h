@@ -36,9 +36,10 @@
 // This project:
 #include <vire/utility/model_identifier.h>
 #include <vire/com/mailbox.h>
-#include <vire/com/actor.h>
+// #include <vire/com/actor.h>
 #include <vire/com/i_encoding_driver.h>
 #include <vire/com/i_transport_driver.h>
+#include <vire/com/utils.h>
 
 namespace vire {
 
@@ -54,16 +55,6 @@ namespace vire {
       : public ::datatools::i_tree_dumpable
     {
     public:
-
-      //! \brief Domain categories
-      enum category_type {
-        CATEGORY_INVALID              = 0, ///< Invalid domain category
-        CATEGORY_GATE                 = 1, ///< Gate category
-        CATEGORY_CLIENT_SYSTEM        = 2, ///< Client system category
-        CATEGORY_SUBCONTRACTOR_SYSTEM = 3, ///< Subcontractor system category
-        CATEGORY_CONTROL              = 4, ///< Control category
-        CATEGORY_MONITORING           = 5  ///< Monitoring category
-      };
 
       //! \brief Mailbox entry categories
       struct mailbox_entry {
@@ -84,18 +75,12 @@ namespace vire {
       //!  - "/snemo/test/vire/cms/clients/system/xgZTZ87e"
       static bool validate_domain_name(const std::string & candidate_);
 
-      //! Return the domain category associated to a label
-      static category_type category_from_label(const std::string & cat_repr_);
-
-      //! Return the label associated to a domain category
-      static std::string label_from_category(const category_type cat_);
-
       //! Default constructor
       domain();
 
       //! Constructor
       domain(const std::string & name_,
-             const category_type cat_,
+             const domain_category_type cat_,
              const vire::utility::model_identifier & transport_id_,
              const vire::utility::model_identifier & encoding_id_);
 
@@ -124,20 +109,26 @@ namespace vire {
       bool has_category() const;
 
       //! Set category
-      void set_category(const category_type cat_);
+      void set_category(const domain_category_type cat_);
 
       //! Set category
       void set_category(const std::string & cat_repr_);
 
       //! Return the category
-      category_type get_category() const;
+      domain_category_type get_category() const;
 
       //! Check if the category is subcontractor system
       bool is_subcontractor_system() const;
 
+      //! Extract the subcontractor identifier for the domain name (only for subcontractor system)
+      std::string get_subcontractor_identifier() const;
+
       //! Check if the category is client system
       bool is_client_system() const;
 
+      //! Extract the client identifier for the domain name (only for client system)
+      std::string get_client_identifier() const;
+      
       //! Check if the category is gate
       bool is_gate() const;
 
@@ -215,7 +206,7 @@ namespace vire {
 
       //! Check usage permission access to a given mailbox by a category of actor
       bool grant_access(const std::string & mailbox_name_,
-                        const actor::category_type actor_cat_,
+                        const actor_category_type actor_cat_,
                         const mailbox::usage_permission_flag useperm_) const;
 
       // //! Generate a new unique name for a private mailbox
@@ -256,7 +247,7 @@ namespace vire {
 
       // Configuration:
       std::string                     _name_;                           //!< Domain unique name
-      category_type                   _category_ = CATEGORY_INVALID;    //!< Domain category
+      domain_category_type            _category_ = DOMAIN_CATEGORY_INVALID; //!< Domain category
       vire::utility::model_identifier _transport_type_id_;              //!< Transport type identifier associated to the domain
       vire::utility::model_identifier _encoding_type_id_;               //!< Encoding type identifier associated to the domain
       mailbox_dict_type               _mailboxes_;                      //!< Dictionary of mailboxes

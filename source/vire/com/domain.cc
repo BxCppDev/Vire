@@ -57,37 +57,6 @@ namespace vire {
       return true;
     }
 
-    // static
-    domain::category_type domain::category_from_label(const std::string & cat_repr_)
-    {
-      if (cat_repr_ == "vire::com::domain::gate") {
-        return CATEGORY_GATE;
-      } else if (cat_repr_ == "vire::com::domain::client_system") {
-        return CATEGORY_CLIENT_SYSTEM;
-      } else if (cat_repr_ == "vire::com::domain::subcontractor_system") {
-        return CATEGORY_SUBCONTRACTOR_SYSTEM;
-      } else if (cat_repr_ == "vire::com::domain::control") {
-        return CATEGORY_CONTROL;
-      } else if (cat_repr_ == "vire::com::domain::monitoring") {
-        return CATEGORY_MONITORING;
-      }
-      return CATEGORY_INVALID;
-    }
-
-    // static
-    std::string domain::label_from_category(const category_type cat_)
-    {
-      switch (cat_) {
-      case CATEGORY_GATE:                 return std::string("vire::com::domain::gate");
-      case CATEGORY_CLIENT_SYSTEM:        return std::string("vire::com::domain::client_system");
-      case CATEGORY_SUBCONTRACTOR_SYSTEM: return std::string("vire::com::domain::subcontractor_system");
-      case CATEGORY_CONTROL:              return std::string("vire::com::domain::control");
-      case CATEGORY_MONITORING:           return std::string("vire::com::domain::monitoring");
-      default:
-        return std::string("");
-      }
-    }
-
     domain::domain()
     {
       return;
@@ -106,7 +75,7 @@ namespace vire {
     }
 
     domain::domain(const std::string & name_,
-                   const category_type cat_,
+                   const domain_category_type cat_,
                    const vire::utility::model_identifier & transport_id_,
                    const vire::utility::model_identifier & encoding_id_)
     {
@@ -151,10 +120,10 @@ namespace vire {
 
     bool domain::has_category() const
     {
-      return _category_ != CATEGORY_INVALID;
+      return _category_ != DOMAIN_CATEGORY_INVALID;
     }
 
-    void domain::set_category(const category_type cat_)
+    void domain::set_category(const domain_category_type cat_)
     {
       _category_ = cat_;
       return;
@@ -162,38 +131,62 @@ namespace vire {
 
     void domain::set_category(const std::string & cat_repr_)
     {
-      _category_ = category_from_label(cat_repr_);
+      DT_THROW_IF(!from_string(cat_repr_, _category_),
+                  std::logic_error,
+                  "Invalid domain category representation '" << cat_repr_ << "'!");
       return;
     }
 
-    domain::category_type domain::get_category() const
+    domain_category_type domain::get_category() const
     {
       return _category_;
     }
 
     bool domain::is_gate() const
     {
-      return _category_ == CATEGORY_GATE;
+      return _category_ == DOMAIN_CATEGORY_GATE;
     }
 
     bool domain::is_subcontractor_system() const
     {
-      return _category_ == CATEGORY_SUBCONTRACTOR_SYSTEM;
+      return _category_ == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM;
     }
 
     bool domain::is_client_system() const
     {
-      return _category_ == CATEGORY_CLIENT_SYSTEM;
+      return _category_ == DOMAIN_CATEGORY_CLIENT_SYSTEM;
+    }
+
+    std::string domain::get_subcontractor_identifier() const
+    {
+      DT_THROW_IF(!is_subcontractor_system(),
+                  std::logic_error,
+                  "Domain '" << _name_ << "' is not of the '"
+                  << to_string(DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) << "' category!");
+      std::vector<std::string> strs;
+      boost::split(strs, _name_, boost::is_any_of("/"));
+      return strs.back();
+    }
+
+    std::string domain::get_client_identifier() const
+    {
+      DT_THROW_IF(!is_client_system(),
+                  std::logic_error,
+                  "Domain '" << _name_ << "' is not of the '"
+                  << to_string(DOMAIN_CATEGORY_CLIENT_SYSTEM) << "' category!");
+      std::vector<std::string> strs;
+      boost::split(strs, _name_, boost::is_any_of("/"));
+      return strs.back();
     }
 
     bool domain::is_control() const
     {
-      return _category_ == CATEGORY_CONTROL;
+      return _category_ == DOMAIN_CATEGORY_CONTROL;
     }
 
     bool domain::is_monitoring() const
     {
-      return _category_ == CATEGORY_MONITORING;
+      return _category_ == DOMAIN_CATEGORY_MONITORING;
     }
 
     bool domain::has_transport_type_id() const
@@ -310,7 +303,7 @@ namespace vire {
     void domain::reset()
     {
       _name_.clear();
-      _category_ = CATEGORY_INVALID;
+      _category_ = DOMAIN_CATEGORY_INVALID;
       _transport_type_id_.reset();
       _transport_driver_params_.clear();
       _encoding_type_id_.reset();
@@ -487,7 +480,7 @@ namespace vire {
            << "Name              : '" << _name_ << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Category          : '" << label_from_category(_category_) << "'" << std::endl;
+           << "Category          : '" << to_string(_category_) << "'" << std::endl;
 
       out_ << indent_ << datatools::i_tree_dumpable::tag
            << "Transport type ID : '" << _transport_type_id_.to_string() << "'" << std::endl;

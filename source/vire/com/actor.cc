@@ -33,69 +33,6 @@
 namespace vire {
 
   namespace com {
-
-    // static
-    std::string actor::to_string(const category_type category_)
-    {
-      switch(category_) {
-      case CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: return "server-subcontractor-system";
-      case CATEGORY_SERVER_CLIENT_SYSTEM: return "server-client-system";
-      case CATEGORY_SERVER_GATE: return "server-gate";
-      case CATEGORY_SERVER_CMS: return "server-cms";
-      case CATEGORY_CLIENT_SYSTEM : return "client-system";
-      case CATEGORY_CLIENT_CMS : return "client-cms";
-      case CATEGORY_CLIENT_GATE : return "client-gate";
-      case CATEGORY_SUBCONTRACTOR : return "subcontractor";
-      default:
-        break;
-      }
-      return "";
-    }
-
-    // static
-    bool actor::from_string(const std::string & label_, category_type & category_)
-    {
-      category_ = CATEGORY_INVALID;
-      if (label_ == to_string(CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM)) {
-        category_ = CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM;
-      }
-      if (label_ == to_string(CATEGORY_SERVER_CLIENT_SYSTEM)) {
-        category_ = CATEGORY_SERVER_CLIENT_SYSTEM;
-      }
-      if (label_ == to_string(CATEGORY_SERVER_GATE)) {
-        category_ = CATEGORY_SERVER_GATE;
-      }
-      if (label_ == to_string(CATEGORY_SERVER_CMS)) {
-        category_ = CATEGORY_SERVER_CMS;
-      }
-      if (label_ == to_string(CATEGORY_CLIENT_SYSTEM)) {
-        category_ = CATEGORY_CLIENT_SYSTEM;
-      }
-      if (label_ == to_string(CATEGORY_CLIENT_CMS)) {
-        category_ = CATEGORY_CLIENT_CMS;
-      }
-      if (label_ == to_string(CATEGORY_CLIENT_GATE)) {
-        category_ = CATEGORY_CLIENT_GATE;
-      }
-      if (label_ == to_string(CATEGORY_SUBCONTRACTOR)) {
-        category_ = CATEGORY_SUBCONTRACTOR;
-      }
-      return category_ != CATEGORY_INVALID;
-    }
-
-    // static
-    bool actor::category_requires_target(const category_type category_)
-    {
-      switch(category_) {
-      case CATEGORY_SERVER_GATE:
-      case CATEGORY_SERVER_CMS:
-      case CATEGORY_CLIENT_CMS:
-      case CATEGORY_CLIENT_GATE:
-        return false;
-      }
-      return true;
-    }
-
     /*
     // static
     std::string actor::build_name(const category_type category_,
@@ -126,7 +63,7 @@ namespace vire {
     */
  
     actor::actor(const manager & com_,
-                 const category_type category_,
+                 const actor_category_type category_,
                  const std::string & target_,
                  const std::string & name_,
                  const std::string & password_)
@@ -138,11 +75,11 @@ namespace vire {
       if (!target_.empty()) { 
         set_target(target_);
       }
-      DT_THROW_IF(!target_.empty() && !category_requires_target(_category_),
+      DT_THROW_IF(!target_.empty() && !actor_category_requires_target(_category_),
                   std::logic_error,
                   "Unused target for actor '" << _name_
                   << "' with category '" << to_string(_category_) << "'!");
-      DT_THROW_IF(!has_target() && category_requires_target(_category_),
+      DT_THROW_IF(!has_target() && actor_category_requires_target(_category_),
                   std::logic_error,
                   "Missing target (client/subcontractor ID) for actor '" << _name_
                   << "' with category '" << to_string(_category_) << "'!");
@@ -166,23 +103,23 @@ namespace vire {
     {
       if (!has_name()) return false;
       if (!has_category()) return false;
-      if (category_requires_target(_category_) && !has_target()) return false;
+      if (actor_category_requires_target(_category_) && !has_target()) return false;
       return true;
     }
 
     bool actor::has_category() const
     {
-      return _category_ != CATEGORY_INVALID;
+      return _category_ != ACTOR_CATEGORY_INVALID;
     }
 
-    void actor::set_category(const category_type & category_)
+    void actor::set_category(const actor_category_type & category_)
     {
       DT_THROW_IF(is_locked(), std::logic_error, "Actor is locked!");
       _category_ = category_;
       return;
     }
 
-    actor::category_type actor::get_category() const
+    actor_category_type actor::get_category() const
     {
       return _category_;
     }
@@ -322,13 +259,13 @@ namespace vire {
     {
       const std::string & domain_name_prefix = this->get_com().get_domain_name_prefix();
       
-      if (_category_ == CATEGORY_CLIENT_GATE || _category_ == CATEGORY_SERVER_GATE) {
+      if (_category_ == ACTOR_CATEGORY_CLIENT_GATE || _category_ == ACTOR_CATEGORY_SERVER_GATE) {
         std::string gate_domain_name = domain_builder::build_cms_clients_gate_name(domain_name_prefix);
         _domains_["gate"] = &_com_->get_domain(gate_domain_name);
         return;
       }
 
-      if (_category_ == CATEGORY_SERVER_CLIENT_SYSTEM || _category_ == CATEGORY_CLIENT_SYSTEM) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM || _category_ == ACTOR_CATEGORY_CLIENT_SYSTEM) {
         std::string client_name = get_target();
         std::string client_system_domain_name
           = domain_builder::build_cms_client_system_name(domain_name_prefix, client_name);
@@ -336,19 +273,19 @@ namespace vire {
         return;
       }
  
-      if (_category_ == CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM || _category_ == CATEGORY_SUBCONTRACTOR) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM || _category_ == ACTOR_CATEGORY_SUBCONTRACTOR) {
         std::string subcontractor_name = get_target();
         std::string subcontractor_system_domain_name
           = domain_builder::build_cms_subcontractor_system_name(domain_name_prefix, subcontractor_name);
         _domains_["system"] = &_com_->get_domain(subcontractor_system_domain_name);
       }
  
-      if (_category_ == CATEGORY_SERVER_CMS || _category_ == CATEGORY_CLIENT_CMS || _category_ == CATEGORY_SUBCONTRACTOR) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_CMS || _category_ == ACTOR_CATEGORY_CLIENT_CMS || _category_ == ACTOR_CATEGORY_SUBCONTRACTOR) {
         std::string monitoring_domain_name = domain_builder::build_cms_monitoring_name(domain_name_prefix);
         _domains_["monitoring"] = &_com_->get_domain(monitoring_domain_name);
       }
  
-      if (_category_ == CATEGORY_SERVER_CMS || _category_ == CATEGORY_CLIENT_CMS) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_CMS || _category_ == ACTOR_CATEGORY_CLIENT_CMS) {
         std::string control_domain_name = domain_builder::build_cms_control_name(domain_name_prefix);
         _domains_["control"] = &_com_->get_domain(control_domain_name);
       }
@@ -396,17 +333,17 @@ namespace vire {
     {
       plug_factory & factory = this->grab_plug_factory();
       
-      if (_category_ == CATEGORY_SERVER_GATE) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_GATE) {
         std::string plug_name = "gate.service.server";
         factory.make_service_server_plug(get_domain(domain_gate_label()), plug_name);
       }
 
-      if (_category_ == CATEGORY_CLIENT_GATE) {
+      if (_category_ == ACTOR_CATEGORY_CLIENT_GATE) {
         std::string plug_name = "gate.service.client";
         factory.make_service_client_plug(get_domain(domain_gate_label()), plug_name);
       }
 
-      if (_category_ == CATEGORY_SERVER_CLIENT_SYSTEM) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM) {
         {
           std::string plug_name = "vireserver.service.server";
           factory.make_service_server_plug(get_domain(domain_system_label()), plug_name);
@@ -417,7 +354,7 @@ namespace vire {
         }
       }
   
-      if (_category_ == CATEGORY_CLIENT_SYSTEM) {
+      if (_category_ == ACTOR_CATEGORY_CLIENT_SYSTEM) {
         {
           std::string plug_name = "vireserver.service.client";
           factory.make_service_client_plug(get_domain(domain_system_label()), plug_name);
@@ -428,7 +365,7 @@ namespace vire {
         }
       }
   
-      if (_category_ == CATEGORY_CLIENT_CMS) {
+      if (_category_ == ACTOR_CATEGORY_CLIENT_CMS) {
         {
           std::string plug_name = "control.service.server";
           factory.make_service_server_plug(get_domain(domain_control_label()), plug_name);
@@ -443,7 +380,7 @@ namespace vire {
         }
       }
  
-      if (_category_ == CATEGORY_SERVER_CMS) {  
+      if (_category_ == ACTOR_CATEGORY_SERVER_CMS) {  
         {
           std::string plug_name = "control.service.client";
           factory.make_service_client_plug(get_domain(domain_control_label()), plug_name);
@@ -466,7 +403,7 @@ namespace vire {
         }
       }
 
-      if (_category_ == CATEGORY_SUBCONTRACTOR) {
+      if (_category_ == ACTOR_CATEGORY_SUBCONTRACTOR) {
         {
           std::string plug_name = "monitoring.service.server";
           factory.make_service_server_plug(get_domain(domain_monitoring_label()), plug_name);
@@ -493,7 +430,7 @@ namespace vire {
         }
       }
 
-      if (_category_ == CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+      if (_category_ == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
         {
           std::string plug_name = "vireserver.service.server";
           factory.make_service_server_plug(get_domain(domain_system_label()), plug_name);

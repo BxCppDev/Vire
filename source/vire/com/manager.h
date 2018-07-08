@@ -35,7 +35,6 @@
 #include <bayeux/datatools/base_service.h>
 
 // This project:
-#include <vire/com/actor.h>
 #include <vire/com/utils.h>
 #include <vire/com/domain_builder.h>
 #include <vire/cms/application.h>
@@ -49,6 +48,7 @@ namespace vire {
   namespace com {
 
     class domain;
+    class actor;
 
     //! \brief Communication manager service
     class manager
@@ -125,7 +125,7 @@ namespace vire {
       //! Create and insert a new actor of given name and category
       void create_actor(const std::string & actor_name_,
                         const std::string & actor_password_,
-                        const actor::category_type & actor_category_,
+                        const actor_category_type & actor_category_,
                         const std::string & target_id_ = "");
 
       //! Return a actor by name
@@ -153,7 +153,7 @@ namespace vire {
 
       //! Create and insert a new domain of given name and category
       domain & create_domain(const std::string & domain_name_,
-                             const domain::category_type & domain_category_,
+                             const domain_category_type & domain_category_,
                              const vire::utility::model_identifier & domain_protocol_id_,
                              const vire::utility::model_identifier & domain_encoding_id_);
 

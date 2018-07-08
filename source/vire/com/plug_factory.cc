@@ -28,13 +28,15 @@
 
 // This project:
 #include <vire/com/actor.h>
+#include <vire/com/domain.h>
 #include <vire/com/manager.h>
 #include <vire/com/i_service_client_plug.h>
 // #include <vire/com/i_service_server_plug.h>
 // #include <vire/com/i_event_emitter_plug.h>
 // #include <vire/com/i_event_listener_plug.h>
 // #include <vire/resource/manager.h>
-#include <vire/com/rabbitmq_service_client_plug.h>
+#include <vire/rabbitmq/service_client_plug.h>
+#include <vire/rabbitmq/event_emitter_plug.h>
 
 namespace {
   std::string const default_random_chars = 
@@ -95,8 +97,7 @@ namespace vire {
     bool
     plug_factory::make_service_client_plug(const domain & domain_,
                                            std::string & plug_name_)
-    {
-      
+    {     
       actor & theActor = _parent_;
       DT_THROW_IF(theActor.has_plug(plug_name_),
                   std::logic_error,
@@ -107,7 +108,7 @@ namespace vire {
                   std::logic_error,
                   "Domain '" << theDomain.get_name() << "' can only support 'rabbitmq' transport type!");
       
-      if (theActor.get_category() == actor::CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+      if (theActor.get_category() == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
         std::string this_subcontractor_name = theActor.get_target();
         std::string this_subcontractor_system_domain_name = domain_.get_name();
         std::string mailbox_name = "subcontractor.service";
@@ -120,25 +121,12 @@ namespace vire {
           }
         } 
         std::shared_ptr<i_service_client_plug> new_plug
-          = std::make_shared<rabbitmq_service_client_plug>(plug_name, _parent_, domain_, mailbox_name);
+          = std::make_shared<vire::rabbitmq::service_client_plug>(plug_name, _parent_, domain_, mailbox_name);
         _parent_._plugs_[plug_name] = new_plug;
         // Return automatic plug name:
         plug_name_ = plug_name;
         return true;
       }
- 
-      /*
-      if (actor_.get_category() == actor::CATEGORY_CLIENT) {
-        std::string this_client_name = _com_mgr_.get_actor().get_name();
-        std::string this_client_system_domain_name
-          = domain_builder::build_cms_client_system_name(_com_mgr_.get_domain_name_prefix(),
-                                                         this_client_name);
-        if (this_client_system_domain_name != domain_name_) {
-          return new_plug;
-        }
-      }
-      auto encoder = std::make_shared<protobuf_encoding_driver>();
-      */
       
       plug_name_.clear();
       return false;
@@ -159,9 +147,152 @@ namespace vire {
     }
 
     bool plug_factory::make_event_emitter_plug(const domain & domain_,
-                                               std::string & plug_name_)
+                                               std::string & plug_name_,
+                                               const std::string & event_label_)
     {
+      actor & theActor = _parent_;
+      DT_THROW_IF(theActor.has_plug(plug_name_),
+                  std::logic_error,
+                  "Actor '" << theActor.get_name() << "' already has a plug named '" << plug_name_ << "'!");
       
+      const domain & theDomain = domain_;
+      DT_THROW_IF(theDomain.get_transport_type_id().get_name() != "rabbitmq",
+                  std::logic_error,
+                  "Domain '" << theDomain.get_name() << "' can only support 'rabbitmq' transport type!");
+           
+      if (theDomain.get_category() == DOMAIN_CATEGORY_GATE) {
+        return false;
+      }
+           
+      if (theDomain.get_category() == DOMAIN_CATEGORY_CONTROL) {
+        return false;
+      }
+
+      if (theDomain.get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+        std::string this_client_system_domain_name = domain_.get_name();
+
+        if (theActor.get_category() == ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM) {
+          DT_THROW_IF(! event_label_.empty() && event_label_ != "vireserver",
+                      std::logic_error,
+                      "Invalid event label '" << event_label_ << "'!");
+          std::string this_client_name = theActor.get_target();
+          DT_THROW_IF(this_client_name != domain_.get_client_identifier(),
+                      std::logic_error,
+                      "Server client system actor '" << theActor.get_name() << "' target '"
+                      << this_client_name << "' does not match the domain '" << domain_.get_client_identifier() << "'!");                  
+          std::string mailbox_name = "vireserver.event";
+          // Compute a random plug name if not specified:
+          std::string plug_name = plug_name_;
+          while (plug_name.empty()) {
+            plug_name = _pimpl_->random_string(default_private_plug_prefix(), 8);
+            if (_parent_.has_plug(plug_name)) {
+              plug_name.clear();
+            }
+          } 
+          std::shared_ptr<i_event_emitter_plug> new_plug
+            = std::make_shared<vire::rabbitmq::event_emitter_plug>(plug_name, _parent_, domain_, mailbox_name);
+          _parent_._plugs_[plug_name] = new_plug;
+          // Return automatic plug name:
+          plug_name_ = plug_name;
+          return true;
+        }
+
+      }
+
+      if (theDomain.get_category() == DOMAIN_CATEGORY_MONITORING) {
+        std::string monitoring_domain_name = domain_.get_name();
+
+        if (theActor.get_category() == ACTOR_CATEGORY_SUBCONTRACTOR
+            || theActor.get_category() == ACTOR_CATEGORY_SERVER_CMS) {
+          std::string mailbox_name;
+          if (!event_label_.empty()) {
+            if (event_label_ == alarm_event_monitoring_label()) {
+              mailbox_name = "alarm.event";
+            } else if (event_label_ == log_event_monitoring_label()) {
+              mailbox_name = "log.event";
+            } else if (event_label_ == pubsub_event_monitoring_label()) {
+              mailbox_name = "pubsub.event";
+            } else {
+              DT_THROW(std::logic_error,
+                       "Unknown monitoring event label '" << event_label_ << "' in plug '!"); 
+            }
+            std::string plug_name = plug_name_;
+            while (plug_name.empty()) {
+              plug_name = _pimpl_->random_string(default_private_plug_prefix(), 8);
+              if (_parent_.has_plug(plug_name)) {
+                plug_name.clear();
+              }
+            } 
+            std::shared_ptr<i_event_emitter_plug> new_plug
+              = std::make_shared<vire::rabbitmq::event_emitter_plug>(plug_name,
+                                                                     _parent_,
+                                                                     domain_,
+                                                                     mailbox_name);
+            _parent_._plugs_[plug_name] = new_plug;
+            // Return automatic plug name:
+            plug_name_ = plug_name;
+            return true;
+          }
+        }
+      }
+
+      if (theDomain.get_category() == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+        std::string this_subcontractor_system_domain_name = domain_.get_name();
+
+        if (theActor.get_category() == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+          DT_THROW_IF(! event_label_.empty() && event_label_ != "vireserver",
+                      std::logic_error,
+                      "Invalid event label '" << event_label_ << "'!");
+          std::string this_subcontractor_name = theActor.get_target();
+          DT_THROW_IF(this_subcontractor_name != domain_.get_subcontractor_identifier(),
+                      std::logic_error,
+                      "Server subcontractor system actor '" << theActor.get_name() << "' target '"
+                      << this_subcontractor_name << "' does not match the domain '" << domain_.get_subcontractor_identifier() << "'!");                  
+          std::string mailbox_name = "vireserver.event";
+          // Compute a random plug name if not specified:
+          std::string plug_name = plug_name_;
+          while (plug_name.empty()) {
+            plug_name = _pimpl_->random_string(default_private_plug_prefix(), 8);
+            if (_parent_.has_plug(plug_name)) {
+              plug_name.clear();
+            }
+          } 
+          std::shared_ptr<i_event_emitter_plug> new_plug
+            = std::make_shared<vire::rabbitmq::event_emitter_plug>(plug_name, _parent_, domain_, mailbox_name);
+          _parent_._plugs_[plug_name] = new_plug;
+          // Return automatic plug name:
+          plug_name_ = plug_name;
+          return true;
+        }
+
+        if (theActor.get_category() == ACTOR_CATEGORY_SUBCONTRACTOR) {
+          DT_THROW_IF(! event_label_.empty() && event_label_ != "subcontractor",
+                      std::logic_error,
+                      "Invalid event label '" << event_label_ << "'!");
+          std::string this_subcontractor_name = theActor.get_target();
+          DT_THROW_IF(this_subcontractor_name != domain_.get_subcontractor_identifier(),
+                      std::logic_error,
+                      "Server subcontractor system actor '" << theActor.get_name() << "' target '"
+                      << this_subcontractor_name << "' does not match the domain '" << domain_.get_subcontractor_identifier() << "'!");                  
+          std::string mailbox_name = "subcontractor.event";
+          // Compute a random plug name if not specified:
+          std::string plug_name = plug_name_;
+          while (plug_name.empty()) {
+            plug_name = _pimpl_->random_string(default_private_plug_prefix(), 8);
+            if (_parent_.has_plug(plug_name)) {
+              plug_name.clear();
+            }
+          } 
+          std::shared_ptr<i_event_emitter_plug> new_plug
+            = std::make_shared<vire::rabbitmq::event_emitter_plug>(plug_name, _parent_, domain_, mailbox_name);
+          _parent_._plugs_[plug_name] = new_plug;
+          // Return automatic plug name:
+          plug_name_ = plug_name;
+          return true;
+        }
+
+      }
+
       return false;
     }
     

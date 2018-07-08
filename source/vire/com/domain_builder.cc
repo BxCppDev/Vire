@@ -27,6 +27,9 @@
 #include <datatools/utils.h>
 #include <datatools/exception.h>
 
+// This project:
+#include <vire/com/domain.h>
+
 namespace vire {
 
   namespace com {
@@ -214,7 +217,7 @@ namespace vire {
         dom_.set_name(domain_builder::build_cms_clients_gate_name(_domain_name_prefix_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_GATE);
+        dom_.set_category(vire::com::DOMAIN_CATEGORY_GATE);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);
@@ -239,7 +242,7 @@ namespace vire {
         dom_.set_name(domain_builder::build_cms_control_name(_domain_name_prefix_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_CONTROL);
+        dom_.set_category(vire::com::DOMAIN_CATEGORY_CONTROL);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);
@@ -264,7 +267,7 @@ namespace vire {
         dom_.set_name(domain_builder::build_cms_monitoring_name(_domain_name_prefix_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_MONITORING);
+        dom_.set_category(vire::com::DOMAIN_CATEGORY_MONITORING);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);
@@ -308,7 +311,7 @@ namespace vire {
         dom_.set_name(domain_builder::build_cms_client_system_name(_domain_name_prefix_, client_id_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_CLIENT_SYSTEM);
+        dom_.set_category(vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);
@@ -341,7 +344,7 @@ namespace vire {
         dom_.set_name(build_cms_subcontractor_system_name(_domain_name_prefix_, subcontractor_id_));
       }
       if (!dom_.has_category()) {
-        dom_.set_category(vire::com::domain::CATEGORY_SUBCONTRACTOR_SYSTEM);
+        dom_.set_category(vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM);
       }
       if (!dom_.has_transport_type_id()) {
         dom_.set_transport_type_id(_transport_type_id_);

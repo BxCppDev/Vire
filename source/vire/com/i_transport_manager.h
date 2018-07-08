@@ -30,8 +30,7 @@
 #include <datatools/factory_macros.h>
 
 // This project:
-#include <vire/com/domain.h>
-#include <vire/com/actor.h>
+#include <vire/com/utils.h>
 
 namespace vire {
 
@@ -57,15 +56,15 @@ namespace vire {
       //! Reset the driver
       void reset();
 
-      virtual bool has_domain(const std::string & domain_name_) = 0;
-      virtual bool add_domain(const std::string & domain_name_,
-                              const domain::category_type category_) = 0;
-      virtual bool remove_domain(const std::string & domain_name_) = 0;
+      virtual bool has_domain(const std::string & domain_name_) const = 0;
+      virtual void add_domain(const std::string & domain_name_,
+                              const domain_category_type category_) = 0;
+      virtual void remove_domain(const std::string & domain_name_) = 0;
  
-      virtual bool has_user(const std::string & login_) = 0;
+      virtual bool has_user(const std::string & login_) const = 0;
       virtual void add_user(const std::string & login_,
                             const std::string & password_,
-                            const actor::category_type category_) = 0;
+                            const actor_category_type category_) = 0;
       virtual void remove_user(const std::string & login_) = 0;
       
      
@@ -81,7 +80,7 @@ namespace vire {
 
       // Management:
       bool _initialized_ = false; //!< Initialization flag
-
+      
       // Factory stuff :
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(i_transport_manager)
 

@@ -26,11 +26,14 @@
 #include <string>
 
 // This project:
-#include <vire/com/domain.h>
+#include <vire/com/utils.h>
+#include <vire/utility/model_identifier.h>
 
 namespace vire {
 
   namespace com {
+
+    class domain;
 
     //! \brief Communication domain builder
     class domain_builder

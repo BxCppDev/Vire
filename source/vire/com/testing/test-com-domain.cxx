@@ -94,7 +94,7 @@ void test_com_domain_1(bool interactive_)
   vire::com::domain dom1;
   std::string subcontractor_name = "cmslapp";
   dom1.set_name("/" + setup_name + "/cms/vire/subcontractors/system/" + subcontractor_name);
-  dom1.set_category(vire::com::domain::CATEGORY_SUBCONTRACTOR_SYSTEM);
+  dom1.set_category(vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM);
   dom1.add_mailbox("RequestToServer",
                    vire::com::mailbox::MODE_SERVICE,
                    vire::com::mailbox::PRIVACY_PUBLIC,
@@ -114,7 +114,7 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #2" << std::endl;
   vire::com::domain dom2;
   dom2.set_name("/" + setup_name + "/cms/vire/clients/system/" + "clientFoo");
-  dom2.set_category(vire::com::domain::CATEGORY_CLIENT_SYSTEM);
+  dom2.set_category(vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
   dom2.set_transport_type_id(transport_id);
   dom2.set_encoding_type_id(encoding_id);
   dom2.tree_dump(std::clog, "Server to clients system communication domain: ");
@@ -124,7 +124,7 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #3" << std::endl;
   vire::com::domain dom3;
   dom3.set_name("/" + setup_name + "/cms/vire/monitoring");
-  dom3.set_category(vire::com::domain::CATEGORY_MONITORING);
+  dom3.set_category(vire::com::DOMAIN_CATEGORY_MONITORING);
   dom3.set_transport_type_id(transport_id);
   dom3.set_encoding_type_id(encoding_id);
   dom3.tree_dump(std::clog, "Resource monitoring communication domain: ");
@@ -134,7 +134,7 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #4" << std::endl;
   vire::com::domain dom4;
   dom4.set_name("/" + setup_name + "/cms/vire/control");
-  dom4.set_category(vire::com::domain::CATEGORY_CONTROL);
+  dom4.set_category(vire::com::DOMAIN_CATEGORY_CONTROL);
   dom4.set_transport_type_id(transport_id);
   dom4.set_encoding_type_id(encoding_id);
   dom4.tree_dump(std::clog, "Resource control communication domain: ");
@@ -144,7 +144,7 @@ void test_com_domain_1(bool interactive_)
   std::clog << "\ntest_com_domain_1: Domain #5" << std::endl;
   vire::com::domain dom5;
   dom5.set_name("/" + setup_name + "/cms/vire/clients/gate");
-  dom5.set_category(vire::com::domain::CATEGORY_GATE);
+  dom5.set_category(vire::com::DOMAIN_CATEGORY_GATE);
   dom5.set_transport_type_id(transport_id);
   dom5.set_encoding_type_id(encoding_id);
   dom5.tree_dump(std::clog, "Clients gate communication domain: ");

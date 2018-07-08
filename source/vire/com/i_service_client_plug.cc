@@ -1,6 +1,7 @@
 //! \file vire/com/i_service_client_plug.cc
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -44,6 +45,9 @@ namespace vire {
                                                  const datatools::logger::priority logging_)
       : base_plug(name_, parent_, domain_, logging_)
     {
+      DT_THROW_IF(mailbox_name_.empty(),
+                  std::logic_error,
+                  "Missing mailbox name in service client plug '" << name_ << "'!");
       _mailbox_name_ = mailbox_name_;
       return;
     }
@@ -69,6 +73,8 @@ namespace vire {
                                         vire::utility::const_payload_ptr_type & response_payload_,
                                         const double timeout_)
     {
+      datatools::logger::priority logging = datatools::logger::PRIO_FATAL;
+      logging = datatools::logger::PRIO_DEBUG; // Hack debug
       rpc_status status = RPC_STATUS_SUCCESS;
       response_payload_.reset();
      
@@ -100,19 +106,17 @@ namespace vire {
       // Encode the raw buffer:
       encoder.encode(msg_request, raw_msg_request);
 
-      std::cerr << "********** RAW BUFFER ********** " << std::endl;
-      for (char byte : raw_msg_request.buffer)  {
-        if (std::isprint(byte)) {
-          std::cerr << byte;
-        } else {
-          std::cerr << '?';
+      if (datatools::logger::is_debug(logging)) {
+        std::cerr << "********** RAW REQUEST BUFFER ********** " << std::endl;
+        for (char byte : raw_msg_request.buffer)  {
+          if (std::isprint(byte)) {
+            std::cerr << byte;
+          } else {
+            std::cerr << '?';
+          }
         }
-      }
-      std::cerr << "\n********** RAW BUFFER ********** " << std::endl;
-        
-
-      
-      
+        std::cerr << "\n************************************** " << std::endl;
+       }
       
       // Populate raw metadata:
       if (msg_request.get_header().get_message_id().is_valid()) {
@@ -122,6 +126,9 @@ namespace vire {
       raw_message_type raw_msg_response;
       status = _at_send_receive_(address_, raw_msg_request, raw_msg_response, timeout_sec);
       if (status == RPC_STATUS_SUCCESS) {
+        if (datatools::logger::is_debug(logging)) {
+          std::cerr << "********** RPC RESPONSE SUCCESS ********** " << std::endl;
+        }
         // Message response:
         vire::message::message msg_response;
         // Decode the raw buffer!:
@@ -129,7 +136,9 @@ namespace vire {
         // Process returned metadata:
         response_payload_ = msg_response.get_body().get_payload();
       } else {
-        std::cerr << "********** RPC RESPONSE ERROR ********** " << std::endl;
+        if (datatools::logger::is_debug(logging)) {
+          std::cerr << "\n**************************************** " << std::endl;
+        }
       }
       return status;
     }
