@@ -128,12 +128,13 @@ namespace vire {
 
 } // namespace vire
 
-BOOST_CLASS_EXPORT_KEY2(vire::cms::connection_failure,"vire::cms::connection_failure")
+BOOST_CLASS_EXPORT_KEY2(vire::cms::connection_failure,
+                        "vire::cms::connection_failure")
 
 // Bind the C++ class to a specific protobuf message class
 #include <bayeux/protobuftools/protobuf_utils.h>
 BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::connection_failure,
-                                                  "vire::cmslapp::connection_failure")
+                                                  "vire::cms::connection_failure")
 
 #endif // VIRE_CMS_CONNECTION_FAILURE_H
 

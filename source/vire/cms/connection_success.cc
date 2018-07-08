@@ -35,15 +35,15 @@
 // This project:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/ConnectionSuccess.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cmslapp::connection_success",
-                               vire::cmslapp::ConnectionSuccess)
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::connection_success",
+                               vire::cms::ConnectionSuccess)
 
 namespace vire {
 
   namespace cms {
 
     VIRE_UTILITY_PAYLOAD_IMPLEMENTATION(connection_success,
-                                        "vire::cmslapp::connection_success")
+                                        "vire::cms::connection_success")
 
     connection_success::connection_success()
     {

@@ -93,6 +93,14 @@ namespace vire {
 
 } // namespace vire
 
+BOOST_CLASS_EXPORT_KEY2(vire::cms::disconnection_success,
+                        "vire::cms::disconnection_success")
+
+// Bind the C++ class to a specific protobuf message class
+#include <bayeux/protobuftools/protobuf_utils.h>
+BXPROTOBUFTOOLS_CLASS_BIND_TO_REGISTERED_PROTOBUF(vire::cms::disconnection_success,
+                                                  "vire::cms::disconnection_success")
+
 #endif // VIRE_CMS_DISCONNECTION_SUCCESS_H
 
 // Local Variables: --
