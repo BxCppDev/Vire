@@ -320,7 +320,7 @@ namespace vire {
                                                                          sc_name);
       if (!_com_->has_domain(sc_sys_domain_name)) {
         vire::com::domain & sc_sys_domain = _com_->create_domain(sc_sys_domain_name,
-                                                                 vire::com::domain::CATEGORY_SUBCONTRACTOR_SYSTEM,
+                                                                 vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM,
                                                                  _com_->get_default_transport_type_id(),
                                                                  _com_->get_default_encoding_type_id()); 
         _com_->get_domain_maker().build_subcontractor_system_domain(sc_sys_domain, sc_name);
@@ -341,11 +341,11 @@ namespace vire {
       }
       _com_->create_actor(_svr_login_,
                           _svr_password_,
-                          vire::com::actor::CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM,
+                          vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM,
                           get_name());
       _com_->create_actor(_sc_login_,
                           _sc_password_,
-                          vire::com::actor::CATEGORY_SUBCONTRACTOR,
+                          vire::com::ACTOR_CATEGORY_SUBCONTRACTOR,
                           get_name());
       return;
     }
@@ -449,7 +449,8 @@ namespace vire {
           std::cerr << " --> " << res_path << std::endl;
         }
       }
-      // COM:
+
+      // Connection protocol:
       if (_com_->has_actor(_svr_login_)) {
         const vire::com::actor & serverActor = _com_->get_actor(_svr_login_);
         std::shared_ptr<vire::com::i_service_client_plug> clientPlugPtr =
@@ -458,7 +459,7 @@ namespace vire {
         // address = "";
         vire::utility::const_payload_ptr_type connRespPtr;
         double timeout = default_connection_timeout();
-        timeout = -1.0;
+        timeout = -1.0; // No timeout
         clientPlugPtr->set_logging(datatools::logger::PRIO_DEBUG);
         vire::com::rpc_status status = clientPlugPtr->send_receive(address, connReqPtr, connRespPtr, timeout);
         if (status != vire::com::RPC_STATUS_SUCCESS) {
@@ -518,13 +519,66 @@ namespace vire {
     {
       bool disconnection_success = false;
 
-      // Perform the disconnection ops
-      vire::cms::disconnection_request disconnReq;
+      // Perform the connection ops:
+      auto disconnReqPtr = std::make_shared<vire::cms::disconnection_request>();
       const vire::utility::instance_identifier & setupId = _devices_->get_setup_id();
-      disconnReq.set_setup_id(setupId);
+      disconnReqPtr->set_setup_id(setupId);
 
-      // COM
-
+      bool do_disconnect = true;
+      //do_disconnect = false; // Hack to skip disconnection protocol
+      // Disconnection protocol:
+      if (do_disconnect && _com_->has_actor(_svr_login_)) {
+        const vire::com::actor & serverActor = _com_->get_actor(_svr_login_);
+        std::shared_ptr<vire::com::i_service_client_plug> clientPlugPtr =
+          std::dynamic_pointer_cast<vire::com::i_service_client_plug>(serverActor.get_plug("subcontractor.service.client"));
+        std::string address = vire::com::system_connection_key();
+        // address = "";
+        vire::utility::const_payload_ptr_type disconnRespPtr;
+        double timeout = default_connection_timeout();
+        timeout = -1.0; // No timeout
+        clientPlugPtr->set_logging(datatools::logger::PRIO_DEBUG);
+        vire::com::rpc_status status = clientPlugPtr->send_receive(address, disconnReqPtr, disconnRespPtr, timeout);
+        if (status != vire::com::RPC_STATUS_SUCCESS) {
+          if (status == vire::com::RPC_STATUS_TIMEOUT) {
+            std::cerr << "TEST>>> DISCONNECTION TIMEOUT!" << std::endl;
+          } else {
+            std::cerr << "TEST>>> DISCONNECTION FAILURE!" << std::endl;
+          }
+        } else {
+          disconnection_success = false;
+          disconnRespPtr->tree_dump(std::cerr, "RESPONSE:", "TEST>>> ");
+      
+          {
+            std::shared_ptr<const vire::cms::disconnection_success> disconnSuccessPtr
+              = std::dynamic_pointer_cast<const vire::cms::disconnection_success>(disconnRespPtr);
+            if (disconnSuccessPtr) {
+              std::cerr << "******** Found vire::cms::disconnection_success" << std::endl;
+              const vire::cms::disconnection_success & disconnSuccess = *disconnSuccessPtr;
+              disconnSuccess.tree_dump(std::cerr, "Disconnection success:", "[debug] ");
+              disconnection_success = true;
+            } else {
+              std::cerr << "******** Could not find vire::cms::disconnection_success" << std::endl;
+            }
+          }
+          
+          if (!disconnection_success) {
+            std::shared_ptr<const vire::cms::disconnection_failure> disconnFailurePtr
+              = std::dynamic_pointer_cast<const vire::cms::disconnection_failure>(disconnFailurePtr);
+            if (disconnFailurePtr) {
+              std::cerr << "******** Found vire::cms::disconnection_failure" << std::endl;
+              const vire::cms::disconnection_failure & disconnFailure = *disconnFailurePtr;
+              disconnFailure.tree_dump(std::cerr, "Disconnection failure:", "[debug] ");
+              disconnection_success = false;
+            } else {
+              std::cerr << "******** Could not find vire::cms::disconnection_failure" << std::endl;
+            }
+          }
+          
+        }
+      } else {
+        std::cerr << "****  --> no explicit disconnection was done" << std::endl;
+      }
+  
       if (disconnection_success) {
         _last_disconnection_time_ = std::chrono::system_clock::now();
         set_connected(false);
