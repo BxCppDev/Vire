@@ -159,8 +159,8 @@ include(cmsserver/Lists.cmake)
 # CMS client kernel and utilities:
 include(cmsclient/Lists.cmake)
 
-# # CMS subcontractor:
-# include(cmssubcontractor/Lists.cmake)
+# CMS subcontractor:
+include(cmssubcontractor/Lists.cmake)
 
 list(APPEND VireLibrary_HEADERS
   )
