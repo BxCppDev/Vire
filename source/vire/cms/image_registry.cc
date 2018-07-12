@@ -1,4 +1,4 @@
-// vire/cms/experiment_image_registry.cc - Resource image registry
+// vire/cms/image_registry.cc - Resource image registry
 //
 // Copyright (c) 2015-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cms/experiment_image_registry.h>
+#include <vire/cms/image_registry.h>
 
 // Third Party:
 // - datatools:
@@ -26,8 +26,8 @@
 #include <datatools/logger.h>
 
 // This project:
-// #include <vire/device/manager.h>
-// #include <vire/resource/manager.h>
+#include <vire/device/manager.h>
+#include <vire/resource/manager.h>
 #include <vire/cms/utils.h>
 #include <vire/cms/resource_image.h>
 #include <vire/cms/device_image.h>
@@ -37,16 +37,16 @@ namespace vire {
   namespace cms {
 
     // Auto-registration of this service class in a central service database of Bayeux/datatools:
-    DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(experiment_image_registry, "vire::cms::experiment_image_registry");
+    DATATOOLS_SERVICE_REGISTRATION_IMPLEMENT(image_registry, "vire::cms::image_registry");
 
     // static
-    const std::string & experiment_image_registry::default_service_name()
+    const std::string & image_registry::default_service_name()
     {
-      static const std::string _n("expimage");
+      static const std::string _n("images");
       return _n;
     }
 
-    experiment_image_registry::experiment_image_registry(uint32_t flags_)
+    image_registry::image_registry(uint32_t flags_)
     {
       _initialized_ = false;
       _device_manager_ = nullptr;
@@ -55,7 +55,7 @@ namespace vire {
       return;
     }
 
-    experiment_image_registry::~experiment_image_registry()
+    image_registry::~image_registry()
     {
       if (is_initialized()) {
         reset();
@@ -63,7 +63,7 @@ namespace vire {
       return;
     }
 
-    void experiment_image_registry::_set_defaults()
+    void image_registry::_set_defaults()
     {
       set_logging_priority(datatools::logger::PRIO_FATAL);
       _with_devices_ = false;
@@ -71,73 +71,73 @@ namespace vire {
       return;
     }
 
-    bool experiment_image_registry::get_with_devices() const
+    bool image_registry::get_with_devices() const
     {
       return _with_devices_;
     }
 
-    void experiment_image_registry::set_with_devices(const bool wd_)
+    void image_registry::set_with_devices(const bool wd_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Service is initialized!");
       _with_devices_ = wd_;
       return;
     }
     
-    bool experiment_image_registry::get_only_writable_resources() const
+    bool image_registry::get_only_writable_resources() const
     {
       return _only_writable_resources_;
     }
 
-    void experiment_image_registry::set_only_writable_resources(const bool owr_)
+    void image_registry::set_only_writable_resources(const bool owr_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Service is initialized!");
       _only_writable_resources_ = owr_;
       return;
     }
  
-    bool experiment_image_registry::has(const std::string & path_) const
+    bool image_registry::has(const std::string & path_) const
     {
       return _images_.count(path_) != 0;
     }
 
-    bool experiment_image_registry::has_device(const std::string & path_) const
+    bool image_registry::has_device(const std::string & path_) const
     {
       image_dict_type::const_iterator found = _images_.find(path_);
       if (found == _images_.end()) return false;
       return found->second->is_device();
     }
 
-    bool experiment_image_registry::has_resource(const std::string & path_) const
+    bool image_registry::has_resource(const std::string & path_) const
     {
       image_dict_type::const_iterator found = _images_.find(path_);
       if (found == _images_.end()) return false;
       return found->second->is_resource();
     }
 
-    const resource_image & experiment_image_registry::get_resource_image(const std::string & path_) const
+    const resource_image & image_registry::get_resource_image(const std::string & path_) const
     {
-      experiment_image_registry * mutable_this = const_cast<experiment_image_registry *>(this);
+      image_registry * mutable_this = const_cast<image_registry *>(this);
       return mutable_this->grab_resource_image(path_);
     }
 
-    resource_image & experiment_image_registry::grab_resource_image(const std::string & path_)
+    resource_image & image_registry::grab_resource_image(const std::string & path_)
     {
       base_image & img = this->_grab_image_(path_);
       return dynamic_cast<resource_image&>(img);
     }
 
-    const base_image & experiment_image_registry::get_image(const std::string & path_) const
+    const base_image & image_registry::get_image(const std::string & path_) const
     {
-      experiment_image_registry * mutable_this = const_cast<experiment_image_registry *>(this);
+      image_registry * mutable_this = const_cast<image_registry *>(this);
       return mutable_this->_grab_image_(path_);
     }
 
-    base_image & experiment_image_registry::grab_image(const std::string & path_)
+    base_image & image_registry::grab_image(const std::string & path_)
     {
       return this->_grab_image_(path_);
     }
 
-    base_image & experiment_image_registry::_grab_image_(const std::string & path_)
+    base_image & image_registry::_grab_image_(const std::string & path_)
     {
       image_dict_type::const_iterator found = _images_.find(path_);
       DT_THROW_IF(found == _images_.end(), std::logic_error,
@@ -145,84 +145,84 @@ namespace vire {
       return *found->second;
     }
 
-    bool experiment_image_registry::has_device_service_name() const
+    bool image_registry::has_device_service_name() const
     {
       return !_device_service_name_.empty();
     }
 
-    const std::string & experiment_image_registry::get_device_service_name() const
+    const std::string & image_registry::get_device_service_name() const
     {
       return _device_service_name_;
     }
 
-    void experiment_image_registry::set_device_service_name(const std::string & name_)
+    void image_registry::set_device_service_name(const std::string & name_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Registry is already initialized!");
       _device_service_name_ = name_;
       return;
     }
 
-    bool experiment_image_registry::has_resource_service_name() const
+    bool image_registry::has_resource_service_name() const
     {
       return !_resource_service_name_.empty();
     }
 
-    const std::string & experiment_image_registry::get_resource_service_name() const
+    const std::string & image_registry::get_resource_service_name() const
     {
       return _resource_service_name_;
     }
 
-    void experiment_image_registry::set_resource_service_name(const std::string & name_)
+    void image_registry::set_resource_service_name(const std::string & name_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Registry is already initialized!");
       _resource_service_name_ = name_;
       return;
     }
 
-    bool experiment_image_registry::has_resource_manager() const
+    bool image_registry::has_resource_manager() const
     {
       return _resource_manager_ != nullptr;
     }
 
-    void experiment_image_registry::set_resource_manager(const vire::resource::manager & mgr_)
+    void image_registry::set_resource_manager(const vire::resource::manager & mgr_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Registry is already initialized!");
       _resource_manager_ = &mgr_;
       return;
     }
 
-    const vire::resource::manager & experiment_image_registry::get_resource_manager() const
+    const vire::resource::manager & image_registry::get_resource_manager() const
     {
       DT_THROW_IF(!has_resource_manager(), std::logic_error, "Registry has no resource manager!");
 
       return *_resource_manager_;
     }
 
-    bool experiment_image_registry::has_device_manager() const
+    bool image_registry::has_device_manager() const
     {
       return _device_manager_ != nullptr;
     }
 
-    void experiment_image_registry::set_device_manager(const vire::device::manager & mgr_)
+    void image_registry::set_device_manager(const vire::device::manager & mgr_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Registry is already initialized!");
       _device_manager_ = &mgr_;
       return;
     }
 
-    const vire::device::manager & experiment_image_registry::get_device_manager() const
+    const vire::device::manager & image_registry::get_device_manager() const
     {
       DT_THROW_IF(!has_device_manager(), std::logic_error, "Registry has no device manager!");
 
       return *_device_manager_;
     }
 
-    bool experiment_image_registry::is_initialized() const
+    bool image_registry::is_initialized() const
     {
       return _initialized_;
     }
 
-    int experiment_image_registry::initialize(const datatools::properties & config_,
+    int image_registry::initialize(const datatools::properties & config_,
                                               datatools::service_dict_type & service_dict_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
@@ -292,7 +292,7 @@ namespace vire {
       return 0;
     }
 
-    int experiment_image_registry::reset()
+    int image_registry::reset()
     {
       DT_THROW_IF(!is_initialized(), std::logic_error, "Registry is not initialized!");
       _initialized_ = false;
@@ -305,14 +305,14 @@ namespace vire {
       return 0;
     }
      
-    // void experiment_image_registry::add_device_image(const std::string & path_)
+    // void image_registry::add_device_image(const std::string & path_)
     // {
     //   DT_THROW_IF(!is_initialized(), std::logic_error, "Image registry is not initialized!");
 
     //   return;
     // }
     
-   std::tuple<bool, std::string> experiment_image_registry::add_resource_image(const std::string & path_)
+   std::tuple<bool, std::string> image_registry::add_resource_image(const std::string & path_)
     {
       DT_THROW_IF(!is_initialized(), std::logic_error, "Image registry is not initialized!");
       if (! _resource_manager_->has_resource_by_path(path_)) {
@@ -326,13 +326,22 @@ namespace vire {
       return std::make_tuple(true, "");
     }
 
-    const experiment_image_registry::image_dict_type & experiment_image_registry::get_images() const
+    const image_registry::image_dict_type & image_registry::get_images() const
     {
       return _images_;
     }
 
+    void image_registry::build_list_of_image_paths(std::set<std::string> & paths_) const
+    {
+      paths_.clear();
+      for (const auto & p : _images_) {
+        paths_.insert(p.first); 
+      }
+      return;
+    }
+
     /*
-    void experiment_image_registry::_insert_device_image(const std::string & path_,
+    void image_registry::_insert_device_image(const std::string & path_,
                                                          const vire::device::logical_device & log_)
     {
       {
@@ -368,7 +377,7 @@ namespace vire {
     */
 
     /*
-    void experiment_image_registry::_insert_resource_image(const vire::resource::resource & r_)
+    void image_registry::_insert_resource_image(const vire::resource::resource & r_)
     {
       {
         image res_img(r_);
@@ -405,7 +414,7 @@ namespace vire {
     }
     */
     
-    // void experiment_image_registry::_build_images()
+    // void image_registry::_build_images()
     // {
     //   const std::set<int32_t> ids = _resource_manager_->get_set_of_resource_ids() ;
     //   for (auto id : ids) {
@@ -415,7 +424,7 @@ namespace vire {
     //   return;
     // }
 
-    void experiment_image_registry::print_tree(std::ostream & out_,
+    void image_registry::print_tree(std::ostream & out_,
                                                const boost::property_tree::ptree & options_) const
     {
       datatools::i_tree_dumpable::base_print_options popts;

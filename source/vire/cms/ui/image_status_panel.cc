@@ -29,6 +29,7 @@
 
 // This project:
 #include <vire/time/utils.h>
+#include <vire/cms/ui/utils.h>
 
 namespace vire {
 
@@ -117,63 +118,75 @@ namespace vire {
 
       void image_status_panel::_construct_()
       {
-        if (!has_no_labels()) {
+        bool display_label_row = !has_no_labels();
+ 
+        //   +-----------------------------------------+
+        // 0 |                labels                   | 
+        //   +-----------------------------------------+
+        // 1 |      status (leds and timestamp)        |  
+        //   +-----------------------------------------+
+        
+        unsigned int cellSize = vire::cms::ui::display_context::get_instance().get_row_height();
+        int nrows = 0;
+        if (display_label_row) {
           _missing_label_ = new QLabel(this);
           _missing_label_->setText("M");
-          _missing_label_->setFixedSize(14, 14);
+          _missing_label_->setFixedSize(cellSize, cellSize);
           _missing_label_->setStyleSheet("QLabel { text-align : center; }");
 
           _disabled_label_ = new QLabel(this);
           _disabled_label_->setText("D");
-          _disabled_label_->setFixedSize(14, 14);
+          _disabled_label_->setFixedSize(cellSize, cellSize);
           _disabled_label_->setStyleSheet("QLabel { text-align : center; }");
 
           _pending_label_ = new QLabel(this);
           _pending_label_->setText("P");
-          _pending_label_->setFixedSize(14, 14);
+          _pending_label_->setFixedSize(cellSize, cellSize);
           _pending_label_->setStyleSheet("QLabel { text-align : center; }");
 
           _failed_label_ = new QLabel(this);
           _failed_label_->setText("F");
-          _failed_label_->setFixedSize(14, 14);
+          _failed_label_->setFixedSize(cellSize, cellSize);
           _failed_label_->setStyleSheet("QLabel { text-align : center; }");
      
           _update_label_ = new QLabel(this);
           _update_label_->setText("Last update (UTC)");
-          _update_label_->setFixedHeight(14);
+          _update_label_->setFixedHeight(cellSize);
           _update_label_->setStyleSheet("QLabel { text-align : left; }");
         }
         
         using datatools::qt::led;
         
         _missing_led_  = new led(led::Square, led::Red, led::Grey, led::Orange, this);
-        _missing_led_->setFixedSize(14, 14);
+        _missing_led_->setFixedSize(cellSize, cellSize);
         _missing_led_->setToolTip("Missing");
         
         _disabled_led_ = new led(led::Square, led::Yellow, led::Grey, led::Orange, this);
-        _disabled_led_->setFixedSize(14, 14);
+        _disabled_led_->setFixedSize(cellSize, cellSize);
         _disabled_led_->setToolTip("Disabled");
  
         _pending_led_  = new led(led::Square, led::Green, led::Grey, led::Orange, this);
-        _pending_led_->setFixedSize(14, 14);
+        _pending_led_->setFixedSize(cellSize, cellSize);
         _pending_led_->setToolTip("Pending");
  
         _failed_led_  = new led(led::Square, led::Red, led::Grey, led::Orange, this);
-        _failed_led_->setFixedSize(14, 14);
+        _failed_led_->setFixedSize(cellSize, cellSize);
         _failed_led_->setToolTip("Failed");
 
         _update_value_label_ = new QLabel(this);
         _update_value_label_->setText("");
-        _update_value_label_->setFixedHeight(14);
+        _update_value_label_->setFixedHeight(cellSize);
         _update_value_label_->setStyleSheet("QLabel { background-color : white; color : black; }");
         _update_value_label_->setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
         _update_value_label_->setText("");
         _update_value_label_->setToolTip("Last update timestamp (UTC)");
 
         QGridLayout * layout = new QGridLayout;
+        layout->setVerticalSpacing(vire::cms::ui::display_context::get_instance().get_vertical_spacing());
+        layout->setHorizontalSpacing(vire::cms::ui::display_context::get_instance().get_horizontal_spacing());
 
         int row = 0;
-        if (!has_no_labels()) {
+        if (display_label_row) {
           layout->addWidget(_missing_label_,  row, 0);
           layout->addWidget(_disabled_label_, row, 1);
           layout->addWidget(_pending_label_,  row, 2);
@@ -186,12 +199,24 @@ namespace vire {
         layout->addWidget(_pending_led_,        row, 2);
         layout->addWidget(_failed_led_,         row, 3);
         layout->addWidget(_update_value_label_, row, 4);
+        nrows = row + 1;
+        std::cerr << "devel *********** nrows = " << nrows << std::endl;
+
+        for (int irow = 0; irow < nrows; irow++) {
+          layout->setRowMinimumHeight(irow, cellSize);
+        }
+        // this->setFixedHeight(nrows * cellSize
+        //                      + (nrows - 1) * vire::cms::ui::display_context::get_instance().get_row_vertical_spacing());
 
         this->setLayout(layout);
+        // this->setMaximumHeight(nrows * cellSize + (nrows - 1) * vire::cms::ui::display_context::get_instance().get_vertical_spacing());
         slot_update_time();
 
         QObject::connect(_status_emitter_, SIGNAL(status_changed()),
                          this,             SLOT(slot_update()));
+
+        // std::cerr << "devel *********** size = " << this->size().width() << 'x' << this->size().height() << std::endl;
+   
         return;
       }
 

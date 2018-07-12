@@ -264,9 +264,9 @@ int main( int argc_, char * argv_[])
 
         using vire::cms::ui::image_panel;
         image_panel * imgPanel = new image_panel;
-        // if (no_labels) {
-        //   imgPanel->set_no_labels(no_labels);
-        // }
+        // imgPanel->set_no_labels(true);
+        // imgPanel->set_no_id(true);
+        // imgPanel->set_no_value(true);
         imgPanel->set_image(readDaqEventRateResImg);
 
         QWidget window;

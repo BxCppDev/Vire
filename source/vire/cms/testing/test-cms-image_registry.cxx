@@ -1,4 +1,4 @@
-//! \file cms/testing/test-cms-experiment_image_registry.cxx
+//! \file cms/testing/test-cms-image_registry.cxx
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -29,6 +29,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QFont>
 // - Bayeux/datatools:
 #include <bayeux/datatools/utils.h>
 #include <bayeux/datatools/properties.h>
@@ -36,11 +37,12 @@
 
 // This project:
 #include <vire/vire.h>
-#include <vire/cms/experiment_image_registry.h>
+#include <vire/cms/image_registry.h>
 #include <vire/cms/resource_image.h>
 #include <vire/resource/manager.h>
+#include <vire/cms/ui/utils.h>
 #include <vire/cms/ui/image_panel.h>
-#include <vire/cms/ui/experiment_image_registry_panel.h>
+#include <vire/cms/ui/image_registry_panel.h>
 
 #include "../../resource/testing/snemo_tools.h"
 #include "image_status_runner.h"
@@ -91,7 +93,7 @@ void test_eir_1(const params_type & params_)
   const vire::resource::manager & resources = services.get<vire::resource::manager>("resources");
   
   
-  vire::cms::experiment_image_registry expImage;
+  vire::cms::image_registry expImage;
 
   {
     datatools::properties expImageConfig;
@@ -119,9 +121,20 @@ void test_eir_1(const params_type & params_)
         
     if (params_.gui) {
       int argc = 1;
-      const char * argv[] = { "test-cms-experiment_image_registry" };
+      const char * argv[] = { "test-cms-image_registry" };
       QApplication app(argc, (char **) argv);
-
+      const vire::cms::ui::display_context & displayContext
+        = vire::cms::ui::display_context::get_instance();
+      QFont font;
+      // font.setFamily(font.defaultFamily());
+      font.setPointSize(displayContext.get_font_point_size());     
+      std::cerr << "Qt font : " << font.key().toStdString() << std::endl;
+      std::cerr << "Qt font family     : " << font.family().toStdString() << std::endl;
+      std::cerr << "Qt font style      : " << font.styleName().toStdString() << std::endl;
+      std::cerr << "Qt font pixel size : " << font.pixelSize() << std::endl;
+      std::cerr << "Qt font point size : " << font.pointSize() << std::endl;
+      std::cerr << "Qt font settings   : " << font.toString().toStdString() << std::endl;
+      app.setFont(font);
       QWidget window;
       using vire::cms::ui::image_panel;
 
@@ -131,7 +144,8 @@ void test_eir_1(const params_type & params_)
       //   = expImage.get_resource_image("SuperNEMO:/Demonstrator/CMS/Calorimeter/HV/PS_1/board_9/channel_19/TripExt/__dp_read__");
       // imgPanel->set_image(resImg);
       // layout->addWidget(imgPanel);
-      
+
+      /*
       auto images = expImage.get_images();
       int ncols = 2;
       int nrows = images.size()/2;
@@ -156,19 +170,19 @@ void test_eir_1(const params_type & params_)
         imgCounter++;
         if (row == 5) break;
       }
-
       window.setLayout(layout);
-
-      // QWidget window0;
-      // using vire::cms::ui::experiment_image_registry_panel;
-      // experiment_image_registry_panel * regPanel = new experiment_image_registry_panel;
-      // regPanel->set_registry(expImage);
-      // QVBoxLayout * layout0 = new QVBoxLayout;
-      // layout0->addWidget(regPanel);
-      // window0.setLayout(layout0);
-      // window0.show();
-
       window.show();
+      */
+
+      QWidget window0;
+      using vire::cms::ui::image_registry_panel;
+      image_registry_panel * regPanel = new image_registry_panel;
+      regPanel->set_registry(expImage);
+      QVBoxLayout * layout0 = new QVBoxLayout;
+      layout0->addWidget(regPanel);
+      window0.setLayout(layout0);
+      window0.show();
+
       app.exec();
     }
     

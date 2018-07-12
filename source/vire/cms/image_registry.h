@@ -1,4 +1,4 @@
-//! \file  vire/cms/experiment_image_registry.h
+//! \file  vire/cms/image_registry.h
 //! \brief Registry of resource images
 //
 // Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,12 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMS_EXPERIMENT_IMAGE_REGISTRY_H
-#define VIRE_CMS_EXPERIMENT_IMAGE_REGISTRY_H
+#ifndef VIRE_CMS_IMAGE_REGISTRY_H
+#define VIRE_CMS_IMAGE_REGISTRY_H
 
 // Standard Library:
 #include <string>
 #include <map>
+#include <set>
 #include <memory>
 #include <tuple>
 
@@ -37,11 +38,17 @@
 
 // This project:
 #include <vire/cms/base_image.h>
-#include <vire/device/manager.h>
-#include <vire/resource/manager.h>
 
 namespace vire {
 
+  namespace device {
+    class manager;
+  }
+
+  namespace resource {
+    class manager;
+  }
+  
   //! Nested namespace for the Vire library's resource module
   namespace cms {
 
@@ -50,7 +57,7 @@ namespace vire {
     class device_image;
 
     //! \brief Registry of resource/device images
-    class experiment_image_registry
+    class image_registry
       : public ::datatools::base_service
     {
     public:
@@ -66,10 +73,10 @@ namespace vire {
       static const std::string & default_service_name();
       
       //! Default constructor
-      experiment_image_registry(uint32_t flags_ = 0);
+      image_registry(uint32_t flags_ = 0);
 
       //! Destructor
-      virtual ~experiment_image_registry();
+      virtual ~image_registry();
 
       //! Check if the name of the device service is set
       bool has_device_service_name() const;
@@ -153,6 +160,8 @@ namespace vire {
       std::tuple<bool, std::string> add_resource_image(const std::string & path_);
     
       const image_dict_type & get_images() const;
+
+      void build_list_of_image_paths(std::set<std::string> & paths_) const;
       
       //! Smart print
       void print_tree(std::ostream & out_ = std::clog,
@@ -189,7 +198,7 @@ namespace vire {
       image_dict_type _images_; //!< Dictionary of resource images
 
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
-      DATATOOLS_SERVICE_REGISTRATION_INTERFACE(experiment_image_registry);
+      DATATOOLS_SERVICE_REGISTRATION_INTERFACE(image_registry);
 
 #ifndef Q_MOC_RUN
       //! Reflection interface
@@ -204,10 +213,10 @@ namespace vire {
 
 #ifndef Q_MOC_RUN
 // Activate reflection layer:
-DR_CLASS_INIT(vire::cms::experiment_image_registry);
+DR_CLASS_INIT(vire::cms::image_registry);
 #endif // Q_MOC_RUN
 
-#endif // VIRE_CMS_EXPERIMENT_IMAGE_REGISTRY_H
+#endif // VIRE_CMS_IMAGE_REGISTRY_H
 
 /*
 ** Local Variables: --

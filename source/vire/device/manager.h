@@ -113,11 +113,20 @@ namespace vire {
       //! Return the Setup ID
       vire::utility::instance_identifier get_setup_id() const;
 
+      //! Check the setup label
+      bool has_setup_label() const;
+
       //! Return the name of the setup
       const std::string & get_setup_label() const;
 
+      //! Check the setup description
+      bool has_setup_description() const;
+
       //! Return the description of the setup
       const std::string & get_setup_description() const;
+
+      //! Check the setup version
+      bool has_setup_version() const;
 
       //! Return the version of the setup
       const std::string & get_setup_version() const;

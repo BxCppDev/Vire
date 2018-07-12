@@ -34,6 +34,7 @@
 
 // This project:
 #include <vire/time/utils.h>
+#include <vire/cms/ui/utils.h>
 #include <vire/cms/ui/image_status_panel.h>
 #include <vire/resource/base_resource_instance.h>
 #include <vire/resource/method_resource_instance.h>
@@ -172,8 +173,12 @@ namespace vire {
 
       void image_panel::_construct_()
       {
+        unsigned int cellSize
+          = vire::cms::ui::display_context::get_instance().get_row_height();
         QGridLayout * main_layout = new QGridLayout;
-        
+        main_layout->setVerticalSpacing(vire::cms::ui::display_context::get_instance().get_vertical_spacing());
+        main_layout->setHorizontalSpacing(vire::cms::ui::display_context::get_instance().get_horizontal_spacing());
+ 
         bool display_labels = !_no_labels_;
         bool display_id     = !_no_id_;
         bool display_value  = false; 
@@ -195,6 +200,7 @@ namespace vire {
         // 2 |             |       status                | status 
         //   +-------------+-----------------------------+
         
+        int nrows = 3;
         int labels_col = 0;
         int values_col = 1;
         int id_row     = 0;
@@ -206,9 +212,17 @@ namespace vire {
         if (!display_id) {
           value_row--;
           status_row--;
+          nrows--;
         }
         if (!display_value) {
           status_row--;
+          nrows--;
+        }
+        if (!display_status) {
+          nrows--;
+        }
+        for (int irow = 0; irow < nrows; irow++) {
+          main_layout->setRowMinimumHeight(irow, cellSize);
         }
 
         if (display_id) {
@@ -221,14 +235,14 @@ namespace vire {
             if (_image_->is_resource()) {
               what_label->setText("Resource: ");
             }
-            what_label->setFixedHeight(14);
+            what_label->setFixedHeight(cellSize);
             what_label->setStyleSheet("QLabel { text-align : left; }");
             main_layout->addWidget(what_label, id_row, labels_col);
           }
       
           QLabel * path_label = new QLabel(this);
           path_label->setText(_image_->get_path().c_str());
-          path_label->setFixedHeight(14);
+          path_label->setFixedHeight(cellSize);
           path_label->setStyleSheet("QLabel { background-color : white; color : black; text-align : left; }");
           path_label->setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
 
@@ -240,7 +254,7 @@ namespace vire {
           if (display_labels) {
             QLabel * value_title_label = new QLabel(this);
             value_title_label->setText("Value: ");
-            value_title_label->setFixedHeight(14);
+            value_title_label->setFixedHeight(cellSize);
             main_layout->addWidget(value_title_label, value_row, labels_col);
           }
           
@@ -287,7 +301,6 @@ namespace vire {
 
                 } else if (datatools::introspection::is_real(dt)) {
                   supported_value = true;
-
                 
                 } else {
                   // Not supported.
@@ -298,7 +311,7 @@ namespace vire {
 
               _value_label_ = new QLabel(this);
               _value_label_->setText("");
-              _value_label_->setFixedHeight(24);
+              _value_label_->setFixedHeight(cellSize);
               _value_label_->setStyleSheet("QLabel { background-color : white; color : black; text-align : right; }");
               _value_label_->setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
               value_layout->addWidget(_value_label_);
@@ -341,6 +354,7 @@ namespace vire {
                     unit_reg.build_ordered_unit_symbols(unit_dimension, unit_symbols);
                     if (unit_symbols.size()) {
                       _value_unit_combo_ = new QComboBox(this);
+                      _value_unit_combo_->setFixedHeight(cellSize);
                       for (const auto & usymbol : unit_symbols) {
                         _value_unit_combo_->addItem(usymbol.c_str());
                       }
@@ -360,7 +374,7 @@ namespace vire {
           if (display_labels) {
             QLabel * status_label = new QLabel(this);
             status_label->setText("Status: ");
-            status_label->setFixedHeight(14);
+            status_label->setFixedHeight(cellSize);
             main_layout->addWidget(status_label, status_row, labels_col);
           }
           
@@ -369,10 +383,11 @@ namespace vire {
           _status_panel_->set_status(_image_->get_status());
           main_layout->addWidget(_status_panel_, status_row, values_col);
         }
-        
+        std::cerr << " ************ nrows = " << nrows << std::endl;
+        // this->setFixedHeight(nrows * cellSize
+        //                      + (nrows - 1) * vire::cms::ui::display_context::get_instance().get_vertical_spacing());
         this->setLayout(main_layout);
         slot_update();
-
         
         QObject::connect(_image_emitter_, SIGNAL(sig_value_changed()),
                          this,             SLOT(slot_update_value()));

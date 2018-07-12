@@ -89,6 +89,21 @@ namespace vire {
       return;
     }
 
+    bool manager::has_setup_label() const
+    {
+      return !_setup_label_.empty();
+    }
+
+    bool manager::has_setup_version() const
+    {
+      return !_setup_version_.empty();
+    }
+
+    bool manager::has_setup_description() const
+    {
+      return !_setup_description_.empty();
+    }
+
     void manager::set_setup_description(const std::string & description_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Manager is already initialized !");

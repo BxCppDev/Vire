@@ -59,6 +59,8 @@ namespace vire {
 
         /// Destructor
         virtual ~image_panel();
+
+        // QSize sizeHint() const override;
  
         void set_image(const base_image & image_);
 

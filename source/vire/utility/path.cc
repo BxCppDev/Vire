@@ -622,6 +622,24 @@ namespace vire {
       append_segments(relpath_.get_segments(), true);
       return;
     }
+    
+    void path::truncate(const unsigned int nlevels_)
+    {
+      DT_THROW_IF(nlevels_ > _segments_.size(), std::logic_error,
+                  "Cannot truncate segments more than the path length!");
+      for (std::size_t i = 0; i < nlevels_; i++) {
+        _segments_.pop_back();
+      }
+      return;
+    }
+    
+    path path::make_parent() const
+    {
+      DT_THROW_IF(is_root(), std::logic_error, "Cannot truncate segments on a root path!");
+      path parent = *this;
+      parent.truncate(1);
+      return parent;
+    }
  
     path path::make_child(const std::string & leaf_) const
     {

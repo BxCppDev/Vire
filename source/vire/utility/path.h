@@ -259,11 +259,15 @@ namespace vire {
 
       relative_path subtract(const path & other_) const;
 
+      void truncate(const unsigned int nlevels_ = 1);
+      
       bool is_parent_of(const path & other_, bool direct_ = false) const;
   
       bool is_child_of(const path & other_, bool direct_ = false) const;
       
       path make_child(const std::string & leaf_) const;
+      
+      path make_parent() const;
 
       bool has_leaf() const;
 
