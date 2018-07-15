@@ -1,4 +1,6 @@
 list(APPEND VireLibrary_HEADERS
+  utility/error.h
+  utility/exec_report.h
   utility/comparison.h
   utility/rw_access.h
   utility/rw_access-reflect.h
@@ -30,6 +32,7 @@ list(APPEND VireLibrary_HEADERS
 )
 
 list(APPEND VireLibrary_SOURCES
+  utility/exec_report.cc
   utility/rw_access.cc
   utility/base_identifier.cc
   utility/instance_identifier.cc
