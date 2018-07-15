@@ -231,6 +231,18 @@ namespace vire {
       read_method.set_constness(true);
 
       {
+        datatools::introspection::argument refresh_arg;
+        refresh_arg.set_name("refresh");
+        refresh_arg.set_description("Datapoint's refresh flag");
+        refresh_arg.set_access(datatools::introspection::ACCESS_INPUT);
+        datatools::introspection::data_description & refresh_arg_dd = refresh_arg.grab_data_description();
+        refresh_arg_dd.set_layout(datatools::introspection::DATA_LAYOUT_SCALAR);
+        refresh_arg_dd.set_type(datatools::introspection::DATA_TYPE_BOOLEAN);
+        refresh_arg.set_default_value_as<bool>(false);
+        read_method.add_argument(refresh_arg);
+      }
+
+      {
         datatools::introspection::argument return_arg;
         return_arg.set_name("return");
         return_arg.set_description("Datapoint's current cached value");
