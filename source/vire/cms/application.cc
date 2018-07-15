@@ -50,7 +50,6 @@ namespace vire {
       return app_cat_ != CATEGORY_UNDEF;
     };
     
-
   } // namespace cms
 
 } // namespace vire
