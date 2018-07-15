@@ -10,7 +10,7 @@ message( STATUS "[info] Define Vire dependencies")
 # - Boost
 # - GSL
 # - ROOT
-set(VIRE_BAYEUX_MIN_VERSION "3.2.0")
+set(VIRE_BAYEUX_MIN_VERSION "3.4.0")
 message( STATUS "[info] Searching Bayeux ${VIRE_BAYEUX_MIN_VERSION}...")
 find_package(Bayeux ${VIRE_BAYEUX_MIN_VERSION} REQUIRED NO_MODULE)
 if (Bayeux_FOUND)
