@@ -156,7 +156,7 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error, "Manager is already initialized !");
       DT_THROW_IF(b_ && _factory_preload_system_only_.size(),
                   std::logic_error,
-                  "Preloading of all factories from system repository is activated!");
+                  "Preloading of a limited set of specific model factories from system registry is activated!");
       _factory_preload_system_all_ = b_;
       return;
     }
@@ -336,10 +336,10 @@ namespace vire {
         uint32_t factory_flags = 0;
         _device_factory_register_.reset(new device_factory_register_type("vire::device::base_device_model/device_factory",
                                                                          factory_flags));
-        if (_factory_preload_system_only_.size() > 1) {
+        if (_factory_preload_system_only_.size()) {
           DT_LOG_TRACE(get_logging_priority(), "Preloading only a limited set of device model factories...");
           _device_factory_register_->import_some(DATATOOLS_FACTORY_GET_SYSTEM_REGISTER(base_device_model),
-                                          _factory_preload_system_only_);
+                                                 _factory_preload_system_only_);
           DT_LOG_TRACE(get_logging_priority(), "Done.");
         } else if (_factory_preload_system_all_) {
           DT_LOG_TRACE(get_logging_priority(), "Preloading the full set of device model factories...");

@@ -27,6 +27,7 @@
 #include <typeinfo>
 #include <stdexcept>
 #include <memory>
+#include <vector>
 
 // Third Party:
 // - Boost:
