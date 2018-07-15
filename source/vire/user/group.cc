@@ -172,17 +172,17 @@ namespace vire {
       if (! _usfr) {
         _usfr.reset(new cuts::i_cut::factory_register_type);
         _usfr->set_label("group/user_selector_factory");
-        _usfr->registration("cuts::accept_cut", boost::factory<cuts::accept_cut*>());
-        _usfr->registration("cuts::not_cut", boost::factory<cuts::not_cut*>());
-        _usfr->registration("cuts::and_cut", boost::factory<cuts::and_cut*>());
-        _usfr->registration("cuts::or_cut", boost::factory<cuts::or_cut*>());
-        _usfr->registration("cuts::nor_cut", boost::factory<cuts::nor_cut*>());
-        _usfr->registration("cuts::xor_cut", boost::factory<cuts::xor_cut*>());
-        _usfr->registration("cuts::nand_cut", boost::factory<cuts::nand_cut*>());
-        _usfr->registration("cuts::multi_and_cut", boost::factory<cuts::multi_and_cut*>());
-        _usfr->registration("cuts::multi_or_cut", boost::factory<cuts::multi_or_cut*>());
-        _usfr->registration("cuts::multi_xor_cut", boost::factory<cuts::multi_xor_cut*>());
-        _usfr->registration("vire::user::enumerated_user_selector", boost::factory<vire::user::enumerated_user_selector*>());
+        _usfr->registration<cuts::accept_cut>("cuts::accept_cut");
+        _usfr->registration<cuts::not_cut>("cuts::not_cut");
+        _usfr->registration<cuts::and_cut>("cuts::and_cut");
+        _usfr->registration<cuts::or_cut>("cuts::or_cut");
+        _usfr->registration<cuts::nor_cut>("cuts::nor_cut");
+        _usfr->registration<cuts::xor_cut>("cuts::xor_cut");
+        _usfr->registration<cuts::nand_cut>("cuts::nand_cut");
+        _usfr->registration<cuts::multi_and_cut>("cuts::multi_and_cut");
+        _usfr->registration<cuts::multi_or_cut>("cuts::multi_or_cut");
+        _usfr->registration<cuts::multi_xor_cut>("cuts::multi_xor_cut");
+        _usfr->registration<vire::user::enumerated_user_selector>("vire::user::enumerated_user_selector");
       }
       return *_usfr.get();
     }

@@ -937,26 +937,21 @@ namespace vire {
       if (! _usfr) {
         _usfr.reset(new cuts::i_cut::factory_register_type);
         _usfr->set_label("resource/resource_selector_factory");
-        _usfr->registration("cuts::accept_cut",    boost::factory<cuts::accept_cut*>());
-        _usfr->registration("cuts::not_cut",       boost::factory<cuts::not_cut*>());
-        _usfr->registration("cuts::and_cut",       boost::factory<cuts::and_cut*>());
-        _usfr->registration("cuts::or_cut",        boost::factory<cuts::or_cut*>());
-        _usfr->registration("cuts::nor_cut",       boost::factory<cuts::nor_cut*>());
-        _usfr->registration("cuts::xor_cut",       boost::factory<cuts::xor_cut*>());
-        _usfr->registration("cuts::nand_cut",      boost::factory<cuts::nand_cut*>());
-        _usfr->registration("cuts::multi_and_cut", boost::factory<cuts::multi_and_cut*>());
-        _usfr->registration("cuts::multi_or_cut",  boost::factory<cuts::multi_or_cut*>());
-        _usfr->registration("cuts::multi_xor_cut", boost::factory<cuts::multi_xor_cut*>());
-        _usfr->registration("vire::resource::enumerated_resource_selector",
-                            boost::factory<vire::resource::enumerated_resource_selector*>());
-        _usfr->registration("vire::resource::regex_resource_selector",
-                            boost::factory<vire::resource::regex_resource_selector*>());
-        _usfr->registration("vire::resource::general_expression_resource_selector",
-                            boost::factory<vire::resource::general_expression_resource_selector*>());
-        _usfr->registration("vire::resource::ranged_resource_selector",
-                            boost::factory<vire::resource::ranged_resource_selector*>());
-        _usfr->registration("vire::resource::by_access_resource_selector",
-                            boost::factory<vire::resource::by_access_resource_selector*>());
+        _usfr->registration<cuts::accept_cut>("cuts::accept_cut");
+        _usfr->registration<cuts::not_cut>("cuts::not_cut");
+        _usfr->registration<cuts::and_cut>("cuts::and_cut");
+        _usfr->registration<cuts::or_cut>("cuts::or_cut");
+        _usfr->registration<cuts::nor_cut>("cuts::nor_cut");
+        _usfr->registration<cuts::xor_cut>("cuts::xor_cut");
+        _usfr->registration<cuts::nand_cut>("cuts::nand_cut");
+        _usfr->registration<cuts::multi_and_cut>("cuts::multi_and_cut");
+        _usfr->registration<cuts::multi_or_cut>("cuts::multi_or_cut");
+        _usfr->registration<cuts::multi_xor_cut>("cuts::multi_xor_cut");
+        _usfr->registration<vire::resource::enumerated_resource_selector>("vire::resource::enumerated_resource_selector");
+        _usfr->registration<vire::resource::regex_resource_selector>("vire::resource::regex_resource_selector");
+        _usfr->registration<vire::resource::general_expression_resource_selector>("vire::resource::general_expression_resource_selector");
+        _usfr->registration<vire::resource::ranged_resource_selector>("vire::resource::ranged_resource_selector");
+        _usfr->registration<vire::resource::by_access_resource_selector>("vire::resource::by_access_resource_selector");
       }
       return *_usfr.get();
     }
