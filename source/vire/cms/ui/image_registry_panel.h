@@ -67,9 +67,14 @@ namespace vire {
         };
         
         enum column_type {
-          COL_PATH      = 0,
-          COL_IMAGE     = 1,
-          COL_COUNT     = 2
+          COL_PATH            = 0,
+          COL_IMAGE           = 1,
+          COL_IMAGE_MISSING   = 1,
+          COL_IMAGE_DISABLED  = 2,
+          COL_IMAGE_PENDING   = 3,
+          COL_IMAGE_FAILED    = 4,
+          COL_IMAGE_TIMESTAMP = 5,
+          COL_COUNT           = 6
         };
         
         data_type               type;
@@ -207,7 +212,7 @@ namespace vire {
                             Qt::Orientation orientation_,
                             int role_ = Qt::DisplayRole) const override;
         
-        // Qt::ItemFlags flags(const QModelIndex &index_) const override;
+        Qt::ItemFlags flags(const QModelIndex &index_) const override;
 
         void construct();
         
@@ -218,9 +223,11 @@ namespace vire {
 
         int get_path_max_depth() const;
         int get_path_max_depth_leaf_width() const;
+        bool is_tristate_column(const QModelIndex & index_) const;
      
       private:
-        
+
+       
         void _setup_model_data_(image_registry & imreg_);
 
       private:

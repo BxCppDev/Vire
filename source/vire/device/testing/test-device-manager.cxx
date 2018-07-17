@@ -86,7 +86,7 @@ void test0()
   dev_mgr.set_name("devices");
   dev_mgr.set_display_name("Devices");
   dev_mgr.set_terse_description("The device manager of the experiment");
-  dev_mgr.set_setup_label("vire::experiment");
+  dev_mgr.set_setup_label("vire_mock_experiment");
   dev_mgr.set_setup_description("A mock experimental setup from the Vire API");
   dev_mgr.set_setup_version("0.1");
   dev_mgr.set_factory_preload_system_all(true);

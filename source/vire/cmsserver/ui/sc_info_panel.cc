@@ -27,9 +27,13 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QCoreApplication>
+#include <QPushButton>
+#include <QErrorMessage>
+#include <QCheckBox>
 
 // This project:
 #include <vire/time/utils.h>
+#include <vire/cms/ui/utils.h>
 #include <vire/cms/ui/image_status_panel.h>
 
 namespace vire {
@@ -99,10 +103,17 @@ namespace vire {
 
         _connection_led_  = new led(led::Square, led::Green, led::Grey, this);
         _connection_led_->setFixedSize(14, 14);
-
+        _connection_button_ = new QPushButton("Connect");
+        _disconnection_button_ = new QPushButton("Disconnect");
+        _autoconnect_check_ = new QCheckBox("Autoconnect");
+        slot_update_auto_connect();
+        
         QHBoxLayout * connection_layout = new QHBoxLayout;
         connection_layout->addWidget(_connection_led_);
         connection_layout->addWidget(_connection_label_);
+        connection_layout->addWidget(_connection_button_);
+        connection_layout->addWidget(_disconnection_button_);
+        connection_layout->addWidget(_autoconnect_check_);
 
         QFrame * mounted_device_frame = new QFrame(this);
         mounted_device_frame->setFrameStyle(QFrame::Box);
@@ -184,17 +195,101 @@ namespace vire {
 
         QObject::connect(_subcontractor_info_emitter_, SIGNAL(connection_changed()),
                          this, SLOT(slot_update_connection()));
+        QObject::connect(_subcontractor_info_emitter_, SIGNAL(auto_connect_changed()),
+                         this, SLOT(slot_update_auto_connect()));
+        QObject::connect(_connection_button_, SIGNAL(clicked()),
+                         this, SLOT(slot_connect()));
+        QObject::connect(_disconnection_button_, SIGNAL(clicked()),
+                         this, SLOT(slot_disconnect()));
+        QObject::connect(_autoconnect_check_, SIGNAL(stateChanged(int)),
+                         this, SLOT(slot_toggle_autoconnect()));
  
         return;
       }
-        
+         
+      void sc_info_panel::slot_connect()
+      {
+        std::cerr << "************ devel: sc_info_panel::slot_connect: Entering..." << std::endl;
+        if (!_subcontractor_info_) return;
+        if (!_subcontractor_info_->is_connected()) {
+          try {
+            _subcontractor_info_->connect();
+          } catch (std::exception & error) {
+            std::string error_message = error.what();
+            QErrorMessage errorMessageDialog(this);
+            errorMessageDialog.showMessage(error_message.c_str());
+          } catch (...) {
+            std::string error_message = "Unexpected error";         
+            QErrorMessage errorMessageDialog(this);
+            errorMessageDialog.showMessage(error_message.c_str());
+          }
+        }
+        if (!_subcontractor_info_->is_connected()) {
+          QErrorMessage errorMessageDialog(this);
+          errorMessageDialog.showMessage("Connection failed!");
+        }
+        std::cerr << "************ devel: sc_info_panel::slot_connect: Exiting." << std::endl;
+        return;
+      }
+         
+      void sc_info_panel::slot_disconnect()
+      {
+        std::cerr << "************ devel: sc_info_panel::slot_disconnect: Entering..." << std::endl;
+        if (!_subcontractor_info_) return;
+        if (_subcontractor_info_->is_connected()) {
+          try {
+            _subcontractor_info_->disconnect();
+          } catch (std::exception & error) {
+            std::string error_message = error.what();
+            QErrorMessage errorMessageDialog(this);
+            errorMessageDialog.showMessage(error_message.c_str());
+          } catch (...) {
+            std::string error_message = "Unexpected error";
+            QErrorMessage errorMessageDialog(this);
+            errorMessageDialog.showMessage(error_message.c_str());
+          }
+        }
+        if (_subcontractor_info_->is_connected()) {
+          QErrorMessage errorMessageDialog(this);
+          errorMessageDialog.showMessage("Disconnection failed!");
+        }
+        std::cerr << "************ devel: sc_info_panel::slot_disconnect: Exiting." << std::endl;
+        return;
+      }
+             
+      void sc_info_panel::slot_toggle_autoconnect()
+      {
+        if (!_subcontractor_info_) return;
+         if (_subcontractor_info_->is_auto_connect()) {
+           _subcontractor_info_->set_auto_connect(false);
+         } else {
+           _subcontractor_info_->set_auto_connect(true);
+         }
+        return;
+      }
+  
+      void sc_info_panel::slot_update_auto_connect()
+      {
+        if (!_subcontractor_info_) return;
+        if (_subcontractor_info_->is_auto_connect()) {
+          _autoconnect_check_->setCheckState(Qt::Checked);
+        } else  {
+          _autoconnect_check_->setCheckState(Qt::Unchecked);
+        }
+        return;
+      }
+   
       void sc_info_panel::slot_update_connection()
       {
         if (!_subcontractor_info_) return;
         if (_subcontractor_info_->is_connected()) {
           _connection_led_->set_value(true);
+          _connection_button_->setEnabled(false);
+          _disconnection_button_->setEnabled(true);
         } else {
           _connection_led_->set_value(false);
+          _connection_button_->setEnabled(true);
+          _disconnection_button_->setEnabled(false);
         }
         return;
       }

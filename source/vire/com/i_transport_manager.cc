@@ -49,6 +49,19 @@ namespace vire {
       return;
     }
 
+    const std::string & i_transport_manager::get_name() const
+    {
+      return _name_;
+    }
+    
+    void i_transport_manager::set_name(const std::string & name_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Transport manager is already initialized!");
+      _name_ = name_;
+      return;
+    }
+
     bool i_transport_manager::is_initialized() const
     {
       return _initialized_;

@@ -24,7 +24,7 @@
 // BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
 #include <bayeux/protobuftools/std_string_converter.h>
-#include <bayeux/protobuftools/std_vector_converter.h>
+//#include <bayeux/protobuftools/std_vector_converter.h>
 
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>

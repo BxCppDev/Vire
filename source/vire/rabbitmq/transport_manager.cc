@@ -58,10 +58,8 @@ namespace vire {
     
     void transport_manager::_at_initialize_(const datatools::properties & config_)
     {
-      datatools::properties rabbitmgr_config;
-      config_.export_and_rename_starting_with(rabbitmgr_config, "rabbitmq.", "");
       _pimpl_->rabbitmq_mgr.reset(new vire::rabbitmq::manager_service);
-      _pimpl_->rabbitmq_mgr->initialize_standalone(rabbitmgr_config);
+      _pimpl_->rabbitmq_mgr->initialize_standalone(config_);
       return;
     }
 
@@ -80,34 +78,48 @@ namespace vire {
 
     bool transport_manager::has_domain(const std::string & domain_name_) const
     {
-      return false;
+      return _pimpl_->rabbitmq_mgr->has_vhost(domain_name_);
     }
         
     void transport_manager::add_domain(const std::string & domain_name_,
                                        const vire::com::domain_category_type category_)
     {
+      DT_THROW_IF(has_domain(domain_name_), std::logic_error,
+                  "Domain '" << domain_name_ << "' already exists!");
+      vhost vh(domain_name_, category_);
+      _pimpl_->rabbitmq_mgr->add_vhost(vh);
       return;
     }
         
     void transport_manager::remove_domain(const std::string & domain_name_)
     {
+      DT_THROW_IF(!has_domain(domain_name_), std::logic_error,
+                  "Domain '" << domain_name_ << "' does not exist!");
+      _pimpl_->rabbitmq_mgr->remove_vhost(domain_name_);
       return;
     }
 
     bool transport_manager::has_user(const std::string & login_) const
     {
-      return false;
+      return _pimpl_->rabbitmq_mgr->has_user(login_);
     }
         
     void transport_manager::add_user(const std::string & login_,
                                      const std::string & password_,
                                      const vire::com::actor_category_type category_)
     {
+      DT_THROW_IF(has_user(login_), std::logic_error,
+                  "User '" << login_ << "' already exists!");
+      user u(login_, password_, category_);
+      _pimpl_->rabbitmq_mgr->add_user(u);
       return;
     }
 
     void transport_manager::remove_user(const std::string & login_) 
     {
+      DT_THROW_IF(has_user(login_), std::logic_error,
+                  "User '" << login_ << "' does not exist!");
+      _pimpl_->rabbitmq_mgr->remove_user(login_);
       return;
     }
 

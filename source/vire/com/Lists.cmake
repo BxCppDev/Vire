@@ -1,5 +1,6 @@
 list(APPEND VireLibrary_HEADERS
   com/utils.h
+  com/addressing.h
   com/transport_utils.h
   com/i_encoding_driver.h
   com/boost_serialization_encoding_driver.h
@@ -13,9 +14,9 @@ list(APPEND VireLibrary_HEADERS
   com/i_transport_manager.h
   com/base_plug.h
   com/i_service_client_plug.h
-  #com/i_service_server.h
+  com/i_service_server_plug.h
   com/i_event_emitter_plug.h
-  #com/i_event_listener_plug.h
+  com/i_event_listener_plug.h
   com/plug_factory.h
   com/manager.h
   #com/manager-reflect.h
@@ -23,6 +24,7 @@ list(APPEND VireLibrary_HEADERS
 
 list(APPEND VireLibrary_SOURCES
   com/utils.cc
+  com/addressing.cc
   com/transport_utils.cc
   com/i_encoding_driver.cc
   com/boost_serialization_encoding_driver.cc
@@ -36,9 +38,9 @@ list(APPEND VireLibrary_SOURCES
   com/i_transport_manager.cc
   com/base_plug.cc
   com/i_service_client_plug.cc
-  #com/i_service_server.cc
+  com/i_service_server_plug.cc
   com/i_event_emitter_plug.cc
-  #com/i_event_listener_plug.cc
+  com/i_event_listener_plug.cc
   com/plug_factory.cc
   com/manager.cc
   )

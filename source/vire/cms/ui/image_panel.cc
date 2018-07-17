@@ -383,7 +383,7 @@ namespace vire {
           _status_panel_->set_status(_image_->get_status());
           main_layout->addWidget(_status_panel_, status_row, values_col);
         }
-        std::cerr << " ************ nrows = " << nrows << std::endl;
+        // std::cerr << " ************ nrows = " << nrows << std::endl;
         // this->setFixedHeight(nrows * cellSize
         //                      + (nrows - 1) * vire::cms::ui::display_context::get_instance().get_vertical_spacing());
         this->setLayout(main_layout);

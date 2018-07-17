@@ -29,9 +29,6 @@
 #include <vire/utility/base_payload.h>
 #include <vire/utility/instance_identifier.h>
 
-// Ourselves:
-#include <vire/utility/base_payload.h>
-
 namespace vire {
 
   namespace cms {

@@ -41,6 +41,10 @@ namespace vire {
     {
     public:
 
+      const std::string & get_name() const;
+
+      void set_name(const std::string &);
+
       //! Default constructor
       i_transport_manager();
 
@@ -57,17 +61,20 @@ namespace vire {
       void reset();
 
       virtual bool has_domain(const std::string & domain_name_) const = 0;
+      
       virtual void add_domain(const std::string & domain_name_,
                               const domain_category_type category_) = 0;
+      
       virtual void remove_domain(const std::string & domain_name_) = 0;
  
       virtual bool has_user(const std::string & login_) const = 0;
+      
       virtual void add_user(const std::string & login_,
                             const std::string & password_,
                             const actor_category_type category_) = 0;
+      
       virtual void remove_user(const std::string & login_) = 0;
       
-     
     private:
 
       //! Initialization
@@ -80,6 +87,9 @@ namespace vire {
 
       // Management:
       bool _initialized_ = false; //!< Initialization flag
+
+      // Configuration:
+      std::string _name_;
       
       // Factory stuff :
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(i_transport_manager)

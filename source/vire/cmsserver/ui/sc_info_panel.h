@@ -30,6 +30,8 @@
 
 // Forward declarations:
 class QLabel;
+class QPushButton;
+class QCheckBox;
 
 // This project:
 #include <vire/cmsserver/sc_info.h>
@@ -62,7 +64,15 @@ namespace vire {
  
       public slots:
         
+       void slot_update_auto_connect();
+       
        void slot_update_connection();
+       
+       void slot_connect();
+      
+       void slot_disconnect();
+      
+       void slot_toggle_autoconnect();
  
       private:
 
@@ -81,7 +91,9 @@ namespace vire {
         QLabel *             _sc_desc_value_label_ = nullptr;
         QLabel *             _connection_label_    = nullptr;
         datatools::qt::led * _connection_led_      = nullptr;
- 
+        QPushButton *        _connection_button_   = nullptr;
+        QPushButton *        _disconnection_button_ = nullptr;
+        QCheckBox *          _autoconnect_check_ = nullptr;
       };
       
     } // namespace ui

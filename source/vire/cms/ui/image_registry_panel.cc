@@ -81,7 +81,8 @@ namespace vire {
           // std::cerr << "***** devel *****   text     = '" << text.toStdString()  << "' of width = " << textWidthInPixels << std::endl;
           QSize szHint = originalSize;
           szHint.setHeight(cellSize);
-       }
+          return szHint;
+        }
         return QStyledItemDelegate::sizeHint(option_, index_);  
       }
  
@@ -434,10 +435,66 @@ namespace vire {
 
       QVariant image_registry_tree_model::data(const QModelIndex & index_, int role_) const
       {
+        unsigned int cellSize = vire::cms::ui::display_context::get_instance().get_row_height();
         if (!index_.isValid()) {
           return QVariant();
         }
 
+        if (role_ == Qt::CheckStateRole) {
+          image_registry_tree_item * item = item_from_index(index_);
+          if (!item) {
+            return QVariant();
+          }
+          const image_registry_data & imgData = item->get_data();  
+          if (imgData.type == image_registry_data::DATA_DEVICE
+              || imgData.type == image_registry_data::DATA_RESOURCE) {
+            if (index_.column() == image_registry_data::COL_IMAGE_MISSING) {
+              Qt::CheckState eChkState = Qt::PartiallyChecked;
+              if (imgData.image->get_status().has_missing()) {
+                if (imgData.image->get_status().is_missing()) {
+                  eChkState = Qt::Checked;
+                } else  {
+                  eChkState = Qt::Unchecked;
+                }
+              }
+              return eChkState;
+            }
+            if (index_.column() == image_registry_data::COL_IMAGE_DISABLED) {
+              Qt::CheckState eChkState = Qt::PartiallyChecked;
+              if (imgData.image->get_status().has_disabled()) {
+                if (imgData.image->get_status().is_disabled()) {
+                  eChkState = Qt::Checked;
+                } else  {
+                  eChkState = Qt::Unchecked;
+                }
+              }
+              return eChkState;
+            }
+            if (index_.column() == image_registry_data::COL_IMAGE_PENDING) {
+              Qt::CheckState eChkState = Qt::PartiallyChecked;
+              if (imgData.image->get_status().has_pending()) {
+                if (imgData.image->get_status().is_pending()) {
+                  eChkState = Qt::Checked;
+                } else  {
+                  eChkState = Qt::Unchecked;
+                }
+              }
+              return eChkState;
+            }
+            if (index_.column() == image_registry_data::COL_IMAGE_FAILED) {
+              Qt::CheckState eChkState = Qt::PartiallyChecked;
+              if (imgData.image->get_status().has_failed()) {
+                if (imgData.image->get_status().is_failed()) {
+                  eChkState = Qt::Checked;
+                } else  {
+                  eChkState = Qt::Unchecked;
+                }
+              }
+              return eChkState;
+            }
+          }
+        }
+        
         if (role_ == Qt::DisplayRole) {
           image_registry_tree_item * item = item_from_index(index_);
           if (!item) {
@@ -447,6 +504,42 @@ namespace vire {
           if (index_.column() == image_registry_data::COL_PATH) {
             return tr(imgData.label.c_str());      
           }
+
+          if (imgData.type == image_registry_data::DATA_DEVICE_UNTRACKED) {
+
+
+            // return tr("untracked device");      
+          } else if (imgData.type == image_registry_data::DATA_DEVICE
+                     || imgData.type == image_registry_data::DATA_RESOURCE) {
+            // if (index_.column() == image_registry_data::COL_IMAGE_MISSING) {
+            //   std::string repr = imgData.image->get_status().get_missing_repr();
+            //   // return tr(repr.c_str());
+            //   Qt::CheckState eChkState = Qt::PartiallyChecked;
+            //   if (imgData.image->get_status().has_missing()) {
+            //     if (imgData.image->get_status().is_missing()) {
+            //       eChkState = Qt::Checked;
+            //     } else  {
+            //       eChkState = Qt::Unchecked;
+            //     }
+            //   }
+            //   return eChkState;
+            // } else
+            // if (index_.column() == image_registry_data::COL_IMAGE_DISABLED) {
+            //   std::string repr = imgData.image->get_status().get_disabled_repr();
+            //   return tr(repr.c_str());
+            // } else if (index_.column() == image_registry_data::COL_IMAGE_PENDING) {
+            //   std::string repr = imgData.image->get_status().get_pending_repr();
+            //   return tr(repr.c_str());
+            // } else if (index_.column() == image_registry_data::COL_IMAGE_FAILED) {
+            //   std::string repr = imgData.image->get_status().get_failed_repr();
+            //   return tr(repr.c_str());
+            // } else
+            if (index_.column() == image_registry_data::COL_IMAGE_TIMESTAMP) {
+              std::string repr = imgData.image->get_status().get_timestamp_repr();
+              return tr(repr.c_str());
+            } 
+          }
+          /*
           if (index_.column() == image_registry_data::COL_IMAGE) {
             if (imgData.type == image_registry_data::DATA_DEVICE_UNTRACKED) {
               // return tr("untracked device");      
@@ -458,8 +551,34 @@ namespace vire {
               // return tr("resource");      
             } 
           }
+          */
         }
 
+        if (role_ == Qt::SizeHintRole) {
+          if (index_.column() >= image_registry_data::COL_IMAGE_MISSING
+              && index_.column() <= image_registry_data::COL_IMAGE_FAILED) {
+            return QVariant(QSize(cellSize, cellSize));
+          }
+        }
+
+        if (role_ == Qt::TextAlignmentRole) {
+          if (index_.column() >= image_registry_data::COL_IMAGE_MISSING
+              && index_.column() <= image_registry_data::COL_IMAGE_FAILED) {
+            return QVariant(Qt::AlignHCenter | Qt::AlignVCenter);
+          }
+          if (index_.column() == image_registry_data::COL_IMAGE_TIMESTAMP) {
+            return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
+          }
+        }
+ 
+        if (role_ == Qt::TextColorRole) {
+        }
+
+        if (role_ == Qt::BackgroundColorRole) {
+          
+          // return QVariant(QColor(Qt::red));
+        }
+ 
         if (role_ == Qt::DecorationRole) {
           image_registry_tree_item * item = item_from_index(index_);
           if (!item) {
@@ -472,9 +591,9 @@ namespace vire {
               return iconIter->second;
             }
           }
-          if (index_.column() == image_registry_data::COL_IMAGE) {
+          // if (index_.column() == image_registry_data::COL_IMAGE) {
             
-          }
+          // }
         }
  
         if (role_ == Qt::BackgroundRole) {
@@ -515,23 +634,90 @@ namespace vire {
                                                      Qt::Orientation orientation_,
                                                      int role_) const
       {
-        if (orientation_ == Qt::Horizontal && role_ == Qt::DisplayRole) {
-          if (section_ == image_registry_data::COL_PATH) {
-            return tr("Path");
-          } 
-          if (section_ == image_registry_data::COL_IMAGE) {
-            return tr("Image");
-          } 
+        if (orientation_ == Qt::Horizontal) {
+          
+          if (role_ == Qt::TextAlignmentRole) {
+            if (section_ == image_registry_data::COL_IMAGE_TIMESTAMP
+                || section_ == image_registry_data::COL_PATH) {
+              return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
+            }
+            if (section_ >= image_registry_data::COL_IMAGE_MISSING
+                && section_ <= image_registry_data::COL_IMAGE_FAILED) {
+              return QVariant(Qt::AlignHCenter | Qt::AlignVCenter);
+            }
+          }
+          
+          if (role_ == Qt::DisplayRole) {
+            if (section_ == image_registry_data::COL_PATH) {
+              return tr("Path");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_MISSING) {
+              return tr("M");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_DISABLED) {
+              return tr("D");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_PENDING) {
+              return tr("P");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_FAILED) {
+              return tr("F");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_TIMESTAMP) {
+              return tr("Timestamp");
+            } 
+          }
+         
+          if (role_ == Qt::ToolTipRole) {
+            if (section_ == image_registry_data::COL_PATH) {
+              return tr("Resource/device path");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_MISSING) {
+              return tr("Missing");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_DISABLED) {
+              return tr("Disabled");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_PENDING) {
+              return tr("Pending");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_FAILED) {
+              return tr("Failed");
+            } 
+            if (section_ == image_registry_data::COL_IMAGE_TIMESTAMP) {
+              return tr("Last update timestamp (UTC)");
+            } 
+          }
+          
         }
         return QVariant();
       }
 
-      // Qt::ItemFlags image_registry_tree_model::flags(const QModelIndex & index_) const
-      // {
-      //   if (!index_.isValid())
-      //          return 0;
-      //   return QAbstractItemModel::flags(index_);
-      // }
+      bool image_registry_tree_model::is_tristate_column( const QModelIndex & index_) const
+      {
+        if (!index_.isValid()) {
+          return false;
+        }
+        if (index_.column() >= image_registry_data::COL_IMAGE_MISSING
+            && index_.column() <= image_registry_data::COL_IMAGE_FAILED) {
+          return true;
+        }
+        return false;
+      }
+
+      Qt::ItemFlags image_registry_tree_model::flags(const QModelIndex & index_) const
+      {
+        if (!index_.isValid()) {
+          return 0;
+        }
+        if (is_tristate_column(index_)) {
+          Qt::ItemFlags flags = QAbstractItemModel::flags(index_);
+          flags |= Qt::ItemIsEnabled | Qt::ItemIsTristate;  
+          return flags;
+        }
+        
+        return QAbstractItemModel::flags(index_);
+      }
    
       void image_registry_tree_model::insert_icons(const image_registry_data::data_type type_,
                                                    const QIcon & icon_)
@@ -698,9 +884,9 @@ namespace vire {
         // treeView->setColumnWidth(0, firstColumnWidth);
         QHeaderView * headerView = treeView->header();
         headerView->setSectionResizeMode(QHeaderView::ResizeToContents);
-        _delegate_ = new image_registry_delegate(_tree_model_, treeView, this);
-        std::cerr << "***** DEVEL ***** image_registry_delegate created..." << std::endl;
-        treeView->setItemDelegate(_delegate_);
+        // _delegate_ = new image_registry_delegate(_tree_model_, treeView, this);
+        // std::cerr << "***** DEVEL ***** image_registry_delegate created..." << std::endl;
+        // treeView->setItemDelegate(_delegate_);
         mainLayout->addWidget(treeView, 1, 0, 1, 3);
 
         this->setLayout(mainLayout);

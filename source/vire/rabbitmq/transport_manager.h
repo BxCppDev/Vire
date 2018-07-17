@@ -66,8 +66,6 @@ namespace vire {
     private:
        
       // Configuration:
-      std::string _rabbitmq_plugin_path_;
-
       struct pimpl_type;
       std::unique_ptr<pimpl_type> _pimpl_;
        

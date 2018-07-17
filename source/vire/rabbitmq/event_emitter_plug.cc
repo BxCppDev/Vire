@@ -1,4 +1,4 @@
-//! \file vire/rabbitmq/service_client_plug.cc
+//! \file vire/rabbitmq/event_emitter_plug.cc
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 // Copyright (c) 2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
@@ -37,6 +37,7 @@
 #include <vire/com/manager.h>
 #include <vire/com/domain.h>
 #include <vire/com/actor.h>
+#include <vire/rabbitmq/utils.h>
 
 namespace vire {
 
@@ -113,11 +114,14 @@ namespace vire {
     }
     
     vire::com::com_status event_emitter_plug::_at_send_event_(const std::string & exchange_name_,
-                                                              const std::string & routing_key_,
+                                                              const vire::com::address & address_,
                                                               const vire::com::raw_message_type & raw_event_)
     {
       vire::com::com_status status = vire::com::COM_FAILURE;
-
+      std::string routing_key;
+      if (!::vire::rabbitmq::convert(address_, routing_key)) {
+        return status;
+      }
       bxrabbitmq::basic_properties prop_out;
       prop_out.set_user_id(get_parent().get_name());
       prop_out.set_correlation_id("corid_" + std::to_string(std::rand()));
@@ -125,7 +129,7 @@ namespace vire {
         prop_out.set_message_id(raw_event_.metadata.fetch_string(vire::com::message_id_key()));
       }
       std::string msgevent(raw_event_.buffer.data(), raw_event_.buffer.size());
-      _pimpl_->channel->basic_publish(exchange_name_, routing_key_, msgevent, prop_out);
+      _pimpl_->channel->basic_publish(exchange_name_, routing_key, msgevent, prop_out);
 
       return status;
     }

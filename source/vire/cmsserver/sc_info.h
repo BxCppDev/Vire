@@ -44,6 +44,13 @@
 
 namespace vire {
 
+  namespace cms {
+    class connection_success;
+    class connection_failure;
+    class disconnection_success;
+    class disconnection_failure;
+  }
+  
   namespace cmsserver {
 
     class sc_info;
@@ -63,8 +70,12 @@ namespace vire {
       void emit_connection_change();
  
       void emit_device_status_change(std::string device_path_);
-      
+ 
+      void emit_auto_connect_change();
+     
     signals:
+      
+      void auto_connect_changed();
       
       void connection_changed();
 
@@ -174,8 +185,12 @@ namespace vire {
   
       void _on_disconnect_();
      
-      sc_info_signal_emitter & _grab_emitter_(); 
+      sc_info_signal_emitter & _grab_emitter_();
 
+      void _process_connection_success_(const vire::cms::connection_success &);
+      
+      void _process_disconnection_success_(const vire::cms::disconnection_success &);
+      
     private:
 
       // Management:

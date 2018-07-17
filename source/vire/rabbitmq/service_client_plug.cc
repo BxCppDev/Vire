@@ -37,6 +37,7 @@
 #include <vire/com/manager.h>
 #include <vire/com/domain.h>
 #include <vire/com/actor.h>
+#include <vire/rabbitmq/utils.h>
 
 namespace vire {
 
@@ -121,16 +122,20 @@ namespace vire {
     }
 
     // virtual
-    vire::com::rpc_status service_client_plug::_at_send_receive_(const std::string & routing_key_,
+    vire::com::com_status service_client_plug::_at_send_receive_(const vire::com::address & address_,
                                                                  const vire::com::raw_message_type & raw_request_,
                                                                  vire::com::raw_message_type & raw_response_,
                                                                  const float timeout_sec_)
     {
-      vire::com::rpc_status status = vire::com::RPC_STATUS_FAILURE;
+      vire::com::com_status status = vire::com::COM_FAILURE;
       bxrabbitmq::basic_properties prop_out;
       std::string consumer_tag = "";
       bool no_ack = true;
       bool exclusive = false;
+      std::string routing_key;
+      if (!::vire::rabbitmq::convert(address_, routing_key)) {
+        return status;
+      }
       _pimpl_->channel->basic_consume(_pimpl_->q_par.name, consumer_tag, no_ack, exclusive);
       prop_out.set_reply_to(_pimpl_->q_par.name);
       prop_out.set_user_id(get_parent().get_name());
@@ -139,30 +144,32 @@ namespace vire {
         prop_out.set_message_id(raw_request_.metadata.fetch_string(vire::com::message_id_key()));
       }
       std::string msgrequest(raw_request_.buffer.data(), raw_request_.buffer.size());
-      _pimpl_->channel->basic_publish(get_mailbox_name(), routing_key_, msgrequest, prop_out);
+      _pimpl_->channel->basic_publish(get_mailbox_name(), routing_key, msgrequest, prop_out);
       std::string msgresponse;
-      while (1) {
+      while (true) {
         std::string routing_key;
         bxrabbitmq::basic_properties prop_in;
         uint64_t delivery;
-        bxrabbitmq::consume_status_type mqstatus = _pimpl_->channel->consume_message(msgresponse, routing_key, prop_in, delivery, timeout_sec_);
+        bxrabbitmq::consume_status_type mqstatus
+          = _pimpl_->channel->consume_message(msgresponse, routing_key, prop_in, delivery, timeout_sec_);
         raw_response_.metadata.store(vire::com::address_key(), routing_key);
         if (mqstatus == bxrabbitmq::CONSUME_OK) {
           if (not prop_in.has_correlation_id ()) continue;
           if (prop_in.get_correlation_id () == prop_out.get_correlation_id ()) {
-            status = vire::com::RPC_STATUS_SUCCESS;
+            status = vire::com::COM_SUCCESS;
+            raw_response_.buffer = vire::com::raw_message_type::buffer_type(msgresponse.begin(),
+                                                                            msgresponse.end());
             break;
           }
         } else {
           if (mqstatus == bxrabbitmq::CONSUME_TIMEOUT) {
-            status = vire::com::RPC_STATUS_TIMEOUT;
+            status = vire::com::COM_TIMEOUT;
           } else {
-            status = vire::com::RPC_STATUS_FAILURE;
+            status = vire::com::COM_FAILURE;
           }
           break;
         }
       }
-      raw_response_.buffer = vire::com::raw_message_type::buffer_type(msgresponse.begin(), msgresponse.end());
       return status;
     }
     

@@ -20,6 +20,10 @@
 // Ourselves:
 #include <vire/cms/image_status.h>
 
+// Third Party:
+// - Boost:
+#include <boost/logic/tribool_io.hpp>
+
 // This project:
 #include <vire/time/utils.h>
 #include <vire/cms/utils.h>
@@ -135,9 +139,21 @@ namespace vire {
       return _timestamp_;
     }
 
+    std::string image_status::get_timestamp_repr() const
+    {
+      if (!has_timestamp()) {
+        return "?";
+      }
+      std::ostringstream out;
+      out << boost::posix_time::to_iso_extended_string(_timestamp_);
+      std::string repr = out.str();
+      std::replace(repr.begin(), repr.end(), 'T', '@');
+      return repr;
+    }
+
     bool image_status::has_missing() const
     {
-      return ! boost::logic::indeterminate(_missing_);
+      return _missing_ != boost::logic::tribool::indeterminate_value;
     }
 
     bool image_status::is_present() const
@@ -156,6 +172,24 @@ namespace vire {
       return false;
     }
 
+    const boost::logic::tribool &  image_status::get_missing() const
+    {
+      return _missing_;
+    }
+   
+    std::string image_status::get_missing_repr() const
+    {
+      if (!has_missing()) {
+        return "?";
+      } else {
+        if (is_missing()) {
+          return "m";
+        } else {
+          return "-";
+        }
+      }
+    }
+
     void image_status::set_missing(bool m_)
     {
       if (has_missing()) {
@@ -171,6 +205,7 @@ namespace vire {
     {
       if (has_missing()) {
         _missing_ = boost::logic::tribool::indeterminate_value;
+        // std::cerr << "**** devel ***** image_status::reset_missing: = " << std::boolalpha << _missing_ << std::endl;
         on_change();
       }
       return;
@@ -178,7 +213,25 @@ namespace vire {
 
     bool image_status::has_disabled() const
     {
-      return ! boost::logic::indeterminate(_disabled_);
+      return _disabled_ != boost::logic::tribool::indeterminate_value;
+    }
+
+    const boost::logic::tribool &  image_status::get_disabled() const
+    {
+      return _disabled_;
+    }
+    
+    std::string image_status::get_disabled_repr() const
+    {
+      if (!has_disabled()) {
+        return "?";
+      } else {
+        if (is_disabled()) {
+          return "d";
+        } else {
+          return "-";
+        }
+      }
     }
 
     bool image_status::is_enabled() const
@@ -227,15 +280,33 @@ namespace vire {
 
     bool image_status::has_pending() const
     {
-      return ! boost::logic::indeterminate(_pending_);
+      return _pending_ != boost::logic::tribool::indeterminate_value;
     }
-
+    
     bool image_status::is_pending() const
     {
       if (_pending_) {
         return true;
       }
       return false;
+    }
+
+    const boost::logic::tribool &  image_status::get_pending() const
+    {
+      return _pending_;
+    }
+
+    std::string image_status::get_pending_repr() const
+    {
+      if (!has_pending()) {
+        return "?";
+      } else {
+        if (is_pending()) {
+          return "p";
+        } else {
+          return "-";
+        }
+      }
     }
 
     void image_status::set_pending(bool p_)
@@ -268,7 +339,25 @@ namespace vire {
 
     bool image_status::has_failed() const
     {
-      return ! boost::logic::indeterminate(_failed_);
+      return _failed_ != boost::logic::tribool::indeterminate_value;
+    }
+
+    const boost::logic::tribool & image_status::get_failed() const
+    {
+      return _failed_;
+    }
+
+    std::string image_status::get_failed_repr() const
+    {
+      if (!has_failed()) {
+        return "?";
+      } else {
+        if (is_failed()) {
+          return "f";
+        } else {
+          return "-";
+        }
+      }
     }
 
     bool image_status::is_failed() const

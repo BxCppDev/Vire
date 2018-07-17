@@ -41,6 +41,8 @@ namespace vire {
     public:
 
       // Validate a domain name prefix
+      static bool validate_domain_name(const std::string & setup_name_);
+
       static bool validate_domain_name_prefix(const std::string & setup_name_);
 
       // Build  the domain name prefix from the name of a setup
@@ -67,6 +69,14 @@ namespace vire {
       // Build the name of the vire client gate domain
       static std::string build_cms_clients_gate_name(const std::string & name_prefix_);
 
+      bool extract_client_id(const std::string & domain_name_prefix_,
+                             const std::string & domain_name_,
+                             std::string & client_id_);
+
+      bool extract_subcontractor_id(const std::string & domain_name_prefix_,
+                                    const std::string & domain_name_,
+                                    std::string & subcontractor_id_);
+      
       //! Default constructor
       domain_builder();
 
@@ -125,6 +135,8 @@ namespace vire {
 
       //! Build the subcontractor system domain
       void build_subcontractor_system_domain(domain &, const std::string & subcontractor_id_) const;
+
+      void reset();
 
     private:
 

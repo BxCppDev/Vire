@@ -35,7 +35,9 @@
 // This project:
 #include <vire/com/domain.h>
 #include <vire/com/actor.h>
+#include <vire/com/i_transport_manager.h>
 #include <vire/resource/manager.h>
+#include <vire/rabbitmq/manager_service.h>
 
 namespace vire {
 
@@ -51,7 +53,7 @@ namespace vire {
 
       // Attributes:
       manager & com;
-      // std::unique_ptr<vire::rabbitmq::manager_service> rabbitmgr;
+      std::map<std::string, transport_manager_ptr> transport_managers;
       
     };
 
@@ -67,6 +69,27 @@ namespace vire {
     {
       static std::string _name("com");
       return _name;
+    }
+    
+    // static
+    const std::string & manager::gate_label()
+    {
+      static std::string _label("gate");
+      return _label;
+    }
+
+    // static
+    const std::string & manager::control_label()
+    {
+      static std::string _label("control");
+      return _label;
+    }
+ 
+    // static
+    const std::string & manager::monitoring_label()
+    {
+      static std::string _label("monitoring");
+      return _label;
     }
 
     manager::manager(uint32_t /* flags_ */)
@@ -87,10 +110,18 @@ namespace vire {
       return;
     }
 
+    bool manager::has_domain_name_prefix() const
+    {
+      return !_domain_name_prefix_.empty();
+    }
+
     void manager::set_domain_name_prefix(const std::string & prefix_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "Communication manager is already initialized!");
+      DT_THROW_IF(!domain_builder::validate_domain_name_prefix(prefix_),
+                  std::logic_error,
+                  "Invalid domain name prefix '" << prefix_ << "'!");
       _domain_name_prefix_ = prefix_;
       return;
     }
@@ -376,6 +407,8 @@ namespace vire {
       _app_category_ = appcat_;
       if (_app_category_ == vire::cms::application::CATEGORY_SERVER) {
         _transport_management_ = true;
+      } else {
+        _transport_management_ = false;
       }
       return;
     }
@@ -410,13 +443,6 @@ namespace vire {
           set_app_category(appcat);
         }
       }
-
-      if (config_.has_key("no_transport_management")) {
-        bool ntm = config_.fetch_boolean("no_transport_management");
-        if (ntm) {
-          _transport_management_ = false;
-        }
-      }
       
       if (!has_resources()) {
         if (!has_resource_service_name()) {
@@ -430,6 +456,13 @@ namespace vire {
         }
       }
  
+      if (!has_domain_name_prefix()) {
+        if (config_.has_key("domain_name_prefix")) {
+          std::string domain_name_prefix = config_.fetch_string("domain_name_prefix");
+          set_domain_name_prefix(domain_name_prefix);
+        }
+      }
+
       if (!has_default_transport_type_id()) {
         if (config_.has_key("default_transport_type_id")) {
           std::string ttid = config_.fetch_string("default_transport_type_id");
@@ -448,10 +481,61 @@ namespace vire {
         }
       }    
 
-      if (config_.has_key("domain_name_prefix")) {
-        std::string domain_name_prefix = config_.fetch_string("domain_name_prefix");
-        set_domain_name_prefix(domain_name_prefix);
-        
+      // Default domain infos:
+      std::set<std::string> domain_labels = { "control", "monitoring", "gate" };
+      for (const std::string & domain_label : domain_labels) {
+        domain_info_type di;
+        if (domain_label == "gate") {
+          di.dom_cat = DOMAIN_CATEGORY_GATE;
+        } else if (domain_label == "control") {
+          di.dom_cat = DOMAIN_CATEGORY_CONTROL;
+        } else if (domain_label == "monitoring") {
+          di.dom_cat = DOMAIN_CATEGORY_MONITORING;
+        }
+        di.transport_type_id = get_default_transport_type_id();
+        di.encoding_type_id  = get_default_encoding_type_id();
+        _domain_infos_[domain_label] = di;
+      }
+      
+      // Overridden domain infos:
+      if (config_.has_key("domains.labels")) {
+        std::set<std::string> domain_labels;
+        config_.fetch("domains.labels", domain_labels);
+        for (const std::string & domain_label : domain_labels) {
+          vire::utility::model_identifier transport_type_id;
+          vire::utility::model_identifier encoding_type_id;
+          {
+            std::ostringstream transport_type_id_key;
+            transport_type_id_key << "domains." << domain_label << ".transport_type_id";
+            if (config_.has_key(transport_type_id_key.str())) {
+              std::string  transport_type_id_repr = config_.fetch_string(transport_type_id_key.str());
+              DT_THROW_IF(!transport_type_id.from_string(transport_type_id_repr),
+                          std::logic_error,
+                          "Invalid transport type ID representation '" << transport_type_id_repr << "'!");
+            }
+          }
+
+          {
+            std::ostringstream encoding_type_id_key;
+            encoding_type_id_key << "domains." << domain_label << ".encoding_type_id";
+            if (config_.has_key(encoding_type_id_key.str())) {
+              std::string  encoding_type_id_repr = config_.fetch_string(encoding_type_id_key.str());
+              DT_THROW_IF(!encoding_type_id.from_string(encoding_type_id_repr),
+                          std::logic_error,
+                          "Invalid encoding type ID representation '" << encoding_type_id_repr << "'!");
+            }
+          }
+          domain_info_dict_type::iterator found = _domain_infos_.find(domain_label);
+          DT_THROW_IF(found == _domain_infos_.end(),
+                      std::logic_error,
+                      "Invalid domain label '" << domain_label << "'!");
+          if (transport_type_id.is_valid()) { 
+            found->second.transport_type_id = transport_type_id;
+          }
+          if (encoding_type_id.is_valid()) {
+            found->second.encoding_type_id = encoding_type_id;
+          }
+        }
       }
 
       _at_init_(config_);
@@ -475,45 +559,61 @@ namespace vire {
 
     void manager::_set_defaults_()
     {
+      _transport_management_ = false;
+      _app_category_ = vire::cms::application::CATEGORY_UNDEF;
       set_logging_priority(datatools::logger::PRIO_FATAL);
       return;
     }
 
     void manager::_at_reset_transport_managers_()
     {
-      // if (_pimpl_->rabbitmgr) {
-      //   if (_pimpl_->rabbitmgr->is_initialized()) {
-      //     _pimpl_->rabbitmgr->reset();
-      //   }
-      //   _pimpl_->rabbitmgr.reset();
-      // }
+      if (_pimpl_) {
+        for (const auto & p : _pimpl_->transport_managers) {
+          p.second->reset();
+        }
+        _pimpl_->transport_managers.clear();
+      }
       return;
     }
 
     void manager::_at_init_transport_managers_(const datatools::properties & config_)
     {
       std::set<std::string> transmgr_names;
-      config_.fetch("names", transmgr_names);
-      if (_default_transport_type_id_.get_name() == "rabbitmq") {
-        for (const auto & trans_name : transmgr_names) {
+      if (config_.has_key("names")) {
+        config_.fetch("names", transmgr_names);
+        if (_default_transport_type_id_.get_name() == "rabbitmq") {
+          for (const auto & trans_name : transmgr_names) {
 
-          // if (trans_name == "rabbitmq") {
-          //   _pimpl_->rabbitmgr.reset(new vire::rabbitmq::manager_service);
-          //   std::ostringstream transmgr_config_path_key ;
-          //   transmgr_config_path_key << trans_name << ".config_path";
-          //   DT_THROW_IF(!config_.has_key(transmgr_config_path_key.str()),
-          //               std::logic_error,
-          //               "Missing '" << trans_name << "' transport manager config path!");
-          //   std::string transmgr_config_path = config_.fetch_path(transmgr_config_path_key.str());
-          //   datatools::fetch_path_with_env(transmgr_config_path);
-          //   datatools::properties transmgr_config;
-          //   transmgr_config.read_configuration(transmgr_config_path);
-          //   _pimpl_->rabbitmgr->initialize_standalone(transmgr_config);
-          
-          // } else {
-          //   DT_THROW(std::logic_error,
-          //            "Unsupported transport manager of type '" << trans_name << "'!");
-          // }          
+            std::ostringstream transmgr_type_id_key;
+            transmgr_type_id_key << trans_name << ".type_id";
+            DT_THROW_IF(!config_.has_key(transmgr_type_id_key.str()),
+                        std::logic_error,
+                        "Missing '" << trans_name << "' transport manager type ID!");
+            std::string transmgr_type_id = config_.fetch_string(transmgr_type_id_key.str());
+            
+            std::ostringstream transmgr_config_path_key;
+            transmgr_config_path_key << trans_name << ".config_path";
+            DT_THROW_IF(!config_.has_key(transmgr_config_path_key.str()),
+                        std::logic_error,
+                        "Missing '" << trans_name << "' transport manager config path!");
+            std::string transmgr_config_path = config_.fetch_path(transmgr_config_path_key.str());
+            datatools::fetch_path_with_env(transmgr_config_path);
+            datatools::properties transmgr_config;
+            transmgr_config.read_configuration(transmgr_config_path);
+
+            i_transport_manager::factory_register_type & sys_factory_register
+              =  DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_transport_manager);
+            DT_THROW_IF(! sys_factory_register.has(transmgr_type_id),
+                        std::logic_error,
+                        "No transport manager type ID '" << transmgr_type_id
+                        << "' factory is known from the system register!");
+            const i_transport_manager::factory_register_type::factory_type & the_factory
+              = sys_factory_register.get(transmgr_type_id);
+            transport_manager_ptr transmgrPtr(the_factory());
+            transmgrPtr->set_name(trans_name);
+            transmgrPtr->initialize(transmgr_config);
+            _pimpl_->transport_managers[trans_name] = transmgrPtr;
+          }
         }
       }
       return;
@@ -529,7 +629,7 @@ namespace vire {
 
       _pimpl_.reset(new pimpl_type(*this));
 
-      {
+      if (_transport_management_) {
         datatools::properties transport_manager_config;
         config_.export_and_rename_starting_with(transport_manager_config,
                                                 "transport_manager.",
@@ -538,38 +638,29 @@ namespace vire {
       }
       
       _build_default_domains_();
-
-      // XXX
-      // if (get_actor().get_category() == vire::com::ACTOR_CATEGORY_SYSTEM) {
-        
-      //   if (_transport_type_id_.get_name() == "rabbitmq") {
-      //     _pimpl_->rabbitmgr.reset(new vire::rabbitmq::manager_service);
-          
-      //     vire::rabbitmq::manager_service & rabbitmq = *_pimpl_->rabbitmgr;
-      //     rabbitmq.set_name("RabbitMQManager");
-      //     rabbitmq.set_display_name("RabbitMQ Manager Service");
-      //     rabbitmq.set_terse_description("The service dedicated to the RabbitMQ server management");
-      //     //rabbitmq.set_logging_priority();
-      //     rabbitmq.set_server_host("localhost");
-      //     rabbitmq.set_server_port(15672);
-      //     rabbitmq.set_vhost_name_prefix(get_domain_name_prefix());
-      //     rabbitmq.set_admin_login("supernemo_adm");
-      //     rabbitmq.set_admin_password("sesame");
-      //   }
-        
-      // }
       
       return;
     }
 
     void manager::_at_reset_()
     {
+      if (_transport_management_) {
+        _at_reset_transport_managers_();
+      }
+      
       if (_pimpl_) {
         _pimpl_.reset();
       }
       _actors_.clear();
       _domains_.clear();
       _resources_ = nullptr;
+      _domain_maker_.reset();
+      _default_encoding_type_id_.reset();
+      _default_transport_type_id_.reset();
+      _domain_name_prefix_.clear();
+      _resource_service_name_.clear();
+      _transport_management_ = false;
+      _app_category_ = vire::cms::application::CATEGORY_UNDEF;
       return;
     }
 
@@ -582,10 +673,12 @@ namespace vire {
         std::string gate_sys_domain_name
           = vire::com::domain_builder::build_cms_clients_gate_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(gate_sys_domain_name)) {
+          domain_info_dict_type::const_iterator found = _domain_infos_.find(gate_label());
+          const domain_info_type & dom_info = found->second;
           vire::com::domain & gate_sys_domain = this->create_domain(gate_sys_domain_name,
-                                                                    vire::com::DOMAIN_CATEGORY_GATE,
-                                                                    this->get_default_transport_type_id(),
-                                                                    this->get_default_encoding_type_id()); 
+                                                                    dom_info.dom_cat,
+                                                                    dom_info.transport_type_id,
+                                                                    dom_info.encoding_type_id); 
           this->get_domain_maker().build_clients_gate_domain(gate_sys_domain);
         }
       }
@@ -595,10 +688,12 @@ namespace vire {
         std::string monitoring_domain_name
           = vire::com::domain_builder::build_cms_monitoring_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(monitoring_domain_name)) {
+          domain_info_dict_type::const_iterator found = _domain_infos_.find(monitoring_label());
+          const domain_info_type & dom_info = found->second;
           vire::com::domain & monitoring_domain = this->create_domain(monitoring_domain_name,
-                                                                      vire::com::DOMAIN_CATEGORY_MONITORING,
-                                                                      this->get_default_transport_type_id(),
-                                                                      this->get_default_encoding_type_id()); 
+                                                                      dom_info.dom_cat,
+                                                                      dom_info.transport_type_id,
+                                                                      dom_info.encoding_type_id); 
           this->get_domain_maker().build_monitoring_domain(monitoring_domain);
         }
       }
@@ -609,10 +704,12 @@ namespace vire {
         std::string control_domain_name
           = vire::com::domain_builder::build_cms_control_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(control_domain_name)) {
+          domain_info_dict_type::const_iterator found = _domain_infos_.find(control_label());
+          const domain_info_type & dom_info = found->second;
           vire::com::domain & control_domain = this->create_domain(control_domain_name,
-                                                                   vire::com::DOMAIN_CATEGORY_CONTROL,
-                                                                   this->get_default_transport_type_id(),
-                                                                   this->get_default_encoding_type_id()); 
+                                                                   dom_info.dom_cat,
+                                                                   dom_info.transport_type_id,
+                                                                   dom_info.encoding_type_id); 
           this->get_domain_maker().build_control_domain(control_domain);
         }
       }

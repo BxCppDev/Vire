@@ -62,58 +62,25 @@ void test_com_manager_1(bool interactive_)
   std::string domain_name_prefix = "/supernemo/demonstrator";
 
   vire::utility::model_identifier default_protocol_id("rabbitmq",
-                                                      datatools::version_id(1, 0));
+                                                      datatools::version_id(1));
   vire::utility::model_identifier default_encoding_id("vire::com::protobuf_encoding_driver",
                                                       datatools::version_id(3));
-
-  // vire::com::domain_builder domBuilder;
-  // domBuilder.set_setup_name(domain_name_prefix);
-  // domBuilder.set_encoding_type_id(protocol_id);
-  // domBuilder.set_transport_type_id(encoding_id);
 
   vire::com::manager comMgr;
   comMgr.set_name("Com");
   comMgr.set_terse_description("SuperNEMO Vire Server Communication Service");
   comMgr.set_display_name("Communication");
+  comMgr.set_app_category(vire::cms::application::CATEGORY_SERVER);
   comMgr.set_domain_name_prefix(domain_name_prefix);
   comMgr.set_default_encoding_type_id(default_protocol_id);
   comMgr.set_default_transport_type_id(default_encoding_id);
-  comMgr.initialize_simple();
 
-  /*
-  vire::com::domain & gate
-    = comMgr.create_domain(vire::com::domain_builder::build_cms_clients_gate_name(setup_name),
-                           "vire::com::domain::general",
-                           protocol_id,
-                           encoding_id);
-  domBuilder.build_clients_gate_domain(gate);
-
-  vire::com::domain & syscmslapp
-    = comMgr.create_domain(vire::com::domain_builder::build_cms_subcontractor_system_name(setup_name, "cmslapp"),
-                           "vire::com::domain::system",
-                           protocol_id,
-                           encoding_id);
-  domBuilder.build_subcontractor_system_domain(syscmslapp, "cmslapp");
-
-  vire::com::domain & control
-    = comMgr.create_domain(vire::com::domain_builder::build_cms_control_name(setup_name),
-                           "vire::com::domain::control",
-                           protocol_id,
-                           encoding_id);
-  domBuilder.build_control_domain(control);
-
-  vire::com::domain & monitoring
-    = comMgr.create_domain(vire::com::domain_builder::build_cms_monitoring_name(setup_name),
-                           "vire::com::domain::monitoring",
-                           protocol_id,
-                           encoding_id);
-  domBuilder.build_monitoring_domain(monitoring);
-
-  comMgr.create_domain(vire::com::domain_builder::build_cms_topic_name(setup_name, "sandbox"),
-                       "vire::com::domain::general",
-                       protocol_id,
-                       encoding_id);
-  */
+  std::string com_config_path("${VIRE_TESTING_ONE_DIR}/config/com.conf");
+  datatools::fetch_path_with_env(com_config_path);
+  datatools::properties com_config;
+  com_config.read_configuration(com_config_path);
+  
+  comMgr.initialize_standalone(com_config);
 
   comMgr.tree_dump(std::clog, "Communication service: ");
 

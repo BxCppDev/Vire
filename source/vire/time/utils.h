@@ -76,6 +76,9 @@ namespace vire {
     void invalidate(boost::posix_time::ptime &);
 
     //! Return an ISO representation of a time point (presumably UTC)
+    std::string to_iso_string(const boost::posix_time::ptime &);
+
+    //! Return an ISO representation of a time point (presumably UTC)
     std::string to_string(const boost::posix_time::ptime &);
 
     //! Parse a time point (presumably UTC)

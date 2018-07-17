@@ -1,7 +1,7 @@
 //! \file vire/rabbitmq/manager_service.cc
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -34,6 +34,7 @@
 
 // This package:
 #include <vire/rabbitmq/permissions_utils.h>
+#include <vire/com/domain_builder.h>
 
 namespace vire {
 
@@ -106,8 +107,9 @@ namespace vire {
                   "Invalid virtual host name prefix!");
       DT_THROW_IF(vnp_[0] != '/', std::logic_error,
                   "Invalid virtual host name prefix '" << vnp_ << "'!");
-      DT_THROW_IF(vnp_[vnp_.size() - 1] == '/', std::logic_error,
-                  "Invalid virtual host name prefix '" << vnp_ << "'!");
+      DT_THROW_IF(!vire::com::domain_builder::validate_domain_name_prefix(vnp_),
+                  std::logic_error,
+                  "Invalid virtual host name prefix '" << vnp_ << "'!");                  
       _vhost_name_prefix_ = vnp_;
       return;
     }
@@ -188,6 +190,44 @@ namespace vire {
       return;
     }
 
+    const std::list<user> & manager_service::get_system_users() const
+    {
+      return _system_users_;
+    }
+   
+    void manager_service::add_system_user(const user & sysuser_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "RabbitMQ manager service is already initialized!");     
+      DT_THROW_IF(!sysuser_.is_complete(), std::logic_error, "Cannot add an incomplete system user!");
+      for (const user & su : _system_users_) {
+        if (vire::com::is_unique_user(sysuser_.get_category()) &&  su.get_category() == sysuser_.get_category()) {
+          DT_THROW(std::logic_error, "RabbitMQ manager service already has an user of category '"
+                   << vire::com::to_string(sysuser_.get_category()) << "'!");
+        }
+        if (sysuser_.get_category() == vire::com::ACTOR_CATEGORY_SERVER_CMS) {
+          _server_cms_name_ = sysuser_.get_login();
+        }
+        if (sysuser_.get_category() == vire::com::ACTOR_CATEGORY_SERVER_GATE) {
+          _server_gate_name_ = sysuser_.get_login();
+        }
+        if (sysuser_.get_category() == vire::com::ACTOR_CATEGORY_CLIENT_GATE) {
+          _client_gate_name_ = sysuser_.get_login();
+        }
+      }
+      _system_users_.push_back(sysuser_);
+      return;
+    }
+    
+    void manager_service::add_system_user(const std::string & login_,
+                                          const std::string & password_,
+                                          const vire::com::actor_category_type & category_)
+    {
+      user sysuser(login_, password_, category_);
+      add_system_user(sysuser);
+      return;
+    }
+
     manager_service::manager_service(uint32_t flags_)
     {
       _initialized_ = false;
@@ -231,16 +271,16 @@ namespace vire {
            << "'" << _admin_password_ << "'" << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Static domains : "
-           << _static_domains_.size() << std::endl;
+           << "System users : "
+           << _system_users_.size() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Static users : "
-           << _static_users_.size() << std::endl;
+           << "Vhosts : "
+           << _vhosts_.size() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
-           << "Client users : "
-           << _client_users_.size() << std::endl;
+           << "Users : "
+           << _users_.size() << std::endl;
 
       out_ << indent_ << i_tree_dumpable::tag
            << "Destroy all at reset : "
@@ -267,6 +307,7 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "RabbitMQ manager service is already initialized!");
 
+      // Load config:
       this->::datatools::base_service::common_initialize(config_);
 
       DT_LOG_TRACE(get_logging_priority(), "Creating PIMPL...");
@@ -307,62 +348,51 @@ namespace vire {
         }
       }
 
-      if (_static_domains_.size() == 0) {
-        DT_LOG_DEBUG(get_logging_priority(), "Adding default static domains...");
-        _static_domains_.insert("monitoring");
-        _static_domains_.insert("control");
-        _static_domains_.insert("clients/gate");
-        _static_domains_.insert("subcontractors/system/*");
-      }
-
-      std::size_t nb_of_servers = 0;
-      if (has_server_user()) {
-        nb_of_servers = 1;
-      }
-      //if (_static_users_.size() == 0)
       {
         std::set<std::string> susers;
-        if (config_.has_key("static_users")) {
-          config_.fetch("static_users", susers);
+        if (config_.has_key("system_users")) {
+          config_.fetch("system_users", susers);
         }
-
-        for (const auto & sulogin : susers) {
+        for (const auto & login : susers) {
           user sys_user;
-          sys_user.set_login(sulogin);
+          sys_user.set_login(login);
           datatools::properties user_config;
-          config_.export_and_rename_starting_with(user_config, "static_users." + sulogin + ".", "");
+          config_.export_and_rename_starting_with(user_config, "users." + login + ".", "");
           sys_user.initialize(user_config);
-          if (sys_user.is_server()) {
-            DT_THROW_IF(nb_of_servers != 0,
-                        std::logic_error,
-                        "Only one user with server category is allowed!");
-            nb_of_servers++;
-          }
-          add_static_user(sys_user);
+          add_system_user(sys_user);
         }
       }
 
-      if (!has_server_user()) {
-        user server_user("vireserver", "vireserver", user::CATEGORY_SERVER);
-        add_server_user(server_user);
-      }
+      // Checks:
 
       if (_server_port_ <= 0) {
         set_server_port(::rabbitmq::rabbit_mgr::SSL_PORT);
       }
+
+      if (_system_users_.size() == 0) {
+        // Throw ???
+      }
+      
+      // if (_server_cms_name_.empty()) {
+      //   user server_cms_user("vireservercms", "vireservercms", vier::com::ACTOR_CATEGORY_SERVER_CMS);
+      //   add_system_user(server_cms_user);
+      // }
+      // if (_server_gate_name_.empty()) {
+      //   user server_gate_user("vireservergate", "vireservergate", vier::com::ACTOR_CATEGORY_SERVER_GATE);
+      //   add_system_user(server_gate_user);
+      // }
+      // if (_client_gate_name_.empty()) {
+      //   user client_gate_user("vireclientgate", "vireclientgate", vier::com::ACTOR_CATEGORY_CLIENT_GATE);
+      //   add_system_user(client_gate_user);
+      // }
 
       DT_LOG_DEBUG(get_logging_priority(), "vhost_name_prefix     : " << _vhost_name_prefix_);
       DT_LOG_DEBUG(get_logging_priority(), "server_host           : " << _server_host_);
       DT_LOG_DEBUG(get_logging_priority(), "server_port           : " << _server_port_);
       DT_LOG_DEBUG(get_logging_priority(), "admin_login           : " << _admin_login_);
       DT_LOG_DEBUG(get_logging_priority(), "admin_password        : " << _admin_password_);
-      for (auto d : _static_domains_) {
-        DT_LOG_DEBUG(get_logging_priority(), "static_domain         : " << d);
-      }
-      for (auto u : _static_users_) {
-        DT_LOG_DEBUG(get_logging_priority(), "static_user           : " << u.second.get_login());
-      }
 
+      // Initialize:
       DT_LOG_TRACE(get_logging_priority(), "Instantiating the RabbitMQ management driver...");
       _pimpl_->mgr.reset(new ::rabbitmq::rabbit_mgr(_server_host_,
                                                     _server_port_,
@@ -384,18 +414,51 @@ namespace vire {
       _initialized_ = false;
 
       // Remove Vire client users:
-      std::set<std::string> client_logins;
-      fetch_client_users(client_logins);
-      for (const auto & client : client_logins) {
-        remove_client_user(client);
+      {
+        std::set<std::string> logins;
+        fetch_users(logins, vire::com::ACTOR_CATEGORY_CLIENT_SYSTEM);
+        for (const auto & login : logins) {
+          remove_user(login);
+        }
+      }
+      {
+        std::set<std::string> logins;
+        fetch_users(logins, vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM);
+        for (const auto & login : logins) {
+          remove_user(login);
+        }
+      }
+      {
+        std::set<std::string> logins;
+        fetch_users(logins, vire::com::ACTOR_CATEGORY_CLIENT_CMS);
+        for (const auto & login : logins) {
+          remove_user(login);
+        }
+      }
+
+      // Remove Vire client system vhosts:
+      {
+        std::set<std::string> names;
+        fetch_vhosts(names, vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
+        for (const auto & name : names) {
+          DT_LOG_DEBUG(get_logging_priority(), "Removing client system host '" << name << "'...");
+          remove_vhost(name);
+        }
       }
 
       if (is_destroy_all_at_reset()) {
         _force_destroy_vire_cms_();
       }
-
+      _users_.clear();
+      _vhosts_.clear();
       _pimpl_->mgr.reset();
-
+      _vhost_gate_name_.clear();
+      _vhost_control_name_.clear();
+      _vhost_monitoring_name_.clear();
+      _server_cms_name_.clear();
+      _server_gate_name_.clear();
+      _client_gate_name_.clear();
+      _system_users_.clear();
       _admin_login_.clear();
       _admin_password_.clear();
       _vhost_name_prefix_.clear();
@@ -406,146 +469,6 @@ namespace vire {
       _set_defaults_();
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return datatools::SUCCESS;
-    }
-
-    bool manager_service::has_static_user(const std::string & login_) const
-    {
-      return _static_users_.count(login_) == 1;
-    }
-
-    bool manager_service::has_server_user() const
-    {
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        if (su.is_server()) return true;
-      }
-      return false;
-    }
-
-    const user & manager_service::get_static_user(const std::string & login_) const
-    {
-      std::map<std::string, user>::const_iterator found = _static_users_.find(login_);
-      DT_THROW_IF(found == _static_users_.end(),
-                  std::logic_error,
-                  "There is no static user '" << login_ << "'");
-      return found->second;
-    }
-
-    bool manager_service::fetch_server_user(std::string & login_) const
-    {
-      login_.clear();
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        if (su.is_server()) {
-          login_ = su.get_login();
-          return true;
-        }
-      }
-      return false;
-    }
-
-    bool manager_service::is_subcontractor_user(const std::string & login_) const
-    {
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        if (su.get_login() != login_) continue;
-        if (su.is_subcontractor()) return true;
-      }
-      return false;
-    }
-
-    bool manager_service::is_server_user(const std::string & login_) const
-    {
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        if (su.get_login() != login_) continue;
-        if (su.is_server()) return true;
-      }
-      return false;
-    }
-
-    void manager_service::fetch_static_users(std::set<std::string> & logins_) const
-    {
-      logins_.clear();
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        logins_.insert(su.get_login());
-      }
-      return;
-    }
-
-    void manager_service::fetch_subcontractor_users(std::set<std::string> & logins_) const
-    {
-      logins_.clear();
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        if (su.is_subcontractor()) {
-          logins_.insert(su.get_login());
-        }
-      }
-      return;
-    }
-
-    void manager_service::fetch_system_users(std::set<std::string> & logins_) const
-    {
-      logins_.clear();
-      for (const auto & pu : _static_users_) {
-        const user & su = pu.second;
-        if (su.is_system()) {
-          logins_.insert(su.get_login());
-        }
-      }
-      return;
-    }
-
-    void manager_service::add_server_user(const user & user_)
-    {
-      DT_THROW_IF(!user_.is_server(),
-                  std::logic_error,
-                  "Not a server user!");
-      DT_THROW_IF(has_server_user(),
-                  std::logic_error,
-                  "A server user already exists!");
-      add_static_user(user_);
-      return;
-    }
-
-    void manager_service::add_subcontractor_user(const user & user_)
-    {
-      DT_THROW_IF(!user_.is_subcontractor(),
-                  std::logic_error,
-                  "Not a subcontractor user!");
-      add_static_user(user_);
-      return;
-    }
-
-    void manager_service::add_system_user(const user & user_)
-    {
-      DT_THROW_IF(!user_.is_system(),
-                  std::logic_error,
-                  "Not a system user!");
-      add_static_user(user_);
-      return;
-    }
-
-    void manager_service::add_static_user(const user & user_)
-    {
-      DT_THROW_IF(is_initialized(), std::logic_error,
-                  "RabbitMQ manager service is already initialized!");
-      DT_THROW_IF(!user_.is_complete(),
-                  std::logic_error,
-                  "User is not completed user!");
-      DT_THROW_IF(user_.is_client(),
-                  std::logic_error,
-                  "Cannot add a static client user!");
-      DT_THROW_IF(_static_users_.count(user_.get_login()) > 0,
-                  std::logic_error,
-                  "User '" << user_.get_login() << "' already exists!");
-      DT_THROW_IF(user_.is_server() && has_server_user(),
-                  std::logic_error,
-                  "A server user already exists!");
-      _static_users_[user_.get_login()] = user_;
-      return;
     }
 
     const ::rabbitmq::rabbit_mgr & manager_service::get_manager() const
@@ -562,7 +485,7 @@ namespace vire {
       return *(_pimpl_->mgr.get());
     }
 
-    bool manager_service::has_vhost(const std::string & name_) const
+    bool manager_service::_has_vhost_(const std::string & name_) const
     {
       ::rabbitmq::vhost::list vhosts;
       ::rabbitmq::error_response err;
@@ -571,36 +494,144 @@ namespace vire {
       for (const auto & v : vhosts) {
         if (v.name == name_) return true;
       }
-      return false;
+      return false;      
     }
 
-    // void manager_service::add_vhost(const std::string & name_) const
-    // {
-    //   ::rabbitmq::error_response err;
-    //   grab_manager().add_vhost(name_, err);
-    //   if (err
-    //   return;
-    // }
-
-    // void manager_service::delete_vhost(const std::string & name_) const
-    // {
-    //   return;
-    // }
-
-    bool manager_service::has_user(const std::string & name_) const
+    void manager_service::fetch_vhosts(std::set<std::string> & names_, const vire::com::domain_category_type category_) const
     {
-      ::rabbitmq::user::list users;
-      ::rabbitmq::error_response err;
-      manager_service * mutable_this = const_cast<manager_service*>(this);
-      mutable_this->grab_manager().list_users(users, err);
-      for (const auto & u : users) {
-        if (u.name == name_) return true;
+      names_.clear();
+      for (const auto & p : _vhosts_) {
+        bool add_it = false;
+        if (category_ != vire::com::DOMAIN_CATEGORY_INVALID) {
+          const vhost & vh = p.second;
+          if (vh.get_category() == category_) {
+            add_it = true;
+          }
+        } else {
+          add_it = true;
+        }
+        if (add_it) {
+          names_.insert(p.first);
+        }
+      }
+      return;
+    }
+ 
+    void manager_service::fetch_users(std::set<std::string> & logins_, const vire::com::actor_category_type category_) const
+    {
+      logins_.clear();
+      for (const auto & p : _users_) {
+        bool add_it = false;
+        if (category_ != vire::com::ACTOR_CATEGORY_INVALID) {
+          const user & u = p.second;
+          if (u.get_category() == category_) {
+            add_it = true;
+          }
+        } else {
+          add_it = true;
+        }
+        if (add_it) {
+          logins_.insert(p.first);
+        }
+      }
+      return;
+    }
+    
+    bool manager_service::has_vhost(const std::string & name_, const vire::com::domain_category_type category_) const
+    {
+      std::map<std::string, vhost>::const_iterator found = _vhosts_.find(name_);
+      if (found != _vhosts_.end()) {
+        const vhost & vh = found->second;
+        if (category_ != vire::com::DOMAIN_CATEGORY_INVALID) {
+          return vh.get_category() == category_;
+        }
+        return true;
       }
       return false;
     }
 
-    bool manager_service::has_exchange(const std::string & vhost_,
-                                       const std::string & name_) const
+    const vhost & manager_service::get_vhost(const std::string & name_) const
+    {
+      std::map<std::string, vhost>::const_iterator found = _vhosts_.find(name_);
+      DT_THROW_IF(found == _vhosts_.end(),
+                  std::logic_error,
+                  "No vhost named '" << name_ << "'!");
+      return found->second;
+    }
+
+    void manager_service::add_vhost(const vhost & vh_)
+    {      
+      DT_THROW_IF(!vh_.is_complete(), std::logic_error, "Vhost is not complete!");
+      for (auto cat : vire::com::domain_categories_with_unique_domain()) {
+        if (vh_.get_category() == cat) {
+          std::set<std::string> vhs;
+          fetch_vhosts(vhs, cat);
+          DT_THROW_IF(vhs.size(), std::logic_error,
+                      "Vhost of category '"
+                      << vire::com::to_string(vh_.get_category())
+                      << "' already exist!");
+        }
+      }
+      DT_THROW_IF(has_vhost(vh_.get_name()), std::logic_error, "Vhost '" << vh_.get_name() << "' already exists!");
+      DT_LOG_DEBUG(get_logging_priority(), "Adding virtual host '" << vh_.get_name() << "'...");
+      _vhosts_[vh_.get_name()] = vh_;
+      if (_vhost_gate_name_.empty() && vh_.get_category() == vire::com::DOMAIN_CATEGORY_GATE) {
+        _vhost_gate_name_ = vh_.get_name();
+      }
+      if (_vhost_control_name_.empty() && vh_.get_category() == vire::com::DOMAIN_CATEGORY_CONTROL) {
+        _vhost_control_name_ = vh_.get_name();
+      }
+      if (_vhost_control_name_.empty() && vh_.get_category() == vire::com::DOMAIN_CATEGORY_MONITORING) {
+        _vhost_monitoring_name_ = vh_.get_name();
+      }
+      if (!_has_vhost_(vh_.get_name())) {
+        DT_LOG_DEBUG(get_logging_priority(), "Creating RabbitMQ virtual host '" << vh_.get_name() << "'...");
+         ::rabbitmq::error_response err;
+        DT_THROW_IF(!grab_manager().add_vhost(vh_.get_name(), err),
+                    std::logic_error,
+                    "Cannot create RabbitMQ vhost '" << vh_.get_name() << "': "
+                    + err.error + ": " + err.reason + "!");
+        if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+          _setup_vire_cms_domains_subcontractor_system_(vh_.get_name());
+        }
+        if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_CONTROL) {
+          _setup_vire_cms_domains_control_(vh_.get_name());
+        }
+        if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_MONITORING) {
+          _setup_vire_cms_domains_monitoring_(vh_.get_name());
+        }
+        if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_GATE) {
+          _setup_vire_cms_domains_clients_gate_(vh_.get_name());
+        }
+        if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+          _setup_vire_cms_domains_client_system_(vh_.get_name());
+        }
+      }
+      return;
+    }
+
+    void manager_service::remove_vhost(const std::string & name_)
+    {
+      DT_THROW_IF(!has_vhost(name_), std::logic_error, "No vhost named '" << name_ << "' exists!");
+      const vhost & vh = get_vhost(name_);
+      if (vh.get_category() == vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+        // Only delete temporary vhost related to Vire client:
+        if (_has_vhost_(vh.get_name())) {
+          DT_LOG_DEBUG(get_logging_priority(), "Deleting RabbitMQ vhost '" << vh.get_name() << "'...");
+         ::rabbitmq::error_response err;
+          DT_THROW_IF(!grab_manager().delete_vhost(vh.get_name(), err),
+                      std::logic_error,
+                      "Cannot delete RabbitMQ vhost '" << vh.get_name() << "': "
+                      + err.error + ": " + err.reason + "!");
+        }
+      }
+      DT_LOG_DEBUG(get_logging_priority(), "Removing virtual host '" << vh.get_name() << "'...");
+      _vhosts_.erase(name_);
+      return;
+    }
+
+    bool manager_service::_has_exchange_(const std::string & vhost_,
+                                         const std::string & name_) const
     {
       ::rabbitmq::exchange::list exchanges;
       ::rabbitmq::error_response err;
@@ -612,8 +643,8 @@ namespace vire {
       return false;
     }
 
-    bool manager_service::has_queue(const std::string & vhost_,
-                                    const std::string & name_) const
+    bool manager_service::_has_queue_(const std::string & vhost_,
+                                      const std::string & name_) const
     {
       ::rabbitmq::queue::list queues;
       ::rabbitmq::error_response err;
@@ -623,6 +654,91 @@ namespace vire {
         if (q.name == name_) return true;
       }
       return false;
+    }
+
+    bool manager_service::_has_user_(const std::string & name_) const
+    {
+      ::rabbitmq::user::list users;
+      ::rabbitmq::error_response err;
+      manager_service * mutable_this = const_cast<manager_service*>(this);
+      mutable_this->grab_manager().list_users(users, err);
+      for (const auto & u : users) {
+        if (u.name == name_) return true;
+      }
+      return false;
+    }
+
+    bool manager_service::has_user(const std::string & name_, const vire::com::actor_category_type category_) const
+    {
+      std::map<std::string, user>::const_iterator found = _users_.find(name_);
+      if (found != _users_.end()) {
+        const user & u = found->second;
+        if (category_ != vire::com::ACTOR_CATEGORY_INVALID) {
+          return u.get_category() == category_;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    const user & manager_service::get_user(const std::string & login_) const
+    {
+      std::map<std::string, user>::const_iterator found = _users_.find(login_);
+      DT_THROW_IF(found == _users_.end(),
+                  std::logic_error,
+                  "No user '" << login_ << "'!");
+      return found->second;
+    }
+
+    void manager_service::add_user(const user & user_)
+    {      
+      DT_THROW_IF(!user_.is_complete(), std::logic_error, "User is not complete!");
+      for (auto cat : vire::com::actor_categories_with_unique_user()) {
+        if (user_.get_category() == cat) {
+          std::set<std::string> users;
+          fetch_users(users, cat);
+          DT_THROW_IF(users.size(), std::logic_error,
+                      "User of category '"
+                      << vire::com::to_string(user_.get_category())
+                      << "' already exist!");
+        }
+      }
+      DT_THROW_IF(has_user(user_.get_login()), std::logic_error, "User '" << user_.get_login() << "' already exists!");
+      DT_LOG_DEBUG(get_logging_priority(), "Adding user '" << user_.get_login() << "'...");
+      _users_[user_.get_login()] = user_;
+      if (!_has_user_(user_.get_login())) {
+        DT_LOG_DEBUG(get_logging_priority(), "Adding RabbitMQ user '" << user_.get_login() << "'...");
+        ::rabbitmq::error_response err;
+        DT_THROW_IF(!grab_manager().add_user(user_.get_login(), user_.get_password(), err),
+                    std::logic_error,
+                    "Cannot create RabbitMQ user '" << user_.get_login() << "': "
+                    + err.error + ": " + err.reason + "!");
+
+        // Set permissions
+      }
+      return;
+    }
+
+    void manager_service::remove_user(const std::string & login_)
+    {
+      DT_THROW_IF(!has_user(login_), std::logic_error, "No user '" << login_ << "' exists!");
+      const user & u = get_user(login_);
+      if (u.get_category() == vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM
+          || u.get_category() == vire::com::ACTOR_CATEGORY_CLIENT_SYSTEM
+          || u.get_category() == vire::com::ACTOR_CATEGORY_CLIENT_CMS) {
+        // Only delete temporary users related to Vire client:
+        if (_has_user_(u.get_login())) {
+          DT_LOG_DEBUG(get_logging_priority(), "Deleting RabbitMQ user '" << u.get_login() << "'...");
+          ::rabbitmq::error_response err;
+          DT_THROW_IF(!grab_manager().delete_user(u.get_login(), err),
+                      std::logic_error,
+                      "Cannot delete RabbitMQ user '" << u.get_login() << "': "
+                      + err.error + ": " + err.reason + "!");
+        }
+      }
+      DT_LOG_DEBUG(get_logging_priority(), "Removing user '" << u.get_login() << "'...");
+      _users_.erase(login_);
+      return;
     }
 
     void manager_service::_force_destroy_vire_cms_()
@@ -648,18 +764,18 @@ namespace vire {
         }
       }
 
-      // Destroy the static users:
-      for (const auto & psu : _static_users_) {
-        const user & su = psu.second;
-        if (has_user(su.get_login())) {
-          DT_LOG_DEBUG(get_logging_priority(), "Removing user '" << su.get_login() << "'...");
-          ::rabbitmq::error_response err;
-          DT_THROW_IF(!grab_manager().delete_user(su.get_login(), err),
-                      std::logic_error,
-                      "Cannot create user '" << su.get_login() << "': "
-                      + err.error + ": " + err.reason + "!");
-        }
-      }
+      // // Destroy the users:
+      // for (const auto & psu : _users_) {
+      //   const user & su = psu.second;
+      //   if (_has_user_(su.get_login())) {
+      //     DT_LOG_DEBUG(get_logging_priority(), "Removing user '" << su.get_login() << "'...");
+      //     ::rabbitmq::error_response err;
+      //     DT_THROW_IF(!grab_manager().delete_user(su.get_login(), err),
+      //                 std::logic_error,
+      //                 "Cannot delete RabbitMQ '" << su.get_login() << "': "
+      //                 + err.error + ": " + err.reason + "!");
+      //   }
+      // }
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
@@ -674,148 +790,13 @@ namespace vire {
       return;
     }
 
-
     void manager_service::_setup_vire_cms_users_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      for (const auto & psu : _static_users_) {
-        const user & su = psu.second;
+      for (const user & su : _system_users_) {
         if (!has_user(su.get_login())) {
-          ::rabbitmq::error_response err;
-          DT_THROW_IF(!grab_manager().add_user(su.get_login(),
-                                               su._password_,
-                                               err),
-                      std::logic_error,
-                      "Cannot create user '" << su.get_login() << "': "
-                      + err.error + ": " + err.reason + "!");
-        }
-      }
-
-      {
-        DT_LOG_DEBUG(get_logging_priority(), "Vire CMS users:");
-        ::rabbitmq::user::list users;
-        ::rabbitmq::error_response err;
-        manager_service * mutable_this = const_cast<manager_service*>(this);
-        mutable_this->grab_manager().list_users(users, err);
-        for (const auto & u : users) {
-          if (has_static_user(u.name)) {
-            DT_LOG_DEBUG(get_logging_priority(), " - User: '" << u.name << "'");
-          }
-        }
-      }
-
-      DT_LOG_TRACE_EXITING(get_logging_priority());
-      return;
-    }
-
-    void manager_service::_setup_vire_cms_domains_subcontractors_system_()
-    {
-      DT_LOG_TRACE_ENTERING(get_logging_priority());
-      if (_static_domains_.count("subcontractors/system/*")) {
-        std::set<std::string> subnames;
-        fetch_subcontractor_users(subnames);
-        for (const auto & subname : subnames) {
-          const user & scu = get_static_user(subname);
-           DT_LOG_DEBUG(get_logging_priority(), "Adding system subcontractor domain '" << subname
-                       << "' associated to subcontractor user '" << subname << "'...");
-          _setup_vire_cms_domains_subcontractor_system_(subname);
-        }
-      }
-      DT_LOG_TRACE_EXITING(get_logging_priority());
-      return;
-    }
-
-    void manager_service::_setup_vire_cms_domains_subcontractor_system_(const std::string & name_)
-    {
-      DT_LOG_TRACE_ENTERING(get_logging_priority());
-      DT_LOG_DEBUG(get_logging_priority(), "Adding system subcontractor domain '" << name_ << "'...");
-      ::rabbitmq::error_response err;
-      const user & sys_sc_user = get_static_user(name_);
-      std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/subcontractors/system/" + name_; 
-      DT_LOG_DEBUG(get_logging_priority(), "Building system subcontractor domain...");
-      if (!has_vhost(vhost)) {
-        DT_THROW_IF(!grab_manager().add_vhost(vhost, err),
-                    std::logic_error,
-                    "Cannot create the '" << vhost << "' virtual host: "
-                    << err.error << ": " << err.reason << "!");
-      } else {
-        DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
-      }
-      // Set administrator permissions:
-      DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                  vhost,
-                                                  ".*", ".*", ".*",
-                                                  err),
-                    std::logic_error,
-                  "Cannot set '" << get_admin_login() << "' permissions for '"
-                  << vhost << "' virtual host: "
-                  << err.error << ": " << err.reason << "!");
-      // Fill the vhost with exchanges:
-      static const std::set<std::string> exchanges = {"vireserver.service",
-                                                      "vireserver.event",
-                                                      "subcontractor.service",
-                                                      "subcontractor.event"};
-      for (auto exchange : exchanges) {
-        DT_LOG_DEBUG(get_logging_priority(), "Building monitor exchange '" << exchange << "'...");
-        if (has_exchange(vhost, exchange)) continue;
-        DT_THROW_IF(!grab_manager().exchange_declare(exchange,
-                                                     vhost,
-                                                     "topic",
-                                                     true,
-                                                     false,
-                                                     false,
-                                                     err),
-                    std::logic_error,
-                    "Cannot create the '" << exchange << "' exchange in '"
-                    << vhost << "' virtual host: "
-                    << err.error << ": " << err.reason + "!");
-        std::set<std::string> sys_logins;
-        std::string server_user;
-        fetch_server_user(server_user);
-        sys_logins.insert(server_user);
-        sys_logins.insert(name_);
-        for (const auto & sys_login : sys_logins) {
-          DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
-                       << "' and exchange '" << exchange << "' in the '"
-                       << vhost << "' virtual host...");
-          ::rabbitmq::permissions perms;
-          perms.user  = sys_login;
-          perms.vhost = vhost;
-          const user & sys_user = get_static_user(sys_login);
-          if (sys_user.is_server()) {
-            if (exchange == "vireserver.service") {
-              permissions::add_exchange_service_server_perms(perms, exchange);
-            }
-            if (exchange == "subcontractor.service") {
-              permissions::add_exchange_service_client_perms(perms, exchange);
-            }
-            if (exchange == "vireserver.event") {
-              permissions::add_exchange_event_producer_perms(perms, exchange);
-            }
-            if (exchange == "subcontractor.event") {
-              permissions::add_exchange_event_listener_perms(perms, exchange);
-            }
-          }
-          if (sys_user.is_subcontractor()) {
-            if (exchange == "vireserver.service") {
-              permissions::add_exchange_service_client_perms(perms, exchange);
-            }
-            if (exchange == "subcontractor.service") {
-              permissions::add_exchange_service_server_perms(perms, exchange);
-            }
-            if (exchange == "vireserver.event") {
-              permissions::add_exchange_event_listener_perms(perms, exchange);
-            }
-            if (exchange == "subcontractor.event") {
-              permissions::add_exchange_event_producer_perms(perms, exchange);
-            }
-          }
-          DT_THROW_IF(!grab_manager().set_permissions(perms, err),
-                      std::logic_error,
-                      "Cannot set user '" << sys_login << "' permissions on exchange '" << exchange
-                      << "' for '"
-                      << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
+          DT_LOG_DEBUG(get_logging_priority(), "Adding system user '" << su.get_login() << "'...");
+          add_user(su);
         }
       }
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -826,61 +807,169 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_LOG_DEBUG(get_logging_priority(), "Building Vire CMS domains/vhosts...");
-      _setup_vire_cms_domains_clients_gate_();
-      _setup_vire_cms_domains_control_();
-      _setup_vire_cms_domains_monitoring_();
-      _setup_vire_cms_domains_subcontractors_system_();
-
-      {
-        DT_LOG_DEBUG(get_logging_priority(), "Vire CMS domains/vhosts are built:");
-        ::rabbitmq::vhost::list vhosts;
-        ::rabbitmq::error_response err;
-        manager_service * mutable_this = const_cast<manager_service*>(this);
-        mutable_this->grab_manager().list_vhosts(vhosts, err);
-        for (const auto & v : vhosts) {
-          if (boost::algorithm::starts_with(v.name, _vhost_name_prefix_)) {
-            DT_LOG_DEBUG(get_logging_priority(), " - Virtual host: '" << v.name << "'");
-          }
-        }
+      std::string vhost_gate_name = vire::com::domain_builder::build_cms_clients_gate_name(_vhost_name_prefix_);
+      if (!has_vhost(vhost_gate_name)) {
+        vhost vh(vhost_gate_name, vire::com::DOMAIN_CATEGORY_GATE);
+        add_vhost(vh);
+      }
+      std::string vhost_control_name = vire::com::domain_builder::build_cms_control_name(_vhost_name_prefix_);
+      if (!has_vhost(vhost_control_name)) {
+        vhost vh(vhost_control_name, vire::com::DOMAIN_CATEGORY_CONTROL);
+        add_vhost(vh);
+      }
+      std::string vhost_monitoring_name = vire::com::domain_builder::build_cms_monitoring_name(_vhost_name_prefix_);
+      if (!has_vhost(vhost_monitoring_name)) {
+        vhost vh(vhost_monitoring_name, vire::com::DOMAIN_CATEGORY_MONITORING);
+        add_vhost(vh);
       }
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
-    void manager_service::_setup_vire_cms_domains_monitoring_()
+    void manager_service::_setup_vire_cms_domains_subcontractor_system_(const std::string & vhost_name_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      ::rabbitmq::error_response err;
-      if (_static_domains_.count("monitoring")) {
-        DT_LOG_DEBUG(get_logging_priority(), "Building monitoring...");
-        std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/monitoring";
-        if (!has_vhost(vhost)) {
-          DT_THROW_IF(!grab_manager().add_vhost(vhost, err),
-                      std::logic_error,
-                      "Cannot create the '" << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
-        } else {
-          DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
-        }
-        // Set administrator permissions:
+      const vhost & vh = get_vhost(vhost_name_);
+      DT_LOG_DEBUG(get_logging_priority(), "Populating system subcontractor domain '" << vhost_name_ << "'...");
+      // Set administrator permissions:
+      {
+        ::rabbitmq::error_response err;
         DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                    vhost,
+                                                    vh.get_name(),
                                                     ".*", ".*", ".*",
                                                     err),
                     std::logic_error,
                     "Cannot set '" << get_admin_login() << "' permissions for '"
-                    << vhost << "' virtual host: "
+                    << vh.get_name() << "' virtual host: "
                     << err.error << ": " << err.reason << "!");
-        // Fill the vhost with exchanges:
-        static const std::set<std::string> exchanges = {"resource_request.service",
-                                                        "log.event",
-                                                        "alarm.event","pubsub.event"};
-        for (auto exchange : exchanges) {
-          DT_LOG_DEBUG(get_logging_priority(), "Building monitor exchange '" << exchange << "'...");
-          if ( has_exchange(vhost, exchange)) continue;
+      }
+      // Fill the vhost with exchanges:
+      static const std::set<std::string> exchanges = {"vireserver.service",
+                                                      "vireserver.event",
+                                                      "subcontractor.service",
+                                                      "subcontractor.event"};
+      for (auto exchange : exchanges) {
+        DT_LOG_DEBUG(get_logging_priority(), "Declare exchange '" << exchange << "'...");
+        if (!_has_exchange_(vh.get_name(), exchange)) {
+          // Create exchange:
+          {
+            ::rabbitmq::error_response err;
+            DT_THROW_IF(!grab_manager().exchange_declare(exchange,
+                                                         vh.get_name(),
+                                                         "topic",
+                                                         true,
+                                                         false,
+                                                         false,
+                                                         err),
+                        std::logic_error,
+                        "Cannot create the '" << exchange << "' exchange in '"
+                        << vh.get_name() << "' virtual host: "
+                        << err.error << ": " << err.reason + "!");
+          }
+          // Permissions:
+          {
+            std::set<std::string> logins;
+            fetch_users(logins, vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
+            for (const auto & login : logins) {
+              DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
+                           << "' and exchange '" << exchange << "' in the '"
+                           << vh.get_name() << "' virtual host...");
+              ::rabbitmq::permissions perms;
+              perms.user  = login;
+              perms.vhost = vh.get_name();
+              const user & u = get_user(login);
+              if (exchange == "vireserver.service") {
+                permissions::add_exchange_service_server_perms(perms, exchange);
+              }
+              if (exchange == "subcontractor.service") {
+                permissions::add_exchange_service_client_perms(perms, exchange);
+              }
+              if (exchange == "vireserver.event") {
+                permissions::add_exchange_event_producer_perms(perms, exchange);
+              }
+              if (exchange == "subcontractor.event") {
+                permissions::add_exchange_event_listener_perms(perms, exchange);
+              }
+              ::rabbitmq::error_response err;
+              DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                          std::logic_error,
+                          "Cannot set user '" << login << "' permissions on exchange '" << exchange
+                          << "' for '"
+                          << vh.get_name() << "' virtual host: "
+                          << err.error << ": " << err.reason << "!");
+            }
+          }
+          
+          {
+            std::set<std::string> logins;
+            fetch_users(logins, vire::com::ACTOR_CATEGORY_SUBCONTRACTOR);
+            for (const auto & login : logins) {
+              DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
+                           << "' and exchange '" << exchange << "' in the '"
+                           << vh.get_name() << "' virtual host...");
+              ::rabbitmq::permissions perms;
+              perms.user  = login;
+              perms.vhost = vh.get_name();
+              const user & u = get_user(login);
+              if (exchange == "vireserver.service") {
+                permissions::add_exchange_service_client_perms(perms, exchange);
+              }
+              if (exchange == "subcontractor.service") {
+                permissions::add_exchange_service_server_perms(perms, exchange);
+              }
+              if (exchange == "vireserver.event") {
+                permissions::add_exchange_event_listener_perms(perms, exchange);
+              }
+              if (exchange == "subcontractor.event") {
+                permissions::add_exchange_event_producer_perms(perms, exchange);
+              }
+              ::rabbitmq::error_response err;
+              DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                          std::logic_error,
+                          "Cannot set user '" << login << "' permissions on exchange '" << exchange
+                          << "' for '"
+                          << vh.get_name() << "' virtual host: "
+                          << err.error << ": " << err.reason << "!");
+            }
+          }
+        }
+      
+      }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+      return;
+    }
+
+    void manager_service::_setup_vire_cms_domains_monitoring_(const std::string & vhost_name_)
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      const vhost & vh = get_vhost(vhost_name_);
+      DT_LOG_DEBUG(get_logging_priority(), "Populating monitoring domain '" << vhost_name_ << "'...");
+      // Set administrator permissions:
+      {
+        ::rabbitmq::error_response err;
+        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
+                                                    vh.get_name(),
+                                                    ".*", ".*", ".*",
+                                                    err),
+                    std::logic_error,
+                    "Cannot set '" << get_admin_login() << "' permissions for '"
+                    << vh.get_name() << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
+      }
+      // Fill the vhost with exchanges:
+      static const std::set<std::string> exchanges = {"resource_request.service",
+                                                      "log.event",
+                                                      "alarm.event",
+                                                      "pubsub.event"};
+      for (auto exchange : exchanges) {
+        DT_LOG_DEBUG(get_logging_priority(), "Building monitor exchange '" << exchange << "'...");
+        if (_has_exchange_(vh.get_name(), exchange)) continue;
+        // Create exchange:
+        {
+          ::rabbitmq::error_response err;
           DT_THROW_IF(!grab_manager().exchange_declare(exchange,
-                                                       vhost,
+                                                       vh.get_name(),
                                                        "topic",
                                                        true,
                                                        false,
@@ -888,35 +977,34 @@ namespace vire {
                                                        err),
                       std::logic_error,
                       "Cannot create the '" << exchange << "' exchange in '"
-                      << vhost << "' virtual host: "
+                      << vh.get_name() << "' virtual host: "
                       << err.error << ": " << err.reason + "!");
-          // Permissions:
-          std::set<std::string> sys_logins;
-          fetch_static_users(sys_logins);
-          for (const auto & sys_login : sys_logins) {
-            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
+        }
+        // Permissions:
+        {
+          std::set<std::string> logins;
+          fetch_users(logins, vire::com::ACTOR_CATEGORY_SERVER_CMS);
+          for (const auto & login : logins) {
+            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
                          << "' and exchange '" << exchange << "' in the '"
-                         << vhost << "' virtual host...");
+                         << vh.get_name() << "' virtual host...");
             ::rabbitmq::permissions perms;
-            perms.user  = sys_login;
-            perms.vhost = vhost;
-            const user & sys_user = get_static_user(sys_login);
+            perms.user  = login;
+            perms.vhost = vh.get_name();
+            const user & u = get_user(login);
             if (boost::algorithm::ends_with(exchange, vire_cms_exchange_service_suffix())) {
               permissions::add_exchange_service_server_perms(perms, exchange);
-              if (sys_user.is_server()) {
-                permissions::add_exchange_service_client_perms(perms, exchange);
-              }
+              permissions::add_exchange_service_client_perms(perms, exchange);
             } else if (boost::algorithm::ends_with(exchange, vire_cms_exchange_event_suffix())) {
               permissions::add_exchange_event_producer_perms(perms, exchange);
-              if (sys_user.is_server()) {
-                permissions::add_exchange_event_listener_perms(perms, exchange);
-              }
+              permissions::add_exchange_event_listener_perms(perms, exchange);
             }
+            ::rabbitmq::error_response err;
             DT_THROW_IF(!grab_manager().set_permissions(perms, err),
                         std::logic_error,
-                        "Cannot set user '" << sys_login << "' permissions on exchange '" << exchange
+                        "Cannot set user '" << login << "' permissions on exchange '" << exchange
                         << "' for '"
-                        << vhost << "' virtual host: "
+                        << vh.get_name() << "' virtual host: "
                         << err.error << ": " << err.reason << "!");
           }
         }
@@ -925,35 +1013,30 @@ namespace vire {
       return;
     }
 
-    void manager_service::_setup_vire_cms_domains_control_()
+    void manager_service::_setup_vire_cms_domains_control_(const std::string & vhost_name_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      ::rabbitmq::error_response err;
-      if (_static_domains_.count("control")) {
-        DT_LOG_DEBUG(get_logging_priority(), "Building control...");
-        std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/control";
-        if (!has_vhost(vhost)) {
-          DT_THROW_IF(!grab_manager().add_vhost(vhost, err),
-                      std::logic_error,
-                      "Cannot create the '" << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
-        } else {
-          DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
-        }
-        // Set administrator permissions:
+      const vhost & vh = get_vhost(vhost_name_);
+      // Set administrator permissions:
+      {
+        ::rabbitmq::error_response err;
         DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                    vhost,
+                                                    vh.get_name(),
                                                     ".*", ".*", ".*",
                                                     err),
                     std::logic_error,
                     "Cannot set '" << get_admin_login() << "' permissions for '"
-                    << vhost << "' virtual host: "
+                    << vh.get_name() << "' virtual host: "
                     << err.error << ": " << err.reason << "!");
-        // Fill the vhost with exchange:
-        std::string service_exchange = "resource_request.service";
-        if (!has_exchange(vhost, service_exchange)) {
+      }
+      // Fill the vhost with exchange:
+      std::string service_exchange = "resource_request.service";
+      if (!_has_exchange_(vh.get_name(), service_exchange)) {
+        // Exchange:
+        {
+          ::rabbitmq::error_response err;
           DT_THROW_IF(!grab_manager().exchange_declare(service_exchange,
-                                                       vhost,
+                                                       vh.get_name(),
                                                        "topic",
                                                        true,
                                                        false,
@@ -961,171 +1044,261 @@ namespace vire {
                                                        err),
                       std::logic_error,
                       "Cannot create the '" << service_exchange << "' exchange in '"
-                      << vhost << "' virtual host: "
+                      << vh.get_name() << "' virtual host: "
                       + err.error + ": " + err.reason + "!");
-          // Permissions:
-          std::string server_login;
-          fetch_server_user(server_login);
-          {
-            const std::string & sys_login = server_login;
-            const std::string & exchange = service_exchange;
-            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
-                         << "' and exchange '" << exchange << "' in the '"
-                         << vhost << "' virtual host...");
-            ::rabbitmq::permissions perms;
-            perms.user  = sys_login;
-            perms.vhost = vhost;
-            permissions::add_exchange_service_server_perms(perms, exchange);
-            DT_THROW_IF(!grab_manager().set_permissions(perms, err),
-                        std::logic_error,
-                        "Cannot set user '" << sys_login << "' permissions on exchange '" << exchange
-                        << "' for '"
-                        << vhost << "' virtual host: "
-                        << err.error << ": " << err.reason << "!");
+        } // Exchange
+        // Permissions:
+        {
+          std::set<std::string> logins;
+          fetch_users(logins, vire::com::ACTOR_CATEGORY_SERVER_CMS);
+          for (const auto & login : logins) {{
+              const std::string & exchange = service_exchange;
+              DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
+                           << "' and exchange '" << exchange << "' in the '"
+                           << vh.get_name() << "' virtual host...");
+              ::rabbitmq::permissions perms;
+              perms.user  = login;
+              perms.vhost = vh.get_name();
+              permissions::add_exchange_service_server_perms(perms, exchange);
+              ::rabbitmq::error_response err;
+              DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                          std::logic_error,
+                          "Cannot set user '" << login << "' permissions on exchange '" << exchange
+                          << "' for '"
+                          << vh.get_name() << "' virtual host: "
+                          << err.error << ": " << err.reason << "!");
+            }
           }
-        }
-      } // end of control
+        } // Permissions:
+      }
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
-
-    void manager_service::_setup_vire_cms_domains_clients_gate_()
+    
+    void manager_service::_setup_vire_cms_domains_clients_gate_(const std::string & vhost_name_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      ::rabbitmq::error_response err;
+      const vhost & vh = get_vhost(vhost_name_);
+      DT_LOG_DEBUG(get_logging_priority(), "Populating clients gate domain '" << vhost_name_ << "'...");
 
-      // Gate:
-      if (_static_domains_.count("clients/gate")) {
-        DT_LOG_DEBUG(get_logging_priority(), "Building gate...");
-        std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/clients/gate";
-        if (!has_vhost(vhost)) {
-          DT_THROW_IF(!grab_manager().add_vhost(vhost, err),
-                      std::logic_error,
-                      "Cannot create the '" << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason + "!");
-        } else {
-          DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
-        }
-        // Set administrator permissions:
+      
+      // Set administrator permissions:
+      {
+        ::rabbitmq::error_response err;
         DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                    vhost,
+                                                    vh.get_name(),
                                                     ".*", ".*", ".*",
                                                     err),
                     std::logic_error,
                     "Cannot set '" << get_admin_login() << "' permissions for '"
-                    << vhost << "' virtual host: "
+                    << vh.get_name() << "' virtual host: "
                     << err.error << ": " << err.reason << "!");
-        // Fill the vhost with exchanges:
+      }
+      
+      // Fill the vhost with exchanges:
+      {
         std::string service_exchange = "gate.service";
-        if (!has_exchange(vhost, service_exchange)) {
-          DT_THROW_IF(!grab_manager().exchange_declare(service_exchange,
-                                                       vhost,
-                                                       "topic",
-                                                       true,
-                                                       false,
-                                                       false,
-                                                       err),
-                      std::logic_error,
-                      "Cannot create the '" << service_exchange << "' exchange"
-                      << " in the '" << vhost << "' virtual host: "
-                      << err.error << ": " + err.reason << "!");
-          // Permissions:
-          std::string server_login;
-          fetch_server_user(server_login);
+        if (!_has_exchange_(vh.get_name(), service_exchange)) {
+          // Create exchange:
           {
-            const std::string & sys_login = server_login;
-            const std::string & exchange = service_exchange;
-            DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for static user '" << sys_login
-                         << "' and exchange '" << exchange << "' in the '"
-                         << vhost << "' virtual host...");
-            ::rabbitmq::permissions perms;
-            perms.user  = sys_login;
-            perms.vhost = vhost;
-            permissions::add_exchange_service_server_perms(perms, exchange);
-            DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+            ::rabbitmq::error_response err;
+            DT_THROW_IF(!grab_manager().exchange_declare(service_exchange,
+                                                         vh.get_name(),
+                                                         "topic",
+                                                         true,
+                                                         false,
+                                                         false,
+                                                         err),
                         std::logic_error,
-                        "Cannot set user '" << sys_login << "' permissions on exchange '" << exchange
-                        << "' for '"
-                        << vhost << "' virtual host: "
-                        << err.error << ": " << err.reason << "!");
+                        "Cannot create the '" << service_exchange << "' exchange"
+                        << " in the '" << vh.get_name() << "' virtual host: "
+                        << err.error << ": " + err.reason << "!");
+          }
+          // Permissions:
+          {
+            // Server side:
+            std::set<std::string> logins;
+            fetch_users(logins, vire::com::ACTOR_CATEGORY_SERVER_GATE);
+            for (const auto & login : logins) {
+              const std::string & exchange = service_exchange;
+              DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
+                           << "' and exchange '" << exchange << "' in the '"
+                           << vh.get_name() << "' virtual host...");
+              ::rabbitmq::permissions perms;
+              perms.user  = login;
+              perms.vhost = vh.get_name();
+              permissions::add_exchange_service_server_perms(perms, exchange);
+              ::rabbitmq::error_response err;
+              DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                          std::logic_error,
+                          "Cannot set user '" << login << "' permissions on exchange '" << exchange
+                          << "' for '"
+                          << vh.get_name() << "' virtual host: "
+                          << err.error << ": " << err.reason << "!");
+            }
+          }
+          {
+            // Client side:
+            std::set<std::string> logins;
+            fetch_users(logins, vire::com::ACTOR_CATEGORY_CLIENT_GATE);
+            for (const auto & login : logins) {
+              const std::string & exchange = service_exchange;
+              DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
+                           << "' and exchange '" << exchange << "' in the '"
+                           << vh.get_name() << "' virtual host...");
+              ::rabbitmq::permissions perms;
+              perms.user  = login;
+              perms.vhost = vh.get_name();
+              permissions::add_exchange_service_client_perms(perms, exchange);
+              ::rabbitmq::error_response err;
+              DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                          std::logic_error,
+                          "Cannot set user '" << login << "' permissions on exchange '" << exchange
+                          << "' for '"
+                          << vh.get_name() << "' virtual host: "
+                          << err.error << ": " << err.reason << "!");
+            }
           }
         }
-      } // end of gate
+      } 
 
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
-    const user & manager_service::get_client_user(const std::string & login_) const
-    {
-      std::map<std::string, user>::const_iterator found = _client_users_.find(login_);
-      DT_THROW_IF(found == _client_users_.end(),
-                  std::logic_error,
-                  "There is no client user '" << login_ << "'");
-      return found->second;
-    }
-
-    bool manager_service::has_client_user(const std::string & login_) const
-    {
-      return _client_users_.count(login_) == 1;
-    }
-
-    void manager_service::fetch_client_users(std::set<std::string> & logins_) const
-    {
-      logins_.clear();
-      for (const auto & pu : _client_users_) {
-        const user & su = pu.second;
-        logins_.insert(su.get_login());
-      }
-      return;
-    }
-
-    void manager_service::add_client_user(const std::string & login_,
-                                          const std::string & password_,
-                                          bool use_monitoring_,
-                                          bool use_control_)
+    void manager_service::_setup_vire_cms_domains_client_system_(const std::string & vhost_name_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      DT_THROW_IF(!is_initialized(), std::logic_error,
-                  "RabbitMQ manager service is not initialized!");
-      DT_THROW_IF(has_user(login_), std::logic_error,
-                  "User '" << login_ << "' already exists!");
-      DT_THROW_IF(has_client_user(login_), std::logic_error,
-                  "Client user '" << login_ << "' already exists!");
-      user client_user(login_, password_, user::CATEGORY_CLIENT);
-      client_user.use_monitoring = use_monitoring_;
-      client_user.use_control = use_control_;
-      if (!has_user(client_user.get_login())) {
+      /*
+      const vhost & vh = get_vhost(vhost_name_);
+
+      DT_LOG_DEBUG(get_logging_priority(), "Adding system client domain '" << name_ << "'...");
+      std::string client_id;
+      DT_THROW_IF!(domain_builder::extract_client_id(get_vhost_name_prefix(), vhost_name_, client_id),
+                   std::logic_error,
+                   "Invalid client system vhost name '" << vhost_name_ << "'!");
+      const user & client_user = get_user(client_id);
+      vhost vh(vhost_name_, vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
+      {
+        ::rabbitmq::permissions perms;
+        perms.user  = client_user.get_login();
+        perms.vhost = get_vhost_name_prefix() + vire_cms_path() + "/control";
+        permissions::add_exchange_service_client_perms(perms, "resource_request.service");
         ::rabbitmq::error_response err;
-        if (!grab_manager().add_user(client_user.get_login(),
-                                     client_user._password_,
-                                     err)) {
-          DT_THROW(std::logic_error,
-                   "Cannot create rabbitmq client user '" << login_ << "': "
-                   + err.error + ": " + err.reason + "!");
+        DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                    std::logic_error,
+                    "Cannot set user '" << client_user.get_login()
+                    << "' permissions for '"
+                    << perms.vhost << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
+      }
+
+      {
+        ::rabbitmq::permissions perms;
+        perms.user  = client_user.get_login();
+        perms.vhost = get_vhost_name_prefix() + vire_cms_path() + "/monitoring";
+        permissions::add_exchange_service_client_perms(perms, "resource_request.service");
+        permissions::add_exchange_event_listener_perms(perms, "alarm.event");
+        permissions::add_exchange_event_listener_perms(perms, "log.event");
+        permissions::add_exchange_event_listener_perms(perms, "pubsub.event");
+        ::rabbitmq::error_response err;
+        DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                    std::logic_error,
+                    "Cannot set user '" << client_user.get_login()
+                    << "' permissions for '"
+                    << perms.vhost << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
+      }
+
+      // Fill the vhost with exchanges:
+      vhost vh(get_vhost_name_prefix() + vire_cms_path() + "/clients/system/" + client_user.get_login(), vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
+      static const std::set<std::string> exchanges = {"vireserver.service",
+                                                      "vireserver.event"};
+      for (auto exchange : exchanges) {
+        DT_LOG_DEBUG(get_logging_priority(), "Building client exchange '" << exchange << "'...");
+        if (has_exchange(vh.get_name(), exchange)) continue;
+        ::rabbitmq::error_response err;
+        DT_THROW_IF(!grab_manager().exchange_declare(exchange,
+                                                     vh.get_name(),
+                                                     "topic",
+                                                     true,
+                                                     false,
+                                                     false,
+                                                     err),
+                    std::logic_error,
+                    "Cannot create the '" << exchange << "' exchange in '"
+                    << vh.get_name() << "' virtual host: "
+                    << err.error << ": " << err.reason + "!");
+        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
+                                                    vh.get_name(),
+                                                    ".*", ".*", ".*",
+                                                    err),
+                    std::logic_error,
+                    "Cannot set '" << get_admin_login() << "' permissions for '"
+                    << vh.get_name() << "' virtual host: "
+                    << err.error << ": " << err.reason << "!");
+        // Permissions:
+        std::set<std::string> users;
+        std::string server_user_login;
+        fetch_server_user(server_user_login);
+        users.insert(server_user_login);
+        users.insert(client_user.get_login());
+        for (const auto & u : users) {
+          DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << u
+                       << "' and exchange '" << exchange << "' in the '"
+                       << vh.get_name() << "' virtual host...");
+          ::rabbitmq::permissions perms;
+          perms.user  = u;
+          perms.vhost = vh.get_name();
+          if (u == server_user_login) {
+            if (exchange == "vireserver.service") {
+              permissions::add_exchange_service_server_perms(perms, exchange);
+            }
+            if (exchange == "vireserver.event") {
+              permissions::add_exchange_event_producer_perms(perms, exchange);
+            }
+          } else {
+            if (exchange == "vireserver.service") {
+              permissions::add_exchange_service_client_perms(perms, exchange);
+            }
+            if (exchange == "vireserver.event") {
+              permissions::add_exchange_event_listener_perms(perms, exchange);
+            }
+          }
+          DT_THROW_IF(!grab_manager().set_permissions(perms, err),
+                      std::logic_error,
+                      "Cannot set user '" << perms.user << "' permissions on exchange '" << exchange
+                      << "' for '"
+                      << vh.get_name() << "' virtual host: "
+                      << err.error << ": " << err.reason << "!");
         }
       }
-      _setup_vire_cms_domains_client_system_(login_);
-      _client_users_[login_] = client_user;
+      */
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
-    void manager_service::remove_client_user(const std::string & login_)
+    void manager_service::_destroy_vire_cms_domains_client_system_(const std::string & login_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      DT_THROW_IF(! has_client_user(login_), std::logic_error,
-                  "Client user '" << login_ << "' does not exist!");
-      _client_users_.erase(login_);
-      _destroy_vire_cms_domains_client_system_(login_);
-      if (has_user(login_)) {
-        ::rabbitmq::error_response err;
-        if (!grab_manager().delete_user(login_, err)) {
-          DT_THROW(std::logic_error,
-                   "Cannot delete rabbitmq client user '" << login_ << "': "
-                   + err.error + ": " + err.reason + "!");
+      /*
+      const user & client_user = get_client_user(login_);
+      ::rabbitmq::error_response err;
+      {
+        std::string vhost_name = _vhost_name_prefix_ + vire_cms_path() + "/clients/system/"
+          + client_user.get_login();
+        if (has_vhost(vhost_name)) {
+          delete_vhost(vhost_name);
+          // ::rabbitmq::error_response err;
+          // DT_THROW_IF(!grab_manager().delete_vhost(vhost, err),
+          //             std::logic_error,
+          //             "Cannot delete the '" << vhost << "' virtual host: "
+          //             << err.error << ": " << err.reason << "!");
+        } else {
+          DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost_name << "' does not exist.");
         }
       }
+      */
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
@@ -1150,151 +1323,8 @@ namespace vire {
     //   //                   + err.error + ": " + err.reason + "!");
     //   //   }
     //   // }
-
     //   DT_LOG_TRACE_EXITING(get_logging_priority());
     // }
-
-    void manager_service::_destroy_vire_cms_domains_client_system_(const std::string & login_)
-    {
-      DT_LOG_TRACE_ENTERING(get_logging_priority());
-      const user & client_user = get_client_user(login_);
-      ::rabbitmq::error_response err;
-      {
-        std::string vhost = _vhost_name_prefix_ + vire_cms_path() + "/clients/system/"
-          + client_user.get_login();
-        if (has_vhost(vhost)) {
-          ::rabbitmq::error_response err;
-          DT_THROW_IF(!grab_manager().delete_vhost(vhost, err),
-                      std::logic_error,
-                      "Cannot delete the '" << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
-        } else {
-          DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' does not exist.");
-        }
-      }
-      DT_LOG_TRACE_EXITING(get_logging_priority());
-      return;
-    }
-
-    void manager_service::_setup_vire_cms_domains_client_system_(const std::string & name_)
-    {
-      DT_LOG_TRACE_ENTERING(get_logging_priority());
-
-      DT_LOG_DEBUG(get_logging_priority(), "Adding system client domain '" << name_ << "'...");
-      const user & client_user = get_client_user(name_);
-      {
-        std::string vhost = get_vhost_name_prefix() + vire_cms_path() + "/clients/system/"
-          + client_user.get_login();
-        DT_LOG_DEBUG(get_logging_priority(), "Building system client domain...");
-        if (!has_vhost(vhost)) {
-          ::rabbitmq::error_response err;
-          DT_THROW_IF(!grab_manager().add_vhost(vhost, err),
-                      std::logic_error,
-                      "Cannot create the '" << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
-        } else {
-          DT_LOG_DEBUG(get_logging_priority(), "Virtual host '" << vhost << "' already exists.");
-        }
-      }
-
-      if (client_user.use_control) {
-        ::rabbitmq::permissions perms;
-        perms.user  = client_user.get_login();
-        perms.vhost = get_vhost_name_prefix() + vire_cms_path() + "/control";
-        permissions::add_exchange_service_client_perms(perms, "resource_request.service");
-        ::rabbitmq::error_response err;
-        DT_THROW_IF(!grab_manager().set_permissions(perms, err),
-                    std::logic_error,
-                    "Cannot set user '" << client_user.get_login()
-                    << "' permissions for '"
-                    << perms.vhost << "' virtual host: "
-                    << err.error << ": " << err.reason << "!");
-      }
-
-      if (client_user.use_monitoring) {
-        ::rabbitmq::permissions perms;
-        perms.user  = client_user.get_login();
-        perms.vhost = get_vhost_name_prefix() + vire_cms_path() + "/monitoring";
-        permissions::add_exchange_service_client_perms(perms, "resource_request.service");
-        permissions::add_exchange_event_listener_perms(perms, "alarm.event");
-        permissions::add_exchange_event_listener_perms(perms, "log.event");
-        permissions::add_exchange_event_listener_perms(perms, "pubsub.event");
-        ::rabbitmq::error_response err;
-        DT_THROW_IF(!grab_manager().set_permissions(perms, err),
-                    std::logic_error,
-                    "Cannot set user '" << client_user.get_login()
-                    << "' permissions for '"
-                    << perms.vhost << "' virtual host: "
-                    << err.error << ": " << err.reason << "!");
-      }
-
-      // Fill the vhost with exchanges:
-      std::string vhost = get_vhost_name_prefix() + vire_cms_path() + "/clients/system/"
-        + client_user.get_login();
-      static const std::set<std::string> exchanges = {"vireserver.service",
-                                                      "vireserver.event"};
-      for (auto exchange : exchanges) {
-        DT_LOG_DEBUG(get_logging_priority(), "Building client exchange '" << exchange << "'...");
-        if (has_exchange(vhost, exchange)) continue;
-        ::rabbitmq::error_response err;
-        DT_THROW_IF(!grab_manager().exchange_declare(exchange,
-                                                     vhost,
-                                                     "topic",
-                                                     true,
-                                                     false,
-                                                     false,
-                                                     err),
-                    std::logic_error,
-                    "Cannot create the '" << exchange << "' exchange in '"
-                    << vhost << "' virtual host: "
-                    << err.error << ": " << err.reason + "!");
-        DT_THROW_IF(!grab_manager().set_permissions(get_admin_login(),
-                                                    vhost,
-                                                    ".*", ".*", ".*",
-                                                    err),
-                    std::logic_error,
-                    "Cannot set '" << get_admin_login() << "' permissions for '"
-                    << vhost << "' virtual host: "
-                    << err.error << ": " << err.reason << "!");
-        // Permissions:
-        std::set<std::string> users;
-        std::string server_user_login;
-        fetch_server_user(server_user_login);
-        users.insert(server_user_login);
-        users.insert(client_user.get_login());
-        for (const auto & u : users) {
-          DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << u
-                       << "' and exchange '" << exchange << "' in the '"
-                       << vhost << "' virtual host...");
-          ::rabbitmq::permissions perms;
-          perms.user  = u;
-          perms.vhost = vhost;
-          if (u == server_user_login) {
-            if (exchange == "vireserver.service") {
-              permissions::add_exchange_service_server_perms(perms, exchange);
-            }
-            if (exchange == "vireserver.event") {
-              permissions::add_exchange_event_producer_perms(perms, exchange);
-            }
-          } else {
-            if (exchange == "vireserver.service") {
-              permissions::add_exchange_service_client_perms(perms, exchange);
-            }
-            if (exchange == "vireserver.event") {
-              permissions::add_exchange_event_listener_perms(perms, exchange);
-            }
-          }
-          DT_THROW_IF(!grab_manager().set_permissions(perms, err),
-                      std::logic_error,
-                      "Cannot set user '" << perms.user << "' permissions on exchange '" << exchange
-                      << "' for '"
-                      << vhost << "' virtual host: "
-                      << err.error << ": " << err.reason << "!");
-        }
-      }
-      DT_LOG_TRACE_EXITING(get_logging_priority());
-      return;
-    }
 
   } // namespace rabbitmq
 

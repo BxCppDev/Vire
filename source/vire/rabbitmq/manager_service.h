@@ -35,6 +35,7 @@
 
 // This package:
 #include <vire/rabbitmq/user.h>
+#include <vire/rabbitmq/vhost.h>
 
 namespace rabbitmq {
   class rabbit_mgr;
@@ -112,43 +113,41 @@ namespace vire {
 
       void set_admin_password(const std::string &);
 
+      const std::list<user> & get_system_users() const;
+
+      void add_system_user(const user & u_);
+
+      void add_system_user(const std::string & login_,
+                           const std::string & password_,
+                           const vire::com::actor_category_type & category_);
+
       const ::rabbitmq::rabbit_mgr & get_manager() const;
 
       ::rabbitmq::rabbit_mgr & grab_manager();
 
-      bool has_vhost(const std::string &) const;
-      // void add_vhost(const std::string &) const;
-      // void delete_vhost(const std::string &) const;
-      bool has_user(const std::string &) const;
-      bool has_exchange(const std::string & vhost_, const std::string &) const;
-      bool has_queue(const std::string & vhost_, const std::string &) const;
+      bool has_vhost(const std::string & name_,
+                     const vire::com::domain_category_type category_ = vire::com::DOMAIN_CATEGORY_INVALID) const;
+      
+      void add_vhost(const vhost &);
+      
+      void remove_vhost(const std::string &);
+      
+      const vhost & get_vhost(const std::string & name_) const;
+     
+      bool has_user(const std::string & login_,
+                    const vire::com::actor_category_type category_ = vire::com::ACTOR_CATEGORY_INVALID) const;
+      
+      void add_user(const user & user_);
+      
+      void remove_user(const std::string & login_);
+      
+      const user & get_user(const std::string & login_) const;
 
-      void add_subcontractor_system_domain(const std::string & domain_name_);
-
-      // Management of permanent (static) users:
-      void add_static_user(const user & user_);
-      void add_server_user(const user & user_);
-      void add_system_user(const user & user_);
-      void add_subcontractor_user(const user & user_);
-      bool has_static_user(const std::string & login_) const;
-      bool has_server_user() const;
-      void fetch_system_users(std::set<std::string> & logins_) const;
-      void fetch_static_users(std::set<std::string> & logins_) const;
-      bool fetch_server_user(std::string & login_) const;
-      void fetch_subcontractor_users(std::set<std::string> & logins_) const;
-      bool is_server_user(const std::string & login_) const;
-      bool is_subcontractor_user(const std::string & login_) const;
-      const user & get_static_user(const std::string & login_) const;
-
-      // Management of temporary client connection users:
-      bool has_client_user(const std::string & login_) const;
-      void add_client_user(const std::string & login_,
-                           const std::string & password_,
-                           bool use_monitoring_ = true,
-                           bool use_control_ = false);
-      void remove_client_user(const std::string & login_);
-      const user & get_client_user(const std::string & login_) const;
-      void fetch_client_users(std::set<std::string> & logins_) const;
+      void fetch_vhosts(std::set<std::string> & names_,
+                        const vire::com::domain_category_type category_ = vire::com::DOMAIN_CATEGORY_INVALID) const;
+      
+      void fetch_users(std::set<std::string> & logins_,
+                       const vire::com::actor_category_type category_ = vire::com::ACTOR_CATEGORY_INVALID) const;
 
     private:
 
@@ -156,15 +155,26 @@ namespace vire {
       void _setup_vire_cms_();
       void _setup_vire_cms_users_();
       void _setup_vire_cms_domains_();
-      void _setup_vire_cms_domains_clients_gate_();
-      void _setup_vire_cms_domains_control_();
-      void _setup_vire_cms_domains_monitoring_();
-      void _setup_vire_cms_domains_subcontractors_system_();
-      void _setup_vire_cms_domains_subcontractor_system_(const std::string & name_);
-      void _setup_vire_cms_domains_client_system_(const std::string & name_);
-      void _destroy_vire_cms_domains_client_system_(const std::string & name_);
+      void _setup_vire_cms_domains_clients_gate_(const std::string & vhost_name);
+      void _setup_vire_cms_domains_control_(const std::string & vhost_name_);
+      void _setup_vire_cms_domains_monitoring_(const std::string & vhost_name_);
+      void _setup_vire_cms_domains_subcontractor_system_(const std::string & vhost_name_);
+      void _setup_vire_cms_domains_client_system_(const std::string & vhost_name_);
+      void _destroy_vire_cms_domains_client_system_(const std::string & vhost_name_);
       void _force_destroy_vire_cms_();
 
+      /// Check if a vhost with given name is created in the RabbitMQ server scope
+      bool _has_vhost_(const std::string & name_) const;
+      
+      /// Check if an user with given name is created in the RabbitMQ server scope
+      bool _has_user_(const std::string & login_) const;
+      
+      /// Check if an exchange with given name is created in a given vhost in the RabbitMQ server scope
+      bool _has_exchange_(const std::string & vhost_, const std::string & exchange_name_) const;
+
+      /// Check if a queue with given name is created in a given vhost in the RabbitMQ server scope
+      bool _has_queue_(const std::string & vhost_, const std::string & queue_name_) const;
+   
     private:
 
       // Management:
@@ -177,13 +187,19 @@ namespace vire {
       int         _server_port_ = -1;  //!< Server port
       std::string _admin_login_;       //!< Administrator login
       std::string _admin_password_;    //!< Administrator password
-
-      std::set<std::string>       _static_domains_; //!< List of managed static domains/vhosts
-      std::map<std::string, user> _static_users_;   //!< List of static users (1 server + N subcontractors + N' system (gate))
-
+      
+      std::list<user> _system_users_;  //!< List of system users
+      std::string     _server_cms_name_;  //!< Login of the unique server CMS user
+      std::string     _server_gate_name_; //!< Login of the unique server gate user
+      std::string     _client_gate_name_; //!< Login of the unique client gate user
+      
       // Working data:
-      std::map<std::string, user> _client_users_;  //!< List of temporary client users (only for session connections)
-
+      std::map<std::string, user>  _users_;  //!< List of managed users
+      std::map<std::string, vhost> _vhosts_; //!< List of managed vhosts
+      std::string                  _vhost_gate_name_;
+      std::string                  _vhost_control_name_;
+      std::string                  _vhost_monitoring_name_;
+ 
       // Private implementation:
       class pimpl_type;
       std::unique_ptr<pimpl_type> _pimpl_;

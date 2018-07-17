@@ -10,6 +10,6 @@ message DisconnectionSuccess {
 
   vire.utility.BasePayload _base = 1; // Base class
 
-  vire.utility.InstanceIdentifier setup_id            = 100; // The setup identifier
+  vire.utility.InstanceIdentifier setup_id = 100; // The setup identifier
 
 }

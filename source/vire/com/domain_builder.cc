@@ -38,16 +38,13 @@ namespace vire {
     bool domain_builder::validate_domain_name_prefix(const std::string & prefix_)
     {
       if (prefix_.empty()) {
-        // std::cerr << "[devel] empty prefix='" << prefix_ << "'\n";
         return false;
       }
       if (prefix_[0] != '/') {
-        // std::cerr << "[devel] missing leading '/' prefix='" << prefix_ << "'\n";
         return false;
       }
       if (prefix_.length() < 1) return false;
       std::string domain_name_prefix_tmp = prefix_.substr(1);
-      // std::cerr << "[devel] domain_name_prefix_tmp=" << domain_name_prefix_tmp << "\n";
       typedef std::vector<std::string > split_vector_type;
       split_vector_type splitted;
       boost::split(splitted, domain_name_prefix_tmp, boost::is_any_of("/"));
@@ -59,7 +56,6 @@ namespace vire {
         | ::datatools::NV_NO_COLON;
       for (std::size_t i = 0; i < splitted.size(); i++) {
         if (!datatools::name_validation(splitted[i], nv_flags)) {
-          // std::cerr << "[devel] invalid segment : splitted[i]=" << splitted[i] << "\n";
           return false;
         }
       }
@@ -117,6 +113,46 @@ namespace vire {
       return build_cms_topic_name(domain_name_prefix_, oss.str());
     }
 
+    bool domain_builder::extract_client_id(const std::string & domain_name_prefix_,
+                                           const std::string & domain_name_,
+                                           std::string & client_id_)
+    {
+      client_id_.clear();
+      typedef std::vector<std::string > split_vector_type;
+      split_vector_type splitted;
+      boost::split(splitted, domain_name_, boost::is_any_of("/"));
+      DT_THROW_IF(splitted.size() < 6,
+                  std::logic_error,
+                  "Invalid domain name '" << domain_name_ << "'!");
+      std::string candidate_client_id = splitted.back();
+      std::string candidate_client_system_name = build_cms_client_system_name(domain_name_prefix_, splitted.back());
+      if (domain_name_ != candidate_client_system_name) {
+        return false;
+      }
+      client_id_ = candidate_client_id;
+      return true;
+    }
+
+    bool domain_builder::extract_subcontractor_id(const std::string & domain_name_prefix_,
+                                                  const std::string & domain_name_,
+                                                  std::string & subcontractor_id_)
+    {
+      subcontractor_id_.clear();
+      typedef std::vector<std::string > split_vector_type;
+      split_vector_type splitted;
+      boost::split(splitted, domain_name_, boost::is_any_of("/"));
+      DT_THROW_IF(splitted.size() < 6,
+                  std::logic_error,
+                  "Invalid domain name '" << domain_name_ << "'!");
+      std::string candidate_subcontractor_id = splitted.back();
+      std::string candidate_subcontractor_system_name = build_cms_subcontractor_system_name(domain_name_prefix_, splitted.back());
+      if (domain_name_ != candidate_subcontractor_system_name) {
+        return false;
+      }
+      subcontractor_id_ = candidate_subcontractor_id;
+      return true;
+    }
+
     // static
     std::string domain_builder::build_cms_client_system_name(const std::string & domain_name_prefix_,
                                                              const std::string & client_id_)
@@ -159,6 +195,14 @@ namespace vire {
       if (!has_transport_type_id()) return false;
       return true;
     }
+
+    void domain_builder::reset()
+    {
+      _domain_name_prefix_.clear();
+      _transport_type_id_.reset();
+      _encoding_type_id_.reset();
+      return;
+   }
 
     bool domain_builder::has_domain_name_prefix() const
     {

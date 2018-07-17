@@ -26,11 +26,16 @@
 #include <iostream>
 #include <map>
 
+// Third party:
+// - Bayeux/datatools:
+#include <bayeux/datatools/utils.h>
+#include <bayeux/datatools/properties.h>
+
 // This project:
 #include <vire/vire.h>
 #include <vire/rabbitmq/transport_manager.h>
 
-void test_com_rtm_1(bool interactive_ = false);
+void test_rtm_1(bool interactive_ = false);
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -42,7 +47,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
     bool interactive = false;
     interactive = true;
 
-    test_com_rtm_1(interactive);
+    test_rtm_1(interactive);
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -56,11 +61,20 @@ int main(int /* argc_ */, char ** /* argv_ */)
   return error_code;
 }
 
-void test_com_rtm_1(bool interactive_)
+void test_rtm_1(bool interactive_)
 {
   std::clog << "\ntest_com_rtm_1: basics" << std::endl;
 
   std::unique_ptr<vire::rabbitmq::transport_manager> transMgrPtr(new vire::rabbitmq::transport_manager);
+
+  std::string rtm_config_path("${VIRE_TESTING_ONE_DIR}/config/rtm.conf");
+  datatools::fetch_path_with_env(rtm_config_path);
+  datatools::properties rtm_config;
+  rtm_config.read_configuration(rtm_config_path);
+
+  transMgrPtr->initialize(rtm_config);
+
+  transMgrPtr->reset();
   
   std::clog << std::endl;
   return;

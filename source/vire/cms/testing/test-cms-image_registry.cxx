@@ -97,7 +97,7 @@ void test_eir_1(const params_type & params_)
 
   {
     datatools::properties expImageConfig;
-    std::string expImageConfigPath = "${VIRE_TESTING_TWO_DIR}/config/snemo_eir.conf";
+    std::string expImageConfigPath = "${VIRE_TESTING_ONE_DIR}/config/snemo_eir.conf";
     datatools::fetch_path_with_env(expImageConfigPath);
     expImageConfig.read_configuration(expImageConfigPath);            
     expImage.initialize(expImageConfig,

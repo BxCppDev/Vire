@@ -20,16 +20,18 @@
 #include <vire/cms/disconnection_success.h>
 
 // BxJsontools:
+#include <bayeux/jsontools/base_type_converters.h>
 #include <bayeux/jsontools/std_type_converters.h>
 // BxProtobuftools:
 #include <bayeux/protobuftools/protobuf_factory.h>
+#include <bayeux/protobuftools/base_type_converters.h>
 #include <bayeux/protobuftools/std_string_converter.h>
-#include <bayeux/protobuftools/std_vector_converter.h>
+//#include <bayeux/protobuftools/std_vector_converter.h>
 
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/DisconnectionSuccess.pb.h"
-BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms:disconnection_success",
+BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::disconnection_success",
                                vire::cms::DisconnectionSuccess)
 
 namespace vire {
@@ -87,7 +89,7 @@ namespace vire {
     }
 
     void disconnection_success::protobufize(protobuftools::message_node & node_,
-                                         const unsigned long int /* version_ */)
+                                            const unsigned long int /* version_ */)
     {
       VIRE_PROTOBUFIZE_PROTOBUFABLE_BASE_OBJECT(vire::utility::base_payload, node_);
       node_["setup_id"] % _setup_id_;

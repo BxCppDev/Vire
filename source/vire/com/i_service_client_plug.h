@@ -25,13 +25,14 @@
 // This project:
 #include <vire/com/base_plug.h>
 #include <vire/com/utils.h>
+#include <vire/com/addressing.h>
 #include <vire/utility/base_payload.h>
 
 namespace vire {
 
   namespace com {
    
-    //! \brief Base communication plug
+    //! \brief Service client plug interface
     class i_service_client_plug 
       : public base_plug
     {
@@ -58,14 +59,14 @@ namespace vire {
       plug_category_type get_category() const override final;
 
       // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
-      rpc_status send_receive(const std::string & address_,
+      com_status send_receive(const address & address_,
                               const vire::utility::const_payload_ptr_type & request_payload_,
                               vire::utility::const_payload_ptr_type & response_payload_,
                               const double timeout_ = -1.0);
 
     private:
       
-      virtual rpc_status _at_send_receive_(const std::string & address_,
+      virtual com_status _at_send_receive_(const address & address_,
                                            const raw_message_type & raw_request_,
                                            raw_message_type & raw_response_,
                                            const float timeout_) = 0;

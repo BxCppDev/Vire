@@ -62,7 +62,7 @@ int main(int argc_, char ** argv_)
 
 void test_sc_info_1(params params_)
 {
-    bool gui = params_.gui;
+  bool gui = params_.gui;
 
   std::clog << "\ntest_sc_info_1: basics" << std::endl;
 
@@ -71,6 +71,9 @@ void test_sc_info_1(params params_)
 
   vire::resource::manager resourceMgr;
   vire::sandbox::init_resources(resourceMgr, deviceMgr);
+
+  vire::com::manager comMgr;
+  vire::sandbox::init_com(comMgr, resourceMgr);
    
   vire::cmsserver::sc_info scInfo;
   scInfo.set_name("orleans");
@@ -78,6 +81,7 @@ void test_sc_info_1(params params_)
   scInfo.set_terse_description("Orleans CMS subcontractor interface");
   scInfo.set_device_manager(deviceMgr);
   scInfo.set_resource_manager(resourceMgr);
+  scInfo.set_com_manager(comMgr);
   scInfo.add_mounted_device("SuperNEMO:/Demonstrator/CMS/Coil/PS");
   scInfo.add_mounted_device("SuperNEMO:/Demonstrator/CMS/Calorimeter/HV/PS_0");
   scInfo.add_mounted_device("SuperNEMO:/Demonstrator/CMS/Calorimeter/HV/PS_1");

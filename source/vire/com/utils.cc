@@ -108,6 +108,22 @@ namespace vire {
       return "";
     }
 
+    const std::set<actor_category_type> & actor_categories_with_unique_user()
+    {
+      static std::set<actor_category_type> _s;
+      if (_s.size()) {
+        _s.insert(ACTOR_CATEGORY_SERVER_CMS);
+        _s.insert(ACTOR_CATEGORY_SERVER_GATE);
+        _s.insert(ACTOR_CATEGORY_CLIENT_GATE);
+      }
+      return _s;
+    }
+
+    bool is_unique_user(const actor_category_type category_)
+    {
+      return actor_categories_with_unique_user().count(category_);
+    }
+
     bool from_string(const std::string & label_, actor_category_type & category_)
     {
       category_ = ACTOR_CATEGORY_INVALID;
@@ -175,6 +191,22 @@ namespace vire {
       return "";
     }
 
+    const std::set<domain_category_type> & domain_categories_with_unique_domain()
+    {
+      static std::set<domain_category_type> _s;
+      if (_s.size()) {
+        _s.insert(DOMAIN_CATEGORY_GATE);
+        _s.insert(DOMAIN_CATEGORY_CONTROL);
+        _s.insert(DOMAIN_CATEGORY_MONITORING);
+      }
+      return _s;
+    }
+
+    bool is_unique_domain(const domain_category_type category_)
+    {
+      return domain_categories_with_unique_domain().count(category_);
+    }
+
     bool from_string(const std::string & label_, domain_category_type & category_)
     {
       category_ = DOMAIN_CATEGORY_INVALID;
@@ -213,7 +245,6 @@ namespace vire {
       static const std::string _l("pubsub");
       return _l;
     }
-
  
   } // namespace com
 

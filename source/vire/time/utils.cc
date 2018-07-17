@@ -162,6 +162,11 @@ namespace vire {
 
     std::string to_string(const boost::posix_time::ptime & t_)
     {
+      return boost::posix_time::to_iso_extended_string(t_);
+    }
+
+    std::string to_iso_string(const boost::posix_time::ptime & t_)
+    {
       return boost::posix_time::to_iso_string(t_);
     }
 

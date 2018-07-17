@@ -33,16 +33,11 @@ namespace vire {
 
     enum com_status {
       COM_OK          = 0, //!< Success
+      COM_SUCCESS     = 0, //!< Success
       COM_FAILURE     = 1, //!< Generic failure
       COM_UNAVAILABLE = 2, //!< Unavailable resource error
       COM_PERMISSION  = 3, //!< Permission error
       COM_TIMEOUT     = 4  //!< Timeout error
-    };
-
-    enum rpc_status {
-      RPC_STATUS_SUCCESS = 0,
-      RPC_STATUS_FAILURE = 1,
-      RPC_STATUS_TIMEOUT = 2
     };
 
     //! \brief Actor categories
@@ -50,14 +45,18 @@ namespace vire {
       ACTOR_CATEGORY_INVALID                     =  0, ///< Invalid actor category
       ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM = 10, ///< Server subcontractor system category (in CMS server)
       ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM        = 11, ///< Server client system category (in CMS server)
-      ACTOR_CATEGORY_SERVER_GATE                 = 12, ///< Server gate system category (in CMS server)
-      ACTOR_CATEGORY_SERVER_CMS                  = 13, ///< Server CMS category (in CMS server)
+      ACTOR_CATEGORY_SERVER_GATE                 = 12, ///< Server gate system category (in CMS server, unique user)
+      ACTOR_CATEGORY_SERVER_CMS                  = 13, ///< Server CMS category (in CMS server, unique user)
       ACTOR_CATEGORY_CLIENT_SYSTEM               = 20, ///< Client system category (in CMS clients)
       ACTOR_CATEGORY_CLIENT_CMS                  = 21, ///< Client CMS category (in CMS server or clients)
-      ACTOR_CATEGORY_CLIENT_GATE                 = 22, ///< Server gate system category (in CMS server)
+      ACTOR_CATEGORY_CLIENT_GATE                 = 22, ///< Server gate system category (in CMS server, unique user)
       ACTOR_CATEGORY_SUBCONTRACTOR               = 30, ///< Subcontractor category (in CMS subcontractors)
     };
- 
+
+    const std::set<actor_category_type> & actor_categories_with_unique_user();
+    
+    bool is_unique_user(const actor_category_type);
+    
     //! Return the label associated to an actor category
     std::string to_string(const actor_category_type);
        
@@ -77,6 +76,10 @@ namespace vire {
       DOMAIN_CATEGORY_CONTROL              = 4, ///< Control category
       DOMAIN_CATEGORY_MONITORING           = 5  ///< Monitoring category
     };
+
+    const std::set<domain_category_type> & domain_categories_with_unique_domain();
+   
+    bool is_unique_domain(const domain_category_type);
 
     //! Return the label associated to a domain category
     std::string to_string(const domain_category_type);

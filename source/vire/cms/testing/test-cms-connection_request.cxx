@@ -25,12 +25,14 @@
 
 // Third party:
 // - Bayeux/datatools
-#include <datatools/logger.h>
-#include <datatools/exception.h>
-#include <datatools/properties.h>
-#include <datatools/utils.h>
+#include <bayeux/datatools/logger.h>
+#include <bayeux/datatools/exception.h>
+#include <bayeux/datatools/properties.h>
+#include <bayeux/datatools/utils.h>
 // - BxJsontools
-#include <jsontools/iofile.h>
+#include <bayeux/jsontools/iofile.h>
+// BxProtobuftools:
+#include <bayeux/protobuftools/iofile.h>
 
 // This project:
 // #include <vire/vire.h>
@@ -77,11 +79,19 @@ void test0()
     req.tree_dump(std::clog, "connection request: ", "[info] ");
 
     jsontools::store("test_connection_request.json", req);
+    protobuftools::store("test_connection_request.data", req);
   }
 
   {
     vire::cms::connection_request req;
     jsontools::load("test_connection_request.json", req);
+    req.tree_dump(std::clog, "connection request (from JSON): ", "[info] ");
+  }
+
+  {
+    vire::cms::connection_request req;
+    protobuftools::load("test_connection_request.data", req);
+    req.tree_dump(std::clog, "connection request (from Protobuf): ", "[info] ");
   }
 
   std::clog << "\ntest0: Exiting." << std::endl;

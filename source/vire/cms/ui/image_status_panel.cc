@@ -20,6 +20,10 @@
 // Ourselves:
 #include <vire/cms/ui/image_status_panel.h>
 
+// Standard library:
+#include <string>
+#include <algorithm>
+
 // Third party:
 // - Qt:
 #include <QVBoxLayout>
@@ -83,7 +87,9 @@ namespace vire {
       {
         if (!_status_) return;
         if (_status_->has_timestamp()) {
-          _update_value_label_->setText(vire::time::to_string(_status_->get_timestamp()).c_str());
+          std::string timestamp_repr = vire::time::to_string(_status_->get_timestamp());
+          std::replace(timestamp_repr.begin(), timestamp_repr.end(), 'T', '@');
+          _update_value_label_->setText(timestamp_repr.c_str());
         } else {
           _update_value_label_->setText("?");
         }
@@ -94,7 +100,9 @@ namespace vire {
       {
         if (!_status_) return;
         if (_status_->has_missing()) {
-          _missing_led_->set_value(_status_->is_missing());
+          bool missing = _status_->is_missing();
+          std::cerr << "**** devel ***** slot_update_leds: missing = " << missing << std::endl;
+          _missing_led_->set_value(missing);
         } else {
           _missing_led_->set_indeterminate();
         }
@@ -157,19 +165,19 @@ namespace vire {
         
         using datatools::qt::led;
         
-        _missing_led_  = new led(led::Square, led::Red, led::Grey, led::Orange, this);
+        _missing_led_  = new led(led::Square, led::Red, led::Green, led::Grey, this);
         _missing_led_->setFixedSize(cellSize, cellSize);
         _missing_led_->setToolTip("Missing");
         
-        _disabled_led_ = new led(led::Square, led::Yellow, led::Grey, led::Orange, this);
+        _disabled_led_ = new led(led::Square, led::Red, led::Green, led::Grey, this);
         _disabled_led_->setFixedSize(cellSize, cellSize);
         _disabled_led_->setToolTip("Disabled");
  
-        _pending_led_  = new led(led::Square, led::Green, led::Grey, led::Orange, this);
+        _pending_led_  = new led(led::Square, led::Red, led::Green, led::Grey, this);
         _pending_led_->setFixedSize(cellSize, cellSize);
         _pending_led_->setToolTip("Pending");
  
-        _failed_led_  = new led(led::Square, led::Red, led::Grey, led::Orange, this);
+        _failed_led_   = new led(led::Square, led::Red, led::Green, led::Grey, this);
         _failed_led_->setFixedSize(cellSize, cellSize);
         _failed_led_->setToolTip("Failed");
 
@@ -200,7 +208,7 @@ namespace vire {
         layout->addWidget(_failed_led_,         row, 3);
         layout->addWidget(_update_value_label_, row, 4);
         nrows = row + 1;
-        std::cerr << "devel *********** nrows = " << nrows << std::endl;
+        // std::cerr << "devel *********** nrows = " << nrows << std::endl;
 
         for (int irow = 0; irow < nrows; irow++) {
           layout->setRowMinimumHeight(irow, cellSize);
@@ -210,7 +218,7 @@ namespace vire {
 
         this->setLayout(layout);
         // this->setMaximumHeight(nrows * cellSize + (nrows - 1) * vire::cms::ui::display_context::get_instance().get_vertical_spacing());
-        slot_update_time();
+        slot_update();
 
         QObject::connect(_status_emitter_, SIGNAL(status_changed()),
                          this,             SLOT(slot_update()));

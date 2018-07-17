@@ -59,6 +59,11 @@ namespace vire {
       return _subcontractor_info_;
     }
 
+    void sc_info_signal_emitter::emit_auto_connect_change()
+    {
+      emit auto_connect_changed();
+    }
+
     void sc_info_signal_emitter::emit_connection_change()
     {
       emit connection_changed();
@@ -111,7 +116,14 @@ namespace vire {
 
     void sc_info::set_auto_connect(const bool flag_)
     {
+      bool changed = false;
+      if (_auto_connect_ != flag_) {
+        changed = true;
+      }
       _auto_connect_ = flag_;
+      if (changed) {
+        _grab_emitter_().emit_auto_connect_change();
+      }
       return;
     }
 
@@ -315,9 +327,13 @@ namespace vire {
     void sc_info::_at_init_()
     {
       std::string sc_name = get_name();
-      std::string sc_sys_domain_name
-        = vire::com::domain_builder::build_cms_subcontractor_system_name(_com_->get_domain_maker().get_domain_name_prefix(),
-                                                                         sc_name);
+      std::cerr << "****** sc_info::_at_init_ : sc_name = '" << sc_name << "'" << std::endl;
+      std::cerr << "****** sc_info::_at_init_ : com     = " << _com_ << std::endl;
+      std::string domain_name_prefix
+        = _com_->get_domain_maker().get_domain_name_prefix();
+      std::cerr << "****** sc_info::_at_init_ : domain_name_prefix = '= " << domain_name_prefix << "'" << std::endl;
+      std::string sc_sys_domain_name 
+        = vire::com::domain_builder::build_cms_subcontractor_system_name(domain_name_prefix, sc_name);
       if (!_com_->has_domain(sc_sys_domain_name)) {
         vire::com::domain & sc_sys_domain = _com_->create_domain(sc_sys_domain_name,
                                                                  vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM,
@@ -455,15 +471,15 @@ namespace vire {
         const vire::com::actor & serverActor = _com_->get_actor(_svr_login_);
         std::shared_ptr<vire::com::i_service_client_plug> clientPlugPtr =
           std::dynamic_pointer_cast<vire::com::i_service_client_plug>(serverActor.get_plug("subcontractor.service.client"));
-        std::string address = vire::com::system_connection_key();
+        vire::com::address addr(vire::com::ADDR_CATEGORY_PROTOCOL, vire::com::system_connection_key());
         // address = "";
         vire::utility::const_payload_ptr_type connRespPtr;
         double timeout = default_connection_timeout();
-        timeout = -1.0; // No timeout
+        // timeout = -1.0; // No timeout
         clientPlugPtr->set_logging(datatools::logger::PRIO_DEBUG);
-        vire::com::rpc_status status = clientPlugPtr->send_receive(address, connReqPtr, connRespPtr, timeout);
-        if (status != vire::com::RPC_STATUS_SUCCESS) {
-          if (status == vire::com::RPC_STATUS_TIMEOUT) {
+        vire::com::com_status status = clientPlugPtr->send_receive(addr, connReqPtr, connRespPtr, timeout);
+        if (status != vire::com::COM_SUCCESS) {
+          if (status == vire::com::COM_TIMEOUT) {
             std::cerr << "TEST>>> CONNECTION TIMEOUT!" << std::endl;
           } else {
             std::cerr << "TEST>>> CONNECTION FAILURE!" << std::endl;
@@ -480,6 +496,7 @@ namespace vire {
               const vire::cms::connection_success & connSuccess = *connSuccessPtr;
               connSuccess.tree_dump(std::cerr, "Connection success:", "[debug] ");
               connection_success = true;
+              _process_connection_success_(connSuccess);
             } else {
               std::cerr << "******** Could not find vire::cms::connection_success" << std::endl;
             }
@@ -531,15 +548,15 @@ namespace vire {
         const vire::com::actor & serverActor = _com_->get_actor(_svr_login_);
         std::shared_ptr<vire::com::i_service_client_plug> clientPlugPtr =
           std::dynamic_pointer_cast<vire::com::i_service_client_plug>(serverActor.get_plug("subcontractor.service.client"));
-        std::string address = vire::com::system_connection_key();
+        vire::com::address addr(vire::com::ADDR_CATEGORY_PROTOCOL, vire::com::system_connection_key());
         // address = "";
         vire::utility::const_payload_ptr_type disconnRespPtr;
         double timeout = default_connection_timeout();
-        timeout = -1.0; // No timeout
+        // timeout = -1.0; // No timeout
         clientPlugPtr->set_logging(datatools::logger::PRIO_DEBUG);
-        vire::com::rpc_status status = clientPlugPtr->send_receive(address, disconnReqPtr, disconnRespPtr, timeout);
-        if (status != vire::com::RPC_STATUS_SUCCESS) {
-          if (status == vire::com::RPC_STATUS_TIMEOUT) {
+        vire::com::com_status status = clientPlugPtr->send_receive(addr, disconnReqPtr, disconnRespPtr, timeout);
+        if (status != vire::com::COM_SUCCESS) {
+          if (status == vire::com::COM_TIMEOUT) {
             std::cerr << "TEST>>> DISCONNECTION TIMEOUT!" << std::endl;
           } else {
             std::cerr << "TEST>>> DISCONNECTION FAILURE!" << std::endl;
@@ -556,6 +573,7 @@ namespace vire {
               const vire::cms::disconnection_success & disconnSuccess = *disconnSuccessPtr;
               disconnSuccess.tree_dump(std::cerr, "Disconnection success:", "[debug] ");
               disconnection_success = true;
+              _process_disconnection_success_(disconnSuccess);
             } else {
               std::cerr << "******** Could not find vire::cms::disconnection_success" << std::endl;
             }
@@ -585,6 +603,33 @@ namespace vire {
         _connection_start_time_ = vire::time::system_epoch();
         DT_LOG_DEBUG(get_logging_priority(),
                      "Subcontractor '" << get_name() << "' is disconnected!");
+      }
+      return;
+    }
+
+    void sc_info::_process_connection_success_(const vire::cms::connection_success & conn_)
+    {
+      const std::vector<vire::cms::resource_status_record> & resSnapshots = conn_.get_resource_snapshots();
+      for (auto & diPair : _mounted_devices_) {
+        device_info & devInfo = diPair.second;
+        vire::cms::image_status & devStatus = devInfo.status;
+        devStatus.set_missing(false);
+        devStatus.set_disabled(false);
+        devStatus.set_pending(false);
+        devStatus.set_failed(false);
+      }
+      return;
+    }
+                        
+    void sc_info::_process_disconnection_success_(const vire::cms::disconnection_success & disconn_)
+    {
+      for (auto & diPair : _mounted_devices_) {
+        device_info & devInfo = diPair.second;
+        vire::cms::image_status & devStatus = devInfo.status;
+        devStatus.reset_missing();
+        devStatus.reset_disabled();
+        devStatus.reset_pending();
+        devStatus.reset_failed();
       }
       return;
     }

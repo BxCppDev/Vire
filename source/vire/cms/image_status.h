@@ -102,6 +102,8 @@ namespace vire {
       //! Return the timestamp
       const boost::posix_time::ptime & get_timestamp() const;
 
+      std::string get_timestamp_repr() const;
+
       //! Reset the timestamp
       void reset_timestamp();
 
@@ -117,6 +119,10 @@ namespace vire {
       //! Set the missing flag
       void set_missing(bool);
 
+      const boost::logic::tribool & get_missing() const;
+
+      std::string get_missing_repr() const;
+      
       //! Reset the missing flag
       void reset_missing();
 
@@ -128,6 +134,10 @@ namespace vire {
 
       //! Check if the resource is disabled
       bool is_disabled() const;
+
+      const boost::logic::tribool & get_disabled() const;
+
+      std::string get_disabled_repr() const;
 
       //! Set the disabled flag
       void set_disabled(bool);
@@ -144,6 +154,10 @@ namespace vire {
       //! Check if the resource is pending
       bool is_pending() const;
 
+      const boost::logic::tribool & get_pending() const;
+
+      std::string get_pending_repr() const;
+
       //! Set the pending flag
       void set_pending(bool);
 
@@ -152,6 +166,10 @@ namespace vire {
 
       //! Check if failed status is known
       bool has_failed() const;
+
+      const boost::logic::tribool & get_failed() const;
+
+      std::string get_failed_repr() const;
 
       //! Check if the resource has no failed
       bool is_success() const;
@@ -182,11 +200,11 @@ namespace vire {
     private:
 
       // Internal data:
-      boost::posix_time::ptime    _timestamp_; //!< Last update timestamp (status or value)
-      boost::logic::tribool       _missing_  = boost::logic::indeterminate; //!< Missing flag
-      boost::logic::tribool       _disabled_ = boost::logic::indeterminate; //!< Disabled flag
-      boost::logic::tribool       _pending_  = boost::logic::indeterminate; //!< Pending flag
-      boost::logic::tribool       _failed_   = boost::logic::indeterminate; //!< Failed flag
+      boost::posix_time::ptime _timestamp_; //!< Last update timestamp (status or value)
+      boost::logic::tribool    _missing_  = boost::logic::indeterminate; //!< Missing flag
+      boost::logic::tribool    _disabled_ = boost::logic::indeterminate; //!< Disabled flag
+      boost::logic::tribool    _pending_  = boost::logic::indeterminate; //!< Pending flag
+      boost::logic::tribool    _failed_   = boost::logic::indeterminate; //!< Failed flag
 
       // Qt signal emitter wrapper:
       std::unique_ptr<image_status_signal_emitter> _emitter_;

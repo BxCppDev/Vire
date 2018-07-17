@@ -52,8 +52,8 @@ namespace vire {
       void _destroy_();
 
       vire::com::com_status _at_send_event_(const std::string & exchange_name_,
-              const std::string & routing_key_,
-              const vire::com::raw_message_type & raw_request_) override final;
+                                            const vire::com::address & address_,
+                                            const vire::com::raw_message_type & raw_request_) override final;
 
     private:
 
@@ -66,7 +66,7 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_RABBITMQ_SERVICE_CLIENT_PLUG_H
+#endif // VIRE_RABBITMQ_EVENT_EMITTER_PLUG_H
 
 // Local Variables: --
 // mode: c++ --

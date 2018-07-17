@@ -28,7 +28,7 @@
 struct params_type {
   bool use_gui = false;
   bool use_tui = false;
-  bool use_stopper = false;
+  bool use_stopper = true;
 };
 
 void test_server_1(const params_type &);
@@ -52,15 +52,12 @@ int main(int argc_, char ** argv_)
       if (arg == "--tui") {
         params.use_tui = true;
       }
-      if (arg == "--stopper") {
-        params.use_stopper = true;
+      if (arg == "--no-stopper") {
+        params.use_stopper = false;
       }
       iarg++;
     }
-    
-    datatools::library_loader dll_loader;
-    dll_loader.load("Vire_RabbitMQ");
-    
+     
     test_server_1(params);
 
     std::clog << "The end." << std::endl;
@@ -221,9 +218,9 @@ void cmsserver_shell(vire::cmsserver::server & svr_)
   return;
 }
 
-void cmsserver_stopper(vire::cmsserver::server & svr_)
+void cmsserver_stopper(vire::cmsserver::server & svr_, const unsigned int elapsed_= 10)
 {
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  std::this_thread::sleep_for(std::chrono::seconds(elapsed_));
   svr_.stop();
   return;
 }
@@ -254,7 +251,6 @@ void test_server_1(const params_type & params_)
     resources.tree_dump(std::clog, "Resources: ");
   }
   
-
   std::thread t(&vire::cmsserver::server::run, &cmsServer);
   
   std::unique_ptr<std::thread> tui;
@@ -263,7 +259,7 @@ void test_server_1(const params_type & params_)
   }
   std::unique_ptr<std::thread> stopper;
   if (params_.use_stopper) {
-    stopper.reset(new std::thread(cmsserver_stopper, std::ref(cmsServer)));
+    stopper.reset(new std::thread(cmsserver_stopper, std::ref(cmsServer), 10));
   }
   
   if (params_.use_gui) {
@@ -285,8 +281,7 @@ void test_server_1(const params_type & params_)
     app.exec();
   }
   
-  t.join();
-  if (stopper) {
+  if (tui) {
     tui->join();
     tui.reset();
   }
@@ -294,7 +289,8 @@ void test_server_1(const params_type & params_)
     stopper->join();
     stopper.reset();
   }
-    
+  t.join();
+   
   cmsServer.reset();
   gCmsServerHandle = nullptr;
   std::clog << std::endl;

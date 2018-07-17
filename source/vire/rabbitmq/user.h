@@ -29,6 +29,9 @@
 // - Bayeux:
 #include <bayeux/datatools/properties.h>
 
+// This project:
+#include <vire/com/utils.h>
+
 namespace vire {
 
   namespace rabbitmq {
@@ -38,45 +41,34 @@ namespace vire {
     ///! RabbitMQ user for the Vire system
     struct user
     {
-      enum user_category {
-        CATEGORY_INVALID       = 0,
-        CATEGORY_SERVER        = 1,
-        CATEGORY_SUBCONTRACTOR = 2,
-        CATEGORY_CLIENT        = 3,
-        CATEGORY_SYSTEM        = 4
-      };
-    private:
-      std::string   _login_;    //!< Login of the RabbitMQ Vire user
-      std::string   _password_; //!< Password
-      user_category _category_ = CATEGORY_INVALID; //!< User category
     public:
-      bool          use_monitoring = true;  //!< Access to the monitoring domain (client)
-      bool          use_control    = false; //!< Access to the control domain (client)
-
+ 
       /// Default constructor
       user();
 
       /// Constructor
       user(const std::string & login_,
            const std::string & password_,
-           const user_category category_);
+           const vire::com::actor_category_type category_);
 
       static bool validate_login(const std::string & login_);
       void set_login(const std::string & login_);
       const std::string & get_login() const;
       bool has_password() const;
       void set_password(const std::string & password_);
+      const std::string & get_password() const;
       bool match_password(const std::string & word_) const;
-      bool is_server() const;
-      bool is_client() const;
-      bool is_subcontractor() const;
-      bool is_system() const;
-      void set_category(const user_category category_);
-      const user_category get_category() const;
+      void set_category(const vire::com::actor_category_type category_);
+      const vire::com::actor_category_type get_category() const;
       bool is_complete() const;
       void initialize();
       void initialize(const datatools::properties & config_);
       void reset();
+      
+    private:
+      std::string   _login_;    //!< Login of the RabbitMQ Vire user
+      std::string   _password_; //!< Password
+      vire::com::actor_category_type _category_ = vire::com::ACTOR_CATEGORY_INVALID; //!< User category
       
       friend manager_service;
       

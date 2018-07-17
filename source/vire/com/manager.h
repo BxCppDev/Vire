@@ -62,7 +62,19 @@ namespace vire {
       //! Dictionary of shared pointers on actor objects
       typedef std::map<std::string, std::shared_ptr<actor>> actor_dict_type;
 
+      struct domain_info_type {
+        domain_category_type            dom_cat = DOMAIN_CATEGORY_INVALID;
+        std::string                     topic;
+        vire::utility::model_identifier transport_type_id;
+        vire::utility::model_identifier encoding_type_id;
+      };
+      typedef std::map<std::string, domain_info_type> domain_info_dict_type;
+      
       static const std::string & default_service_name();
+     
+      static const std::string & gate_label();
+      static const std::string & control_label();
+      static const std::string & monitoring_label();
 
       //! Default constructor
       manager(uint32_t flags_ = 0);
@@ -76,6 +88,9 @@ namespace vire {
       
       const std::string & get_resource_service_name() const;
 
+      //! Check if the domain name prefix is set
+      bool has_domain_name_prefix() const;
+      
       //! Set the domain name prefix 
       void set_domain_name_prefix(const std::string &);
       
@@ -213,7 +228,8 @@ namespace vire {
       vire::utility::model_identifier _default_encoding_type_id_;  //!< Default encoding type identifier associated to the domains
       
       domain_builder                  _domain_maker_; //!< Domain builder
-
+      domain_info_dict_type           _domain_infos_;
+      
       // Working data:
       const vire::resource::manager * _resources_ = nullptr; //!< Handle to the resources service
       domain_dict_type                _domains_;             //!< Dictionary of domains

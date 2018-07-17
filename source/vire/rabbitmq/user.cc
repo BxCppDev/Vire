@@ -44,7 +44,7 @@ namespace vire {
 
     user::user(const std::string & login_,
                const std::string & password_,
-               const user_category category_)
+               const vire::com::actor_category_type category_)
     {
       set_login(login_);
       set_password(password_);
@@ -69,13 +69,18 @@ namespace vire {
     {
       return _password_.length();
     }
+
+    const std::string & user::get_password() const
+    {
+      return _password_;
+    }
     
     void user::set_password(const std::string & password_)
     {
       _password_ = password_;
       return;
     }
-
+                        
     bool user::match_password(const std::string & word_) const
     {
       return word_ == _password_;
@@ -85,36 +90,16 @@ namespace vire {
     {
       if (_login_.empty()) return false;
       if (_password_.empty()) return false;
-      if (_category_ == CATEGORY_INVALID) return false;
+      if (_category_ == vire::com::ACTOR_CATEGORY_INVALID) return false;
       return true;
     }
 
-    bool user::is_server() const
-    {
-      return _category_ == CATEGORY_SERVER;
-    }
-
-    bool user::is_client() const
-    {
-      return _category_ == CATEGORY_CLIENT;
-    }
-
-    bool user::is_subcontractor() const
-    {
-      return _category_ == CATEGORY_SUBCONTRACTOR;
-    }
-
-    bool user::is_system() const
-    {
-      return _category_ == CATEGORY_SYSTEM;
-    }
-
-    const user::user_category user::get_category() const
+    const vire::com::actor_category_type user::get_category() const
     {
       return _category_;
     }
   
-    void user::set_category(const user_category category_)
+    void user::set_category(const vire::com::actor_category_type category_)
     {
       _category_ = category_;
       return;
@@ -141,32 +126,17 @@ namespace vire {
         }
       }
 
-      if (_category_ == CATEGORY_INVALID) {
+      if (_category_ == vire::com::ACTOR_CATEGORY_INVALID) {
         if (config_.has_key("category")) {
           std::string category_repr = config_.fetch_string("category");
-          if (category_repr == "server") {
-            set_category(CATEGORY_SERVER);
-          } else if (category_repr == "client") {
-            set_category(CATEGORY_CLIENT);
-          } else if (category_repr == "system") {
-            set_category(CATEGORY_SYSTEM);
-          } else if (category_repr == "subcontractor") {
-            set_category(CATEGORY_SUBCONTRACTOR);
-          } else {
-            DT_THROW(std::logic_error,
-                     "Not a valid use category '" << category_repr << "'!");
-          }
+          vire::com::actor_category_type category;
+          DT_THROW_IF(!vire::com::from_string(category_repr, category),
+                      std::logic_error,
+                      "Not a valid use category '" << category_repr << "'!");
+          set_category(category);
         }
       }
- 
-      if (config_.has_key("use_monitoring")) {
-        use_monitoring = config_.fetch_boolean("use_monitoring");
-      }
-
-      if (config_.has_key("use_control")) {
-        use_control = config_.fetch_boolean("use_control");
-      }
-      
+       
       DT_THROW_IF(!is_complete(),
                   std::logic_error,
                   "RabbitMQ user is not complete!");
@@ -178,10 +148,8 @@ namespace vire {
     {
       _login_.clear();
       _password_.clear();
-      _category_ = CATEGORY_INVALID;
-      use_monitoring = true;
-      use_control    = false;
-      return;
+      _category_ = vire::com::ACTOR_CATEGORY_INVALID;
+       return;
     }
 
   } // namespace rabbitmq

@@ -51,7 +51,7 @@ namespace vire {
 
       void _destroy_();
 
-      vire::com::rpc_status _at_send_receive_(const std::string & routing_key_,
+      vire::com::com_status _at_send_receive_(const vire::com::address & address_,
                                               const vire::com::raw_message_type & raw_request_,
                                               vire::com::raw_message_type & raw_response_,
                                               const float timeout_sec_) override final;

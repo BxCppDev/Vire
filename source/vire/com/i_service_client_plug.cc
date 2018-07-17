@@ -67,15 +67,36 @@ namespace vire {
       return _mailbox_name_;
     }
     
-    rpc_status
-    i_service_client_plug::send_receive(const std::string & address_,
+    com_status
+    i_service_client_plug::send_receive(const address & address_,
                                         const vire::utility::const_payload_ptr_type & request_payload_,
                                         vire::utility::const_payload_ptr_type & response_payload_,
                                         const double timeout_)
     {
       datatools::logger::priority logging = datatools::logger::PRIO_FATAL;
       logging = datatools::logger::PRIO_DEBUG; // Hack debug
-      rpc_status status = RPC_STATUS_SUCCESS;
+      com_status status = COM_SUCCESS;
+
+      if (get_domain().get_category() == DOMAIN_CATEGORY_GATE
+          || get_domain().get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+        if (!address_.is_protocol()) {
+          return COM_UNAVAILABLE;
+        }
+      }
+ 
+      if (get_domain().get_category() == DOMAIN_CATEGORY_CONTROL
+          || get_domain().get_category() == DOMAIN_CATEGORY_MONITORING) {
+        if (!address_.is_resource()) {
+          return COM_UNAVAILABLE;
+        }
+      }
+  
+      if (get_domain().get_category() == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+        if (address_.is_device()) {
+          return COM_UNAVAILABLE;
+        }
+      }
+       
       response_payload_.reset();
      
       // Message request:
@@ -125,13 +146,13 @@ namespace vire {
 
       raw_message_type raw_msg_response;
       status = _at_send_receive_(address_, raw_msg_request, raw_msg_response, timeout_sec);
-      if (status == RPC_STATUS_SUCCESS) {
+      if (status == COM_SUCCESS) {
         if (datatools::logger::is_debug(logging)) {
           std::cerr << "********** RPC RESPONSE SUCCESS ********** " << std::endl;
         }
         // Message response:
         vire::message::message msg_response;
-        // Decode the raw buffer!:
+        // Decode the raw buffer:
         encoder.decode(raw_msg_response, msg_response);
         // Process returned metadata:
         response_payload_ = msg_response.get_body().get_payload();

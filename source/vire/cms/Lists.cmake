@@ -180,5 +180,7 @@ list(APPEND VireLibrary_TESTS
 
   cms/testing/test-cms-connection_request.cxx
   cms/testing/test-cms-connection_failure.cxx
+  cms/testing/test-cms-disconnection_request.cxx
+  cms/testing/test-cms-disconnection_success.cxx
 
 )
