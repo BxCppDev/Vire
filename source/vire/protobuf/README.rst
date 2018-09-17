@@ -20,8 +20,8 @@ Field index conventions
 
 - The index ``1`` is  reserved for a  field representing
   the base class.   Such a field, if any, is conventionally named ``_base``.
-- Indexes between ``2`` and ``99`` are reserved fro future usage.
-- Fields in protobuf message use index starting from ``100``.
+- Indexes between ``2`` and ``99`` are reserved for future usage.
+- Fields in protobuf message use index incremented from ``100``.
 
 Other conventions
 -----------------

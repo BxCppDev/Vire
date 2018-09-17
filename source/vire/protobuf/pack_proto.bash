@@ -17,7 +17,7 @@ function my_exit()
 debug=0
 out_dir=
 vire_version="1.0.0"
-ar_suffix=""
+ar_suffix="-bis"
 
 while [ -n "$1" ]; do
     token="$1"
