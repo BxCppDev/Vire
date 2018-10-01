@@ -3,7 +3,7 @@ Vire Communication Domains
 ==========================
 
 :Author: J.Hommet, F.Mauger
-:Date: 2017-10-25
+:Date: 2018-08-30
 
 Description of the Vire Communication Domains.
 
@@ -24,22 +24,58 @@ through   a   dedicated   *encoding  system*   (example:   *protobuf*,
 technology.    However,   different    domains   may   use   different
 communication technologies (RabbitMQ vs HTTP, protobuf vs JSON...).
 
-When implemented through the RabbitMQ system, a domain corresponds
-to a RabbitMQ *virtual host*.
+When implemented through the RabbitMQ  system, a domain corresponds to
+a RabbitMQ *virtual  host* and its mailboxes  correspond to *exchange*
+objects.
 
 
 Categories of actors
 --------------------
 
-Three *categories* of actors are supported:
+Several *categories*  of actors are  supported in Vire and  defined in
+different Vire applications:
 
-* ``server`` (symbol: ``s``): Vire  Server actor (typically one unique
-  instance within a Vire CMS framework),
-* ``subcontractor`` (symbol: ``b``): Subcontractor actors to which the
-  Vire CMS delegates the access to specific resources,
-* ``client`` (symbol: ``c``): Vire Client actors.
+* Server application (symbol: ``s``):
+  
+  * ``server-gate``: Vire Server actor  responsible of the client gate
+    management   (one    unique   instance    within   a    Vire   CMS
+    framework). There should be only one  user of this category in the
+    server application.
+  * ``server-cms``: Vire Server actor responsible of the CMS operation
+    (access to  *Control* and  *Monitoring* domains). There  should be
+    only one user of this category in the server appliation.
+  * ``server-client-system``: Vire Server  actor dedicated to *system*
+    communications with a given client.  There should be as many users
+    of this category  in the server application as  there are connected
+    Vire clients.
+  * ``server-subcontractor-system``:  Vire Server  actor dedicated  to
+    *system* communications  with a given subcontractor.  There should
+    be as  many users of  this category  in the server  application as
+    there are connected Vire subcontractors.
 
-Each  actors can  simultaneously benefit  of connections  to different
+* Subcontractor application (symbol: ``b``):
+    
+  * ``subcontractor``  : Subcontractor  actors to  which the  Vire CMS
+    delegates the  access to  specific resources,  this actor  is used
+    both for  *system* and  CMS operations. There  should be  only one
+    user of this category in the subcontractor application.
+
+* Client application (symbol: ``c``):
+
+  * ``client-gate``  :  Vire  Client   actor  used  to  established  a
+    connected session with the Vire  server through the *Gate* device.
+    There  should   be  only  one   user  of  this  category   in  the
+    subcontractor application.
+  * ``client-system``  :  Vire  Client  actor  dedicated  to  *system*
+    communications with the Vire Server, once the connected session is
+    established. There should be only one user of this category in the
+    subcontractor application.
+  * ``client-cms``  :  Vire  Client   actor  responsible  of  the  CMS
+    operation    (access   to    the   *Monitoring*    and   *Control*
+    domains). There  should be only one  user of this category  in the
+    subcontractor application.
+    
+Each  actors may  simultaneously benefit  of connections  to different
 domains and access to different mailboxes within domains, depending on
 granted permissions.
 
@@ -59,7 +95,8 @@ A mailbox has one of the following *privacy* types:
 * ``private``  :  A  private  |privatemailbox|  mailbox  can  be  sent
   messages typically from one producer actor.  Only one consumer actor
   can pickup posted messages.  This  corresponds to a direct exclusive
-  *queue* in RabbitMQ.
+  *queue*  in RabbitMQ.  In principle,  Vire does  not expose  private
+  mailboxes.
 
 .. |publicmailbox| image::  images/vire_domain_public_mailbox.png
 		   :width: 72px
@@ -73,14 +110,16 @@ A mailbox uses one of the following working modes:
   mailbox with response messages  expected (within a reasonable delay)
   from the target actor (typically used for RPC transactions).
 * ``event``  : Actor  can publish  some asynchronous  messages to  the
-  mailbox, typically used for logging, alarm, Pub/Sub and signals.
+  mailbox, typically used for logging, alarm, Pub/Sub and other signals.
 
 
 When  implemented through  the RabbitMQ  system, a  mailbox in  a Vire
 domain corresponds to:
 
-- a RabbitMQ *exclusive queue* if it is *private*,
-- a RabbitMQ *exchange* if it is *public*.
+- a RabbitMQ *exchange* if it is *public* and identified through
+  a public conventional name.
+- a  RabbitMQ *exclusive  queue*  if it  is  *private* and  identified
+  internally from a private name (not visible in the Vire API).
 
 
 
@@ -90,11 +129,12 @@ Vire CMS domains
 The Vire CMS system typically  implements 5 usecases. Domain names are
 formatted  following the  naming  scheme of  the  Vire library.   Each
 domain name is prefixed with  the *experiment identifier*.  Client and
-subcontrator  system  domain names  have  the  client or  subcontrator
-identifier  as a  suffix.  In  the cases  below, structural  names for
-mailboxes are colored in blue. Domain names are colored in magenta and
-here  correspond  to  a  specific example  with  with  experiment  ID:
-"/supernemo/demonstrator" and subcontractor ID: "cmslapp".
+subcontractor *system* domain names have the clients or subcontrators'
+identifiers as  a suffix.   In the cases  below, structural  names for
+public  mailboxes are  colored in  blue. Domain  names are  colored in
+magenta  and here  they  correspond  to a  specific  example with  the
+"/supernemo/demonstrator"    experiment   ID    and   the    "cmslapp"
+subcontractor ID.
 
 
 **Vire clients gate domain:**
