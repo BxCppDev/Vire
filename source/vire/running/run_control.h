@@ -41,18 +41,25 @@ namespace vire {
 
       static const int INVALID_STAGE_INDEX = -1;
 
+      /// Constructor
       run_control();
 
+      /// Check is label is set
       bool has_label() const;
       
+      /// Return label
       const std::string & get_label() const;
-      
+
+      /// Set label
       void set_label(const std::string & label_);
 
+      /// Check is status is set
       bool has_status() const;
       
+      /// Return status
       run_status_type get_status() const;
 
+      /// Set status
       void set_status(const run_status_type);
      
       //! Check if the run is ready
@@ -89,26 +96,37 @@ namespace vire {
 
       void set_loop_counter(const std::size_t);
 
+      /// Request stop
       void request_stop();
 
+      /// Check if stop is requested
       bool is_stop_requested() const;
 
+      /// Check if system tick is set
       bool has_sys_tick() const;
 
+      /// Return system tick
       const vire::time::system_duration & get_sys_tick() const;
 
+      /// Set system tick
       void set_sys_tick(const vire::time::system_duration &);
 
+      /// Check if start time is set
       bool has_start_time() const;
       
+      /// Set start time
       void set_start_time(const vire::time::system_time_point & start_time_);
   
+      /// Return start time
       const vire::time::system_time_point & get_start_time() const;
 
+      /// Check if stop time is set
       bool has_stop_time() const;
       
+      /// Set stop time
       void set_stop_time(const vire::time::system_time_point & stop_time_);
   
+      /// Return stop time
       const vire::time::system_time_point & get_stop_time() const;
 
       /// Compute the run duration
@@ -116,13 +134,12 @@ namespace vire {
       
     private:
 
-      std::string _label_;  ///! User friendly label (optional)
-      vire::time::system_duration           _sys_tick_;
-
+      std::string _label_; ///! User friendly label (optional)
+      vire::time::system_duration _sys_tick_; ///! System tick for test
       run_status_type _status_ = RUN_STATUS_UNDEF; ///! Current run status
       std::size_t _loop_counter_ =  0; ///! Current loop counter (optional)
       int         _stage_index_  = -1; ///! Current stage index (optional)
-      std::string _stage_label_; ///! Current stage label (optional)
+      std::string _stage_label_;       ///! Current stage label (optional)
       std::mutex  _stop_mutex_;
       bool        _stop_requested_ = false;
       vire::time::system_time_point _start_time_;

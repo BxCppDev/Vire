@@ -29,7 +29,7 @@ namespace vire {
 
   namespace running {
 
-    /// \brief Scheduling model
+    /// \brief Scheduling model for use case
     enum scheduling_type {
       SCHED_UNDEF    = 0,
       SCHED_PARALLEL = 1, ///< Daughter use cases run in parallel (default scheduling model)

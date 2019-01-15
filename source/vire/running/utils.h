@@ -30,15 +30,15 @@ namespace vire {
   namespace running {
 
     /// \brief Run status
-      enum run_status_type {
-        RUN_STATUS_UNDEF    = 0, ///< Undefined run status
-        RUN_STATUS_READY    = 1, ///< Ready run status
-        RUN_STATUS_STARTING = 2, ///< Starting run status
-        RUN_STATUS_RUNNING  = 3, ///< Running run status
-        RUN_STATUS_STOPPING = 4, ///< Stopping run status
-        RUN_STATUS_STOPPED  = 5, ///< Stopped run status
-        RUN_STATUS_FAILED   = 6  ///< Failed run status
-      };
+    enum run_status_type {
+      RUN_STATUS_UNDEF    = 0, ///< Undefined run status
+      RUN_STATUS_READY    = 1, ///< Ready run status
+      RUN_STATUS_STARTING = 2, ///< Starting run status
+      RUN_STATUS_RUNNING  = 3, ///< Running run status
+      RUN_STATUS_STOPPING = 4, ///< Stopping run status
+      RUN_STATUS_STOPPED  = 5, ///< Stopped run status
+      RUN_STATUS_FAILED   = 6  ///< Failed run status
+    };
     
     /// Return the label associated to a scheduling model
     std::string run_status_to_label(const run_status_type status_);
