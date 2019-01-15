@@ -108,13 +108,14 @@ namespace vire {
       _pimpl_->q_par.exclusive = true;
       _pimpl_->channel->queue_declare(_pimpl_->q_par);
       if (datatools::logger::is_debug(logging)) {
-        DT_LOG_DEBUG(logging, "  - queue = " <<_pimpl_->q_par.name);
+        DT_LOG_DEBUG(logging, "  - queue = " << _pimpl_->q_par.name);
       }
+      _set_private_address(_pimpl_->q_par.name);
       return;
     }
      
     // virtual
-    void event_listener_plug::_at_add_subscription_(const subscription_info & subinfo_)
+    void event_listener_plug::_at_add_subscription_(const vire::com::subscription_info & subinfo_)
     {
       const std::string & mailbox_name = subinfo_.mailbox_name;
       const vire::com::address & addr = subinfo_.addr;
@@ -153,7 +154,7 @@ namespace vire {
         std::string routing_key;
         bxrabbitmq::basic_properties prop_in;
         uint64_t delivery;
-        float timeout_sec = -1.0;
+        float timeout_sec = -1.0F;
         bxrabbitmq::consume_status_type mqstatus
           = _pimpl_->channel->consume_message(msgevent, routing_key, prop_in, delivery, timeout_sec);
         if (mqstatus == bxrabbitmq::CONSUME_OK) {

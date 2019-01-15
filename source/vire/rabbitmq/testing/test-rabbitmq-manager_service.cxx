@@ -1,6 +1,7 @@
 //! \file test-rabbitmq-manager_service.cxx
 //
-// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -35,15 +36,41 @@
 // This project:
 #include <vire/com/domain_builder.h>
 
-void test0();
+struct params_type
+{
+  bool destroy = false;
+  bool interactive = false;
+};
+
+void test0(const params_type & params_);
+void test1(const params_type & params_);
+void service_set_params(vire::rabbitmq::manager_service & serv_,
+                        const bool destroy_ = false);
+
+void mgr_report(::rabbitmq::rabbit_mgr & mgr_);
 
 int main( int argc_, char * argv_[])
 {
   int error_code = EXIT_SUCCESS;
 
   try {
+    params_type params;
 
-    test0();
+    {
+      // Command-line parsing:
+      int iarg = 1;
+      while (iarg < argc_) {
+        std::string cl_token = argv_[iarg++];
+        if (cl_token == "--destroy") {
+          params.destroy = true;
+        } else if (cl_token == "--interactive") {
+          params.interactive = true;
+        }
+      }
+    }
+    
+    test0(params);
+    // test1(params);
 
   } catch (std::exception& error) {
     DT_LOG_FATAL(datatools::logger::PRIO_FATAL,
@@ -57,190 +84,122 @@ int main( int argc_, char * argv_[])
   return error_code;
 }
 
-void report(::rabbitmq::rabbit_mgr & mgr_);
+void service_set_params(vire::rabbitmq::manager_service & serv_, const bool destroy_)
+{
+  serv_.set_name("RabbitMQManager");
+  serv_.set_display_name("RabbitMQ Manager Service");
+  serv_.set_terse_description("The service dedicated to the RabbitMQ server management");
+  serv_.set_server_host("localhost");
+  serv_.set_server_port(15672);
+  serv_.set_system_user_name_prefix("__snemod__");
+  serv_.set_vhost_name_prefix("/__snemod__");
+  // serv_.set_vhost_name_prefix("/supernemo/demonstrator");
+  serv_.set_admin_login("supernemo_adm");
+  serv_.set_admin_password("sesame");
+  // System users:
+  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_CMS, "vireservercms");
+  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_GATE, "vireservergate");
+  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_CLIENT_GATE, "vireclientgate");
+  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM, "vireserverscsys");
+  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM, "vireserverclientsys");
+  serv_.set_destroy_all_at_reset(destroy_);
 
-void test0()
+  return;
+}
+
+void test1(const params_type & params_)
+{
+  std::clog << "\ntest1: Entering..." << std::endl;
+
+  datatools::logger::priority logging = datatools::logger::PRIO_DEBUG;
+  vire::rabbitmq::manager_service serv;
+  serv.set_logging_priority(logging);
+  service_set_params(serv, params_.destroy);
+
+  
+  // ::rabbitmq::rabbit_mgr & mgr = serv.grab_manager();
+  // service_report(mgr);
+
+  // serv.reset();
+
+  std::clog << "\ntest0: Exiting." << std::endl;
+  return;
+}
+
+void test0(const params_type & params_)
 {
   std::clog << "\ntest0: Entering..." << std::endl;
   datatools::logger::priority logging = datatools::logger::PRIO_DEBUG;
   vire::rabbitmq::manager_service serv;
-  serv.set_name("RabbitMQManager");
-  serv.set_display_name("RabbitMQ Manager Service");
-  serv.set_terse_description("The service dedicated to the RabbitMQ server management");
   serv.set_logging_priority(logging);
-  serv.set_server_host("localhost");
-  serv.set_server_port(15672);
-  serv.set_vhost_name_prefix("/supernemo/demonstrator");
-  serv.set_admin_login("supernemo_adm");
-  serv.set_admin_password("sesame");
-  // serv.set_destroy_all_at_reset(true);
-
-  // The Vire server user (default):
-  vire::rabbitmq::user server_cms_user("vireservercms", "vireservercms", vire::com::ACTOR_CATEGORY_SERVER_CMS);
-  DT_LOG_DEBUG(logging, "Add system user '" << server_cms_user.get_login() << "'...");
-  serv.add_system_user(server_cms_user);
-  
-  vire::rabbitmq::user server_gate_user("vireservergate", "vireservergate", vire::com::ACTOR_CATEGORY_SERVER_GATE);
-  DT_LOG_DEBUG(logging, "Add system user '" << server_gate_user.get_login() << "'...");
-  serv.add_system_user(server_gate_user);
-  
-  vire::rabbitmq::user client_gate_user("vireclientgate", "vireclientgate", vire::com::ACTOR_CATEGORY_CLIENT_GATE);
-  DT_LOG_DEBUG(logging, "Add system user '" << client_gate_user.get_login() << "'...");
-  serv.add_system_user(client_gate_user);
-
-  serv.initialize_simple();
-  serv.tree_dump(std::clog, "RabbitMQ manager service: ", "[info] ");
+  service_set_params(serv, params_.destroy);
 
   // Subcontractors:
-
   {
-    std::string sc_id = "cmslapp";
-
-    {
-      // Vhost:
-      std::string vhost_name
-        = vire::com::domain_builder::build_cms_subcontractor_system_name(serv.get_vhost_name_prefix(),
-                                                                         sc_id);
-      vire::rabbitmq::vhost vh(vhost_name,
-                               vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM);
-      if (!serv.has_vhost(vh.get_name())) {
-        DT_LOG_DEBUG(logging, "Add subcontractor system vhost '" << vh.get_name() << "'...");
-        serv.add_vhost(vh);
-      }
-    }
-
-    {
-      // Server side:
-      std::string sc_user_login = "sys." + sc_id;
-      vire::rabbitmq::user sc_user(sc_user_login,
-                                   "Dsdqexsk34",
-                                   vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
-      if (!serv.has_user(sc_user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add server subcontractor system user '" << sc_user.get_login() << "'...");
-        serv.add_user(sc_user);
-      }
-    }
-
-    {
-      // Subcontractor side:
-      std::string sc_user_login = sc_id;
-      vire::rabbitmq::user sc_user(sc_user_login,
-                                   "cmslapp",
-                                   vire::com::ACTOR_CATEGORY_SUBCONTRACTOR);
-      if (!serv.has_user(sc_user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add subcontractor user '" << sc_user.get_login() << "'...");
-        serv.add_user(sc_user);
-      }
-    }
-    
+    vire::rabbitmq::manager_service::subcontractor_info sc_info;
+    sc_info.id            = "cmslapp";
+    sc_info.description   = "CMS/LAPP interface";
+    sc_info.user_login    = "cmslapp";
+    sc_info.user_password = "cmslapp";
+    sc_info.persistent    = true;
+    serv.add_subcontractor(sc_info);
+  }
+ 
+  {
+    vire::rabbitmq::manager_service::subcontractor_info sc_info;
+    sc_info.id            = "orleans";
+    sc_info.description   = "Orleans CMS interface";
+    sc_info.user_login    = "orleans";
+    sc_info.user_password = "orleans";
+    sc_info.persistent    = false;
+    serv.add_subcontractor(sc_info);
   }
 
+
+  serv.initialize_simple();
   {
-    std::string sc_id = "orleans";
-
-    {
-      // Vhost:
-      std::string vhost_name
-        = vire::com::domain_builder::build_cms_subcontractor_system_name(serv.get_vhost_name_prefix(),
-                                                                         sc_id);
-      vire::rabbitmq::vhost vh(vhost_name,
-                               vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM);
-      if (!serv.has_vhost(vh.get_name())) {
-        DT_LOG_DEBUG(logging, "Add subcontractor system vhost '" << vh.get_name() << "'...");
-        serv.add_vhost(vh);
-      }
-    }
-
-    {
-      // Server side:
-      std::string sc_user_login = "sys." + sc_id;
-      vire::rabbitmq::user sc_user(sc_user_login,
-                                   "6E8AEDd",
-                                   vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
-      if (!serv.has_user(sc_user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add server subcontractor system user '" << sc_user.get_login() << "'...");
-        serv.add_user(sc_user);
-      }
-    }
-    
-    {
-      // Subcontractor side:
-      std::string sc_user_login = sc_id;
-      vire::rabbitmq::user sc_user(sc_user_login,
-                                   "orleans",
-                                   vire::com::ACTOR_CATEGORY_SUBCONTRACTOR);
-      if (!serv.has_user(sc_user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add subcontractor user '" << sc_user.get_login() << "'...");
-        serv.add_user(sc_user);
-      }
-    }
-    
-  }
-
-  
-  // Clients:
-
-  {
-    std::string client_id = "wxCVbn";
-
-    {
-      // Vhost:
-      std::string vhost_name
-        = vire::com::domain_builder::build_cms_client_system_name(serv.get_vhost_name_prefix(),
-                                                                  client_id);
-      vire::rabbitmq::vhost vh(vhost_name,
-                               vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
-      if (!serv.has_vhost(vh.get_name())) {
-        DT_LOG_DEBUG(logging, "Add client system vhost '" << vh.get_name() << "'...");
-        serv.add_vhost(vh);
-      }
-    }
-  
-    {
-      // Server side:
-      std::string user_login = "sys_server." + client_id;
-      vire::rabbitmq::user user(user_login,
-                                "Shh2D89mjD",
-                                vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM);
-      if (!serv.has_user(user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add server client system user '" << user.get_login() << "'...");
-        serv.add_user(user);
-      }
-    }
-
-    {
-      // Client side:
-      std::string sys_user_login = "sys_client." + client_id;
-      vire::rabbitmq::user sys_user(sys_user_login,
-                                    "sys.wxCVbn",
-                                    vire::com::ACTOR_CATEGORY_CLIENT_SYSTEM);
-      if (!serv.has_user(sys_user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add client CMS user '" << sys_user.get_login() << "'...");
-        serv.add_user(sys_user);
-      }
-
-      std::string cms_user_login = client_id;
-      vire::rabbitmq::user cms_user(cms_user_login,
-                                    "Gez9dZdf",
-                                    vire::com::ACTOR_CATEGORY_CLIENT_CMS);
-      if (!serv.has_user(cms_user.get_login())) {
-        DT_LOG_DEBUG(logging, "Add client CMS user '" << cms_user.get_login() << "'...");
-        serv.add_user(cms_user);
-      }
-    }
+    boost::property_tree::ptree options;
+    options.put("title", serv.get_display_name() + " : ");
+    options.put("indent", "[info] ");
+    serv.print_tree(std::clog, options);
   }
 
   // Checks:
   ::rabbitmq::rabbit_mgr & mgr = serv.grab_manager();
-  report(mgr);
+  mgr_report(mgr);
 
+  vire::rabbitmq::manager_service::client_info cl_info;
+  cl_info.id = "XYZTUVW";
+  cl_info.description = "A remote client";
+  cl_info.sys_user_login = "XYZTUVW.sys";
+  cl_info.sys_user_password = "XYZTUVW";
+  cl_info.cms_user_login = "XYZTUVW";
+  cl_info.cms_user_password = "XYZTUVW";
+  cl_info.with_control = false;
+  serv.create_client(cl_info);
+
+  if (params_.interactive) {
+    std::cout << "Type [Enter] to continue..." << std::endl;
+    std::string word;
+    std::getline(std::cin, word);
+  }
+  serv.change_client_passwords(cl_info.id, "WVUTZYX", "WVUTZYX");
+  
+  if (params_.interactive) {
+    std::cout << "Type [Enter] to quit..." << std::endl;
+    std::string word;
+    std::getline(std::cin, word);
+  }
+  
+  serv.destroy_client(cl_info.id);
+  
   serv.reset();
 
   std::clog << "\ntest0: Exiting." << std::endl;
   return;
 }
 
-void report(::rabbitmq::rabbit_mgr & mgr_)
+void mgr_report(::rabbitmq::rabbit_mgr & mgr_)
 {
 
   {

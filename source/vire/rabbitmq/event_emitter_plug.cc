@@ -99,10 +99,17 @@ namespace vire {
         DT_LOG_DEBUG(logging, "  - passwd = " << _pimpl_->conn_params.passwd);
       }
       bool publisher_confirm = false;
-      _pimpl_->conn.reset(new bxrabbitmq::connection(_pimpl_->conn_params, publisher_confirm));
+      DT_LOG_DEBUG(logging, "Creating RabbitMQ sonnection...");
+      try {
+        _pimpl_->conn.reset(new bxrabbitmq::connection(_pimpl_->conn_params,
+                                                       publisher_confirm));
+      } catch (std::exception & x) {
+        DT_THROW(std::logic_error,
+                 "Could not create a connection to the RabbitMQ server: " << x.what());
+      }
       DT_THROW_IF(!_pimpl_->conn->is_ok(),
                   std::logic_error,
-                  "Failed to connect to RabbitMQ server!");
+                  "Failed to connect to the RabbitMQ server!");
       _pimpl_->channel = &_pimpl_->conn->grab_channel();
       return;
     }

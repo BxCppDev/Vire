@@ -61,9 +61,8 @@ namespace vire {
     service_client_plug::service_client_plug(const std::string & name_,
                                              const vire::com::actor & parent_,
                                              const vire::com::domain & domain_,
-                                             const std::string & mailbox_name_,
                                              const datatools::logger::priority logging_)
-      : i_service_client_plug(name_,parent_, domain_, mailbox_name_, logging_)
+      : i_service_client_plug(name_,parent_, domain_, logging_)
     {
       _construct_();
       return;

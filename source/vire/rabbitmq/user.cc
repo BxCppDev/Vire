@@ -149,7 +149,7 @@ namespace vire {
       _login_.clear();
       _password_.clear();
       _category_ = vire::com::ACTOR_CATEGORY_INVALID;
-       return;
+      return;
     }
 
   } // namespace rabbitmq

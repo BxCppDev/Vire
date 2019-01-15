@@ -38,7 +38,7 @@ namespace vire {
 
     class manager_service;
     
-    ///! RabbitMQ vhost for the Vire system
+    ///! Description of a RabbitMQ vhost for the Vire system
     struct vhost
     {
     public:
@@ -47,17 +47,34 @@ namespace vire {
       vhost();
 
       /// Constructor
-      vhost(const std::string & login_,
+      vhost(const std::string & name_,
             const vire::com::domain_category_type category_);
 
+      /// Check is a name is valid for a vhost
       static bool validate_name(const std::string & name_);
+
+      /// Set the vhost's name
       void set_name(const std::string & name_);
+
+      /// Return the vhost's name
       const std::string & get_name() const;
+
+      /// Set the vhost's category
       void set_category(const vire::com::domain_category_type category_);
+
+      /// Return the vhost's category
       const vire::com::domain_category_type get_category() const;
+
+      /// Check if the vhost is complete (all mandatory fields are set)
       bool is_complete() const;
+
+      /// Initialize (lock)
       void initialize();
+
+      /// Initialize from parameters (lock)
       void initialize(const datatools::properties & config_);
+
+      /// Reset (invalidate)
       void reset();
       
     private:

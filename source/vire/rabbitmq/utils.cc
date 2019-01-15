@@ -33,7 +33,7 @@ namespace vire {
     {
       key_.clear();
       
-      if (addr_.is_protocol()) {
+      if (addr_.is_protocol() || addr_.is_private()) {
         key_ = addr_.get_value();
         return true;
       }
@@ -42,7 +42,7 @@ namespace vire {
         vire::utility::path::to_address(addr_.get_value(), key_);
         return true;
       }
-      
+       
       return false;
     }
 

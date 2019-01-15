@@ -38,7 +38,7 @@ namespace vire {
 
     class manager_service;
     
-    ///! RabbitMQ user for the Vire system
+    ///! Description of a RabbitMQ user for the Vire system
     struct user
     {
     public:
@@ -51,21 +51,47 @@ namespace vire {
            const std::string & password_,
            const vire::com::actor_category_type category_);
 
+      /// Check is a login is valid
       static bool validate_login(const std::string & login_);
+
+      /// Set the users's login
       void set_login(const std::string & login_);
+
+      /// Return the users's login
       const std::string & get_login() const;
+
+      /// Check if the password is set
       bool has_password() const;
+
+      /// Set the password
       void set_password(const std::string & password_);
+
+      /// Return the password
       const std::string & get_password() const;
+
+      /// Check is a word matches the password
       bool match_password(const std::string & word_) const;
+
+      /// Set the user's category
       void set_category(const vire::com::actor_category_type category_);
+
+      /// Return  the user's category
       const vire::com::actor_category_type get_category() const;
+
+      /// Check if the user is complete (all mandatory fields are set)
       bool is_complete() const;
+
+      /// Initialize (lock)
       void initialize();
+
+      /// Initialize from parameters (lock)
       void initialize(const datatools::properties & config_);
-      void reset();
+ 
+      /// Reset (invalidate)
+     void reset();
       
     private:
+      
       std::string   _login_;    //!< Login of the RabbitMQ Vire user
       std::string   _password_; //!< Password
       vire::com::actor_category_type _category_ = vire::com::ACTOR_CATEGORY_INVALID; //!< User category

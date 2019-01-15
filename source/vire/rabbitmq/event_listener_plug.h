@@ -24,7 +24,7 @@
 
 // This project:
 #include <vire/com/i_event_listener_plug.h>
-   
+ 
 namespace vire {
 
   namespace rabbitmq {
@@ -52,7 +52,7 @@ namespace vire {
      
       vire::com::com_status _at_receive_next_event_(vire::com::raw_message_type & raw_event_) override final;
 
-      void _at_add_subscription_(const subscription_info & subinfo_) override final;
+      void _at_add_subscription_(const vire::com::subscription_info & subinfo_) override final;
 
     private:
 

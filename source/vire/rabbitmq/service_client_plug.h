@@ -39,7 +39,6 @@ namespace vire {
       service_client_plug(const std::string & name_,
                           const vire::com::actor & parent_,
                           const vire::com::domain & domain_,
-                          const std::string & mailbox_name_,
                           const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
 
       //! Destructor
