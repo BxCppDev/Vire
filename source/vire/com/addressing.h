@@ -37,10 +37,11 @@ namespace vire {
       ADDR_CATEGORY_INVALID  = 0,
       ADDR_CATEGORY_PROTOCOL = 1,
       ADDR_CATEGORY_DEVICE   = 2,
-      ADDR_CATEGORY_RESOURCE = 3
+      ADDR_CATEGORY_RESOURCE = 3,
+      ADDR_CATEGORY_PRIVATE  = 4
     };
 
-    //! Return the label associated to an actor category
+    //! Return the label associated to an address category
     std::string to_string(const address_category_type);
        
     //! Return the address category type associated to a label
@@ -51,8 +52,12 @@ namespace vire {
     {
     public:
 
-      address(const address_category_type, const std::string & value_);
+      address();
 
+      address(const address_category_type category_, const std::string & value_);
+
+      void set(const address_category_type category_, const std::string & value_);
+      
       bool is_complete() const;
       
       bool is_protocol() const;
@@ -60,6 +65,8 @@ namespace vire {
       bool is_device() const;
 
       bool is_resource() const;
+
+      bool is_private() const;
 
       const std::string & get_value() const;
 

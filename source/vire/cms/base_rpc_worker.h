@@ -2,6 +2,8 @@
 //! \brief Vire CMS base RPC worker
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
+//
 //
 // This file is part of Vire.
 //
@@ -25,6 +27,11 @@
 #include <string>
 #include <set>
 
+// Third party:
+// - Bayeux/datatools:
+#include <datatools/logger.h>
+#include <datatools/factory_macros.h>
+
 // This project:
 #include <vire/utility/base_payload.h>
 #include <vire/utility/exec_report.h>
@@ -33,38 +40,67 @@ namespace vire {
 
   namespace cms {
 
+    /// \brief Base class for all RPC worker classes
     class base_rpc_worker
     {
     public:
 
+      enum rpc_error_type {
+        RPC_ERROR_MISSING_REQUEST = 100,
+        RPC_ERROR_BAD_REQUEST     = 101,
+        RPC_ERROR_BAD_ARGUMENT    = 102,
+        RPC_ERROR_BAD_CONTEXT     = 103
+      };
+      
       /// Constructor
       base_rpc_worker();
 
       /// Destructor
       virtual ~base_rpc_worker();
 
+      datatools::logger::priority get_logging() const;
+
+      void set_logging(const datatools::logger::priority);
+      
       void add_supported_payload_type_id(const std::string &);
 
       const std::set<std::string> & get_supported_payload_type_ids() const;
 
-      vire::utility::exec_report work(vire::utility::const_payload_ptr_type & request_,
-                                      vire::utility::payload_ptr_type & response_);
-             
-    private:
+      bool support_payload_type_id(const std::string &) const;
+      
+      vire::utility::exec_report run(vire::utility::const_payload_ptr_type & request_,
+                                     vire::utility::payload_ptr_type & response_);
 
-      virtual void _at_work_(vire::utility::const_payload_ptr_type & request_,
-                             vire::utility::payload_ptr_type & response_) =  0;
+      vire::utility::exec_report operator()(vire::utility::const_payload_ptr_type & request_,
+                                            vire::utility::payload_ptr_type & response_);
+      
+    private:
+      
+      virtual void _at_run_(vire::utility::const_payload_ptr_type & request_,
+                            vire::utility::payload_ptr_type & response_) = 0;
       
     private:
 
+      datatools::logger::priority _logging_ = datatools::logger::PRIO_FATAL;
       std::set<std::string> _supported_payload_type_ids_;
       
-      
+      // Factory stuff :
+      DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(base_rpc_worker)
+     
     };
     
   } // namespace cms
 
 } // namespace vire
+
+#define VIRE_CMS_RPC_WORKER_REGISTRATION_INTERFACE(RPC_WORKER_CLASS_NAME) \
+  private:                                                              \
+  DATATOOLS_FACTORY_SYSTEM_AUTO_REGISTRATION_INTERFACE (::vire::cms::base_rpc_worker,RPC_WORKER_CLASS_NAME) \
+  /**/
+
+#define VIRE_CMS_RPC_WORKER_REGISTRATION_IMPLEMENT(RPC_WORKER_CLASS_NAME,RPC_WORKER_CLASS_ID) \
+  DATATOOLS_FACTORY_SYSTEM_AUTO_REGISTRATION_IMPLEMENTATION (::vire::cms::base_rpc_worker,RPC_WORKER_CLASS_NAME,RPC_WORKER_CLASS_ID) \
+  /**/
 
 #endif // VIRE_CMS_BASE_RPC_WORKER_H
 

@@ -1,8 +1,8 @@
 //! \file  vire/cmsclient/client.h
 //! \brief Vire CMS client
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -102,7 +102,6 @@ namespace vire {
 
       //! Leave the setup
       void setup_quit();
-
 
       bool has_setup_infos() const;
 

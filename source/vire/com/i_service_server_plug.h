@@ -26,7 +26,10 @@
 #include <vire/com/base_plug.h>
 #include <vire/com/utils.h>
 #include <vire/com/addressing.h>
+#include <vire/com/subscription_info.h>
 #include <vire/utility/base_payload.h>
+
+// Using base RPC worker
 
 namespace vire {
 
@@ -44,7 +47,6 @@ namespace vire {
       i_service_server_plug(const std::string & name_,
                             const actor & parent_,
                             const domain & domain_,
-                            const std::string & mailbox_name_,
                             const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
       
     public:
@@ -58,23 +60,25 @@ namespace vire {
       //! Return category
       plug_category_type get_category() const override final;
 
-      // // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
-      // com_status send_receive(const address & address_,
+      void add_subscription(const subscription_info & subinfo_);
+
+      const subscription_info_list & get_subscriptions() const;
+
+      // com_status receive_send(const address & address_,
       //                         const vire::utility::const_payload_ptr_type & request_payload_,
-      //                         vire::utility::const_payload_ptr_type & response_payload_,
-      //                         const double timeout_ = -1.0);
+      //                         vire::utility::const_payload_ptr_type & response_payload_);
 
     private:
       
-      // virtual com_status _at_send_receive_(const address & address_,
+      // virtual com_status _at_receive_send_(const address & address_,
       //                                      const raw_message_type & raw_request_,
-      //                                      raw_message_type & raw_response_,
-      //                                      const float timeout_) = 0;
+      //                                      raw_message_type & raw_response_) = 0;
 
     private:
       
       std::string _mailbox_name_; ///< Domain mailbox (exchange)
-      
+      subscription_info_list _subscriptions_;
+
     };
 
   } // namespace com

@@ -44,7 +44,6 @@ namespace vire {
       i_service_client_plug(const std::string & name_,
                             const actor & parent_,
                             const domain & domain_,
-                            const std::string & mailbox_name_,
                             const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
       
     public:
@@ -64,7 +63,22 @@ namespace vire {
                               vire::utility::const_payload_ptr_type & response_payload_,
                               const double timeout_ = -1.0);
 
+      // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
+      com_status send_receive_async(const address & async_address_,
+                                    const address & address_,
+                                    const vire::utility::const_payload_ptr_type & request_payload_,
+                                    vire::utility::const_payload_ptr_type & response_payload_,
+                                    const double timeout_ = -1.0);
+
+      
     private:
+
+      // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
+      com_status _send_receive_(const address & async_address_,
+                                const address & address_,
+                                const vire::utility::const_payload_ptr_type & request_payload_,
+                                vire::utility::const_payload_ptr_type & response_payload_,
+                                const double timeout_);
       
       virtual com_status _at_send_receive_(const address & address_,
                                            const raw_message_type & raw_request_,

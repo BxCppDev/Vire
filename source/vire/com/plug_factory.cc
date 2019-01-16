@@ -112,7 +112,6 @@ namespace vire {
       if (theActor.get_category() == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
         std::string this_subcontractor_name = theActor.get_target();
         std::string this_subcontractor_system_domain_name = domain_.get_name();
-        std::string mailbox_name = "subcontractor.service";
         // Compute a random plug name if not specified:
         std::string plug_name = plug_name_;
         while (plug_name.empty()) {
@@ -122,7 +121,9 @@ namespace vire {
           }
         } 
         std::shared_ptr<i_service_client_plug> new_plug
-          = std::make_shared<vire::rabbitmq::service_client_plug>(plug_name, _parent_, domain_, mailbox_name);
+          = std::make_shared<vire::rabbitmq::service_client_plug>(plug_name,
+                                                                  _parent_,
+                                                                  domain_);
         _parent_._plugs_[plug_name] = new_plug;
         // Return automatic plug name:
         plug_name_ = plug_name;

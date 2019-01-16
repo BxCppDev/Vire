@@ -40,6 +40,7 @@ struct params_type
 {
   bool destroy = false;
   bool interactive = false;
+  bool clear_password = false;
 };
 
 void test0(const params_type & params_);
@@ -65,6 +66,8 @@ int main( int argc_, char * argv_[])
           params.destroy = true;
         } else if (cl_token == "--interactive") {
           params.interactive = true;
+        } else if (cl_token == "--clear-password") {
+          params.clear_password = true;
         }
       }
     }
@@ -155,7 +158,6 @@ void test0(const params_type & params_)
     serv.add_subcontractor(sc_info);
   }
 
-
   serv.initialize_simple();
   {
     boost::property_tree::ptree options;
@@ -183,7 +185,12 @@ void test0(const params_type & params_)
     std::string word;
     std::getline(std::cin, word);
   }
-  serv.change_client_passwords(cl_info.id, "WVUTZYX", "WVUTZYX");
+
+  if (params_.clear_password) {
+    serv.change_client_passwords(cl_info.id, "", "");
+  } else {
+    serv.change_client_passwords(cl_info.id, "WVUTZYX", "WVUTZYX");
+  }
   
   if (params_.interactive) {
     std::cout << "Type [Enter] to quit..." << std::endl;

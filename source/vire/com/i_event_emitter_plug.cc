@@ -24,6 +24,7 @@
 // This project:
 #include <vire/com/actor.h>
 #include <vire/com/domain.h>
+#include <vire/com/utils.h>
 #include <vire/time/utils.h>
 #include <vire/message/message.h>
 #include <vire/message/body_layout.h>
@@ -43,31 +44,31 @@ namespace vire {
       if (domCat == DOMAIN_CATEGORY_MONITORING) {
         if (actorCat == ACTOR_CATEGORY_SUBCONTRACTOR
             || actorCat == ACTOR_CATEGORY_SERVER_CMS) {
-          _allowed_mailboxes_.insert("log.event");
-          _allowed_mailboxes_.insert("alarm.event");
-          _allowed_mailboxes_.insert("pubsub.event");
-          _default_mailbox_name_ = "log.event";
+          _allowed_mailboxes_.insert(mailbox_monitoring_log_event_name());
+          _allowed_mailboxes_.insert(mailbox_monitoring_alarm_event_name());
+          _allowed_mailboxes_.insert(mailbox_monitoring_pubsub_event_name());
+          _default_mailbox_name_ = mailbox_monitoring_log_event_name();
           supported = true;
         }
       }
  
       if (domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
         if (actorCat == ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM) {
-          _allowed_mailboxes_.insert("vireserver.event");
-          _default_mailbox_name_ = "vireserver.event";
+          _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
+          _default_mailbox_name_ = mailbox_system_vireserver_event_name();
           supported = true;
         }
       }
  
       if (domCat == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
         if (actorCat == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
-          _allowed_mailboxes_.insert("vireserver.event");
-          _default_mailbox_name_ = "vireserver.event";
+          _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
+          _default_mailbox_name_ = mailbox_system_vireserver_event_name();
           supported = true;
         }
         if (actorCat == ACTOR_CATEGORY_SUBCONTRACTOR) {
-          _allowed_mailboxes_.insert("subcontractor.event");
-          _default_mailbox_name_ = "subcontractor.event";
+          _allowed_mailboxes_.insert(mailbox_system_subcontractor_event_name());
+          _default_mailbox_name_ = mailbox_system_subcontractor_event_name();
           supported = true;
         }
       }
@@ -88,7 +89,7 @@ namespace vire {
       if (!default_mailbox_name_.empty()) {
         DT_THROW_IF(_allowed_mailboxes_.count(default_mailbox_name_) == 0,
                     std::logic_error,
-                    "Unsupported default mailbox '" << default_mailbox_name_ << "' in emiiter plug '" << name_ << "'!");
+                    "Unsupported default mailbox '" << default_mailbox_name_ << "' in emitter plug '" << name_ << "'!");
         _default_mailbox_name_ = default_mailbox_name_;
       }
       return;
@@ -198,7 +199,12 @@ namespace vire {
         raw_msg_event.metadata.store(message_id_key(), msg_event.get_header().get_message_id().to_string());
       }
       // Send the event through the transport implementation:
-      status = _at_send_event_(mailbox_name_, address_, raw_msg_event);
+      if (!address_.is_private()) {
+        status = _at_send_event_(mailbox_name_, address_, raw_msg_event);
+      } else {
+        // Let the routing key find the path without a public mailbox (exchange)
+        status = _at_send_event_("", address_, raw_msg_event);
+      }
 
       return status;
     }

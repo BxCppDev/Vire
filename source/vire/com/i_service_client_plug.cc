@@ -33,6 +33,7 @@
 #include <vire/time/utils.h>
 #include <vire/com/actor.h>
 #include <vire/com/domain.h>
+#include <vire/com/utils.h>
 
 namespace vire {
 
@@ -41,14 +42,39 @@ namespace vire {
     i_service_client_plug::i_service_client_plug(const std::string & name_,
                                                  const actor & parent_,
                                                  const domain & domain_,
-                                                 const std::string & mailbox_name_,
                                                  const datatools::logger::priority logging_)
       : base_plug(name_, parent_, domain_, logging_)
     {
-      DT_THROW_IF(mailbox_name_.empty(),
+      if (get_domain().get_category() == DOMAIN_CATEGORY_GATE) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_CLIENT_GATE,
+                    std::logic_error,
+                    "Invalid context for service client plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_gate_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_CLIENT_SYSTEM,
+                    std::logic_error,
+                    "Invalid context for service client plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_client_system_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_MONITORING
+                 || get_domain().get_category() == DOMAIN_CATEGORY_CONTROL) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_CLIENT_CMS
+                    && parent_.get_category() != ACTOR_CATEGORY_SERVER_CMS,
+                    std::logic_error,
+                    "Invalid context for service client plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_cms_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+        if (parent_.get_category() == ACTOR_CATEGORY_SUBCONTRACTOR) {
+          _mailbox_name_ = vire::com::mailbox_subcontractor_system_vireserver_service_name();
+        } else if (parent_.get_category() == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+          _mailbox_name_ = vire::com::mailbox_subcontractor_system_subcontractor_service_name();
+        } else {
+          DT_THROW(std::logic_error,
+                   "Invalid context for service client plug '" << name_ << "'!");
+        }
+      }    
+      DT_THROW_IF(_mailbox_name_.empty(),
                   std::logic_error,
                   "Missing mailbox name in service client plug '" << name_ << "'!");
-      _mailbox_name_ = mailbox_name_;
       return;
     }
 
@@ -68,15 +94,45 @@ namespace vire {
     }
     
     com_status
+    i_service_client_plug::send_receive_async(const address & async_address_,
+                                              const address & address_,
+                                              const vire::utility::const_payload_ptr_type & request_payload_,
+                                              vire::utility::const_payload_ptr_type & response_payload_,
+                                              const double timeout_)
+    {
+      com_status status = _send_receive_(async_address_, address_, request_payload_, response_payload_, timeout_);
+      return status;
+    }
+
+    com_status
     i_service_client_plug::send_receive(const address & address_,
                                         const vire::utility::const_payload_ptr_type & request_payload_,
                                         vire::utility::const_payload_ptr_type & response_payload_,
                                         const double timeout_)
     {
+      address empty;
+      com_status status = _send_receive_(empty, address_, request_payload_, response_payload_, timeout_);
+      return status;
+    }
+
+    com_status
+    i_service_client_plug::_send_receive_(const address & async_address_,
+                                          const address & address_,
+                                          const vire::utility::const_payload_ptr_type & request_payload_,
+                                          vire::utility::const_payload_ptr_type & response_payload_,
+                                          const double timeout_)
+    {
       datatools::logger::priority logging = datatools::logger::PRIO_FATAL;
       logging = datatools::logger::PRIO_DEBUG; // Hack debug
       com_status status = COM_SUCCESS;
-
+      bool async = false;
+      if (async_address_.is_complete()) {
+        DT_THROW_IF(!async_address_.is_private(),
+                    std::logic_error,
+                    "Unsupported async address category!");
+        async = true;
+      }
+       
       if (get_domain().get_category() == DOMAIN_CATEGORY_GATE
           || get_domain().get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
         if (!address_.is_protocol()) {
@@ -95,6 +151,10 @@ namespace vire {
         if (address_.is_device()) {
           return COM_UNAVAILABLE;
         }
+        if (get_parent().get_category() == ACTOR_CATEGORY_SUBCONTRACTOR
+            && address_.is_resource()) {
+          return COM_UNAVAILABLE;
+        }
       }
        
       response_payload_.reset();
@@ -107,7 +167,10 @@ namespace vire {
       h.set_message_id(msg_id);
       h.set_timestamp(vire::time::now());
       h.set_category(vire::message::MESSAGE_REQUEST);
-      h.set_asynchronous(false);
+      h.set_asynchronous(async);
+      if (async) {
+        h.set_async_address(async_address_.get_value());
+      }
       vire::utility::model_identifier body_layout_id;
       body_layout_id.set_name(vire::message::body_layout::name());
       body_layout_id.set_version(vire::message::body_layout::current_version());
@@ -142,6 +205,9 @@ namespace vire {
       // Populate raw metadata:
       if (msg_request.get_header().get_message_id().is_valid()) {
         raw_msg_request.metadata.store(message_id_key(), msg_request.get_header().get_message_id().to_string());
+      }
+      if (async) {
+        ///// RIEN A FAIRE: raw_msg_request.metadata.store(async_address_key(), async_address_.value());
       }
 
       raw_message_type raw_msg_response;

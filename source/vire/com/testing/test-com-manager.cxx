@@ -1,7 +1,7 @@
 //! \file vire/com/testing/test-com-manager.cxx
 //! \brief Test Vire communication manager
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //

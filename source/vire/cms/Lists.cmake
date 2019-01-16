@@ -89,6 +89,8 @@
   cms/disconnection_failure.h
   cms/disconnection_failure-serial.ipp
 
+  cms/base_rpc_worker.h
+
   )
 
 list(APPEND VireLibrary_PRIVATE_HEADERS
@@ -144,6 +146,8 @@ list(APPEND VireLibrary_SOURCES
   cms/disconnection_request.cc
   cms/disconnection_success.cc
   cms/disconnection_failure.cc
+
+  cms/base_rpc_worker.cc
   )
 
 list(APPEND VireLibrary_TESTS
@@ -182,5 +186,6 @@ list(APPEND VireLibrary_TESTS
   cms/testing/test-cms-connection_failure.cxx
   cms/testing/test-cms-disconnection_request.cxx
   cms/testing/test-cms-disconnection_success.cxx
+  cms/testing/test-cms-base_rpc_worker.cxx
 
 )

@@ -41,14 +41,43 @@ namespace vire {
     i_service_server_plug::i_service_server_plug(const std::string & name_,
                                                  const actor & parent_,
                                                  const domain & domain_,
-                                                 const std::string & mailbox_name_,
                                                  const datatools::logger::priority logging_)
       : base_plug(name_, parent_, domain_, logging_)
     {
-      DT_THROW_IF(mailbox_name_.empty(),
+      if (get_domain().get_category() == DOMAIN_CATEGORY_GATE) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_SERVER_GATE,
+                    std::logic_error,
+                    "Invalid context for service server plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_gate_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM,
+                    std::logic_error,
+                    "Invalid context for service server plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_client_system_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_CONTROL) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_SERVER_CMS,
+                    std::logic_error,
+                    "Invalid context for service server plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_cms_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_MONITORING) {
+        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_SUBCONTRACTOR
+                    && parent_.get_category() != ACTOR_CATEGORY_SERVER_CMS,
+                    std::logic_error,
+                    "Invalid context for service server plug '" << name_ << "'!");
+        _mailbox_name_ = vire::com::mailbox_cms_service_name();
+      } else if (get_domain().get_category() == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+        if (parent_.get_category() == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+          _mailbox_name_ = vire::com::mailbox_subcontractor_system_vireserver_service_name();
+        } else if (parent_.get_category() == ACTOR_CATEGORY_SUBCONTRACTOR) {
+          _mailbox_name_ = vire::com::mailbox_subcontractor_system_subcontractor_service_name();
+        } else {
+          DT_THROW(std::logic_error,
+                   "Invalid context for service server plug '" << name_ << "'!");
+        }
+      }
+      DT_THROW_IF(_mailbox_name_.empty(),
                   std::logic_error,
                   "Missing mailbox name in service server plug '" << name_ << "'!");
-      _mailbox_name_ = mailbox_name_;
       return;
     }
 
@@ -67,12 +96,76 @@ namespace vire {
       return _mailbox_name_;
     }
 
+    void i_service_server_plug::add_subscription(const subscription_info & subinfo_)
+    {
+      // DT_THROW_IF(_allowed_mailboxes_.count(subinfo_.mailbox_name) == 0,
+      //             std::logic_error,
+      //             "Subscription mailbox '" << subinfo_.mailbox_name << "' is not allowed in service server '" << get_name() << "'!");
+
+      domain_category_type domCat = get_domain().get_category();
+      actor_category_type actorCat = get_parent().get_category();
+
+      if (domCat == DOMAIN_CATEGORY_GATE) {
+        
+      }
+ 
+      // XXX
+      // _subscriptions_.push_back(subinfo_);
+      //_at_add_subscription_(subinfo_);
+     
+      return;
+    }
+    
+    const subscription_info_list & i_service_server_plug::get_subscriptions() const
+    {
+      return _subscriptions_;
+    }
+
+    // com_status
+    // i_service_server_plug::receive_send(const address & address_,
+    //                                     const vire::utility::const_payload_ptr_type & request_payload_,
+    //                                     vire::utility::const_payload_ptr_type & response_payload_)
+    // {
+    //   return _receive_send_(address_, request_payload_, response_payload_);
+    // }
+
     /*
     com_status
-    i_service_server_plug::send_receive(const address & address_,
+    i_service_server_plug::_receive_send_(const address & address_,
+                                          const vire::utility::const_payload_ptr_type & request_payload_,
+                                          vire::utility::const_payload_ptr_type & response_payload_)
+    {
+      datatools::logger::priority logging = get_logging();
+      com_status status = COM_SUCCESS;
+      status = COM_UNAVAILABLE;
+
+      const i_encoding_driver & encoder = get_domain().get_encoding_driver();
+      raw_message_type raw_msg_event;
+      status = _at_receive_request_(raw_msg_event);
+      if (status == COM_SUCCESS) {
+        // Message response:
+        vire::message::message msg_event;
+        // Decode the raw buffer:
+        encoder.decode(raw_msg_event, msg_event);
+        if (! msg_event.get_header().is_request()) {
+          status = COM_FAILURE;
+        } else {
+          // Process returned metadata:
+          request_payload_ = msg_event.get_body().get_payload();
+        }
+      }
+
+
+      
+      return status;
+    }
+    */
+    
+    /*
+    com_status
+    i_service_server_plug::receive_send(const address & address_,
                                         const vire::utility::const_payload_ptr_type & request_payload_,
-                                        vire::utility::const_payload_ptr_type & response_payload_,
-                                        const double timeout_)
+                                        vire::utility::const_payload_ptr_type & response_payload_)
     {
       datatools::logger::priority logging = datatools::logger::PRIO_FATAL;
       logging = datatools::logger::PRIO_DEBUG; // Hack debug

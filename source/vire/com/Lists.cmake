@@ -1,6 +1,7 @@
 list(APPEND VireLibrary_HEADERS
   com/utils.h
   com/addressing.h
+  com/subscription_info.h
   com/transport_utils.h
   com/i_encoding_driver.h
   com/boost_serialization_encoding_driver.h
@@ -25,6 +26,7 @@ list(APPEND VireLibrary_HEADERS
 list(APPEND VireLibrary_SOURCES
   com/utils.cc
   com/addressing.cc
+  com/subscription_info.cc
   com/transport_utils.cc
   com/i_encoding_driver.cc
   com/boost_serialization_encoding_driver.cc

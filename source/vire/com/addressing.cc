@@ -35,6 +35,7 @@ namespace vire {
       case ADDR_CATEGORY_PROTOCOL: return "protocol";
       case ADDR_CATEGORY_DEVICE:   return "device";
       case ADDR_CATEGORY_RESOURCE: return "resource";
+      case ADDR_CATEGORY_PRIVATE:  return "private";
       default:
         break;
       }
@@ -53,11 +54,21 @@ namespace vire {
       if (label_ == to_string(ADDR_CATEGORY_RESOURCE)) {
         category_ = ADDR_CATEGORY_RESOURCE;
       }
+      if (label_ == to_string(ADDR_CATEGORY_PRIVATE)) {
+        category_ = ADDR_CATEGORY_PRIVATE;
+      }
       return category_ != ADDR_CATEGORY_INVALID;
     }
+     
+    address::address()
+    {
+      _category_ = ADDR_CATEGORY_INVALID;
+      return;
+    }
     
-    address::address(const address_category_type category_, const std::string & value_)
-    {   
+    void address::set(const address_category_type category_, const std::string & value_)
+    {
+      _cached_path_.reset();
       _category_ = category_;
       switch (_category_) {
       case ADDR_CATEGORY_PROTOCOL:
@@ -73,7 +84,39 @@ namespace vire {
                     std::logic_error,
                     "Device/resource path representation '" << value_ << "' is not valid!");
         _value_ = value_;
+        break;
+      case ADDR_CATEGORY_PRIVATE:
+        // no test by default
+        _value_ = value_;       
       }
+      return;
+    }
+    
+    address::address(const address_category_type category_, const std::string & value_)
+    {
+      set(category_, value_);
+      /*
+      _category_ = category_;
+      switch (_category_) {
+      case ADDR_CATEGORY_PROTOCOL:
+        DT_THROW_IF(!datatools::name_validation(value_,
+                                                datatools::NV_INSTANCE | datatools::NV_NO_DOT),
+                    std::logic_error,
+                    "Protocol value '" << value_ << "' is not valid!");
+        _value_ = value_;
+        break;
+      case ADDR_CATEGORY_DEVICE:
+      case ADDR_CATEGORY_RESOURCE:
+        DT_THROW_IF(!_cached_path_.from_string(value_),
+                    std::logic_error,
+                    "Device/resource path representation '" << value_ << "' is not valid!");
+        _value_ = value_;
+        break;
+      case ADDR_CATEGORY_PRIVATE:
+        // no test by default
+        _value_ = value_;       
+      }
+      */
       return;
     }
 
@@ -101,6 +144,11 @@ namespace vire {
     bool address::is_resource() const
     {
       return _category_ == ADDR_CATEGORY_RESOURCE;
+    }
+
+    bool address::is_private() const
+    {
+      return _category_ == ADDR_CATEGORY_PRIVATE;
     }
 
     const std::string & address::get_value() const

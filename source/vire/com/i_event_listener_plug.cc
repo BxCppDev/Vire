@@ -28,6 +28,7 @@
 // This project:
 #include <vire/com/domain.h>
 #include <vire/com/actor.h>
+#include <vire/com/utils.h>
 #include <vire/time/utils.h>
 #include <vire/message/message.h>
 #include <vire/message/body_layout.h>
@@ -47,24 +48,24 @@ namespace vire {
 
       if (domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
         // Only for ACTOR_CATEGORY_CLIENT_SYSTEM:
-        _allowed_mailboxes_.insert("vireserver.event");
+        _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
         supported = true;
       }
 
       if (domCat == DOMAIN_CATEGORY_MONITORING) {
-        _allowed_mailboxes_.insert("log.event");
-        _allowed_mailboxes_.insert("alarm.event");
-        _allowed_mailboxes_.insert("pubsub.event");
+        _allowed_mailboxes_.insert(mailbox_monitoring_log_event_name());
+        _allowed_mailboxes_.insert(mailbox_monitoring_alarm_event_name());
+        _allowed_mailboxes_.insert(mailbox_monitoring_pubsub_event_name());
         supported = true;         
       }
  
       if (domCat == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
         if (actorCat == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
-          _allowed_mailboxes_.insert("subcontractor.event");
+          _allowed_mailboxes_.insert(mailbox_system_subcontractor_event_name());
           supported = true;
         }
         if (actorCat == ACTOR_CATEGORY_SUBCONTRACTOR) {
-          _allowed_mailboxes_.insert("vireserver.event");
+          _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
           supported = true;
         }  
       }
@@ -75,18 +76,10 @@ namespace vire {
       return;
     }
 
-    i_event_listener_plug::subscription_info::subscription_info(const std::string & mailbox_name_,
-                                                                const address & address_)
-      : mailbox_name(mailbox_name_)
-      , addr(address_)
-    {
-      return;
-    }
-
     i_event_listener_plug::i_event_listener_plug(const std::string & name_,
-                                               const actor & parent_,
-                                               const domain & domain_,
-                                               const datatools::logger::priority logging_)
+                                                 const actor & parent_,
+                                                 const domain & domain_,
+                                                 const datatools::logger::priority logging_)
       : base_plug(name_, parent_, domain_, logging_)
     {
       _populate_allowed_mailboxes_();
@@ -140,10 +133,26 @@ namespace vire {
       return;
     }
       
-    const i_event_listener_plug::subscription_info_list &
+    const subscription_info_list &
     i_event_listener_plug::get_subscriptions() const
     {
       return _subscriptions_;
+    }
+
+    bool i_event_listener_plug::has_private_address() const
+    {
+      return _private_address_.is_complete();
+    }
+
+    const address & i_event_listener_plug::get_private_address() const
+    {
+      return _private_address_;
+    }
+      
+    void i_event_listener_plug::_set_private_address(const std::string & address_value_)
+    {
+      _private_address_ = address(ADDR_CATEGORY_PRIVATE, address_value_);
+      return;
     }
       
     com_status i_event_listener_plug::receive_next_event(vire::utility::const_payload_ptr_type & event_payload_)

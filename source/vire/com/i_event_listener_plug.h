@@ -34,6 +34,7 @@
 #include <vire/com/utils.h>
 #include <vire/com/addressing.h>
 #include <vire/com/base_plug.h>
+#include <vire/com/subscription_info.h>
 #include <vire/utility/base_payload.h>
 
 namespace vire {
@@ -47,18 +48,6 @@ namespace vire {
     class i_event_listener_plug
       : public base_plug
     {
-    public:
-
-      struct subscription_info {
-        subscription_info(const std::string & mailbox_name_,
-                         const address & address_);
-        std::string mailbox_name;
-        address     addr;
-      };
-
-      typedef std::list<subscription_info> subscription_info_list;
-      
-      
     protected:
 
       //! Constructor
@@ -83,6 +72,14 @@ namespace vire {
       
       //! Receive an event payload from the list of subscriptions
       com_status receive_next_event(vire::utility::const_payload_ptr_type & event_payload_);
+
+      bool has_private_address() const;
+
+      const address & get_private_address() const;
+      
+    protected:
+      
+      void _set_private_address(const std::string &);
       
     private:
       
@@ -96,6 +93,7 @@ namespace vire {
      
       std::set<std::string>  _allowed_mailboxes_; ///< List of allowed mailboxes
       subscription_info_list _subscriptions_;
+      address                _private_address_;
       
     };
 

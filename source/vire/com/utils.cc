@@ -246,6 +246,66 @@ namespace vire {
       return _l;
     }
  
+    const std::string & mailbox_gate_service_name()
+    {
+      static const std::string _n("gate.service");
+      return _n;
+    }
+ 
+    const std::string & mailbox_client_system_service_name()
+    {
+      static const std::string _n("vireserver.service");
+      return _n;
+    }
+ 
+    const std::string & mailbox_cms_service_name()
+    {
+      static const std::string _n("resource_request.service");
+      return _n;
+    }
+ 
+    const std::string & mailbox_subcontractor_system_vireserver_service_name()
+    {
+      static const std::string _n("vireserver.service");
+      return _n;
+    }
+
+    const std::string & mailbox_subcontractor_system_subcontractor_service_name()
+    {
+      static const std::string _n("subcontractor.service");
+      return _n;
+    }
+
+    const std::string & mailbox_system_vireserver_event_name()
+    {
+      static const std::string _n("vireserver.event");
+      return _n;
+    }
+
+    const std::string & mailbox_system_subcontractor_event_name()
+    {
+      static const std::string _n("subcontractor.event");
+      return _n;
+    }
+
+    const std::string & mailbox_monitoring_log_event_name()
+    {
+      static const std::string _n("log.event");
+      return _n;
+    }
+
+    const std::string & mailbox_monitoring_alarm_event_name()
+    {
+      static const std::string _n("alarm.event");
+      return _n;
+    }
+
+    const std::string & mailbox_monitoring_pubsub_event_name()
+    {
+      static const std::string _n("pubsub.event");
+      return _n;
+    }
+
   } // namespace com
 
 } // namespace vire

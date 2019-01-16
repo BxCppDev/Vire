@@ -1,7 +1,7 @@
 //! \file  vire/com/utils.h
 //! \brief Vire com utilities
 //
-// Copyright (c) 2016-2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -122,6 +122,17 @@ namespace vire {
     };
 
     std::string to_string(const plug_category_type);
+
+    const std::string & mailbox_gate_service_name();
+    const std::string & mailbox_client_system_service_name();
+    const std::string & mailbox_cms_service_name();
+    const std::string & mailbox_subcontractor_system_vireserver_service_name();
+    const std::string & mailbox_subcontractor_system_subcontractor_service_name();
+    const std::string & mailbox_system_vireserver_event_name();
+    const std::string & mailbox_system_subcontractor_event_name();
+    const std::string & mailbox_monitoring_log_event_name();
+    const std::string & mailbox_monitoring_alarm_event_name();
+    const std::string & mailbox_monitoring_pubsub_event_name();
 
   } // namespace com
 
