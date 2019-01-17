@@ -32,7 +32,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/virequery
   OWNER_READ OWNER_EXECUTE
   GROUP_READ GROUP_EXECUTE
   WORLD_READ WORLD_EXECUTE
-  COMPONENT Development
+  # COMPONENT Development
   )
 
 message (STATUS "[info] End of 'source/virequery/CMakeLists.txt'.")

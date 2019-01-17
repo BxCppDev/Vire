@@ -53,6 +53,12 @@ namespace vire {
       return;
     }
 
+    invalid_context_error::invalid_context_error(const std::string & message_)
+      : base_error(base_error::EC_GENERIC_FAILURE, message_)
+    {
+      return;
+    }
+
     invalid_context_error::~invalid_context_error()
     {
       return;

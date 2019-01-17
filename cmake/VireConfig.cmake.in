@@ -123,6 +123,7 @@ set(Vire_INCLUDE_DIRS
   "${Vire_PROTOBUF_INCLUDE_DIR}"
   "${BxJsontools_INCLUDE_DIRS}"
   "${BxProtobuftools_INCLUDE_DIRS}"
+  "${BxRabbitMQ_INCLUDE_DIRS}"
   )
 
 #-----------------------------------------------------------------------

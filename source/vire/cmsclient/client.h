@@ -103,16 +103,22 @@ namespace vire {
       //! Leave the setup
       void setup_quit();
 
+      //! Check if setup info record is set
       bool has_setup_infos() const;
 
+      //! Set setup info record
       void set_setup_infos(const setup_infos &);
 
+      //! Return setup info record
       const setup_infos & get_setup_infos() const;
 
+      //! Return setup info record
       setup_infos & grab_setup_infos();
 
+      //! Return service manager
       datatools::service_manager & grab_services();
 
+      //! Return service manager
       const datatools::service_manager & get_services() const;
 
       //! Smart print
@@ -148,7 +154,7 @@ namespace vire {
 
       // Management:
       bool _initialized_ = false; //!< Initialization flag
-      bool _in_setup_ = false; //!< In-setup flag
+      bool _in_setup_    = false; //!< In-setup flag
 
       // Configuration:
       datatools::multi_properties _mconfig_; //!< Client configuration parameters
@@ -156,10 +162,10 @@ namespace vire {
 
       // Working:
       setup_infos                _setup_infos_; //!< Setup infos
-      datatools::service_manager _services_;
+      datatools::service_manager _services_;    //!< Embeded service manager
 
       struct pimpl_type;
-      std::unique_ptr<pimpl_type> _pimpl_;
+      std::unique_ptr<pimpl_type> _pimpl_; //!< Private implementation
       
     };
 

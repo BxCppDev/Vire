@@ -46,10 +46,11 @@ namespace vire {
     public:
 
       enum rpc_error_type {
-        RPC_ERROR_MISSING_REQUEST = 100,
-        RPC_ERROR_BAD_REQUEST     = 101,
-        RPC_ERROR_BAD_ARGUMENT    = 102,
-        RPC_ERROR_BAD_CONTEXT     = 103
+        RPC_ERROR_CHECK_FAILURE   = 100,
+        RPC_ERROR_MISSING_REQUEST = 101,
+        RPC_ERROR_BAD_REQUEST     = 102,
+        RPC_ERROR_BAD_ARGUMENT    = 103,
+        RPC_ERROR_BAD_CONTEXT     = 104
       };
       
       /// Constructor
@@ -68,16 +69,30 @@ namespace vire {
 
       bool support_payload_type_id(const std::string &) const;
       
-      vire::utility::exec_report run(vire::utility::const_payload_ptr_type & request_,
-                                     vire::utility::payload_ptr_type & response_);
+      vire::utility::exec_report work_sync(vire::utility::const_payload_ptr_type & request_,
+                                           vire::utility::payload_ptr_type & completion_response_);
+      
+      vire::utility::exec_report work_async(vire::utility::const_payload_ptr_type & request_,
+                                            vire::utility::payload_ptr_type & fast_response_,
+                                            vire::utility::payload_ptr_type & completion_response_);
 
-      vire::utility::exec_report operator()(vire::utility::const_payload_ptr_type & request_,
-                                            vire::utility::payload_ptr_type & response_);
-      
     private:
+
+      /*
+      vire::utility::exec_report _work_(vire::utility::const_payload_ptr_type & request_,
+                                        vire::utility::payload_ptr_type & fast_response_,
+                                        vire::utility::payload_ptr_type & completion_response_);
+      */
+
+      /// Perform basic checks
+      bool _check_(vire::utility::const_payload_ptr_type & request_,
+                   vire::utility::payload_ptr_type & fast_response_);
       
-      virtual void _at_run_(vire::utility::const_payload_ptr_type & request_,
-                            vire::utility::payload_ptr_type & response_) = 0;
+      virtual bool _at_check_(vire::utility::const_payload_ptr_type & request_,
+                              vire::utility::payload_ptr_type & fast_response_);
+    
+      virtual void _at_work_(vire::utility::const_payload_ptr_type & request_,
+                             vire::utility::payload_ptr_type & completion_response_) /* = 0 */;
       
     private:
 

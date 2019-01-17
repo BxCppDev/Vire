@@ -1,7 +1,7 @@
 // /vire/cmsserver/server.cc
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+//                         Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -592,7 +592,7 @@ namespace vire {
                                                          _logging_,
                                                          false);
 
-      // 
+      // Basic initializations:
       _init_dlls_(config_);
       _init_core_(config_);
 

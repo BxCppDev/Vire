@@ -221,7 +221,7 @@ namespace vire {
 
     void client::setup_quit()
     {
-      DT_THROW_IF(!in_setup(), std::logic_error, "CLient is not in-setup status!");
+      DT_THROW_IF(!in_setup(), std::logic_error, "Client is not in-setup status!");
       _in_setup_ = false;
 
       // ...
@@ -433,7 +433,6 @@ namespace vire {
       _services_.sync();
 
       DT_LOG_TRACE(get_logging_priority(), "session service is setup.");
-
 
       _init_com_();
       

@@ -60,8 +60,9 @@ namespace vire {
     {
     public:
 
-      static const int32_t INVALID_ID     = -1; ///< Invalid session ID
-      static const int32_t ROOT_ID        =  0; ///< Root session ID
+      static const int32_t INVALID_ID     =  -1; ///< Invalid session ID
+      static const int32_t ROOT_ID        =   0; ///< Root session ID
+      static const int32_t MAX_SYSTEM_ID  = 999; ///< Max system session ID
       
       struct session_entry
       {
@@ -92,6 +93,9 @@ namespace vire {
 
       /// Return the session identifier
       int32_t get_id() const;
+
+      /// Check if the session is a system session
+      bool is_system() const;
 
       /// Check if a parent session is set
       bool has_parent() const;

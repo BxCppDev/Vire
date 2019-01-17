@@ -41,7 +41,7 @@ add_subdirectory(vire)
 message( STATUS "[info] Adding subdirectory 'virequery'...")
 add_subdirectory(virequery)
 add_subdirectory(vireinspector)
-#add_subdirectory(virecmsserver)
+add_subdirectory(virecmsserver)
 add_subdirectory(virecmsclient)
 
 #-----------------------------------------------------------------------

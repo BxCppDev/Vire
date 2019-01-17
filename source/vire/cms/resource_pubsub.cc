@@ -38,6 +38,7 @@
 // Declare a protobuf registrar instance for the message class:
 #include <vire/base_object_protobuf.h>
 #include "vire/cms/ResourcePubsub.pb.h"
+
 BXPROTOBUFTOOLS_REGISTER_CLASS("vire::cms::resource_pubsub",
                                vire::cms::ResourcePubsub)
 

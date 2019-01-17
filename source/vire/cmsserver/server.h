@@ -159,7 +159,7 @@ namespace vire {
       const std::string & get_cms_top_path() const;
 
       //! Return the DLL loading default path
-      const std::string &  get_dll_load_default_path() const;
+      const std::string & get_dll_load_default_path() const;
 
       //! Set the DLL loading default path
       void set_dll_load_default_path(const std::string &);
@@ -198,15 +198,8 @@ namespace vire {
       void stop() override;
 
       const vire::running::run_control & get_rc() const override;
-
-      // //! Compute and return the sever's uptime
-      // double compute_uptime() const;
-
-      // //! Return the server's uptime in microsecond
-      // std::size_t get_uptime_us() const;
-    
-
-     const server_signal_emitter & get_emitter() const; 
+      
+      const server_signal_emitter & get_emitter() const; 
      
       server_signal_emitter & grab_emitter(); 
 
@@ -264,7 +257,6 @@ namespace vire {
       // Working:
       std::unique_ptr<datatools::library_loader>  _dll_loader_;
       std::unique_ptr<datatools::service_manager> _services_;
-
       vire::running::run_control  _rc_; ///< Run control
 
       struct pimpl_type;

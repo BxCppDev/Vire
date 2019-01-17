@@ -54,14 +54,14 @@ int main( int argc_, char * argv_[])
 
 void test1()
 {
-  vire::cms::testing::dummy_rpc_worker  worker;
+  vire::cms::testing::dummy_rpc_worker worker;
   worker.set_logging(datatools::logger::PRIO_TRACE);
   vire::utility::const_payload_ptr_type request;
   std::string resPath = "SuperNEMO:/Demonstrator/CMS/Coil/PS1/uptime";
   request = std::make_shared<vire::cms::resource_fetch_status>(resPath);
   request->tree_dump(std::clog);
   vire::utility::payload_ptr_type response;
-  vire::utility::exec_report x = worker.run(request, response);
+  vire::utility::exec_report x = worker.work_sync(request, response);
   if (x.is_success()) {
     std::clog << "Success!" << std::endl;
     response->tree_dump(std::clog);
@@ -73,9 +73,15 @@ void test1()
 
 void test2()
 {   
+  
+  vire::utility::const_payload_ptr_type request;
+  std::string resPath = "SuperNEMO:/Demonstrator/CMS/Coil/PS1/uptime";
+  request = std::make_shared<vire::cms::resource_fetch_status>(resPath);
+  request->tree_dump(std::clog);
+  vire::utility::payload_ptr_type response;
   /*
     std::future<vire::utility::exec_report> fut
-    = std::async(&vire::cms::base_rpc_worker::run,
+    = std::async(&vire::cms::base_rpc_worker::work_sync,
     &worker,
     request,
     response);
@@ -86,6 +92,13 @@ void test2()
     std::cout << '.' << std::flush;
     }
     vire::utility::exec_report x = fut.get(); // retrieve return value
+  if (x.is_success()) {
+    std::clog << "Success!" << std::endl;
+    response->tree_dump(std::clog);
+  } else {
+    std::clog << "Failure: " << x.get_message() << std::endl;
+  }
+  std::clog << std::endl;
   */
   return;
 }

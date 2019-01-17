@@ -37,9 +37,20 @@ namespace vire {
         }
                 
       private:
-     
-        void _at_run_(vire::utility::const_payload_ptr_type & request_,
-                      vire::utility::payload_ptr_type & response_) override
+
+        bool _at_check_(vire::utility::const_payload_ptr_type & request_,
+                        vire::utility::payload_ptr_type & fast_response_) override
+        {
+          auto resFetchStatusPtr = std::dynamic_pointer_cast<const vire::cms::resource_fetch_status>(request_);
+          if (resFetchStatusPtr == nullptr) {
+            
+            return false;
+          }
+          return true;
+        }
+    
+        void _at_work_(vire::utility::const_payload_ptr_type & request_,
+                       vire::utility::payload_ptr_type & response_) override
         {
           std::clog << "Dummy RPC worker is running..." << std::endl;
           std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -51,7 +62,13 @@ namespace vire {
             resStatRec.set_timestamp(vire::time::now_utc());
             resStatRec.set_disabled();
             response_ = std::make_shared<resource_fetch_status_success>(resStatRec);
+          } else {
+            std::ostringstream mess;
+            mess << "Unsupported payload type '" << request_->get_serial_tag() << "'";
+            auto error_ptr = std::make_shared<vire::utility::invalid_context_error>(mess.str());
+            response_ = error_ptr;
           }
+
           return;
         }
         

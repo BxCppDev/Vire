@@ -79,9 +79,9 @@ void cmsserver_signal_handler(int signum_)
 {
   std::cerr << "Interrupt signal (" << signum_ << ") received.\n";
   if (signum_ == SIGTERM) {
-    if (gCmsServerHandle && gCmsServerHandle->is_running()) {
+    if (gCmsServerHandle && gCmsServerHandle->get_rc().is_running()) {
       std::cerr << "Stop the CMS server...\n";
-      gCmsServerHandle->request_stop();
+      gCmsServerHandle->stop();
     }
   }
   // if (signum_ == SIGABRT) {
@@ -107,7 +107,7 @@ int do_virecmsserver(int argc_, char * argv_[])
   } catch (virecmsserver::config_signal_handled & error) {
     return EXIT_SUCCESS;
   } catch (virecmsserver::config_user_error & error) {
-    DT_LOG_FATAL(params.logging, "Unable to configure the Vire Server");
+    DT_LOG_FATAL(params.logging, "Unable to configure the Vire Server: " << error.what());
     return EXIT_FAILURE;
   }
 

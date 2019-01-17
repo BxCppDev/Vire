@@ -36,7 +36,7 @@ namespace virecmsserver {
       throw config_user_error(error.what());
     }
 
-    // Feed input from command line to params
+    // Feed input from command line to params:
     params_.logging = cl_args.logging;
     params_.configuration_path = cl_args.configuration_path;
 

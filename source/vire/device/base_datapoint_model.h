@@ -48,7 +48,8 @@ namespace vire {
     class base_method_port_model;
 
     //! \brief Base class for datapoint
-    class base_datapoint_model : public base_device_model
+    class base_datapoint_model
+      : public base_device_model
     {
     public:
 

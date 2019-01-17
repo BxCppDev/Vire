@@ -27,7 +27,9 @@
 // Third party:
 // - Bayeux/datatools:
 #include <datatools/properties.h>
+#include <datatools/logger.h>
 #include <datatools/factory_macros.h>
+#include <datatools/i_tree_dump.h>
 
 // This project:
 #include <vire/com/utils.h>
@@ -38,9 +40,14 @@ namespace vire {
 
     //! \brief Transport manager interface
     class i_transport_manager
+      : public datatools::i_tree_dumpable
     {
     public:
+      
+      datatools::logger::priority get_logging() const;
 
+      void set_logging(const datatools::logger::priority);
+      
       const std::string & get_name() const;
 
       void set_name(const std::string &);
@@ -74,6 +81,10 @@ namespace vire {
                             const actor_category_type category_) = 0;
       
       virtual void remove_user(const std::string & login_) = 0;
+
+      //! Smart print
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
       
     private:
 
@@ -87,6 +98,7 @@ namespace vire {
 
       // Management:
       bool _initialized_ = false; //!< Initialization flag
+      datatools::logger::priority _logging_ = datatools::logger::PRIO_FATAL;
 
       // Configuration:
       std::string _name_;

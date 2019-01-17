@@ -77,9 +77,6 @@ namespace vire {
       int _last_connection_id_ = -1;
       std::size_t _check_stop_period_ = 10; ///! Period for checking a stop request second
 
-       // boost::optional<macro> _start_macro_,
-       // boost::optional<macro> _stop_macro_,
-
       // Class registration:
       VIRE_CMSSERVER_USE_CASE_REGISTRATION_INTERFACE(base_client_connection_use_case);
 

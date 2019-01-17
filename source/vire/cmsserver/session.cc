@@ -162,6 +162,11 @@ namespace vire {
       return _id_;
     }
 
+    bool session::is_system() const
+    {
+      return has_is() && _id_ <= MAX_SYSTEM_ID;
+    }
+
     bool session::has_parent() const
     {
       return _parent_ != nullptr;

@@ -320,7 +320,7 @@ namespace vire {
       bool              _initialized_; //!< Initialization flag
 
       // Configuration:
-      int32_t           _id_;     //!< Resource unique identifier (RID)
+      int32_t           _id_ = INVALID_ID; //!< Resource unique identifier (RID)
       std::string       _path_;   //!< Resource unique path
       vire::utility::rw_access_type _access_; //!< Access (RO, WO, RW)
       uint32_t          _max_number_of_tokens_; //!< Maximum number of tokens

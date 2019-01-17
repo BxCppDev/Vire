@@ -20,6 +20,9 @@
 // Ourselves:
 #include <vire/cms/base_rpc_worker.h>
 
+// This project:
+#include <vire/utility/invalid_context_error.h>
+
 namespace vire {
 
   namespace cms {
@@ -69,16 +72,123 @@ namespace vire {
       return _supported_payload_type_ids_;
     }
 
-    vire::utility::exec_report
-    base_rpc_worker::operator()(vire::utility::const_payload_ptr_type & request_,
-                                vire::utility::payload_ptr_type & response_)
+    // virtual
+    bool base_rpc_worker::_at_check_(vire::utility::const_payload_ptr_type & request_,
+                                     vire::utility::payload_ptr_type & fast_response_)
     {
-      return this->run(request_, response_);
-    }                        
+      fast_response_.reset();
+      return true;
+    }
 
+    bool
+    base_rpc_worker::_check_(vire::utility::const_payload_ptr_type & request_,
+                             vire::utility::payload_ptr_type & fast_response_)
+    {
+      fast_response_.reset();
+      // Check for missing request:
+      if (request_.get() == nullptr) {
+        fast_response_ = std::make_shared<vire::utility::invalid_context_error>("Missing RPC request payload");
+        return false;
+      }
+      // Check for supported types of request:
+      if (_supported_payload_type_ids_.size()) {
+        const vire::utility::base_payload & request_payload = *request_.get();
+        const std::type_info & tinfo = typeid(request_payload);
+        std::string request_payload_type_id;
+        vire::utility::base_payload::get_system_factory_register().fetch_type_id(tinfo,
+                                                                                 request_payload_type_id);
+        if (!support_payload_type_id(request_payload_type_id)) {
+          std::ostringstream errmsg;
+          errmsg << "Unsupported payload type '" << request_payload_type_id << "'";
+          fast_response_ = std::make_shared<vire::utility::invalid_context_error>(errmsg.str());
+          return false;
+        }
+      }
+      // Additional checks:
+      try {
+        bool more_check = _at_check_(request_, fast_response_);
+        if (!more_check) {
+          return false;
+        }
+      } catch (std::exception & err) {
+        std::ostringstream errmsg;
+        errmsg << "RPC check error: " << err.what();
+        fast_response_ = std::make_shared<vire::utility::invalid_context_error>(errmsg.str());
+        return false;
+      } catch (...) {
+        std::ostringstream errmsg;
+        errmsg << "Unexpected RPC check error";
+        fast_response_ = std::make_shared<vire::utility::invalid_context_error>(errmsg.str());
+        return false;
+      }
+      return true;
+    }
+
+     
     vire::utility::exec_report
-    base_rpc_worker::run(vire::utility::const_payload_ptr_type & request_,
-                         vire::utility::payload_ptr_type & response_)
+    base_rpc_worker::work_sync(vire::utility::const_payload_ptr_type & request_,
+                               vire::utility::payload_ptr_type & completion_response_)
+    {
+      DT_LOG_TRACE_ENTERING(_logging_);
+      vire::utility::exec_report execReport;
+      execReport.set_code(vire::utility::error::CODE_SUCCESS);
+      completion_response_.reset();
+      // Perform checks:
+      vire::utility::payload_ptr_type fast_response;
+      if (!this->_check_(request_, fast_response)) {
+        completion_response_ = fast_response;
+        execReport.set_code(RPC_ERROR_CHECK_FAILURE);
+        execReport.set_message("Missing request payload!");
+        return execReport;
+      }
+      // Apply the worker's task synchronously:
+      vire::utility::payload_ptr_type completion_response;
+      try {
+        this->_at_work_(request_, completion_response_);
+      } catch (std::exception & x) {
+        execReport.set_code(vire::utility::error::CODE_FAILURE);
+        execReport.set_message(x.what());
+      }
+      return execReport;
+    }  
+    
+    vire::utility::exec_report 
+    base_rpc_worker::work_async(vire::utility::const_payload_ptr_type & request_,
+                                vire::utility::payload_ptr_type & fast_response_,
+                                vire::utility::payload_ptr_type & completion_response_)
+    {
+      DT_LOG_TRACE_ENTERING(_logging_);
+      vire::utility::exec_report execReport;
+      execReport.set_code(vire::utility::error::CODE_SUCCESS);
+      fast_response_.reset();
+      completion_response_.reset();
+      // Perform checks:
+      vire::utility::payload_ptr_type fast_response;
+      if (!this->_check_(request_, fast_response)) {
+        fast_response_ = fast_response;
+        execReport.set_code(RPC_ERROR_CHECK_FAILURE);
+        execReport.set_message("Missing request payload!");
+        return execReport;
+      }
+
+      return execReport;
+    }
+
+    /// Fondamental synchronous work method
+    void base_rpc_worker::_at_work_(vire::utility::const_payload_ptr_type & request_,
+                                    vire::utility::payload_ptr_type & response_)
+    {
+      // Default : echo the request 
+      // response_ = request_->clone(); // XXX
+      // Default : null the response 
+      response_.reset();
+      return;
+    }
+
+    /*
+    vire::utility::exec_report
+    base_rpc_worker::work(vire::utility::const_payload_ptr_type & request_,
+                          vire::utility::payload_ptr_type & response_)
     {
       DT_LOG_TRACE_ENTERING(_logging_);
       vire::utility::exec_report execReport;
@@ -104,7 +214,7 @@ namespace vire {
       try {
         // Callback:
         DT_LOG_DEBUG(_logging_, "Invoking callback method...");
-        _at_run_(request_, response_); 
+        _at_work_(request_, response_); 
         DT_LOG_DEBUG(_logging_, "Run is done.");
       } catch (std::exception & error) {
         response_.reset();
@@ -118,7 +228,8 @@ namespace vire {
       DT_LOG_TRACE_EXITING(_logging_);
       return execReport;
     }
-
+*/
+    
   } // namespace cms
 
 } // namespace vire

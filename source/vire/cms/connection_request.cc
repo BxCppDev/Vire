@@ -136,6 +136,18 @@ namespace vire {
 
       out_ << indent_ << ::datatools::i_tree_dumpable::inherit_tag(inherit_)
            << "Requested resources : " << _requested_resources_.size() << std::endl;
+      if (_requested_resources_.size()) {
+        for (std::size_t i = 0; i < _requested_resources_.size(); i++) {
+          const std::string & res_path = _requested_resources_[i];
+          out_ << indent_ << ::datatools::i_tree_dumpable::inherit_skip_tag(inherit_);
+          if (i+1 == _requested_resources_.size()) {
+            out_ << last_tag;
+          } else {
+            out_ << tag;
+          }
+          out_ << "Resource : '" << res_path << "'" << std::endl;
+        }
+      }
 
       return;
     }

@@ -46,7 +46,17 @@ int main(int /* argc_ */, char ** /* argv_ */)
     std::clog << "Test program for the 'vire::cmsclient::client' class." << std::endl;
 
     bool interactive = false;
-    interactive = true;
+
+    {
+      // Command-line parsing:
+      int iarg = 1;
+      while (iarg < argc_) {
+        std::string cl_token = argv_[iarg++];
+        if (cl_token == "--interactive") {
+          interactive = true;
+        }
+      }
+    }
 
     test_cmsclient_client_1(interactive);
 

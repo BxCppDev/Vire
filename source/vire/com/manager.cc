@@ -71,27 +71,6 @@ namespace vire {
       return _name;
     }
     
-    // static
-    const std::string & manager::gate_label()
-    {
-      static std::string _label("gate");
-      return _label;
-    }
-
-    // static
-    const std::string & manager::control_label()
-    {
-      static std::string _label("control");
-      return _label;
-    }
- 
-    // static
-    const std::string & manager::monitoring_label()
-    {
-      static std::string _label("monitoring");
-      return _label;
-    }
-
     manager::manager(uint32_t /* flags_ */)
     {
       _initialized_ = false;
@@ -264,6 +243,7 @@ namespace vire {
                                const actor_category_type & actor_category_,
                                const std::string & target_id_)
     {
+      DT_LOG_DEBUG(get_logging_priority(), "Actor '" << actor_name_ << "'...");
       DT_THROW_IF(has_actor(actor_name_),
                   std::logic_error,
                   "Manager already has an actor with name '" << actor_name_ << "'!");
@@ -482,14 +462,19 @@ namespace vire {
       }    
 
       // Default domain infos:
-      std::set<std::string> domain_labels = { "control", "monitoring", "gate" };
+      static std::set<std::string> domain_labels;
+      if (domain_labels.size() == 0) {
+        domain_labels.insert(domain_gate_label());
+        domain_labels.insert(domain_control_label());
+        domain_labels.insert(domain_monitoring_label());
+      }
       for (const std::string & domain_label : domain_labels) {
         domain_info_type di;
-        if (domain_label == "gate") {
+        if (domain_label == domain_gate_label()) {
           di.dom_cat = DOMAIN_CATEGORY_GATE;
-        } else if (domain_label == "control") {
+        } else if (domain_label == domain_control_label()) {
           di.dom_cat = DOMAIN_CATEGORY_CONTROL;
-        } else if (domain_label == "monitoring") {
+        } else if (domain_label == domain_monitoring_label()) {
           di.dom_cat = DOMAIN_CATEGORY_MONITORING;
         }
         di.transport_type_id = get_default_transport_type_id();
@@ -567,17 +552,26 @@ namespace vire {
 
     void manager::_at_reset_transport_managers_()
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       if (_pimpl_) {
         for (const auto & p : _pimpl_->transport_managers) {
-          p.second->reset();
+          if (p.second->is_initialized()) {
+            DT_LOG_TRACE(get_logging_priority(), "Reset transport manager '" << p.first << "' : ");
+            if (datatools::logger::is_trace(get_logging_priority())) {
+              p.second->print_tree(std::cerr);
+            }
+            p.second->reset();
+          }
         }
         _pimpl_->transport_managers.clear();
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void manager::_at_init_transport_managers_(const datatools::properties & config_)
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::set<std::string> transmgr_names;
       if (config_.has_key("names")) {
         config_.fetch("names", transmgr_names);
@@ -616,11 +610,13 @@ namespace vire {
           }
         }
       }
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
     
     void manager::_at_init_(const datatools::properties & config_)
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       // DT_THROW_IF(!has_resources(), std::logic_error, "Missing 'resources' service!");
       
       _domain_maker_.set_domain_name_prefix(_domain_name_prefix_);
@@ -639,11 +635,13 @@ namespace vire {
       
       _build_default_domains_();
       
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
     void manager::_at_reset_()
     {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
       if (_transport_management_) {
         _at_reset_transport_managers_();
       }
@@ -661,6 +659,7 @@ namespace vire {
       _resource_service_name_.clear();
       _transport_management_ = false;
       _app_category_ = vire::cms::application::CATEGORY_UNDEF;
+      DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
@@ -673,7 +672,7 @@ namespace vire {
         std::string gate_sys_domain_name
           = vire::com::domain_builder::build_cms_clients_gate_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(gate_sys_domain_name)) {
-          domain_info_dict_type::const_iterator found = _domain_infos_.find(gate_label());
+          domain_info_dict_type::const_iterator found = _domain_infos_.find(domain_gate_label());
           const domain_info_type & dom_info = found->second;
           vire::com::domain & gate_sys_domain = this->create_domain(gate_sys_domain_name,
                                                                     dom_info.dom_cat,
@@ -688,7 +687,7 @@ namespace vire {
         std::string monitoring_domain_name
           = vire::com::domain_builder::build_cms_monitoring_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(monitoring_domain_name)) {
-          domain_info_dict_type::const_iterator found = _domain_infos_.find(monitoring_label());
+          domain_info_dict_type::const_iterator found = _domain_infos_.find(domain_monitoring_label());
           const domain_info_type & dom_info = found->second;
           vire::com::domain & monitoring_domain = this->create_domain(monitoring_domain_name,
                                                                       dom_info.dom_cat,
@@ -704,7 +703,7 @@ namespace vire {
         std::string control_domain_name
           = vire::com::domain_builder::build_cms_control_name(this->get_domain_maker().get_domain_name_prefix());
         if (!this->has_domain(control_domain_name)) {
-          domain_info_dict_type::const_iterator found = _domain_infos_.find(control_label());
+          domain_info_dict_type::const_iterator found = _domain_infos_.find(domain_control_label());
           const domain_info_type & dom_info = found->second;
           vire::com::domain & control_domain = this->create_domain(control_domain_name,
                                                                    dom_info.dom_cat,

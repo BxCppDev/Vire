@@ -71,11 +71,7 @@ namespace vire {
       typedef std::map<std::string, domain_info_type> domain_info_dict_type;
       
       static const std::string & default_service_name();
-     
-      static const std::string & gate_label();
-      static const std::string & control_label();
-      static const std::string & monitoring_label();
-
+    
       //! Default constructor
       manager(uint32_t flags_ = 0);
 

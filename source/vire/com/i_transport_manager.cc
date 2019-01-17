@@ -48,7 +48,18 @@ namespace vire {
                   "Transport manager was not properly reset!");
       return;
     }
-
+     
+    datatools::logger::priority i_transport_manager::get_logging() const
+    {
+      return _logging_;
+    }
+    
+    void i_transport_manager::set_logging(const datatools::logger::priority logging_)
+    {
+      _logging_ = logging_;
+      return;
+    }
+ 
     const std::string & i_transport_manager::get_name() const
     {
       return _name_;
@@ -78,13 +89,42 @@ namespace vire {
 
     void i_transport_manager::reset()
     {
-      DT_THROW_IF(is_initialized(), std::logic_error,
+      DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Transport manager is not initialized!");
       _initialized_ = false;
       _at_reset_();
       return;
     }
+ 
+    void i_transport_manager::print_tree(std::ostream & out_,
+                                         const boost::property_tree::ptree & options_) const
+    {
+      i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+      if (! popts.title.empty ()) {
+        out_ << popts.indent << popts.title << std::endl;
+      }
+      
+      out_ << popts.indent << i_tree_dumpable::tag
+           << "Name             : ";
+      if (! _name_.empty()) {
+        out_ << "'" << _name_ << "'";
+      } else {
+        out_ << "<none>";
+      }
+      out_ << std::endl;
 
+      out_ << popts.indent << i_tree_dumpable::tag
+           << "Logging priority : '"
+           << datatools::logger::get_priority_label(_logging_) << "'" << std::endl;
+      
+      out_ << popts.indent << i_tree_dumpable::inherit_tag(popts.inherit)
+           << "Initialized      : " << std::boolalpha << is_initialized() << std::endl;
+
+      return;
+    }
+
+      
     // std::string i_transport_manager::new_private_mailbox_address(const mailbox::mode_type mode_)
     // {
     //   std::string addr;

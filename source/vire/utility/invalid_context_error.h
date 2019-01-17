@@ -46,10 +46,13 @@ namespace vire {
       /// Default constructor
       invalid_context_error();
 
-      /// Constructor with error code
+      /// Constructor with error code and no message
       invalid_context_error(const int32_t code_);
 
-      /// Constructor with error code and message
+      /// Constructor with default error code and message
+      invalid_context_error(const std::string & message_);
+
+      /// Constructor with both error code and message
       invalid_context_error(const int32_t code_, const std::string & message_);
 
       /// Destructor
