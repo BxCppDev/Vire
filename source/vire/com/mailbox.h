@@ -39,7 +39,7 @@ namespace vire {
 
   namespace com {
 
-    class actor;
+    class access_hub;
 
     //! \brief Mailbox description
     class mailbox
@@ -50,8 +50,8 @@ namespace vire {
       //! \brief Mailbox privacy
       enum privacy_type {
         PRIVACY_INVALID = 0,
-        PRIVACY_PUBLIC  = 1, //!< Public mailbox, accessible by many actors (corresponds to a RabbitMQ's exchange)
-        PRIVACY_PRIVATE = 2  //!< Private mailbox, generally accessible by only one actor (corresponds to a RabbitMQ's exclusive queue)
+        PRIVACY_PUBLIC  = 1, //!< Public mailbox, accessible by many access profiles (corresponds to a RabbitMQ's exchange)
+        PRIVACY_PRIVATE = 2  //!< Private mailbox, generally accessible by only one access profile (corresponds to a RabbitMQ's exclusive queue)
       };
 
       //! Return the label associated to a privacy type
@@ -169,7 +169,7 @@ namespace vire {
 
       const permissions_type & get_permissions() const;
 
-      bool check_permissions(const actor &,
+      bool check_permissions(const access_hub &,
                              const usage_permission_flag) const;
 
       //! Smart print
@@ -198,7 +198,7 @@ namespace vire {
       std::string  _address_; //!< Address of the mailbox
       mode_type    _mode_;    //!< Mode
       privacy_type _privacy_; //!< Privacy
-      permissions_type _permissions_; //!< Actor permissions
+      permissions_type _permissions_; //!< Permissions
 
     };
 

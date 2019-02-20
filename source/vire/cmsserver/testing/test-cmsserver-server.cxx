@@ -25,7 +25,8 @@
 #include <vire/cmsserver/ui/server_panel.h>
 #include <vire/resource/manager.h>
 
-struct params_type {
+struct params_type
+{
   bool use_gui = false;
   bool use_tui = false;
   bool use_stopper = true;
@@ -48,9 +49,11 @@ int main(int argc_, char ** argv_)
       std::string arg = argv_[iarg];
       if (arg == "--gui") {
         params.use_gui = true;
+        params.use_stopper = false;
       }
       if (arg == "--tui") {
         params.use_tui = true;
+        params.use_stopper = false;
       }
       if (arg == "--no-stopper") {
         params.use_stopper = false;
@@ -218,9 +221,9 @@ void cmsserver_shell(vire::cmsserver::server & svr_)
   return;
 }
 
-void cmsserver_stopper(vire::cmsserver::server & svr_, const unsigned int elapsed_= 10)
+void cmsserver_stopper(vire::cmsserver::server & svr_, const unsigned int elapsed_seconds_= 10)
 {
-  std::this_thread::sleep_for(std::chrono::seconds(elapsed_));
+  std::this_thread::sleep_for(std::chrono::seconds(elapsed_seconds_));
   svr_.stop();
   return;
 }
@@ -237,17 +240,15 @@ void test_server_1(const params_type & params_)
   cmsServer.set_logging(datatools::logger::PRIO_DEBUG);
 
   datatools::properties cmsServerConfig;
-  cmsServerConfig.read_configuration("@snemo:config/snemo/demonstrator/cms/server/main.conf",
+  cmsServerConfig.read_configuration("@snemock:config/cms/test1/server/main.conf",
                                      datatools::properties::config::RESOLVE_PATH);
   cmsServer.initialize(cmsServerConfig);
   cmsServer.tree_dump(std::clog, "Vire CMS Server: ");
 
 
-  
   const datatools::service_manager & services = cmsServer.get_services();
-  // const datatools::base_service & service = services.get_service("resources");
-  if (services.is_a<vire::resource::manager>("resources")) {
-    const vire::resource::manager & resources = services.get<vire::resource::manager>("resources");
+  if (services.is_a<vire::resource::manager>(vire::cmsserver::server::resources_service_name())) {
+    const vire::resource::manager & resources = services.get<vire::resource::manager>(vire::cmsserver::server::resources_service_name());
     resources.tree_dump(std::clog, "Resources: ");
   }
   

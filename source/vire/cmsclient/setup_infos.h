@@ -1,8 +1,8 @@
 //! \file  vire/cmsclient/setup_infos.h
 //! \brief Server infos
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -86,41 +86,41 @@ namespace vire {
       //! Return the domain name prefix
       const std::string & get_domain_name_prefix() const;
 
-      //! Check if the transport protocol is set
-      bool has_transport_protocol_id() const;
+      //! Check if the transport driver type ID is set
+      bool has_transport_driver_type_id() const;
 
-      //! Set the transport protocol
-      void set_transport_protocol_id(const ::vire::utility::model_identifier &);
+      //! Set the transport driver type ID
+      void set_transport_driver_type_id(const ::vire::utility::model_identifier &);
 
-      //! Return the transport protocol
-      const ::vire::utility::model_identifier & get_transport_protocol_id() const;
+      //! Return the transport driver type ID
+      const ::vire::utility::model_identifier & get_transport_driver_type_id() const;
 
-      //! Check if the encoding protocol is set
-      bool has_encoding_protocol_id() const;
+      //! Check if the encoding driver type ID is set
+      bool has_encoding_driver_type_id() const;
 
-      //! Set the encoding protocol
-      void set_encoding_protocol_id(const ::vire::utility::model_identifier &);
+      //! Set the encoding driver type ID
+      void set_encoding_driver_type_id(const ::vire::utility::model_identifier &);
 
-      //! Return the encoding protocol
-      const ::vire::utility::model_identifier & get_encoding_protocol_id() const;
+      //! Return the encoding driver type ID
+      const ::vire::utility::model_identifier & get_encoding_driver_type_id() const;
 
-      //! Check if the gate login is set
-      bool has_gate_login() const;
+      //! Check if the client side gate login is set
+      bool has_gate_client_user_login() const;
 
-      //! Set the gate login
-      void set_gate_login(const std::string &);
+      //! Set the client side gate login
+      void set_gate_client_user_login(const std::string &);
 
-      //! Return the gate login
-      const std::string & get_gate_login() const;
+      //! Return the client side gate login
+      const std::string & get_gate_client_user_login() const;
 
-      //! Check if the gate password is set
-      bool has_gate_password() const;
+      //! Check if the client side gate password is set
+      bool has_gate_client_user_password() const;
 
-      //! Set the gate password
-      void set_gate_password(const std::string &);
+      //! Set the client side gate password
+      void set_gate_client_user_password(const std::string &);
 
-      //! Return the gate password
-      const std::string & get_gate_password() const;
+      //! Return the client side gate password
+      const std::string & get_gate_client_user_password() const;
 
       //! Check validity
       bool is_valid() const;
@@ -141,27 +141,25 @@ namespace vire {
       void unlock();
 
       //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
 
     private:
 
       // Management:
-      bool _initialized_ = false;       ///< Initialization flag
+      bool _initialized_ = false; ///< Initialization flag
 
       // Configuration:
       ::vire::utility::instance_identifier _setup_id_; ///< The experimental setup identifier handled by the server
       std::string _host_;               ///< The server host identifier
       int         _port_ = -1;          ///< The server port
       std::string _domain_name_prefix_; ///< The domain name prefix
-      /// The default transport protocol ID (ex: "rabbitmq-0.9")
-      ::vire::utility::model_identifier _transport_protocol_id_;
-      /// The default encoding protocol ID (ex: "protobuf-3.3")
-      ::vire::utility::model_identifier _encoding_protocol_id_;
-      std::string _gate_login_;         ///< The login used to connect to the server's client gate
-      std::string _gate_password_;      ///< The password used to connect to the server's client gate
+      /// The transport driver type ID (ex: "vire::rabbitmq::transport_driver")
+      ::vire::utility::model_identifier _transport_driver_type_id_;
+      /// The encoding driver type ID (ex: "vire::com::protobuf_encoding_driver")
+      ::vire::utility::model_identifier _encoding_driver_type_id_;
+      std::string _gate_client_user_login_;    ///< The client side login used to connect to the server's client gate
+      std::string _gate_client_user_password_; ///< The client side password used to connect to the server's client gate
 
     };
 

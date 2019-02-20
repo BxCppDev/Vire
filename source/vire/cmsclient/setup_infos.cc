@@ -22,6 +22,7 @@
 #include <vire/cmsclient/setup_infos.h>
 
 // Standard libraries:
+#include <sstream>
 #include <iomanip>
 
 // Third party:
@@ -110,72 +111,72 @@ namespace vire {
       return _domain_name_prefix_;
     }
 
-    bool setup_infos::has_transport_protocol_id() const
+    bool setup_infos::has_transport_driver_type_id() const
     {
-      return _transport_protocol_id_.is_valid();
+      return _transport_driver_type_id_.is_valid();
     }
 
-    void setup_infos::set_transport_protocol_id(const ::vire::utility::model_identifier & tp_)
+    void setup_infos::set_transport_driver_type_id(const ::vire::utility::model_identifier & tp_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
-      _transport_protocol_id_ = tp_;
+      _transport_driver_type_id_ = tp_;
       return;
     }
 
-    const ::vire::utility::model_identifier & setup_infos::get_transport_protocol_id() const
+    const ::vire::utility::model_identifier & setup_infos::get_transport_driver_type_id() const
     {
-      return _transport_protocol_id_;
+      return _transport_driver_type_id_;
     }
 
-    bool setup_infos::has_encoding_protocol_id() const
+    bool setup_infos::has_encoding_driver_type_id() const
     {
-      return _encoding_protocol_id_.is_valid();
+      return _encoding_driver_type_id_.is_valid();
     }
 
-    void setup_infos::set_encoding_protocol_id(const ::vire::utility::model_identifier & ep_)
+    void setup_infos::set_encoding_driver_type_id(const ::vire::utility::model_identifier & ep_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
-      _encoding_protocol_id_ = ep_;
+      _encoding_driver_type_id_ = ep_;
       return;
     }
 
-    const ::vire::utility::model_identifier & setup_infos::get_encoding_protocol_id() const
+    const ::vire::utility::model_identifier & setup_infos::get_encoding_driver_type_id() const
     {
-      return _encoding_protocol_id_;
+      return _encoding_driver_type_id_;
     }
 
-    bool setup_infos::has_gate_login() const
+    bool setup_infos::has_gate_client_user_login() const
     {
-      return !_gate_login_.empty();
+      return !_gate_client_user_login_.empty();
     }
 
-    void setup_infos::set_gate_login(const std::string & login_)
+    void setup_infos::set_gate_client_user_login(const std::string & login_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
-      _gate_login_ = login_;
+      _gate_client_user_login_ = login_;
       return;
     }
 
-    const std::string & setup_infos::get_gate_login() const
+    const std::string & setup_infos::get_gate_client_user_login() const
     {
-      return _gate_login_;
+      return _gate_client_user_login_;
     }
 
-    bool setup_infos::has_gate_password() const
+    bool setup_infos::has_gate_client_user_password() const
     {
-      return !_gate_password_.empty();
+      return !_gate_client_user_password_.empty();
     }
 
-    void setup_infos::set_gate_password(const std::string & ep_)
+    void setup_infos::set_gate_client_user_password(const std::string & ep_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error, "Locked!");
-      _gate_password_ = ep_;
+      _gate_client_user_password_ = ep_;
       return;
     }
 
-    const std::string & setup_infos::get_gate_password() const
+    const std::string & setup_infos::get_gate_client_user_password() const
     {
-      return _gate_password_;
+      return _gate_client_user_password_;
     }
 
     bool setup_infos::is_valid() const
@@ -184,10 +185,10 @@ namespace vire {
       if (!has_host()) return false;
       if (!has_port()) return false;
       if (!has_domain_name_prefix()) return false;
-      if (!has_transport_protocol_id()) return false;
-      if (!has_encoding_protocol_id()) return false;
-      if (!has_gate_login()) return false;
-      // if (!has_gate_password()) return false;
+      if (!has_transport_driver_type_id()) return false;
+      if (!has_encoding_driver_type_id()) return false;
+      if (!has_gate_client_user_login()) return false;
+      // if (!has_gate_client_user_password()) return false;
       return true;
     }
 
@@ -235,30 +236,30 @@ namespace vire {
         set_domain_name_prefix(dnp);
       }
 
-      if (config_.has_key("transport_protocol_id")) {
+      if (config_.has_key("transport_driver_type_id")) {
         vire::utility::model_identifier tpid;
-        const std::string & tpid_repr = config_.fetch_string("transport_protocol_id");
+        const std::string & tpid_repr = config_.fetch_string("transport_driver_type_id");
         DT_THROW_IF(!tpid.from_string(tpid_repr), std::logic_error,
-                    "Invalid transport protocol ID '" << tpid_repr<< "'!");
-        set_transport_protocol_id(tpid);
+                    "Invalid transport driver type ID '" << tpid_repr<< "'!");
+        set_transport_driver_type_id(tpid);
       }
 
-      if (config_.has_key("encoding_protocol_id")) {
+      if (config_.has_key("encoding_driver_type_id")) {
         vire::utility::model_identifier tpid;
-        const std::string & tpid_repr = config_.fetch_string("encoding_protocol_id");
+        const std::string & tpid_repr = config_.fetch_string("encoding_driver_type_id");
         DT_THROW_IF(!tpid.from_string(tpid_repr), std::logic_error,
-                    "Invalid encoding protocol ID '" << tpid_repr<< "'!");
-        set_encoding_protocol_id(tpid);
+                    "Invalid encoding driver type ID '" << tpid_repr<< "'!");
+        set_encoding_driver_type_id(tpid);
       }
 
-      if (config_.has_key("gate_login")) {
-        const std::string & gl = config_.fetch_string("gate_login");
-        set_gate_login(gl);
+      if (config_.has_key("gate_client_user_login")) {
+        const std::string & gl = config_.fetch_string("gate_client_user_login");
+        set_gate_client_user_login(gl);
       }
 
-      if (config_.has_key("gate_password")) {
-        const std::string & gp = config_.fetch_string("gate_password");
-        set_gate_password(gp);
+      if (config_.has_key("gate_client_user_password")) {
+        const std::string & gp = config_.fetch_string("gate_client_user_password");
+        set_gate_client_user_password(gp);
       }
 
       bool lock_it = true;
@@ -279,61 +280,63 @@ namespace vire {
       _host_.clear();
       _port_ = -1;
       _domain_name_prefix_.clear();
-      _transport_protocol_id_.reset();
-      _encoding_protocol_id_.reset();
-      _gate_login_.clear();
-      _gate_password_.clear();
+      _transport_driver_type_id_.reset();
+      _encoding_driver_type_id_.reset();
+      _gate_client_user_login_.clear();
+      _gate_client_user_password_.clear();
       return;
     }
 
-    void setup_infos::tree_dump(std::ostream & out_,
-                                 const std::string & title_,
-                                 const std::string & indent_,
-                                 bool inherit_) const
+    void setup_infos::print_tree(std::ostream & out_,
+                                 const boost::property_tree::ptree & options_) const
     {
-      if (!title_.empty()) {
-        out_ << indent_ << title_ << std::endl;
+      base_print_options popts;
+      popts.configure_from(options_);
+      std::ostringstream outs;
+      if (!popts.title.empty()) {
+        outs << popts.indent << popts.title << std::endl;
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << datatools::i_tree_dumpable::tag
            << "Setup ID : '" << _setup_id_.to_string() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << datatools::i_tree_dumpable::tag
            << "Host : '" << _host_ << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << datatools::i_tree_dumpable::tag
            << "Port : " << _port_ << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << datatools::i_tree_dumpable::tag
            << "Domain name prefix : '" << _domain_name_prefix_ << "'" <<std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Transport protocol ID : '" << _transport_protocol_id_.to_string() << "'" <<std::endl;
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Transport driver type ID : '" << _transport_driver_type_id_.to_string() << "'" <<std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Encoding protocol ID : '" << _encoding_protocol_id_.to_string() << "'" << std::endl;
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Encoding driver type ID : '" << _encoding_driver_type_id_.to_string() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Gate login : '" << _gate_login_ << "'" << std::endl;
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Gate client user login : '" << _gate_client_user_login_ << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Gate password : ";
-      if (has_gate_password()) {
-        out_ << "'" << std::setfill ('*')
-             << std::setw(_gate_password_.size()) << "'";
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Gate client user password : ";
+      if (has_gate_client_user_password()) {
+        outs << "'" << std::setfill ('*')
+             << std::setw(_gate_client_user_password_.size()) << "'";
       } else {
-        out_ << "<none>";
+        outs << "<none>";
       }
-      out_ << std::endl;
+      outs << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << datatools::i_tree_dumpable::tag
            << "Validity : "
            << std::boolalpha << is_valid() << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+      outs << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
            << "Initialized : "
            << std::boolalpha << _initialized_ << std::endl;
-
+      
+      out_ << outs.str();
       return;
     }
 

@@ -83,7 +83,8 @@ namespace vire {
       con_params.passwd = user_passwd;
 
       _pimpl_->con.reset(new ::rabbitmq::connection(con_params));
-      DT_THROW_IF(!_pimpl_->con->is_ok(), std::logic_error, "Failed to connect the RabbitMQ server!");
+      DT_THROW_IF(!_pimpl_->con->is_ok(), std::logic_error,
+                  "Failed to connect the RabbitMQ server!");
        _pimpl_->channel_handle = &_pimpl_->con->grab_channel();
 
       return;

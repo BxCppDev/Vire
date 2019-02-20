@@ -1,4 +1,4 @@
-//! \file  vire/cmsserver/ui/sc_info_panel.h
+//! \file  vire/cmsserver/ui/sc_driver_panel.h
 //! \brief Subcontractor viewer panel
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_CMSSERVER_UI_SC_INFO_PANEL_H
-#define VIRE_CMSSERVER_UI_SC_INFO_PANEL_H
+#ifndef VIRE_CMSSERVER_UI_SC_DRIVER_PANEL_H
+#define VIRE_CMSSERVER_UI_SC_DRIVER_PANEL_H
 
 // Third party:
 // - Qt:
@@ -34,7 +34,7 @@ class QPushButton;
 class QCheckBox;
 
 // This project:
-#include <vire/cmsserver/sc_info.h>
+#include <vire/cmsserver/sc_driver.h>
 
 namespace vire {
 
@@ -43,7 +43,7 @@ namespace vire {
     namespace ui {
 
       /// \brief A widget to browse/edit a configuration variant registry
-      class sc_info_panel
+      class sc_driver_panel
         : public QWidget
       {
         Q_OBJECT
@@ -51,14 +51,14 @@ namespace vire {
       public:
        
         /// Default constructor
-        sc_info_panel(QWidget * parent_ = nullptr);
+        sc_driver_panel(QWidget * parent_ = nullptr);
 
         /// Destructor
-        virtual ~sc_info_panel();
+        virtual ~sc_driver_panel();
       
-        bool has_subcontractor_info() const;
+        bool has_driver() const;
 
-        void set_subcontractor_info(sc_info & sc_info_);
+        void set_driver(sc_driver & sc_driver_);
 
         QSize sizeHint() const override;
  
@@ -81,8 +81,8 @@ namespace vire {
       private:
 
         // Configuration:
-        sc_info *                _subcontractor_info_         = nullptr;
-        sc_info_signal_emitter * _subcontractor_info_emitter_ = nullptr;
+        sc_driver *                _driver_         = nullptr;
+        sc_driver_signal_emitter * _driver_emitter_ = nullptr;
 
         // Working UI:
         QLabel *             _sc_name_label_       = nullptr;
@@ -102,7 +102,7 @@ namespace vire {
 
 } // namespace vire
 
-#endif // VIRE_CMSSERVER_UI_SC_INFO_PANEL_H
+#endif // VIRE_CMSSERVER_UI_SC_DRIVER_PANEL_H
 
 // Local Variables: --
 // mode: c++ --

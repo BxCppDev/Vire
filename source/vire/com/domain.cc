@@ -69,8 +69,8 @@ namespace vire {
     {
       set_name(name_);
       set_category(cat_repr_);
-      set_transport_type_id(transport_id_repr_);
-      set_encoding_type_id(encoding_id_repr_);
+      set_transport_driver_type_id(transport_id_repr_);
+      set_encoding_driver_type_id(encoding_id_repr_);
       return;
     }
 
@@ -81,8 +81,8 @@ namespace vire {
     {
       set_name(name_);
       set_category(cat_);
-      set_transport_type_id(transport_id_);
-      set_encoding_type_id(encoding_id_);
+      set_transport_driver_type_id(transport_id_);
+      set_encoding_driver_type_id(encoding_id_);
       return;
     }
 
@@ -95,8 +95,8 @@ namespace vire {
     {
       if (!has_name()) return false;
       if (!has_category()) return false;
-      if (!has_transport_type_id()) return false;
-      if (!has_encoding_type_id()) return false;
+      if (!has_transport_driver_type_id()) return false;
+      if (!has_encoding_driver_type_id()) return false;
       return true;
     }
 
@@ -189,50 +189,50 @@ namespace vire {
       return _category_ == DOMAIN_CATEGORY_MONITORING;
     }
 
-    bool domain::has_transport_type_id() const
+    bool domain::has_transport_driver_type_id() const
     {
-      return _transport_type_id_.is_valid();
+      return _transport_driver_type_id_.is_valid();
     }
 
-    void domain::set_transport_type_id(const vire::utility::model_identifier & id_)
+    void domain::set_transport_driver_type_id(const vire::utility::model_identifier & id_)
     {
-      _transport_type_id_ = id_;
+      _transport_driver_type_id_ = id_;
       return;
     }
 
-    void domain::set_transport_type_id(const std::string & id_repr_)
+    void domain::set_transport_driver_type_id(const std::string & id_repr_)
     {
-      DT_THROW_IF(!_transport_type_id_.from_string(id_repr_),
+      DT_THROW_IF(!_transport_driver_type_id_.from_string(id_repr_),
                   std::logic_error,
                   "Invalid transport type ID representation '" << id_repr_ << "'!");
       return;
     }
 
-    const vire::utility::model_identifier & domain::get_transport_type_id() const
+    const vire::utility::model_identifier & domain::get_transport_driver_type_id() const
     {
-      return _transport_type_id_;
+      return _transport_driver_type_id_;
     }
 
-    bool domain::has_encoding_type_id() const
+    bool domain::has_encoding_driver_type_id() const
     {
-      return _encoding_type_id_.is_valid();
+      return _encoding_driver_type_id_.is_valid();
     }
 
-    void domain::set_encoding_type_id(const vire::utility::model_identifier & id_)
+    void domain::set_encoding_driver_type_id(const vire::utility::model_identifier & id_)
     {
-      _encoding_type_id_ = id_;
+      _encoding_driver_type_id_ = id_;
       return;
     }
 
-    void domain::set_encoding_type_id(const std::string & id_repr_)
+    void domain::set_encoding_driver_type_id(const std::string & id_repr_)
     {
-      DT_THROW_IF(!_encoding_type_id_.from_string(id_repr_), std::logic_error, "Invalid encoding type ID representation '" << id_repr_ << "'!");
+      DT_THROW_IF(!_encoding_driver_type_id_.from_string(id_repr_), std::logic_error, "Invalid encoding type ID representation '" << id_repr_ << "'!");
       return;
     }
 
-    const vire::utility::model_identifier & domain::get_encoding_type_id() const
+    const vire::utility::model_identifier & domain::get_encoding_driver_type_id() const
     {
-      return _encoding_type_id_;
+      return _encoding_driver_type_id_;
     }
 
     const datatools::properties &
@@ -275,17 +275,17 @@ namespace vire {
         }
       }
 
-      if (!has_transport_type_id()) {
-        if (config_.has_key("transport_type")) {
-          const std::string & transport_type_id = config_.fetch_string("transport_type");
-          set_transport_type_id(transport_type_id);
+      if (!has_transport_driver_type_id()) {
+        if (config_.has_key("transport_driver_type")) {
+          const std::string & transport_driver_type_id = config_.fetch_string("transport_driver_type");
+          set_transport_driver_type_id(transport_driver_type_id);
         }
       }
 
-      if (!has_encoding_type_id()) {
-        if (config_.has_key("encoding_type")) {
-          const std::string & encoding_type_id = config_.fetch_string("encoding_type");
-          set_encoding_type_id(encoding_type_id);
+      if (!has_encoding_driver_type_id()) {
+        if (config_.has_key("encoding_driver_type")) {
+          const std::string & encoding_driver_type_id = config_.fetch_string("encoding_driver_type");
+          set_encoding_driver_type_id(encoding_driver_type_id);
         }
       }
 
@@ -297,16 +297,16 @@ namespace vire {
         config_.export_and_rename_starting_with(_encoding_driver_params_, "encoding.", "");
       }
 
-     return;
+      return;
     }
 
     void domain::reset()
     {
       _name_.clear();
       _category_ = DOMAIN_CATEGORY_INVALID;
-      _transport_type_id_.reset();
+      _transport_driver_type_id_.reset();
       _transport_driver_params_.clear();
-      _encoding_type_id_.reset();
+      _encoding_driver_type_id_.reset();
       _encoding_driver_params_.clear();
       _mailboxes_.clear();
       _encoding_driver_.reset();
@@ -348,23 +348,23 @@ namespace vire {
     }
 
     /*
-    std::string domain::add_private_mailbox(const std::string & owner_id_,
-                                            const mailbox::mode_type mode_,
-                                            const mailbox::permissions_type perms_)
-    {
+      std::string domain::add_private_mailbox(const std::string & owner_id_,
+      const mailbox::mode_type mode_,
+      const mailbox::permissions_type perms_)
+      {
       DT_THROW_IF(mode_ == mailbox::MODE_INVALID, std::logic_error, "Invalid mailbox mode!");
       std::string mb_name = generate_private_mailbox_name(owner_id_, mode_);
       std::string mb_address = ""; // grab_transport_driver().new_private_mailbox_address(mailbox::MODE_EVENT);
       DT_THROW_IF(mb_address.empty(), std::logic_error,
-                  "Transport driver failed to provide an address for a new private mailbox in domain '" << get_name() << "'!");
+      "Transport driver failed to provide an address for a new private mailbox in domain '" << get_name() << "'!");
       add_mailbox(mb_name,
-                  mode_,
-                  mailbox::PRIVACY_PRIVATE,
-                  mb_address,
-                  perms_,
-                  false);
+      mode_,
+      mailbox::PRIVACY_PRIVATE,
+      mb_address,
+      perms_,
+      false);
       return mb_name;
-    }
+      }
     */
     
     bool domain::has_mailbox(const std::string & name_) const
@@ -406,7 +406,7 @@ namespace vire {
     i_encoding_driver & domain::_encoding_driver_instance_()
     {
       if (_encoding_driver_.get() == nullptr) {
-        std::string encoding_driver_type_id = _encoding_type_id_.get_name();
+        std::string encoding_driver_type_id = _encoding_driver_type_id_.get_name();
         i_encoding_driver::factory_register_type & sys_factory_register
           = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_encoding_driver);
         DT_THROW_IF(! sys_factory_register.has(encoding_driver_type_id), std::logic_error,
@@ -434,7 +434,7 @@ namespace vire {
     i_transport_driver & domain::_transport_driver_instance_()
     {
       if (_transport_driver_.get() == nullptr) {
-        std::string transport_driver_type_id = _transport_type_id_.get_name();
+        std::string transport_driver_type_id = _transport_driver_type_id_.get_name();
         i_transport_driver::factory_register_type & sys_factory_register
           = DATATOOLS_FACTORY_GRAB_SYSTEM_REGISTER(i_transport_driver);
         DT_THROW_IF(! sys_factory_register.has(transport_driver_type_id), std::logic_error,
@@ -466,59 +466,61 @@ namespace vire {
       _transport_driver_instance_();
       return _transport_driver_;
     }
-  
-    void domain::tree_dump(std::ostream & out_,
-                           const std::string & title_,
-                           const std::string & indent_,
-                           bool inherit_) const
+     
+    void domain::print_tree(std::ostream & out_,
+                            const boost::property_tree::ptree & options_) const
     {
-      if (!title_.empty()) {
-        out_ << indent_ << title_ << std::endl;
+      base_print_options popts;
+      popts.configure_from(options_);
+      std::ostringstream outs;
+      if (!popts.title.empty()) {
+        outs << popts.indent << popts.title << std::endl;
       }
-
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      
+      outs << popts.indent << tag
            << "Name              : '" << _name_ << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << tag
            << "Category          : '" << to_string(_category_) << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Transport type ID : '" << _transport_type_id_.to_string() << "'" << std::endl;
+      outs << popts.indent << tag
+           << "Transport driver type ID : '" << _transport_driver_type_id_.to_string() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
-           << "Encoding type ID  : '" << _encoding_type_id_.to_string() << "'" << std::endl;
+      outs << popts.indent << tag
+           << "Encoding driver type ID  : '" << _encoding_driver_type_id_.to_string() << "'" << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << tag
            << "Mailboxes         : [" << _mailboxes_.size() << "]" << std::endl;
       for (mailbox_dict_type::const_iterator i = _mailboxes_.begin();
-            i != _mailboxes_.end();
+           i != _mailboxes_.end();
            i++) {
         mailbox_dict_type::const_iterator j = i;
-        out_ << indent_ << datatools::i_tree_dumpable::skip_tag;
+        outs << popts.indent << datatools::i_tree_dumpable::skip_tag;
         if (++j == _mailboxes_.end()) {
-          out_ << datatools::i_tree_dumpable::last_tag;
+          outs << datatools::i_tree_dumpable::last_tag;
         } else {
-          out_ << datatools::i_tree_dumpable::tag;
+          outs << tag;
         }
         const mailbox & mb = i->second.mb;
-        out_ << "Mailbox '" << i->first << "' : "  ;
-        out_ << "{mode=" << mailbox::mode_label(mb.get_mode())
+        outs << "Mailbox '" << i->first << "' : "  ;
+        outs << "{mode=" << mailbox::mode_label(mb.get_mode())
              << ";privacy=" << mailbox::privacy_label(mb.get_privacy())
              << ";address=" << mb.get_address()
              << ";permissions=[" << mailbox::usage_permission_to_string(mb.get_permissions()) << ']'
              << '}';
-        out_ << std::endl;
+        outs << std::endl;
       }
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << tag
            << "Encoding driver   : " << _encoding_driver_ << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::tag
+      outs << popts.indent << tag
            << "Transport driver  : " << _transport_driver_ << std::endl;
 
-      out_ << indent_ << datatools::i_tree_dumpable::inherit_tag(inherit_)
+      outs << popts.indent << inherit_tag(popts.inherit)
            << "Validity          : " << std::boolalpha << is_valid() << std::endl;
-
+      
+      out_ << outs.str();
       return;
     }
 

@@ -31,7 +31,8 @@
 #include <vire/message/message_header.h>
 #include <vire/message/message_body.h>
 #include <vire/time/utils.h>
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/access_profile.h>
 #include <vire/com/domain.h>
 #include <vire/com/utils.h>
 
@@ -40,32 +41,35 @@ namespace vire {
   namespace com {
 
     i_service_client_plug::i_service_client_plug(const std::string & name_,
-                                                 const actor & parent_,
+                                                 const access_hub & parent_,
                                                  const domain & domain_,
                                                  const datatools::logger::priority logging_)
       : base_plug(name_, parent_, domain_, logging_)
     {
-      if (get_domain().get_category() == DOMAIN_CATEGORY_GATE) {
-        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_CLIENT_GATE,
+      domain_category_type domCat = get_domain().get_category();
+      access_category_type accessCat = get_parent().get_profile().get_category();
+   
+      if (domCat == DOMAIN_CATEGORY_GATE) {
+        DT_THROW_IF(accessCat != ACCESS_CATEGORY_CLIENT_GATE,
                     std::logic_error,
                     "Invalid context for service client plug '" << name_ << "'!");
         _mailbox_name_ = vire::com::mailbox_gate_service_name();
-      } else if (get_domain().get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
-        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_CLIENT_SYSTEM,
+      } else if (domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+        DT_THROW_IF(accessCat != ACCESS_CATEGORY_CLIENT_SYSTEM,
                     std::logic_error,
                     "Invalid context for service client plug '" << name_ << "'!");
         _mailbox_name_ = vire::com::mailbox_client_system_service_name();
-      } else if (get_domain().get_category() == DOMAIN_CATEGORY_MONITORING
-                 || get_domain().get_category() == DOMAIN_CATEGORY_CONTROL) {
-        DT_THROW_IF(parent_.get_category() != ACTOR_CATEGORY_CLIENT_CMS
-                    && parent_.get_category() != ACTOR_CATEGORY_SERVER_CMS,
+      } else if (domCat == DOMAIN_CATEGORY_MONITORING
+                 || domCat == DOMAIN_CATEGORY_CONTROL) {
+        DT_THROW_IF(accessCat != ACCESS_CATEGORY_CLIENT_CMS
+                    && accessCat != ACCESS_CATEGORY_SERVER_CMS,
                     std::logic_error,
                     "Invalid context for service client plug '" << name_ << "'!");
         _mailbox_name_ = vire::com::mailbox_cms_service_name();
-      } else if (get_domain().get_category() == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
-        if (parent_.get_category() == ACTOR_CATEGORY_SUBCONTRACTOR) {
+      } else if (domCat == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+        if (accessCat == ACCESS_CATEGORY_SUBCONTRACTOR) {
           _mailbox_name_ = vire::com::mailbox_subcontractor_system_vireserver_service_name();
-        } else if (parent_.get_category() == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+        } else if (accessCat == ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
           _mailbox_name_ = vire::com::mailbox_subcontractor_system_subcontractor_service_name();
         } else {
           DT_THROW(std::logic_error,
@@ -124,34 +128,36 @@ namespace vire {
     {
       datatools::logger::priority logging = datatools::logger::PRIO_FATAL;
       logging = datatools::logger::PRIO_DEBUG; // Hack debug
+      domain_category_type domCat = get_domain().get_category();
+      access_category_type accessCat = get_parent().get_profile().get_category();
       com_status status = COM_SUCCESS;
       bool async = false;
       if (async_address_.is_complete()) {
         DT_THROW_IF(!async_address_.is_private(),
                     std::logic_error,
-                    "Unsupported async address category!");
+                    "Unsupported non private async address category!");
         async = true;
       }
        
-      if (get_domain().get_category() == DOMAIN_CATEGORY_GATE
-          || get_domain().get_category() == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
+      if (domCat == DOMAIN_CATEGORY_GATE
+          || domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
         if (!address_.is_protocol()) {
           return COM_UNAVAILABLE;
         }
       }
  
-      if (get_domain().get_category() == DOMAIN_CATEGORY_CONTROL
-          || get_domain().get_category() == DOMAIN_CATEGORY_MONITORING) {
+      if (domCat == DOMAIN_CATEGORY_CONTROL
+          || domCat == DOMAIN_CATEGORY_MONITORING) {
         if (!address_.is_resource()) {
           return COM_UNAVAILABLE;
         }
       }
   
-      if (get_domain().get_category() == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+      if (domCat == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
         if (address_.is_device()) {
           return COM_UNAVAILABLE;
         }
-        if (get_parent().get_category() == ACTOR_CATEGORY_SUBCONTRACTOR
+        if (accessCat == ACCESS_CATEGORY_SUBCONTRACTOR
             && address_.is_resource()) {
           return COM_UNAVAILABLE;
         }
@@ -189,7 +195,6 @@ namespace vire {
       raw_message_type raw_msg_request;
       // Encode the raw buffer:
       encoder.encode(msg_request, raw_msg_request);
-
       if (datatools::logger::is_debug(logging)) {
         std::cerr << "********** RAW REQUEST BUFFER ********** " << std::endl;
         for (char byte : raw_msg_request.buffer)  {
@@ -200,11 +205,12 @@ namespace vire {
           }
         }
         std::cerr << "\n************************************** " << std::endl;
-       }
+      }
       
       // Populate raw metadata:
       if (msg_request.get_header().get_message_id().is_valid()) {
-        raw_msg_request.metadata.store(message_id_key(), msg_request.get_header().get_message_id().to_string());
+        raw_msg_request.metadata.store(message_id_key(),
+                                       msg_request.get_header().get_message_id().to_string());
       }
       if (async) {
         ///// RIEN A FAIRE: raw_msg_request.metadata.store(async_address_key(), async_address_.value());
@@ -222,11 +228,10 @@ namespace vire {
         encoder.decode(raw_msg_response, msg_response);
         // Process returned metadata:
         response_payload_ = msg_response.get_body().get_payload();
-      } else {
         if (datatools::logger::is_debug(logging)) {
           std::cerr << "\n**************************************** " << std::endl;
         }
-      }
+      } 
       return status;
     }
 

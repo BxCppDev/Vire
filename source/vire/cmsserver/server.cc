@@ -83,13 +83,14 @@ namespace vire {
         return;
       }
 
+      // Service shortcuts:
       vire::logging::simple_logging_service * log = nullptr;
-      vire::com::manager * com = nullptr;
-      const vire::user::manager * users = nullptr;
-      const vire::auth::manager * auth = nullptr;
-      const vire::device::manager * devices = nullptr;
-      const vire::resource::manager * resources = nullptr;
-      sc_manager * sc = nullptr;
+      const vire::device::manager *           devices = nullptr;
+      const vire::resource::manager *         resources = nullptr;
+      const vire::user::manager *             users = nullptr;
+      const vire::auth::manager *             auth = nullptr;
+      vire::com::manager *                    com = nullptr;
+      sc_manager *                            sc = nullptr;
 
       std::map<std::string, std::thread> runners;
      
@@ -323,20 +324,14 @@ namespace vire {
 
       _at_init_(config_);
 
-      DT_LOG_NOTICE(_logging_, "Starting pre system services...");
-      _start_pre_system_services();
+      DT_LOG_NOTICE(_logging_, "Starting services...");
+      _start_services_();
 
-      DT_LOG_NOTICE(_logging_, "Starting business services...");
-      _start_business_services();
-
-      DT_LOG_NOTICE(_logging_, "Starting post system services...");
-      // _start_post_system_services();
-
-      {
+      if (datatools::logger::is_debug(_logging_)) {
         const datatools::service_dict_type & services_dict = _services_->get_bus_of_services();
-        DT_LOG_TRACE(_logging_, "Service dict size = " << services_dict.size());
+        DT_LOG_DEBUG(_logging_, "Service dict size = " << services_dict.size());
         for (const auto & p : services_dict) {
-          DT_LOG_TRACE(_logging_, "Key='" << p.first << "'");
+          DT_LOG_DEBUG(_logging_, " - Service '" << p.first << "'");
         }
       }
 
@@ -361,18 +356,11 @@ namespace vire {
  
       _initialized_ = false;
 
-      DT_LOG_NOTICE(_logging_, "Stopping post system services...");
-      _stop_post_system_services();
-
-      DT_LOG_NOTICE(_logging_, "Stopping business services...");
-      _stop_business_services();
-
-      DT_LOG_NOTICE(_logging_, "Stopping pre system services...");
-      _stop_pre_system_services();
+      DT_LOG_NOTICE(_logging_, "Stopping services...");
+      _stop_services_();
 
       _at_reset_();
 
-      _reset_core_();
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
@@ -511,6 +499,7 @@ namespace vire {
       }
 
       DT_THROW_IF (!has_setup_id(), std::logic_error, "Missing setup ID!");
+      DT_LOG_DEBUG(_logging_, "Setup ID = '" << get_setup_id().to_string() << "'");
 
       if (!has_cms_top_path()) {
         // Fetch requested CMS top path:
@@ -528,9 +517,24 @@ namespace vire {
         DT_LOG_DEBUG(_logging_, "Use a default CMS top path...");
         set_cms_top_path(cms_top_path_out.str());
       }
+      DT_LOG_DEBUG(_logging_, "CMS top path = '" << _cms_top_path_ << "'");
 
       DT_LOG_NOTICE(_logging_, "Loading services configuration...");
 
+      // Fetch configuration files for services:
+      {
+        std::vector<std::string> services_config_paths;
+        if (config_.has_key("services.configuration")) {
+          config_.fetch("services.configuration", services_config_paths);
+        }
+        uint32_t read_options = datatools::multi_properties::config::RESOLVE_PATH;
+        for (const std::string & services_configpath : services_config_paths) {
+          DT_LOG_DEBUG(_logging_, "Loading services configuration from path = '" << services_configpath << "'");
+          _mconfig_.read(services_configpath, read_options);
+        }
+      }
+      
+      /*
       // Fetch configuration files for pre system services:
       {
         std::vector<std::string> services_pre_system_config_paths;
@@ -566,7 +570,8 @@ namespace vire {
           _mconfig_.read(path, read_options);
         }
       }
-
+      */
+      
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
@@ -576,6 +581,7 @@ namespace vire {
       DT_LOG_TRACE_ENTERING(_logging_);
 
       _mconfig_.clear();
+      _cms_top_path_.clear();
       _setup_id_.reset();
 
       DT_LOG_TRACE_EXITING(_logging_);
@@ -593,7 +599,10 @@ namespace vire {
                                                          false);
 
       // Basic initializations:
+      DT_LOG_NOTICE(_logging_, "Initializing DLL manager...");
       _init_dlls_(config_);
+      
+      DT_LOG_NOTICE(_logging_, "Initializing core setup...");
       _init_core_(config_);
 
       // Initialize the service manager:
@@ -632,20 +641,21 @@ namespace vire {
 
       _reset_core_();
       _reset_dlls_();
-
+      _tick_ms_ = 500;
+      
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
 
-    void server::_start_pre_system_services()
+    void server::_start_services_()
     {
       DT_LOG_TRACE_ENTERING(_logging_);
 
       // Log:
-      DT_LOG_TRACE(_logging_, "Log...");
+      DT_LOG_TRACE(_logging_, "Logging service...");
       datatools::properties log_config;
-      if (_mconfig_.has_section("log")) {
-        log_config = _mconfig_.get_section("log");
+      if (_mconfig_.has_section(log_service_name())) {
+        log_config = _mconfig_.get_section(log_service_name());
       }
       _services_->load(log_service_name(),
                       "vire::logging::simple_logging_service",
@@ -653,29 +663,77 @@ namespace vire {
       if (datatools::logger::is_trace(_logging_)) {
         _services_->tree_dump(std::cerr, "Services:", "[trace] ");
       }
-      DT_LOG_TRACE(_logging_, "log service is setup.");
+      DT_LOG_TRACE(_logging_, "Logging service is setup.");
       vire::logging::simple_logging_service & log
         = _services_->grab<vire::logging::simple_logging_service>(log_service_name());
       if (datatools::logger::is_trace(_logging_)) {
-        log.tree_dump(std::cerr, "Log service:", "[trace] ");
+        log.tree_dump(std::cerr, "Logging service:", "[trace] ");
       }
       _services_->sync();
       _pimpl_->log = &_services_->grab<vire::logging::simple_logging_service>(log_service_name());
+   
+      // Devices manager:
+      datatools::properties devices_config;
+      if (_mconfig_.has_section(devices_service_name())) {
+        devices_config = _mconfig_.get_section(devices_service_name());
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading devices management service...");
+      _services_->load(devices_service_name(),
+                      "vire::device::manager",
+                      devices_config);
+      _services_->sync();
+      _pimpl_->devices = &_services_->get<vire::device::manager>(devices_service_name());
+
+      // Resources manager:
+      datatools::properties resources_config;
+      if (_mconfig_.has_section(resources_service_name())) {
+        resources_config = _mconfig_.get_section(resources_service_name());
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading resources management service...");
+      _services_->load(resources_service_name(),
+                      "vire::resource::manager",
+                      resources_config);
+      _services_->sync();
+      _pimpl_->resources = &_services_->get<vire::resource::manager>(resources_service_name());
+
+      // Users manager:
+      datatools::properties users_config;
+      if (_mconfig_.has_section(users_service_name())) {
+        users_config = _mconfig_.get_section(users_service_name());
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading users management service...");
+      _services_->load(users_service_name(),
+                      "vire::user::manager",
+                      users_config);
+      _services_->sync();
+      _pimpl_->users = &_services_->grab<vire::user::manager>(users_service_name());
+ 
+      // Auth manager:
+      datatools::properties auth_config;
+      if (_mconfig_.has_section(auth_service_name())) {
+        auth_config = _mconfig_.get_section(auth_service_name());
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading authentication service...");
+      _services_->load(auth_service_name(),
+                      "vire::auth::manager",
+                      auth_config);
+      _services_->sync();
+      _pimpl_->auth = &_services_->grab<vire::auth::manager>(auth_service_name());
 
       // Com manager:
       DT_LOG_TRACE(_logging_, "Com manager...");
       datatools::properties com_config;
-      if (_mconfig_.has_section("com")) {
-        com_config = _mconfig_.get_section("com");
+      if (_mconfig_.has_section(com_service_name())) {
+        com_config = _mconfig_.get_section(com_service_name());
       }
-      DT_LOG_DEBUG(get_logging(), "Loading 'com' service...");
+      DT_LOG_DEBUG(get_logging(), "Loading com service...");
       _services_->load(com_service_name(),
                       "vire::com::manager",
                       com_config);
       if (datatools::logger::is_trace(_logging_)) {
         _services_->tree_dump(std::cerr, "Services:", "[trace] ");
       }
-      DT_LOG_TRACE(_logging_, "com service is setup.");
+      DT_LOG_TRACE(_logging_, "Com service is setup.");
       vire::com::manager & com = _services_->grab<vire::com::manager>(com_service_name());
       // vire::com::actor server_actor("vire.cmsserver", vire::com::actor::CATEGORY_SERVER);
       // com.set_actor(server_actor);
@@ -684,18 +742,33 @@ namespace vire {
       }
       _services_->sync();
       _pimpl_->com = &_services_->grab<vire::com::manager>(com_service_name());
-      
+ 
+      // Subcontractor manager:
+      datatools::properties sc_config;
+      if (_mconfig_.has_section(sc_service_name())) {
+        sc_config = _mconfig_.get_section(sc_service_name());
+      }
+      DT_LOG_DEBUG(get_logging(), "Loading subcontractor managament service...");
+      _services_->load(sc_service_name(),
+                      "vire::cmsserver::sc_manager",
+                      sc_config);
+      _services_->sync();
+      _pimpl_->sc = &_services_->grab<vire::cmsserver::sc_manager>(sc_service_name());
+
+      // Compute the 'responsible' of resources:
+      _compute_resource_responsible_();
+
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
 
+     /*
     void server::_start_post_system_services()
     {
       DT_LOG_TRACE_ENTERING(_logging_);
 
       // Session manager:
-      /*
-      DT_LOG_TRACE(_logging_, "Session manager...");
+       DT_LOG_TRACE(_logging_, "Session manager...");
       datatools::properties session_config;
       if (_mconfig_.has_section("session")) {
         session_config = _mconfig_.get_section("session");
@@ -717,10 +790,8 @@ namespace vire {
       }
       DT_LOG_TRACE(_logging_, "session service is setup.");
       _services_->sync();
-      */
 
-      /*
-      // RabbitMQ management service:
+       // RabbitMQ management service:
       DT_LOG_TRACE(_logging_, "RabbitMQ management service...");
       datatools::properties rabbitmq_config;
       if (_mconfig_.has_section("rabbitmq")) {
@@ -743,7 +814,6 @@ namespace vire {
       //   rabbitmq.tree_dump(std::cerr, "RabbitMQ management service:", "[trace] ");
       // }
       _services_->sync();
-      */
 
       // // Agenda:
       // DT_LOG_TRACE(_logging_, "Agenda...");
@@ -765,7 +835,7 @@ namespace vire {
       //     DT_LOG_TRACE(_logging_, "Key='" << p.first << "'");
       //   }
       // }
-       _services_->sync();
+      // _services_->sync();
 
      //  // Gate:
      //  DT_LOG_TRACE(_logging_, "Gate...");
@@ -791,138 +861,8 @@ namespace vire {
       DT_LOG_TRACE_EXITING(_logging_);
       return;
     }
-
-    void server::_stop_post_system_services()
-    {
-      DT_LOG_TRACE_ENTERING(_logging_);
-
-      // if (_services_->has(gate_service_name())) {
-      //   if (_services_->is_a<vire::cmsserver::gate>(gate_service_name())) {
-      //     _services_->drop(gate_service_name());
-      //   }
-      // }
-
-      // if (_services_->has(sessions_service_name())) {
-      //        if (_services_->is_a<vire::cmsserver::session_manager>(sessions_service_name())) {
-      //          _services_->drop(sessions_service_name());
-      //        }
-      // }
-
-      // if (_services_->has(agenda_service_name())) {
-      //   if (_services_->is_a<vire::cmsserver::agenda>(agenda_service_name())) {
-      //     _services_->drop(agenda_service_name());
-      //   }
-      // }
-
-      // std::string rabbitmq_service_name = "RabbitMgr";
-      // if (_services_->has(rabbitmq_service_name)) {
-      //   _services_->drop(rabbitmq_service_name);
-      // }
-
-      DT_LOG_TRACE_EXITING(_logging_);
-      return;
-    }
-
-    void server::_stop_pre_system_services()
-    {
-      DT_LOG_TRACE_ENTERING(_logging_);
-
-      if (_services_->has(com_service_name())) {
-        if (_services_->is_a<vire::com::manager>(com_service_name())) {
-          _services_->drop(com_service_name());
-        }
-      }
-
-      if (_services_->has(log_service_name())) {
-        if (_services_->is_a<vire::logging::simple_logging_service>(log_service_name())) {
-          _services_->drop(log_service_name());
-        }
-      }
-
-      DT_LOG_TRACE_EXITING(_logging_);
-      return;
-    }
-
-    void server::_start_business_services()
-    {
-      DT_LOG_TRACE_ENTERING(_logging_);
-
-      // Devices manager:
-      datatools::properties devices_config;
-      if (_mconfig_.has_section("devices")) {
-        devices_config = _mconfig_.get_section("devices");
-      }
-      DT_LOG_DEBUG(get_logging(), "Loading 'devices' service...");
-      _services_->load(devices_service_name(),
-                      "vire::device::manager",
-                      devices_config);
-      _services_->sync();
-      _pimpl_->devices = &_services_->get<vire::device::manager>(devices_service_name());
-
-      // Resources manager:
-      datatools::properties resources_config;
-      if (_mconfig_.has_section("resources")) {
-        resources_config = _mconfig_.get_section("resources");
-      }
-      DT_LOG_DEBUG(get_logging(), "Loading 'resources' service...");
-      _services_->load(resources_service_name(),
-                      "vire::resource::manager",
-                      resources_config);
-      _services_->sync();
-      _pimpl_->resources = &_services_->get<vire::resource::manager>(resources_service_name());
-     
-      // vire::resource::manager & resources = _services_->grab<vire::resource::manager>("resources");
-      // resources.tree_dump(std::cerr, "Resources:", "[debug] ");
-
-      // Users manager:
-      datatools::properties users_config;
-      if (_mconfig_.has_section("users")) {
-        users_config = _mconfig_.get_section("users");
-      }
-      DT_LOG_DEBUG(get_logging(), "Loading 'users' service...");
-      _services_->load(users_service_name(),
-                      "vire::user::manager",
-                      users_config);
-      _services_->sync();
-      _pimpl_->users = &_services_->grab<vire::user::manager>(users_service_name());
+  */
  
-      // Auth manager:
-      // DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Configuring 'auth' service...");
-      datatools::properties auth_config;
-      if (_mconfig_.has_section("auth")) {
-        auth_config = _mconfig_.get_section("auth");
-        // auth_config.tree_dump(std::cerr,"Auth service config: ", "[devel] ");
-       }
-      DT_LOG_DEBUG(get_logging(), "Loading 'auth' service...");
-      _services_->load(auth_service_name(),
-                      "vire::auth::manager",
-                      auth_config);
-      _services_->sync();
-      _pimpl_->auth = &_services_->grab<vire::auth::manager>(auth_service_name());
-
-      // Subcontractor manager:
-      // DT_LOG_DEBUG(datatools::logger::PRIO_ALWAYS, "Configuring 'sc' (Subcontractor) service...");
-      datatools::properties sc_config;
-      if (_mconfig_.has_section("sc")) {
-        sc_config = _mconfig_.get_section("sc");
-        // sc_config.tree_dump(std::cerr,"Subcontractor service config: ", "[devel] ");
-      }
-      DT_LOG_DEBUG(get_logging(), "Loading 'sc' service...");
-      _services_->load(sc_service_name(),
-                      "vire::cmsserver::sc_manager",
-                      sc_config);
-      _services_->sync();
-      _pimpl_->sc = &_services_->grab<vire::cmsserver::sc_manager>(sc_service_name());
-      DT_LOG_DEBUG(get_logging(), "Service 'sc' logging is : "
-                   << datatools::logger::get_priority_label(_pimpl_->sc->get_logging_priority()));
-
-      // Compute the 'responsible' of resources:
-      _compute_resource_responsible_();
-
-      DT_LOG_TRACE_EXITING(_logging_);
-      return;
-    }
-
     void server::_compute_resource_responsible_()
     {
       vire::resource::manager & resources = const_cast<vire::resource::manager &>(*_pimpl_->resources);
@@ -930,12 +870,12 @@ namespace vire {
       std::set<std::string> sc_names;
       sc.build_subcontractor_names(sc_names);
       for (const auto & sc_name : sc_names) {
-        const sc_info & scInfo = sc.get_subcontractor_info(sc_name);
+        const sc_driver & scDriver = sc.get_driver(sc_name);
         std::set<std::string> mdevices;
-        scInfo.build_mounted_devices(mdevices);
+        scDriver.build_mounted_devices(mdevices);
         for (const auto & dev_name : mdevices) {
           std::set<int32_t> resource_ids;
-          const vire::cmsserver::sc_info::device_info & devInfo = scInfo.get_mounted_device_info(dev_name);
+          const vire::cmsserver::sc_driver::device_info & devInfo = scDriver.get_mounted_device_info(dev_name);
           resources.build_set_of_resource_ids_from_path_regexp_within_device(dev_name,
                                                                              devInfo.selection,
                                                                              resource_ids);
@@ -949,7 +889,7 @@ namespace vire {
       return;
     }
     
-    void server::_stop_business_services()
+    void server::_stop_services_()
     {
       DT_LOG_TRACE_ENTERING(_logging_);
 
@@ -977,9 +917,40 @@ namespace vire {
       }
       */
 
+      // if (_services_->has(client_service_name())) {
+      //   if (_services_->is_a<client_manager>(client_service_name())) {
+      //     _services_->drop(client_service_name());
+      //   }
+      // }
+
+      // if (_services_->has(gate_service_name())) {
+      //   if (_services_->is_a<vire::cmsserver::gate>(gate_service_name())) {
+      //     _services_->drop(gate_service_name());
+      //   }
+      // }
+
+
+      // if (_services_->has(sessions_service_name())) {
+      //        if (_services_->is_a<vire::cmsserver::session_manager>(sessions_service_name())) {
+      //          _services_->drop(sessions_service_name());
+      //        }
+      // }
+
+      // if (_services_->has(agenda_service_name())) {
+      //   if (_services_->is_a<vire::cmsserver::agenda>(agenda_service_name())) {
+      //     _services_->drop(agenda_service_name());
+      //   }
+      // }
+  
       if (_services_->has(sc_service_name())) {
         if (_services_->is_a<sc_manager>(sc_service_name())) {
           _services_->drop(sc_service_name());
+        }
+      }
+
+      if (_services_->has(com_service_name())) {
+        if (_services_->is_a<vire::com::manager>(com_service_name())) {
+          _services_->drop(com_service_name());
         }
       }
 
@@ -1004,6 +975,12 @@ namespace vire {
       if (_services_->has(devices_service_name())) {
         if (_services_->is_a<vire::device::manager>(devices_service_name())) {
           _services_->drop(devices_service_name());
+        }
+      }
+
+      if (_services_->has(log_service_name())) {
+        if (_services_->is_a<vire::logging::simple_logging_service>(log_service_name())) {
+          _services_->drop(log_service_name());
         }
       }
 

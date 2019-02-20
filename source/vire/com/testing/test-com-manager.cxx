@@ -28,6 +28,8 @@
 #include <vire/com/event_emitter_plug.h>
 #include <vire/com/domain_builder.h>
 
+#include "com_manager_tools.h"
+
 void test_com_manager_1(bool interactive_ = false);
 
 int main(int /* argc_ */, char ** /* argv_ */)
@@ -59,9 +61,10 @@ void test_com_manager_1(bool interactive_)
 {
   std::clog << "\ntest_com_manager_1: basics" << std::endl;
 
-  std::string domain_name_prefix = "/supernemo/demonstrator";
+  /*
+  std::string domain_name_prefix = "/_snemod_";
 
-  vire::utility::model_identifier default_protocol_id("rabbitmq",
+  vire::utility::model_identifier default_transport_id("rabbitmq",
                                                       datatools::version_id(1));
   vire::utility::model_identifier default_encoding_id("vire::com::protobuf_encoding_driver",
                                                       datatools::version_id(3));
@@ -72,8 +75,8 @@ void test_com_manager_1(bool interactive_)
   comMgr.set_display_name("Communication");
   comMgr.set_app_category(vire::cms::application::CATEGORY_SERVER);
   comMgr.set_domain_name_prefix(domain_name_prefix);
-  comMgr.set_default_encoding_type_id(default_protocol_id);
-  comMgr.set_default_transport_type_id(default_encoding_id);
+  comMgr.set_default_encoding_type_id(default_encoding_id);
+  comMgr.set_default_transport_type_id(default_transport_id);
 
   std::string com_config_path("${VIRE_TESTING_ONE_DIR}/config/com.conf");
   datatools::fetch_path_with_env(com_config_path);
@@ -81,13 +84,15 @@ void test_com_manager_1(bool interactive_)
   com_config.read_configuration(com_config_path);
   
   comMgr.initialize_standalone(com_config);
-
+  */
+  
+  vire::com::manager comMgr;
+  vire::com::testing::init_com_manager(comMgr);
   comMgr.tree_dump(std::clog, "Communication service: ");
 
-  if (comMgr.has_domain(vire::com::domain_builder::build_cms_monitoring_name(domain_name_prefix))) {
-    vire::com::domain & monitoring = comMgr.grab_domain(vire::com::domain_builder::build_cms_monitoring_name(domain_name_prefix));
-
-
+  if (comMgr.has_domain(vire::com::domain_builder::build_cms_monitoring_name(vire::com::testing::default_domain_name_prefix()))) {
+    vire::com::domain & monitoring
+      = comMgr.grab_domain(vire::com::domain_builder::build_cms_monitoring_name(vire::com::testing::default_domain_name_prefix()));
     monitoring.tree_dump(std::clog, "Monitoring domain: ");
   }
 

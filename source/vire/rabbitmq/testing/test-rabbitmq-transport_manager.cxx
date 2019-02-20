@@ -1,7 +1,7 @@
 //! \file vire/rabbitmq/testing/test-rabbitmq-transport_manager.cxx
 //! \brief Test Vire RabbitMQ transport manager
 //
-// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -73,7 +73,7 @@ void test_rtm_1(bool interactive_)
   rtm_config.read_configuration(rtm_config_path);
 
   transMgrPtr->initialize(rtm_config);
-
+  transMgrPtr->print_tree(std::clog);
   transMgrPtr->reset();
   
   std::clog << std::endl;

@@ -1,5 +1,5 @@
-#ifndef VIRE_CMSSERVER_TESTING_SC_INFO_RUNNER_H
-#define VIRE_CMSSERVER_TESTING_SC_INFO_RUNNER_H
+#ifndef VIRE_CMSSERVER_TESTING_SC_DRIVER_RUNNER_H
+#define VIRE_CMSSERVER_TESTING_SC_DRIVER_RUNNER_H
 
 // Standard library:
 #include <chrono>
@@ -8,16 +8,16 @@
 #include <iostream>
 
 // This project:
-#include <vire/cmsserver/sc_info.h>
+#include <vire/cmsserver/sc_driver.h>
 
 namespace vire {
   namespace cmsserver {
     namespace testing {
 
-      struct sc_info_runner
+      struct sc_driver_runner
       {
-        sc_info_runner(vire::cmsserver::sc_info & sc_info_)
-          : _sc_info_(sc_info_)
+        sc_driver_runner(vire::cmsserver::sc_driver & sc_driver_)
+          : _sc_driver_(sc_driver_)
         {
           return;
         }
@@ -32,11 +32,11 @@ namespace vire {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             double r = distribution(generator);
             if (r < 0.25) {
-              _sc_info_.set_connected(true);
+              _sc_driver_.set_connected(true);
             } else {
-              _sc_info_.set_connected(false);
+              _sc_driver_.set_connected(false);
             }
-            _sc_info_.print_tree(std::cerr, datatools::i_tree_dumpable::make_base_print_options("Subcontractor info (updated):"));
+            _sc_driver_.print_tree(std::cerr, datatools::i_tree_dumpable::make_base_print_options("Subcontractor info (updated):"));
             std::cerr << std::endl;
           }
           std::cerr << "sc_runner run stopped.\n";
@@ -45,7 +45,7 @@ namespace vire {
  
       private:
   
-        vire::cmsserver::sc_info & _sc_info_;
+        vire::cmsserver::sc_driver & _sc_driver_;
   
       };
 
@@ -53,7 +53,7 @@ namespace vire {
   } // end namespace cmsserver 
 } // end namespace cms 
 
-#endif // VIRE_CMSSERVER_TESTING_SC_INFO_RUNNER_H
+#endif // VIRE_CMSSERVER_TESTING_SC_DRIVER_RUNNER_H
 
 // Local Variables: --
 // mode: c++ --

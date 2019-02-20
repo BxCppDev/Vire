@@ -33,12 +33,13 @@ namespace vire {
 
   namespace com {
 
+    /// \brief Address category
     enum address_category_type {
-      ADDR_CATEGORY_INVALID  = 0,
-      ADDR_CATEGORY_PROTOCOL = 1,
-      ADDR_CATEGORY_DEVICE   = 2,
-      ADDR_CATEGORY_RESOURCE = 3,
-      ADDR_CATEGORY_PRIVATE  = 4
+      ADDR_CATEGORY_INVALID  = 0, ///< Invalid address category
+      ADDR_CATEGORY_PROTOCOL = 1, ///< Address category dedicated to 'protocol' messenging through a public mailbox
+      ADDR_CATEGORY_DEVICE   = 2, ///< Address category dedicated to 'device' addressing through a public mailbox
+      ADDR_CATEGORY_RESOURCE = 3, ///< Address category dedicated to 'resource' addressing through a public mailbox
+      ADDR_CATEGORY_PRIVATE  = 4  ///< Address category describing a 'private' mailbox
     };
 
     //! Return the label associated to an address category
@@ -52,28 +53,40 @@ namespace vire {
     {
     public:
 
+      /// Constructor
       address();
 
+      /// Constructor
       address(const address_category_type category_, const std::string & value_);
 
+      /// Set category and value
       void set(const address_category_type category_, const std::string & value_);
-      
+
+      /// Check if address is complete
       bool is_complete() const;
+
+      /// Check if address is a private address
+      bool is_private() const;
       
+      /// Check if address is a protocol address
       bool is_protocol() const;
 
+      /// Check if address is a device address
       bool is_device() const;
 
+      /// Check if address is a resource address
       bool is_resource() const;
 
-      bool is_private() const;
-
+      /// Return the address value
       const std::string & get_value() const;
 
+      /// Check if path is defined (device/resource only)
       bool has_path() const;
 
+      /// Return the address path  (device/resource only)
       const vire::utility::path & get_path() const;
 
+      /// Print
       friend std::ostream & operator<<(std::ostream & out_, const address &);
       
     private:
@@ -83,7 +96,6 @@ namespace vire {
       vire::utility::path   _cached_path_; ///< The device/resource path associated to the value
       
     };
-
     
   } // namespace com
 

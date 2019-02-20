@@ -1,6 +1,6 @@
 //! \file vire/rabbitmq/transport_manager.cc
 //
-// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -50,9 +50,12 @@ namespace vire {
 
     transport_manager::~transport_manager()
     {
-      _pimpl_.reset();
+      if (is_initialized()) {
+        this->transport_manager::reset();
+      }
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "RabbitMQ transport manager was not properly reset!");
+      _pimpl_.reset();
       return;
     }
     
@@ -84,17 +87,22 @@ namespace vire {
     void transport_manager::add_domain(const std::string & domain_name_,
                                        const vire::com::domain_category_type category_)
     {
+      DT_LOG_DEBUG(get_logging(), "Adding domain/vhost '" << domain_name_ << "'...");
       DT_THROW_IF(has_domain(domain_name_), std::logic_error,
-                  "Domain '" << domain_name_ << "' already exists!");
+                  "Domain/vhost '" << domain_name_ << "' already exists!");
       vhost vh(domain_name_, category_);
       _pimpl_->rabbitmq_mgr->add_vhost(vh);
+      if (category_ == vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
+        
+      }
       return;
     }
         
     void transport_manager::remove_domain(const std::string & domain_name_)
     {
+      DT_LOG_DEBUG(get_logging(), "Removing domain/vhost '" << domain_name_ << "'...");
       DT_THROW_IF(!has_domain(domain_name_), std::logic_error,
-                  "Domain '" << domain_name_ << "' does not exist!");
+                  "Domain/vhost '" << domain_name_ << "' does not exist!");
       _pimpl_->rabbitmq_mgr->remove_vhost(domain_name_);
       return;
     }
@@ -106,8 +114,9 @@ namespace vire {
         
     void transport_manager::add_user(const std::string & login_,
                                      const std::string & password_,
-                                     const vire::com::actor_category_type category_)
+                                     const vire::com::access_category_type category_)
     {
+      DT_LOG_DEBUG(get_logging(), "Adding user '" << login_ << "'...");
       DT_THROW_IF(has_user(login_), std::logic_error,
                   "User '" << login_ << "' already exists!");
       user u(login_, password_, category_);
@@ -117,11 +126,45 @@ namespace vire {
 
     void transport_manager::remove_user(const std::string & login_) 
     {
+      DT_LOG_DEBUG(get_logging(), "Removing user '" << login_ << "'...");
       DT_THROW_IF(has_user(login_), std::logic_error,
                   "User '" << login_ << "' does not exist!");
       _pimpl_->rabbitmq_mgr->remove_user(login_);
       return;
     }
+
+    void transport_manager::add_subcontractor(const vire::com::subcontractor_info & sc_info_) 
+    {
+      _pimpl_->rabbitmq_mgr->add_subcontractor(sc_info_);
+      return;
+    }
+      
+    void transport_manager::remove_subcontractor(const vire::com::subcontractor_info & sc_info_) 
+    {
+      _pimpl_->rabbitmq_mgr->remove_subcontractor(sc_info_.id);
+      return;
+    }
+
+    void transport_manager::add_client(const vire::com::client_info & client_info_) 
+    {
+      //_pimpl_->rabbitmq_mgr->add_client(client_info_);
+      return;
+    }
+      
+    void transport_manager::remove_client(const vire::com::client_info & client_info_) 
+    {
+      //_pimpl_->rabbitmq_mgr->remove_client(client_info_.id);
+      return;
+    }
+
+    // void transport_manager::grant_access_to(const std::string & user_login_,
+    //                                         const access_category_type user_lcategory_,
+    //                                         const std::string & domain_name_,
+    //                                         const domain_category_type domain_category_)
+    // {
+    //   DT_LOG_DEBUG(get_logging(), "Setting permissions for user '" << login_ << "' with respect to domain/vhost '" << domain_name_ << "'...");
+    //   return;
+    // }
 
   } // namespace rabbitmq
 

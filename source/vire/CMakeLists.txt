@@ -162,6 +162,9 @@ include(cmsclient/Lists.cmake)
 # CMS subcontractor:
 include(cmssubcontractor/Lists.cmake)
 
+# Sandbox objects:
+include(sandbox/Lists.cmake)
+
 list(APPEND VireLibrary_HEADERS
   )
 
@@ -354,6 +357,7 @@ if(VIRE_ENABLE_TESTING)
     if (_testname_splitted_length GREATER 4)
       list(GET _testname_splitted 3 _topic3)
     endif() 
+    list(APPEND _vire_TEST_ENVIRONMENT "VIRE_TESTING_SHARED_DIR=${CMAKE_CURRENT_SOURCE_DIR}/../testing")
     if (_testname_splitted_length EQUAL 2)
       list(APPEND _vire_TEST_ENVIRONMENT "VIRE_TESTING_DIR=${CMAKE_CURRENT_SOURCE_DIR}/testing")
     elseif (_testname_splitted_length EQUAL 3)

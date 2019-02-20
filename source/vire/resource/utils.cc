@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-// Ourselves
+// Ourselves:
 #include <vire/resource/utils.h>
 
 namespace vire {

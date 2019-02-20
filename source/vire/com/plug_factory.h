@@ -1,7 +1,7 @@
 //! \file  vire/com/plug_factory.h
 //! \brief Vire com plug factory
 //
-// Copyright (c) 2017-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //                            Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
@@ -25,55 +25,62 @@
 // Standard library:
 #include <string>
 #include <memory>
-#include <mutex>
 
 // This project:
 #include <vire/com/base_plug.h>
+#include <vire/com/i_event_listener_plug.h>
+#include <vire/com/i_event_emitter_plug.h>
+#include <vire/com/i_service_client_plug.h>
+#include <vire/com/i_service_server_plug.h>
 
 namespace vire {
 
   namespace com {
 
-    class actor;
+    class access_hub;
     class domain;
 
-    //! \brief Communication plug factory
+    //! \brief Communication plug factory associated to an actor
     class plug_factory
     {
     public:
 
-      static const std::string & default_private_plug_prefix();
+      // static const std::string & default_private_plug_prefix();
       
       /// Constructor
-      plug_factory(actor & parent_);
+      plug_factory(const access_hub & parent_);
 
       /// Destructor
       ~plug_factory();
 
-      const actor & get_parent() const;
- 
-      /// Create a new service client plug in a domain
-      bool make_service_client_plug(const domain & domain_,
-                                    std::string & plug_name_);
-        
+      /// Return the set of supported transport driver type IDs
+      static const std::set<std::string> & supported_transport_driver_type_ids();
 
-      /// Create a new service client plug in a domain
-      bool make_service_server_plug(const domain & domain_,
-                                    std::string & plug_name_);
+      /// Return handle to the parent access hub
+      const access_hub & get_parent() const;
 
       /// Create a new event listener plug in a domain
-      bool make_event_listener_plug(const domain & domain_,
-                                    std::string & plug_name_);
+      std::shared_ptr<i_event_listener_plug> make_event_listener_plug(const std::string & domain_name_,
+                                                                      const std::string & plug_name_,
+                                                                      const std::string & event_label_ = "");
 
       /// Create a new event emitter plug in a domain
-      bool make_event_emitter_plug(const domain & domain_,
-                                   std::string & plug_name_,
-                                   const std::string & event_label_ = "");
+      std::shared_ptr<i_event_emitter_plug> make_event_emitter_plug(const std::string & domain_name_,
+                                                                    const std::string & plug_name_,
+                                                                    const std::string & event_label_ = "");
+
+      /// Create a new service client plug in a domain
+      std::shared_ptr<i_service_client_plug> make_service_client_plug(const std::string & domain_name_,
+                                                                      const std::string & plug_name_);
+
+      /// Create a new service server plug in a domain
+      std::shared_ptr<i_service_server_plug> make_service_server_plug(const std::string & domain_name_,
+                                                                      const std::string & plug_name_);
       
     private:
 
       // Configuration:
-      actor & _parent_; ///< Parent actor
+      const access_hub & _parent_; ///< Parent access hub
 
       struct pimpl_type;
       std::unique_ptr<pimpl_type> _pimpl_;

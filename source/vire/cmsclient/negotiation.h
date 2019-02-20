@@ -69,8 +69,8 @@ namespace vire {
     private:
 
       session_manager & _parent_; //!< Parent session manager service
-      std::string _user_;         //!< User
-      std::string _password_;     //!< Password
+      std::string _user_;         //!< User (client side gate user)
+      std::string _password_;     //!< Password (client side gate user)
 
     };
 

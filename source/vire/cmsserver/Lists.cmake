@@ -1,6 +1,6 @@
  set(VIRE_CMSSERVER_HEADERS_QT_TO_BE_MOCCED
-   cmsserver/sc_info.h
-   cmsserver/ui/sc_info_panel.h
+   cmsserver/sc_driver.h
+   cmsserver/ui/sc_driver_panel.h
    cmsserver/ui/sc_manager_panel.h
    cmsserver/server.h
    cmsserver/ui/server_panel.h
@@ -37,8 +37,8 @@
   cmsserver/uc_factory.h
   #cmsserver/temperature_monitoring_use_case.h
   #cmsserver/lock_use_case.h
-  cmsserver/sc_info.h
-  cmsserver/ui/sc_info_panel.h
+  cmsserver/sc_driver.h
+  cmsserver/ui/sc_driver_panel.h
   cmsserver/sc_manager.h
   cmsserver/ui/sc_manager_panel.h
   # cmsserver/session_reservation.h
@@ -52,7 +52,7 @@
   #cmsserver/client_connection.h
   #cmsserver/session_possibility.h
   # cmsserver/agenda.h
-  #cmsserver/gate.h
+  cmsserver/gate.h
   cmsserver/server.h
   cmsserver/ui/server_panel.h
 )
@@ -81,9 +81,9 @@ list(APPEND VireLibrary_SOURCES
   cmsserver/uc_factory.cc
   #cmsserver/temperature_monitoring_use_case.cc
   #cmsserver/lock_use_case.cc
-  cmsserver/sc_info.cc
-  cmsserver/ui/sc_info_panel.cc
+  cmsserver/sc_driver.cc
   cmsserver/sc_manager.cc
+  cmsserver/ui/sc_driver_panel.cc
   cmsserver/ui/sc_manager_panel.cc
   # cmsserver/session_reservation.cc
   # cmsserver/sequence_use_case.cc
@@ -94,7 +94,7 @@ list(APPEND VireLibrary_SOURCES
   #cmsserver/client_connection.cc
   #cmsserver/session_possibility.cc
   # cmsserver/agenda.cc
-  #cmsserver/gate.cc
+  cmsserver/gate.cc
   # cmsserver/session_manager.cc
   cmsserver/server.cc
   cmsserver/ui/server_panel.cc
@@ -113,11 +113,12 @@ list(APPEND VireLibrary_TESTS
   cmsserver/testing/test-cmsserver-uc_factory.cxx
   #cmsserver/testing/test-cmsserver-base_use_case.cxx
   #cmsserver/testing/test-cmsserver-lock_use_case.cxx
-  cmsserver/testing/test-cmsserver-sc_info.cxx
+  cmsserver/testing/test-cmsserver-sc_driver.cxx
   #cmsserver/testing/test-cmsserver-use_case.cxx
   # cmsserver/testing/test-cmsserver-session_reservation.cxx
   # cmsserver/testing/test-cmsserver-session_possibility.cxx
   # cmsserver/testing/test-cmsserver-agenda.cxx
+  cmsserver/testing/test-cmsserver-gate.cxx
   cmsserver/testing/test-cmsserver-server.cxx
   # cmsserver/testing/test-cmsserver-session.cxx
 )

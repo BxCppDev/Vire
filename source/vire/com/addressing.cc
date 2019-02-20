@@ -86,8 +86,8 @@ namespace vire {
         _value_ = value_;
         break;
       case ADDR_CATEGORY_PRIVATE:
-        // no test by default
-        _value_ = value_;       
+        _value_ = value_;
+        break;
       }
       return;
     }
@@ -95,28 +95,6 @@ namespace vire {
     address::address(const address_category_type category_, const std::string & value_)
     {
       set(category_, value_);
-      /*
-      _category_ = category_;
-      switch (_category_) {
-      case ADDR_CATEGORY_PROTOCOL:
-        DT_THROW_IF(!datatools::name_validation(value_,
-                                                datatools::NV_INSTANCE | datatools::NV_NO_DOT),
-                    std::logic_error,
-                    "Protocol value '" << value_ << "' is not valid!");
-        _value_ = value_;
-        break;
-      case ADDR_CATEGORY_DEVICE:
-      case ADDR_CATEGORY_RESOURCE:
-        DT_THROW_IF(!_cached_path_.from_string(value_),
-                    std::logic_error,
-                    "Device/resource path representation '" << value_ << "' is not valid!");
-        _value_ = value_;
-        break;
-      case ADDR_CATEGORY_PRIVATE:
-        // no test by default
-        _value_ = value_;       
-      }
-      */
       return;
     }
 

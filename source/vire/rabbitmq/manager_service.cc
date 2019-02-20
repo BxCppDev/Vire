@@ -85,7 +85,16 @@ namespace vire {
 
     void manager_service::_set_defaults_()
     {
+      _system_user_name_prefix_.clear();
+      _vhost_name_prefix_.clear();
+      _server_host_.clear();
       _server_port_ = -1;
+      _admin_login_.clear();
+      _admin_password_.clear();
+      _destroy_all_at_reset_ = false;
+      _vhost_gate_name_.clear();
+      _vhost_control_name_.clear();
+      _vhost_monitoring_name_.clear();
       return;
     }
 
@@ -215,99 +224,101 @@ namespace vire {
       return;
     }
 
-    const manager_service::system_user_dict_type & manager_service::get_system_users() const
+    const manager_service::system_user_dict_type & manager_service::get_system_user_infos() const
     {
-      return _system_users_;
+      return _system_users_infos_;
     }
 
-    manager_service::system_user_dict_type & manager_service::_grab_system_users_()
+    manager_service::system_user_dict_type & manager_service::_grab_system_users_infos_()
     {
-      if (_system_users_.size() == 0) {
-        _init_system_users_();
+      if (_system_users_infos_.size() == 0) {
+        _init_system_users_infos_();
       }
-      return _system_users_;
+      return _system_users_infos_;
     }
    
-    void manager_service::_init_system_users_()
+    void manager_service::_init_system_users_infos_()
     {
       DT_THROW_IF(!has_system_user_name_prefix(),
                   std::logic_error,
                   "Missing system user name prefix!");
-      user server_cms_user(_system_user_name_prefix_ + "vireservercms",
-                           "vireservercms",
-                           vire::com::ACTOR_CATEGORY_SERVER_CMS);
-      add_system_user(server_cms_user);
-      
-      user server_gate_user(_system_user_name_prefix_ + "vireservergate",
-                            "vireservergate",
-                            vire::com::ACTOR_CATEGORY_SERVER_GATE);
-      add_system_user(server_gate_user);
-      
-      user client_gate_user(_system_user_name_prefix_ + "vireclientgate",
-                            "vireclientgate",
-                            vire::com::ACTOR_CATEGORY_CLIENT_GATE);
-      add_system_user(client_gate_user);
-      
-      user server_subcontractor_system_user(_system_user_name_prefix_ + "vireserverscsys",
-                                            "vireserverscsys",
-                                            vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
-      add_system_user(server_subcontractor_system_user);
-      
-      user server_client_system_user(_system_user_name_prefix_ + "vireserverclientsys",
-                                     "vireserverclientsys",
-                                     vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM);
-      add_system_user(server_client_system_user);
+
+      // CMS server user:
+      std::string login = vire::com::make_system_login(_system_user_name_prefix_,
+                                                       vire::com::server_cms_access_label());
+      user server_cms_user(login,
+                           vire::com::server_cms_access_label(),
+                           vire::com::ACCESS_CATEGORY_SERVER_CMS);
+      declare_system_user(server_cms_user);
+
+      // Gate server user:
+      login = vire::com::make_system_login(_system_user_name_prefix_,
+                                           vire::com::server_gate_access_label());      
+      user server_gate_user(login,
+                            vire::com::server_gate_access_label(),
+                            vire::com::ACCESS_CATEGORY_SERVER_GATE);
+      declare_system_user(server_gate_user);
+
+      // Gate client user:
+      login = vire::com::make_system_login(_system_user_name_prefix_,
+                                           vire::com::client_gate_access_label());      
+      user client_gate_user(login,
+                            vire::com::client_gate_access_label(),
+                            vire::com::ACCESS_CATEGORY_CLIENT_GATE);
+      declare_system_user(client_gate_user);
       
       return;
     }
     
-    void manager_service::set_system_user_password(const vire::com::actor_category_type category_,
+    void manager_service::set_system_user_password(const vire::com::access_category_type category_,
                                                    const std::string & password_)
     {
-      system_user_dict_type::iterator found = _grab_system_users_().find(category_);
-      DT_THROW_IF(found == _grab_system_users_().end(), std::logic_error,
+      system_user_dict_type::iterator found = _grab_system_users_infos_().find(category_);
+      DT_THROW_IF(found == _grab_system_users_infos_().end(), std::logic_error,
                   "Not system user of category '" << vire::com::to_string(category_) << "' is defined!");
       user & sysuser = found->second;
       sysuser.set_password(password_);
       return;
     }
 
-    bool manager_service::has_system_user(const vire::com::actor_category_type category_) const
+    bool manager_service::has_system_user(const vire::com::access_category_type category_) const
     {
-      system_user_dict_type::const_iterator found = _system_users_.find(category_);
-      return found != _system_users_.end();
+      system_user_dict_type::const_iterator found = _system_users_infos_.find(category_);
+      return found != _system_users_infos_.end();
     }
 
-    const user & manager_service::get_system_user(const vire::com::actor_category_type category_) const
+    const user & manager_service::get_system_user(const vire::com::access_category_type category_) const
     {
-      system_user_dict_type::const_iterator found = _system_users_.find(category_);
-      DT_THROW_IF(found == _system_users_.end(), std::logic_error,
+      system_user_dict_type::const_iterator found = _system_users_infos_.find(category_);
+      DT_THROW_IF(found == _system_users_infos_.end(), std::logic_error,
                   "Not system user of category '" << vire::com::to_string(category_) << "' is defined!");
       return found->second;
     }
     
-    void manager_service::add_system_user(const user & sysuser_)
+    void manager_service::declare_system_user(const user & sysuser_)
     {
       DT_THROW_IF(is_initialized(), std::logic_error,
-                  "RabbitMQ manager service is already initialized! Cannot add system users anymore!");     
+                  "RabbitMQ manager service is already initialized! Cannot declare system users anymore!");     
       DT_THROW_IF(!sysuser_.is_complete(), std::logic_error,
-                  "Cannot add an incomplete system user!");
-      DT_LOG_DEBUG(get_logging_priority(), "Adding management for system user '" << sysuser_.get_login() << "'...");
-      if (sysuser_.get_category() == vire::com::ACTOR_CATEGORY_CLIENT_SYSTEM
-          or sysuser_.get_category() == vire::com::ACTOR_CATEGORY_SUBCONTRACTOR) {
+                  "Cannot declare an incomplete system user!");
+      DT_LOG_DEBUG(get_logging_priority(), "Declaring management for system user '" << sysuser_.get_login() << "'...");
+      if (sysuser_.get_category() == vire::com::ACCESS_CATEGORY_CLIENT_SYSTEM
+          or sysuser_.get_category() == vire::com::ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM
+          or sysuser_.get_category() == vire::com::ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM
+          or sysuser_.get_category() == vire::com::ACCESS_CATEGORY_SUBCONTRACTOR) {
         DT_THROW(std::logic_error,
-                 "Cannot add a system user of category '" << vire::com::to_string(sysuser_.get_category()) << "'!");
+                 "Cannot declare a system user of category '" << vire::com::to_string(sysuser_.get_category()) << "'!");
       }
-      _system_users_[sysuser_.get_category()] = sysuser_;
+      _system_users_infos_[sysuser_.get_category()] = sysuser_;
       return;
     }
     
-    void manager_service::add_system_user(const std::string & login_,
+    void manager_service::declare_system_user(const std::string & login_,
                                           const std::string & password_,
-                                          const vire::com::actor_category_type category_)
+                                          const vire::com::access_category_type category_)
     {
       user sysuser(login_, password_, category_);
-      add_system_user(sysuser);
+      declare_system_user(sysuser);
       return;
     }
 
@@ -323,10 +334,11 @@ namespace vire {
 
     void manager_service::remove_subcontractor(const std::string & sc_id_)
     {
-       DT_THROW_IF(is_initialized(),
+      DT_THROW_IF(!is_initialized(),
                   std::logic_error,
-                  "RabbitMQ manager service is initialized! Cannot remove subcontractor '"
+                  "RabbitMQ manager service is not initialized! Cannot remove subcontractor '"
                   << sc_id_ << "'!");
+      _dismantle_vire_cms_subcontractor_(sc_id_);
        sc_dict_type::iterator found = _subcontractor_infos_.find(sc_id_);
        DT_THROW_IF(found == _subcontractor_infos_.end(),
                    std::logic_error,
@@ -335,7 +347,7 @@ namespace vire {
        return;
     }
 
-    const manager_service::subcontractor_info &
+    const vire::com::subcontractor_info &
     manager_service::get_subcontractor_info(const std::string & sc_id_) const
     {
       sc_dict_type::const_iterator found = _subcontractor_infos_.find(sc_id_);
@@ -345,12 +357,12 @@ namespace vire {
       return found->second;
     }
 
-    const manager_service::subcontractor_info &
+    const vire::com::subcontractor_info &
     manager_service::get_subcontractor_info_per_vhost(const std::string & vhost_name_) const
     {
-      const manager_service::subcontractor_info * sc_entry = nullptr;
+      const vire::com::subcontractor_info * sc_entry = nullptr;
       for (const auto & sc_pair : _subcontractor_infos_) {
-        if (sc_pair.second.system_vhost_name == vhost_name_) {
+        if (sc_pair.second.system_domain_name == vhost_name_) {
           sc_entry = &sc_pair.second;
           break;
         }
@@ -361,10 +373,10 @@ namespace vire {
       return *sc_entry;
     }
 
-    const manager_service::subcontractor_info &
+    const vire::com::subcontractor_info &
     manager_service::get_subcontractor_info_per_user(const std::string & user_login_) const
     {
-      const manager_service::subcontractor_info * sc_entry = nullptr;
+      const vire::com::subcontractor_info * sc_entry = nullptr;
       for (const auto & sc_pair : _subcontractor_infos_) {
         if (sc_pair.second.user_login == user_login_) {
           sc_entry = &sc_pair.second;
@@ -377,44 +389,44 @@ namespace vire {
       return *sc_entry;
     }
   
-    void manager_service::add_subcontractor(const subcontractor_info & sc_info_)
+    void manager_service::add_subcontractor(const vire::com::subcontractor_info & sc_info_)
     {
-      DT_THROW_IF(is_initialized(),
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      DT_THROW_IF(sc_info_.id.empty(), std::logic_error, "Missing subcontractor identifier");
+      DT_THROW_IF(!is_initialized(),
                   std::logic_error,
-                  "RabbitMQ manager service is initialized! Cannot add subcontractor '"
+                  "RabbitMQ manager service is not initialized! Cannot add subcontractor '"
                   << sc_info_.id << "'!");
-      DT_THROW_IF(!has_vhost_name_prefix(), std::logic_error, "Missing vhost name prefix!");
-      subcontractor_info sc_info   = sc_info_;
-      std::string sc_id            = sc_info.id;
-      std::string sc_user_login    = sc_info.user_login;
-      std::string sc_user_password = sc_info.user_password;
-      // Build the subcontractor's system vhost name:
-      sc_info.system_vhost_name =
-        vire::com::domain_builder::build_cms_subcontractor_system_name(get_vhost_name_prefix(),
-                                                                       sc_info.id);
-
-      DT_THROW_IF(sc_id.empty(), std::logic_error, "Missing subcontractor identifier");
-      DT_THROW_IF(sc_user_login.empty(), std::logic_error, "Missing user login for subcontractor '" << sc_id << "'!");
-      DT_THROW_IF(sc_user_password.empty(), std::logic_error, "Missing user password for subcontractor '" << sc_id << "'!");
-
-      _subcontractor_infos_[sc_id] = sc_info;
+      DT_LOG_DEBUG(get_logging_priority(), "Adding subcontractor '" << sc_info_.id << "'...");
+      DT_THROW_IF(sc_info_.user_login.empty(), std::logic_error,
+                  "Missing user login for subcontractor '" << sc_info_.id << "'!");
+      DT_THROW_IF(sc_info_.user_password.empty(), std::logic_error,
+                  "Missing user password for subcontractor '" << sc_info_.id << "'!");
+      DT_THROW_IF(sc_info_.sys_svr_login.empty(), std::logic_error,
+                  "Missing server side system login for subcontractor '" << sc_info_.id << "'!");
+      DT_THROW_IF(sc_info_.sys_svr_password.empty(), std::logic_error,
+                  "Missing server side system password for subcontractor '" << sc_info_.id << "'!");
+      DT_THROW_IF(sc_info_.system_domain_name.empty(), std::logic_error,
+                  "Missing vhost name for subcontractor '" << sc_info_.id << "'!");
+      _subcontractor_infos_[sc_info_.id] = sc_info_;
+      _setup_vire_cms_subcontractor_(sc_info_.id);
       return;
     }
 
-    void manager_service::_setup_vire_cms_subcontractors_()
-    {
-      for (const auto & sc_pair : _subcontractor_infos_) {
-        const std::string & sc_id = sc_pair.first;
-        _setup_vire_cms_subcontractor_(sc_id);
-      }
-      return;
-    }
+    // void manager_service::_setup_vire_cms_subcontractors_()
+    // {
+    //   for (const auto & sc_pair : _subcontractor_infos_) {
+    //     const std::string & sc_id = sc_pair.first;
+    //     _setup_vire_cms_subcontractor_(sc_id);
+    //   }
+    //   return;
+    // }
 
     void manager_service::_dismantle_vire_cms_subcontractors_()
     {
       for (const auto & sc_pair : _subcontractor_infos_) {
         const std::string & sc_id = sc_pair.first;
-        const subcontractor_info & sc_info = sc_pair.second;
+        const vire::com::subcontractor_info & sc_info = sc_pair.second;
         _dismantle_vire_cms_subcontractor_(sc_id);
       }
       return;
@@ -422,16 +434,22 @@ namespace vire {
 
     void manager_service::_dismantle_vire_cms_subcontractor_(const std::string & sc_id_)
     {
-      sc_dict_type::iterator found = _subcontractor_infos_.find(sc_id_);
+      sc_dict_type::const_iterator found = _subcontractor_infos_.find(sc_id_);
       DT_THROW_IF(found == _subcontractor_infos_.end(),
                   std::logic_error,
                   "No subcontractor entry '" << sc_id_ << "'!");
-      const subcontractor_info & sc_info = found->second;
-      if (has_vhost(sc_info.system_vhost_name)) {
-        remove_vhost(sc_info.system_vhost_name);
+      const vire::com::subcontractor_info & sc_info = found->second;
+      if (! sc_info.persistent or _destroy_all_at_reset_) {
+        // Force removal of resources:
+        if (has_vhost(sc_info.system_domain_name)) {
+          remove_vhost(sc_info.system_domain_name);
+        }
+        if (has_user(sc_info.user_login)) {
+          remove_user(sc_info.user_login);
+        }
       }
-      if (has_user(sc_info.user_login)) {
-        remove_user(sc_info.user_login);
+      if (has_user(sc_info.sys_svr_login)) {
+        remove_user(sc_info.sys_svr_login);
       }
       return;
     }
@@ -442,23 +460,35 @@ namespace vire {
       DT_THROW_IF(found == _subcontractor_infos_.end(),
                   std::logic_error,
                   "No subcontractor entry '" << sc_id_ << "'!");
-      const subcontractor_info & sc_info = found->second;
+      const vire::com::subcontractor_info & sc_info = found->second;
 
       {
         // Subcontractor side:
         vire::rabbitmq::user sc_user(sc_info.user_login,
                                      sc_info.user_password,
-                                     vire::com::ACTOR_CATEGORY_SUBCONTRACTOR);
+                                     vire::com::ACCESS_CATEGORY_SUBCONTRACTOR);
         if (!has_user(sc_user.get_login())) {
           DT_LOG_DEBUG(get_logging_priority(),
                        "Add subcontractor user '" << sc_user.get_login() << "'...");
           add_user(sc_user);
         }
       }
-      
+
+      {
+        // Server side:
+        vire::rabbitmq::user sc_user(sc_info.sys_svr_login,
+                                     sc_info.sys_svr_password,
+                                     vire::com::ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
+        if (!has_user(sc_user.get_login())) {
+          DT_LOG_DEBUG(get_logging_priority(),
+                       "Add server system subcontractor user '" << sc_user.get_login() << "'...");
+          add_user(sc_user);
+        }
+      }
+       
       {
         // Subcontractor system vhost:
-        vire::rabbitmq::vhost vh(sc_info.system_vhost_name,
+        vire::rabbitmq::vhost vh(sc_info.system_domain_name,
                                  vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM);
         if (!has_vhost(vh.get_name())) {
           DT_LOG_DEBUG(get_logging_priority(),
@@ -525,13 +555,17 @@ namespace vire {
            << "'" << _admin_password_ << "'" << std::endl;
 
       outs << popts.indent << tag
+           << "Destroy all at reset : "
+           << std::boolalpha << _destroy_all_at_reset_ << std::endl;
+
+      outs << popts.indent << tag
            << "System users : ["
-           << _system_users_.size() << ']' << std::endl;
+           << _system_users_infos_.size() << ']' << std::endl;
       {
         std::size_t us_counter = 0;
-        for (const auto & su_pair : _system_users_) {
+        for (const auto & su_pair : _system_users_infos_) {
           outs << popts.indent << skip_tag;
-          if (us_counter + 1 != _system_users_.size()) {
+          if (us_counter + 1 != _system_users_infos_.size()) {
             outs << tag;
           } else {
             outs << last_tag;
@@ -543,12 +577,12 @@ namespace vire {
       }
  
       outs << popts.indent << tag
-           << "Subcontractors : ["
+           << "Subcontractor infos : ["
            << _subcontractor_infos_.size() << ']' << std::endl;
       {
         std::size_t sc_counter = 0;
         for (const auto & sc_pair : _subcontractor_infos_) {
-          const subcontractor_info & sc_info = sc_pair.second;
+          const vire::com::subcontractor_info & sc_info = sc_pair.second;
           outs << popts.indent << skip_tag;
           if (sc_counter + 1 != _subcontractor_infos_.size()) {
             outs << tag;
@@ -568,10 +602,6 @@ namespace vire {
       outs << popts.indent << tag
            << "Users : "
            << _users_.size() << std::endl;
-
-      outs << popts.indent << tag
-           << "Destroy all at reset : "
-           << std::boolalpha << _destroy_all_at_reset_ << std::endl;
 
       outs << popts.indent << inherit_tag(popts.inherit)
            << "Pimpl : "
@@ -595,37 +625,42 @@ namespace vire {
       DT_THROW_IF(is_initialized(), std::logic_error,
                   "RabbitMQ manager service is already initialized!");
 
+      DT_LOG_DEBUG(get_logging_priority(), "RabbitMQ manager service configuration : ");
+      if (datatools::logger::is_debug(get_logging_priority())) {
+        config_.print_tree(std::cerr);
+      }
+      
       // Load config:
       this->::datatools::base_service::common_initialize(config_);
 
-      // // RabbitMQ server parameters:
-      // if (!has_server_host()) {
-      //        if (config_.has_key("server_host")) {
-      //          std::string server_host = config_.fetch_string("server_host");
-      //     set_server_host(server_host);
-      //   }
-      // }
+      // RabbitMQ server parameters:
+      if (!has_server_host()) {
+        if (config_.has_key("server_host")) {
+          std::string server_host = config_.fetch_string("server_host");
+          set_server_host(server_host);
+        }
+      }
 
-      // if (!has_server_port()) {
-      //   if (config_.has_key("server_port")) {
-      //     int server_port = config_.fetch_positive_integer("server_port");
-      //     set_server_port(server_port);
-      //   }
-      // }
+      if (!has_server_port()) {
+        if (config_.has_key("server_port")) {
+          int server_port = config_.fetch_positive_integer("server_port");
+          set_server_port(server_port);
+        }
+      }
 
-      // if (!has_admin_login()) {
-      //   if (config_.has_key("admin_login")) {
-      //     std::string admin_login = config_.fetch_string("admin_login");
-      //     set_admin_login(admin_login);
-      //   }
-      // }
+      if (!has_admin_login()) {
+        if (config_.has_key("admin_login")) {
+          std::string admin_login = config_.fetch_string("admin_login");
+          set_admin_login(admin_login);
+        }
+      }
 
-      // if (!has_admin_password()) {
-      //   if (config_.has_key("admin_password")) {
-      //     std::string admin_password = config_.fetch_string("admin_password");
-      //     set_admin_password(admin_password);
-      //   }
-      // }
+      if (!has_admin_password()) {
+        if (config_.has_key("admin_password")) {
+          std::string admin_password = config_.fetch_string("admin_password");
+          set_admin_password(admin_password);
+        }
+      }
       
       if (_server_host_.empty()) {
         DT_LOG_DEBUG(get_logging_priority(), "Set default RabbitMQ management driver host...");
@@ -653,24 +688,23 @@ namespace vire {
                                                     _admin_login_,
                                                     _admin_password_));
 
-      // // CMS specific:
-      // if (!has_system_user_name_prefix()) {
-      //   if (config_.has_key("system_user_name_prefix")) {
-      //     std::string vnp = config_.fetch_string("system_user_name_prefix");
-      //     set_vhost_name_prefix(vnp);
-      //   }
-      // }
-      // if (!has_vhost_name_prefix()) {
-      //   if (config_.has_key("vhost_name_prefix")) {
-      //     std::string vnp = config_.fetch_string("vhost_name_prefix");
-      //     set_vhost_name_prefix(vnp);
-      //   }
-      // }
+      // CMS specific:
+      if (!has_system_user_name_prefix()) {
+        if (config_.has_key("system_user_name_prefix")) {
+          std::string sunp = config_.fetch_string("system_user_name_prefix");
+          set_system_user_name_prefix(sunp);
+        }
+      }
+      if (!has_vhost_name_prefix()) {
+        if (config_.has_key("vhost_name_prefix")) {
+          std::string vnp = config_.fetch_string("vhost_name_prefix");
+          set_vhost_name_prefix(vnp);
+        }
+      }
 
       DT_THROW_IF(!has_system_user_name_prefix(),
                   std::logic_error,
                   "Missing system user name prefix!");
-
       DT_THROW_IF(!has_vhost_name_prefix(),
                   std::logic_error,
                   "Missing vhost name prefix!");
@@ -678,9 +712,9 @@ namespace vire {
       DT_LOG_DEBUG(get_logging_priority(), "vhost_name_prefix       : '" << _vhost_name_prefix_ << "'");
 
       // Set system users:
-      DT_LOG_DEBUG(get_logging_priority(), "Setup system users...");
-      if (_system_users_.size() == 0) {
-        _init_system_users_();
+      DT_LOG_DEBUG(get_logging_priority(), "Describe system users...");
+      if (_system_users_infos_.size() == 0) {
+        _init_system_users_infos_();
       }
 
       // Vire CMS system:
@@ -689,6 +723,8 @@ namespace vire {
       _setup_vire_cms_system_domains_();
 
       // Subcontractors:
+      /*
+      DT_LOG_DEBUG(get_logging_priority(), "Loading Vire Subcontractors infos...");
       {
         std::set<std::string> subcontractors;
         if (config_.has_key("subcontractors")) {
@@ -729,9 +765,12 @@ namespace vire {
           add_subcontractor(sc_info);
         }
       }
+      */
+      DT_LOG_DEBUG(get_logging_priority(), "RabbitMQ management service: ");
+      print_tree(std::cerr);
 
       DT_LOG_DEBUG(get_logging_priority(), "Setup Vire CMS subcontractors...");
-      _setup_vire_cms_subcontractors_();
+      // _setup_vire_cms_subcontractors_();
 
       _initialized_ = true;
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -747,7 +786,7 @@ namespace vire {
       // Remove Vire client users:
       {
         std::set<std::string> logins;
-        fetch_users(logins, vire::com::ACTOR_CATEGORY_CLIENT_SYSTEM);
+        fetch_users(logins, vire::com::ACCESS_CATEGORY_CLIENT_SYSTEM);
         for (const auto & login : logins) {
           remove_user(login);
         }
@@ -755,26 +794,34 @@ namespace vire {
        
       {
         std::set<std::string> logins;
-        fetch_users(logins, vire::com::ACTOR_CATEGORY_CLIENT_CMS);
+        fetch_users(logins, vire::com::ACCESS_CATEGORY_CLIENT_CMS);
         for (const auto & login : logins) {
           remove_user(login);
         }
       }
 
-      // Remove Vire client system vhosts:
-      {
-        std::set<std::string> names;
-        fetch_vhosts(names, vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
-        for (const auto & name : names) {
-          DT_LOG_DEBUG(get_logging_priority(), "Removing client system host '" << name << "'...");
-          remove_vhost(name);
-        }
+      // Remove clients:
+      DT_LOG_DEBUG(get_logging_priority(), "Dismantling clients subcontractors domains and users...");
+      //  // Remove Vire client system vhosts:
+      // {
+      //   std::set<std::string> names;
+      //   fetch_vhosts(names, vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
+      //   for (const auto & name : names) {
+      //     DT_LOG_DEBUG(get_logging_priority(), "Removing client system host '" << name << "'...");
+      //     remove_vhost(name);
+      //   }
+      //  }
+      if (_client_infos_.size()) {
+        _dismantle_vire_cms_clients_();
+        _client_infos_.clear();
       }
 
       // Remove subcontractors:
       DT_LOG_DEBUG(get_logging_priority(), "Dismantling subcontractors domains and users...");
-      _dismantle_vire_cms_subcontractors_();
-      _subcontractor_infos_.clear();
+      if (_subcontractor_infos_.size()) {
+        _dismantle_vire_cms_subcontractors_();
+        _subcontractor_infos_.clear();
+      }
 
       // System:
       if (is_destroy_all_at_reset()) {
@@ -789,7 +836,7 @@ namespace vire {
       _vhost_gate_name_.clear();
       _vhost_control_name_.clear();
       _vhost_monitoring_name_.clear();
-      _system_users_.clear();
+      _system_users_infos_.clear();
       _admin_login_.clear();
       _admin_password_.clear();
       _server_port_ = -1;
@@ -850,12 +897,12 @@ namespace vire {
     }
  
     void manager_service::fetch_users(std::set<std::string> & logins_,
-                                      const vire::com::actor_category_type category_) const
+                                      const vire::com::access_category_type category_) const
     {
       logins_.clear();
       for (const auto & p : _users_) {
         bool add_it = false;
-        if (category_ != vire::com::ACTOR_CATEGORY_INVALID) {
+        if (category_ != vire::com::ACCESS_CATEGORY_INVALID) {
           const user & u = p.second;
           if (u.get_category() == category_) {
             add_it = true;
@@ -897,13 +944,15 @@ namespace vire {
     {      
       DT_THROW_IF(!vh_.is_complete(), std::logic_error, "Vhost is not complete!");
       if (is_initialized()) {
-        DT_THROW_IF(vh_.get_category() != vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM,
+        DT_THROW_IF(vh_.get_category() != vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM
+                    and vh_.get_category() != vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM,
                     std::logic_error,
-                    "Cannot add non system client vhost!");
+                    "Cannot add non system client or subcontractor vhost '" << vh_.get_name() << "'!");
       } else {
-        DT_THROW_IF(vh_.get_category() == vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM,
+        DT_THROW_IF(vh_.get_category() == vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM
+                    or vh_.get_category() == vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM,
                     std::logic_error,
-                    "Cannot add system client vhost!");
+                    "Cannot add system client or subcontractor vhost '" << vh_.get_name() << "'!");
       }
       for (auto cat : vire::com::domain_categories_with_unique_domain()) {
         if (vh_.get_category() == cat) {
@@ -929,11 +978,11 @@ namespace vire {
       }
       // RabbitMQ backend:
       if (!_has_vhost_(vh_.get_name())) {
-        DT_LOG_DEBUG(get_logging_priority(), "Creating RabbitMQ vhost '" << vh_.get_name() << "'...");
+        DT_LOG_DEBUG(get_logging_priority(), "Creating backend RabbitMQ vhost '" << vh_.get_name() << "'...");
         ::rabbitmq::error_response err;
         DT_THROW_IF(!grab_manager().add_vhost(vh_.get_name(), err),
                     std::logic_error,
-                    "Cannot create RabbitMQ vhost '" << vh_.get_name() << "': "
+                    "Cannot create backend RabbitMQ vhost '" << vh_.get_name() << "': "
                     + err.error + ": " + err.reason + "!");
         if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_CONTROL) {
           _setup_vire_cms_domains_control_(vh_.get_name());
@@ -945,11 +994,11 @@ namespace vire {
           _setup_vire_cms_domains_clients_gate_(vh_.get_name());
         }
         if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
-          const subcontractor_info & sc_info = get_subcontractor_info_per_vhost(vh_.get_name());
+          const vire::com::subcontractor_info & sc_info = get_subcontractor_info_per_vhost(vh_.get_name());
           _setup_vire_cms_domains_subcontractor_system_(sc_info.id);
         }
         if (vh_.get_category() == vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM) {
-          const client_info & cl_info = get_client_info_per_vhost(vh_.get_name());
+          const vire::com::client_info & cl_info = get_client_info_per_vhost(vh_.get_name());
           _setup_vire_cms_domains_client_system_(cl_info.id);
         }
       }
@@ -964,7 +1013,7 @@ namespace vire {
       bool delete_it = true;
       if (!_destroy_all_at_reset_
           and vh.get_category() == vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
-        const subcontractor_info & sc_info = get_subcontractor_info_per_vhost(name_);
+        const vire::com::subcontractor_info & sc_info = get_subcontractor_info_per_vhost(name_);
         if (sc_info.persistent) {
           delete_it = false;
         }
@@ -973,11 +1022,11 @@ namespace vire {
         // Only delete temporary vhost related to Vire client:
         if (_has_vhost_(vh.get_name())) {
           DT_LOG_DEBUG(get_logging_priority(),
-                       "Deleting RabbitMQ vhost '" << vh.get_name() << "'...");
+                       "Deleting backend RabbitMQ vhost '" << vh.get_name() << "'...");
          ::rabbitmq::error_response err;
           DT_THROW_IF(!grab_manager().delete_vhost(vh.get_name(), err),
                       std::logic_error,
-                      "Cannot delete RabbitMQ vhost '" << vh.get_name() << "': "
+                      "Cannot delete backend RabbitMQ vhost '" << vh.get_name() << "': "
                       + err.error + ": " + err.reason + "!");
         }
       }
@@ -1026,12 +1075,12 @@ namespace vire {
     }
 
     bool manager_service::has_user(const std::string & name_,
-                                   const vire::com::actor_category_type category_) const
+                                   const vire::com::access_category_type category_) const
     {
       std::map<std::string, user>::const_iterator found = _users_.find(name_);
       if (found != _users_.end()) {
         const user & u = found->second;
-        if (category_ != vire::com::ACTOR_CATEGORY_INVALID) {
+        if (category_ != vire::com::ACCESS_CATEGORY_INVALID) {
           return u.get_category() == category_;
         }
         return true;
@@ -1051,7 +1100,7 @@ namespace vire {
     void manager_service::add_user(const user & user_)
     {      
       DT_THROW_IF(!user_.is_complete(), std::logic_error, "User is not complete!");
-      for (auto cat : vire::com::actor_categories_with_unique_user()) {
+      for (auto cat : vire::com::access_categories_with_unique_user()) {
         if (user_.get_category() == cat) {
           std::set<std::string> users;
           fetch_users(users, cat);
@@ -1067,7 +1116,7 @@ namespace vire {
       _users_[user_.get_login()] = user_;
       // Backend:
       if (!_has_user_(user_.get_login())) {
-        DT_LOG_DEBUG(get_logging_priority(), "Adding RabbitMQ user '" << user_.get_login() << "'...");
+        DT_LOG_DEBUG(get_logging_priority(), "Adding backend RabbitMQ user '" << user_.get_login() << "'...");
         ::rabbitmq::error_response err;
         DT_THROW_IF(!grab_manager().add_user(user_.get_login(), user_.get_password(), err),
                     std::logic_error,
@@ -1083,8 +1132,8 @@ namespace vire {
       const user & u = get_user(login_);
       bool delete_it = true;
       if (!_destroy_all_at_reset_
-          and u.get_category() == vire::com::ACTOR_CATEGORY_SUBCONTRACTOR) {
-        const subcontractor_info & sc_info = get_subcontractor_info_per_user(login_);
+          and u.get_category() == vire::com::ACCESS_CATEGORY_SUBCONTRACTOR) {
+        const vire::com::subcontractor_info & sc_info = get_subcontractor_info_per_user(login_);
         if (sc_info.persistent) {
           delete_it = false;
         }
@@ -1092,7 +1141,7 @@ namespace vire {
       if (delete_it) {
         // Only delete temporary users related to Vire client:
         if (_has_user_(u.get_login())) {
-          DT_LOG_DEBUG(get_logging_priority(), "Deleting RabbitMQ client user '" << u.get_login() << "'...");
+          DT_LOG_DEBUG(get_logging_priority(), "Deleting backend RabbitMQ client user '" << u.get_login() << "'...");
           ::rabbitmq::error_response err;
           DT_THROW_IF(!grab_manager().delete_user(u.get_login(), err),
                       std::logic_error,
@@ -1110,7 +1159,7 @@ namespace vire {
       return _client_infos_.count(client_id_) > 0;
     }
 
-    const manager_service::client_info &
+    const vire::com::client_info &
     manager_service::get_client_info(const std::string & cl_id_) const
     {
       client_dict_type::const_iterator found = _client_infos_.find(cl_id_);
@@ -1120,12 +1169,12 @@ namespace vire {
       return found->second;
     }
 
-    const manager_service::client_info &
+    const vire::com::client_info &
     manager_service::get_client_info_per_vhost(const std::string & vhost_name_) const
     {
-      const manager_service::client_info * cl_entry = nullptr;
+      const vire::com::client_info * cl_entry = nullptr;
       for (const auto & cl_pair : _client_infos_) {
-        if (cl_pair.second.system_vhost_name == vhost_name_) {
+        if (cl_pair.second.system_domain_name == vhost_name_) {
           cl_entry = &cl_pair.second;
           break;
         }
@@ -1136,19 +1185,42 @@ namespace vire {
       return *cl_entry;
     }
  
+    void manager_service::_dismantle_vire_cms_client_(const std::string & cl_id_)
+    {
+      client_dict_type::const_iterator found = _client_infos_.find(cl_id_);
+      DT_THROW_IF(found == _client_infos_.end(),
+                  std::logic_error,
+                  "No client entry '" << cl_id_ << "'!");
+      const vire::com::client_info & cl_info = found->second;
+      if (has_vhost(cl_info.system_domain_name)) {
+        remove_vhost(cl_info.system_domain_name);
+      }
+      if (has_user(cl_info.sys_user_login)) {
+        remove_user(cl_info.sys_user_login);
+      }
+      if (has_user(cl_info.sys_svr_login)) {
+        remove_user(cl_info.sys_svr_login);
+      }
+      if (has_user(cl_info.cms_user_login)) {
+        remove_user(cl_info.cms_user_login);
+      }
+      return;
+    }
+
+ 
     void manager_service::_setup_vire_cms_client_(const std::string & client_id_)
     {
       client_dict_type::const_iterator found = _client_infos_.find(client_id_);
       DT_THROW_IF(found == _client_infos_.end(),
                   std::logic_error,
                   "No client entry '" << client_id_ << "'!");
-      const client_info & cl_info = found->second;
+      const vire::com::client_info & cl_info = found->second;
 
       {
         // Client system side:
         vire::rabbitmq::user cl_user(cl_info.sys_user_login,
                                      cl_info.sys_user_password,
-                                     vire::com::ACTOR_CATEGORY_CLIENT_SYSTEM);
+                                     vire::com::ACCESS_CATEGORY_CLIENT_SYSTEM);
         if (!has_user(cl_user.get_login())) {
           DT_LOG_DEBUG(get_logging_priority(),
                        "Add system client user '" << cl_user.get_login() << "'...");
@@ -1160,7 +1232,7 @@ namespace vire {
         // Client CMS side:
         vire::rabbitmq::user cl_user(cl_info.cms_user_login,
                                      cl_info.cms_user_password,
-                                     vire::com::ACTOR_CATEGORY_CLIENT_CMS);
+                                     vire::com::ACCESS_CATEGORY_CLIENT_CMS);
         if (!has_user(cl_user.get_login())) {
           DT_LOG_DEBUG(get_logging_priority(),
                        "Add CMS client user '" << cl_user.get_login() << "'...");
@@ -1170,7 +1242,7 @@ namespace vire {
         
       {
         // Client system vhost:
-        vire::rabbitmq::vhost vh(cl_info.system_vhost_name,
+        vire::rabbitmq::vhost vh(cl_info.system_domain_name,
                                  vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
         if (!has_vhost(vh.get_name())) {
           DT_LOG_DEBUG(get_logging_priority(),
@@ -1182,7 +1254,7 @@ namespace vire {
       return;
     }
    
-    void manager_service::create_client(const client_info & client_info_)
+    void manager_service::add_client(const vire::com::client_info & client_info_)
     {
       DT_THROW_IF(!is_initialized(),
                   std::logic_error,
@@ -1195,20 +1267,20 @@ namespace vire {
                   "Missing system user login for client '" << client_info_.id << "'!");
       DT_THROW_IF(client_info_.sys_user_password.empty(), std::logic_error,
                   "Missing system user password for client '" << client_info_.id << "'!");
-      DT_LOG_DEBUG(get_logging_priority(),
-                   "Creating management client CMS user '" << client_info_.sys_user_login << "'...");
+      DT_THROW_IF(client_info_.sys_svr_login.empty(), std::logic_error,
+                  "Missing system server login for client '" << client_info_.id << "'!");
+      DT_THROW_IF(client_info_.sys_svr_password.empty(), std::logic_error,
+                  "Missing system server password for client '" << client_info_.id << "'!");
       DT_THROW_IF(client_info_.cms_user_login.empty(), std::logic_error,
                   "Missing CMS user login for client '" << client_info_.id << "'!");
       DT_THROW_IF(client_info_.cms_user_password.empty(), std::logic_error,
                   "Missing CMS user password for client '" << client_info_.id << "'!");
-      client_info cl_info = client_info_;
-      cl_info.system_vhost_name =
-        vire::com::domain_builder::build_cms_client_system_name(get_vhost_name_prefix(),
-                                                                cl_info.id);
-      _client_infos_[cl_info.id] = cl_info;
+      DT_THROW_IF(client_info_.system_domain_name.empty(), std::logic_error,
+                  "Missing system domain name for client '" << client_info_.id << "'!");
+      _client_infos_[client_info_.id] = client_info_;
  
       // Backend ops:
-      _setup_vire_cms_client_(cl_info.id);
+      _setup_vire_cms_client_(client_info_.id);
       
       DT_LOG_DEBUG(get_logging_priority(), "Created management client user with ID '" << client_info_.id << "'.");
       return;
@@ -1226,7 +1298,7 @@ namespace vire {
       DT_THROW_IF(found == _client_infos_.end(),
                   std::logic_error,
                   "No client entry '" << client_id_ << "'!");
-      client_info & cl_info = found->second;
+      vire::com::client_info & cl_info = found->second;
       DT_LOG_DEBUG(get_logging_priority(), "Changing password for system client user '" << cl_info.sys_user_login << "'...");
       cl_info.sys_user_password = sys_user_password_;
       DT_LOG_DEBUG(get_logging_priority(), "Changing password for CMS client user '" << cl_info.cms_user_login << "'...");
@@ -1257,7 +1329,7 @@ namespace vire {
       return;
     }
 
-    void manager_service::destroy_client(const std::string & client_id_)
+    void manager_service::remove_client(const std::string & client_id_)
     {
       DT_THROW_IF(!is_initialized(),
                   std::logic_error,
@@ -1267,7 +1339,7 @@ namespace vire {
       DT_THROW_IF(found == _client_infos_.end(),
                   std::logic_error,
                   "No client entry '" << client_id_ << "'!");
-      client_info & cl_info = found->second;
+      vire::com::client_info & cl_info = found->second;
       DT_LOG_DEBUG(get_logging_priority(), "Destroying management client user with ID  '" << cl_info.id << "'...");
 
       /// Backend ops
@@ -1281,7 +1353,7 @@ namespace vire {
     void manager_service::_dismantle_vire_cms_system_users_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      for (const auto & su_pair : _system_users_) {
+      for (const auto & su_pair : _system_users_infos_) {
         const user & sysuser = su_pair.second;
         if (has_user(sysuser.get_login())) {
           DT_LOG_DEBUG(get_logging_priority(),
@@ -1296,7 +1368,7 @@ namespace vire {
     void manager_service::_setup_vire_cms_system_users_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
-      for (const auto & su_pair : _system_users_) {
+      for (const auto & su_pair : _system_users_infos_) {
         const user & sysuser = su_pair.second;
         if (!has_user(sysuser.get_login())) {
           DT_LOG_DEBUG(get_logging_priority(),
@@ -1372,12 +1444,13 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       // Find the subcontractor user associated to this subcontractor identifier:
-      const subcontractor_info & sc_info = get_subcontractor_info(sc_id_);
-      std::string sc_user_login = sc_info.user_login;
+      const vire::com::subcontractor_info & sc_info = get_subcontractor_info(sc_id_);
+      std::string sc_user_login    = sc_info.user_login;
+      std::string sc_svr_sys_login = sc_info.sys_svr_login;
 
       // System subcontractor domain/vhost:
       {
-        const vhost & vh = get_vhost(sc_info.system_vhost_name);
+        const vhost & vh = get_vhost(sc_info.system_domain_name);
       
         DT_LOG_DEBUG(get_logging_priority(),
                      "Populating system subcontractor domain '" << vh.get_name() << "'...");
@@ -1396,7 +1469,7 @@ namespace vire {
         }
 
       
-        // Fill the vhost with exchanges:
+        // Fill the vhost with hardcoded exchanges:
         static const std::set<std::string> exchanges = {"vireserver.service",
                                                         "vireserver.event",
                                                         "subcontractor.service",
@@ -1425,11 +1498,11 @@ namespace vire {
         // Permissions:
         {
           // Server side:
-          const user & sc_sys_user = get_system_user(vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
           DT_LOG_DEBUG(get_logging_priority(),
-                       "Setting permissions for server subcontractor system user '" << sc_sys_user.get_login()
+                       "Setting permissions for server subcontractor system user '" << sc_svr_sys_login
                        << "' in the '"
                        << vh.get_name() << "' vhost...");
+          const user & sc_sys_user = get_user(sc_svr_sys_login);
           ::rabbitmq::permissions perms;
           perms.user  = sc_sys_user.get_login();
           perms.vhost = vh.get_name();
@@ -1545,7 +1618,7 @@ namespace vire {
       
       // Permissions:
       {
-        const user & u = get_system_user(vire::com::ACTOR_CATEGORY_SERVER_CMS);
+        const user & u = get_system_user(vire::com::ACCESS_CATEGORY_SERVER_CMS);
         const std::string & login = u.get_login();
         DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
                      << "' in the '"
@@ -1610,7 +1683,7 @@ namespace vire {
         
       // Permissions:
       {
-        const user & u = get_system_user(vire::com::ACTOR_CATEGORY_SERVER_CMS);
+        const user & u = get_system_user(vire::com::ACCESS_CATEGORY_SERVER_CMS);
         const std::string & login = u.get_login();
         const std::string & exchange = service_exchange;
         DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
@@ -1632,7 +1705,17 @@ namespace vire {
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
-    
+  
+    void manager_service::_dismantle_vire_cms_clients_()
+    {
+      for (const auto & cl_pair : _client_infos_) {
+        const std::string & cl_id = cl_pair.first;
+        const vire::com::client_info & cl_info = cl_pair.second;
+        _dismantle_vire_cms_client_(cl_id);
+      }
+      return;
+    }
+  
     void manager_service::_setup_vire_cms_domains_clients_gate_(const std::string & vhost_name_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
@@ -1677,7 +1760,7 @@ namespace vire {
       // Permissions:
       {
         // Server side:
-        const user & u = get_system_user(vire::com::ACTOR_CATEGORY_SERVER_GATE);
+        const user & u = get_system_user(vire::com::ACCESS_CATEGORY_SERVER_GATE);
         const std::string & login = u.get_login();
         DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
                      << "' in the '"
@@ -1696,7 +1779,7 @@ namespace vire {
        
       {
         // Client side:
-        const user & u = get_system_user(vire::com::ACTOR_CATEGORY_CLIENT_GATE);
+        const user & u = get_system_user(vire::com::ACCESS_CATEGORY_CLIENT_GATE);
         const std::string & login = u.get_login();
         DT_LOG_DEBUG(get_logging_priority(), "Setting permissions for user '" << login
                      << "' in the '"
@@ -1721,13 +1804,14 @@ namespace vire {
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       // Find the client user associated to this client identifier:
-      const client_info & cl_info = get_client_info(cl_id_);
+      const vire::com::client_info & cl_info = get_client_info(cl_id_);
+      std::string cl_sys_svr_login  = cl_info.sys_svr_login;
       std::string cl_sys_user_login = cl_info.sys_user_login;
       std::string cl_cms_user_login = cl_info.cms_user_login;
-
+               
       // System client domain/vhost:
       {
-        const vhost & vh = get_vhost(cl_info.system_vhost_name);
+        const vhost & vh = get_vhost(cl_info.system_domain_name);
       
         DT_LOG_DEBUG(get_logging_priority(),
                      "Populating system client domain '" << vh.get_name() << "'...");
@@ -1773,20 +1857,20 @@ namespace vire {
         // Permissions:
         {
           // Server side:
-          const user & cl_sys_user = get_system_user(vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM);
           DT_LOG_DEBUG(get_logging_priority(),
-                       "Setting permissions for server client system user '" << cl_sys_user.get_login()
+                       "Setting permissions for server client system user '" << cl_sys_svr_login
                        << "' in the '"
                        << vh.get_name() << "' vhost...");
+          const user & cl_sys_svr_user = get_user(cl_sys_svr_login);
           ::rabbitmq::permissions perms;
-          perms.user  = cl_sys_user.get_login();
+          perms.user  = cl_sys_svr_user.get_login();
           perms.vhost = vh.get_name();
           permissions::add_exchange_service_server_perms(perms, "vireserver.service");
           permissions::add_exchange_event_producer_perms(perms, "vireserver.event");
           ::rabbitmq::error_response err;
           DT_THROW_IF(!grab_manager().set_permissions(perms, err),
                       std::logic_error,
-                      "Cannot set server client system user '" << cl_sys_user.get_login() << "' permissions for '"
+                      "Cannot set server client system user '" << cl_sys_svr_user.get_login() << "' permissions for '"
                       << vh.get_name() << "' virtual host: "
                       << err.error << ": " << err.reason << "!");
 
@@ -1795,12 +1879,12 @@ namespace vire {
         {
           // Client side:
           DT_LOG_DEBUG(get_logging_priority(),
-                       "Setting permissions for client system user '" << cl_sys_user_login
+                       "Setting permissions for client system user '" << cl_cms_user_login
                        << "' in the '"
                        << vh.get_name() << "' vhost...");
-          const user & cl_sys_user = get_user(cl_sys_user_login);
+          const user & cl_cms_sys_user = get_user(cl_cms_user_login);
           ::rabbitmq::permissions perms;
-          perms.user  = cl_sys_user.get_login();
+          perms.user  = cl_cms_sys_user.get_login();
           perms.vhost = vh.get_name();
           permissions::add_exchange_service_client_perms(perms, "vireserver.service");
           permissions::add_exchange_event_listener_perms(perms, "vireserver.event");
@@ -1808,7 +1892,7 @@ namespace vire {
           DT_THROW_IF(!grab_manager().set_permissions(perms, err),
                       std::logic_error,
                       "Cannot set client system user '"
-                      << cl_sys_user.get_login() << "' permissions for '"
+                      << cl_cms_sys_user.get_login() << "' permissions for '"
                       << vh.get_name() << "' virtual host: "
                       << err.error << ": " << err.reason << "!");
         }
@@ -1872,7 +1956,7 @@ namespace vire {
       return;
     }
 
-    void manager_service::_destroy_vire_cms_domains_client_system_(const std::string & login_)
+    void manager_service::_destroy_vire_cms_domains_client_system_(const std::string & client_id_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       /*

@@ -22,7 +22,8 @@
 #include <vire/com/mailbox.h>
 
 // This project:
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/access_profile.h>
 
 namespace vire {
 
@@ -367,7 +368,7 @@ namespace vire {
       return _permissions_;
     }
 
-    bool mailbox::check_permissions(const actor & actor_,
+    bool mailbox::check_permissions(const access_hub & hub_,
                                     const usage_permission_flag flag_) const
     {
       std::size_t perm_flag = 3;
@@ -379,21 +380,21 @@ namespace vire {
         perm_flag = 3;
       }
       if (perm_flag == 3) return false;
-      std::size_t actor_flag = 3;
-      switch(actor_.get_category()) {
-      case ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: actor_flag = 0; break;
-      case ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM:        actor_flag = 0; break;
-      case ACTOR_CATEGORY_SERVER_GATE:                 actor_flag = 0; break;
-      case ACTOR_CATEGORY_SERVER_CMS:                  actor_flag = 0; break;
-      case ACTOR_CATEGORY_CLIENT_SYSTEM:               actor_flag = 1; break;
-      case ACTOR_CATEGORY_CLIENT_CMS:                  actor_flag = 1; break;
-      case ACTOR_CATEGORY_CLIENT_GATE:                 actor_flag = 1; break;
-      case ACTOR_CATEGORY_SUBCONTRACTOR:               actor_flag = 2; break;
+      std::size_t hub_flag = 3;
+      switch(hub_.get_profile().get_category()) {
+      case ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: hub_flag = 0; break;
+      case ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM:        hub_flag = 0; break;
+      case ACCESS_CATEGORY_SERVER_GATE:                 hub_flag = 0; break;
+      case ACCESS_CATEGORY_SERVER_CMS:                  hub_flag = 0; break;
+      case ACCESS_CATEGORY_CLIENT_SYSTEM:               hub_flag = 1; break;
+      case ACCESS_CATEGORY_CLIENT_CMS:                  hub_flag = 1; break;
+      case ACCESS_CATEGORY_CLIENT_GATE:                 hub_flag = 1; break;
+      case ACCESS_CATEGORY_SUBCONTRACTOR:               hub_flag = 2; break;
       default:
-        actor_flag = 3;
+        hub_flag = 3;
       }
-      if (actor_flag == 3) return false;
-      std::size_t bit = actor_flag * 3 + perm_flag;
+      if (hub_flag == 3) return false;
+      std::size_t bit = hub_flag * 3 + perm_flag;
       return _permissions_.test(bit);
     }
 

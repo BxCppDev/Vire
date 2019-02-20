@@ -1,7 +1,7 @@
 // /vire/cmsclient/client.cc
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                       Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -27,10 +27,11 @@
 
 // This project:
 #include <vire/com/manager.h>
-#include <vire/cmsclient/session_manager.h>
 #include <vire/device/manager.h>
 #include <vire/resource/manager.h>
 #include <vire/cmsclient/setup_infos_tui.h>
+#include <vire/cmsclient/negotiation_service.h>
+// #include <vire/cmsclient/session_manager.h>
 
 namespace vire {
 
@@ -38,11 +39,19 @@ namespace vire {
 
     struct client::pimpl_type
     {
-      vire::com::manager            * com       = nullptr;
-      const vire::device::manager   * devices   = nullptr;
-      const vire::resource::manager * resources = nullptr;
-      vire::cmsclient::session_manager * session = nullptr;       
+      vire::com::manager               * com       = nullptr;
+      const vire::device::manager      * devices   = nullptr;
+      const vire::resource::manager    * resources = nullptr;
+      vire::cmsclient::negotiation_service * nego = nullptr;       
+      // vire::cmsclient::session_manager * session = nullptr;       
     };
+    
+    // static
+    std::string client::nego_service_name()
+    {
+      static const std::string _n("nego");
+      return _n;
+    }
     
     // static
     std::string client::com_service_name()
@@ -167,9 +176,9 @@ namespace vire {
 
       _at_init_();
 
-      _start_system_services();
+      _start_system_services_();
 
-      // _start_business_services();
+      // _start_business_services_();
 
       _initialized_ = true;
       DT_LOG_TRACE_EXITING(get_logging_priority());
@@ -182,9 +191,9 @@ namespace vire {
       DT_THROW_IF(!is_initialized(), std::logic_error, "Client is not initialized!");
       _initialized_ = false;
 
-      //_stop_business_services();
+      //_stop_business_services_();
 
-      _stop_system_services();
+      _stop_system_services_();
 
       _at_reset_();
 
@@ -239,38 +248,38 @@ namespace vire {
         out_ << popts.indent << popts.title << std::endl;
       }
 
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << tag
            << "Configuration : " << std::endl;
       {
         std::ostringstream indent2;
-        indent2 << popts.indent << datatools::i_tree_dumpable::skip_tag;
+        indent2 << popts.indent << skip_tag;
         _mconfig_.tree_dump(out_, "", indent2.str());
       }
 
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << tag
            << "UI mode : " << _ui_mode_ << std::endl;
 
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << tag
            << "Setup infos : " << std::endl;
       {
         std::ostringstream indent2;
-        indent2 << popts.indent << datatools::i_tree_dumpable::skip_tag;
+        indent2 << popts.indent << skip_tag;
         _setup_infos_.tree_dump(out_, "", indent2.str());
       }
 
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << tag
            << "Services : " << std::endl;
       {
         std::ostringstream indent2;
-        indent2 << popts.indent << datatools::i_tree_dumpable::skip_tag;
+        indent2 << popts.indent << skip_tag;
         _services_.tree_dump(out_, "", indent2.str());
       }
 
-      out_ << popts.indent << datatools::i_tree_dumpable::tag
+      out_ << popts.indent << tag
            << "Initialized : "
            << std::boolalpha << _initialized_ << std::endl;
 
-      out_ << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
+      out_ << popts.indent << inherit_tag(popts.inherit)
            << "In setup : "
            << std::boolalpha << _in_setup_ << std::endl;
 
@@ -321,17 +330,25 @@ namespace vire {
         _init_main_(main_config);
       }
 
-      // if (!has_setup_infos()) {
-      //   // Fetch setup informations:
-      //   datatools::properties setup_config;
-      //   if (_mconfig_.has_section("setup")) {
-      //     setup_config = _mconfig_.get_section("setup");
-      //     _setup_infos_.initialize(setup_config);
-      //   }
-      // }
+      if (!has_setup_infos()) {
+        // Fetch setup informations:
+        datatools::properties setup_config;
+        if (_mconfig_.has_section("setup")) {
+          setup_config = _mconfig_.get_section("setup");
+          _setup_infos_.initialize(setup_config);
+        }
+      }
+
+      if (!_setup_infos_.has_gate_client_user_login()) {
+        DT_THROW(std::logic_error, "No login is provided for client gate access!");
+      }
+      
+      if (!_setup_infos_.has_gate_client_user_password()) {
+        DT_THROW(std::logic_error, "No password is provided for client gate access!");
+      }
 
       _services_.set_name("CMSClientServices");
-      _services_.set_description("CMS client service manager");
+      _services_.set_description("CMS client service bus manager");
       _services_.set_allow_dynamic_services(true);
       _services_.set_force_initialization_at_load(true);
       _services_.initialize();
@@ -351,6 +368,7 @@ namespace vire {
       return;
     }
 
+    /*
     void client::_init_com_()
     {
       if (_pimpl_->com) {
@@ -360,13 +378,23 @@ namespace vire {
         if (!_setup_infos_.has_gate_password()) {
           DT_THROW(std::logic_error, "No password is provided for client gate access!");
         }
+        // Create actor profile:
+        vire::com::actor_profile & client_gate_actor_profile =
+          _pimpl_->com->create_actor_profile(get_setup_infos().get_gate_login(),
+                                             get_setup_infos().get_gate_password(),
+                                             vire::com::ACTOR_CATEGORY_CLIENT_GATE);
+        _gate_actor_ = 
+          client_gate_actor_profile.create_actor("connection");
+
         _pimpl_->com->create_actor(_setup_infos_.get_gate_login(),
                                    _setup_infos_.get_gate_password(),
                                    vire::com::ACTOR_CATEGORY_CLIENT_GATE);
       }
       return;
     }
+    */
 
+    /*
     void client::_terminate_com_()
     {
       if (_pimpl_->com) {
@@ -376,79 +404,118 @@ namespace vire {
       }
       return;
     }
+    */
 
-    void client::_start_system_services()
+    void client::_start_system_services_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
+      
       // Com manager:
-      DT_LOG_TRACE(get_logging_priority(), "Com manager...");
+      DT_LOG_DEBUG(get_logging_priority(), "Com manager...");
       datatools::properties com_config;
-      if (_mconfig_.has_section("com")) {
-        com_config = _mconfig_.get_section("com");
+      if (_mconfig_.has_section(com_service_name())) {
+        com_config = _mconfig_.get_section(com_service_name());
       }
-      _services_.load(com_service_name(),
-                      "vire::com::manager",
-                      com_config);
-      if (datatools::logger::is_trace(get_logging_priority())) {
-        _services_.tree_dump(std::cerr, "Services:", "[trace] ");
+      {
+        vire::com::manager & com_handle =
+          dynamic_cast<vire::com::manager&>(_services_.load_no_init(com_service_name(),
+                                                                    "vire::com::manager"));
+        com_handle.set_app_category(vire::cms::application::CATEGORY_CLIENT);
+        com_handle.set_domain_name_prefix(get_setup_infos().get_domain_name_prefix());
+        com_handle.set_default_transport_driver_type_id(get_setup_infos().get_transport_driver_type_id());
+        com_handle.set_default_encoding_driver_type_id(get_setup_infos().get_encoding_driver_type_id());
+        // com_handle.set_resource_service_name(resource_service_name());
       }
-      DT_LOG_TRACE(get_logging_priority(), "com service is setup.");
+      _services_.configure_no_init(com_service_name(), com_config);
+      DT_LOG_DEBUG(get_logging_priority(), "Com service is configured.");
       vire::com::manager & com = _services_.grab<vire::com::manager>(com_service_name());
+      DT_LOG_DEBUG(get_logging_priority(), "Com service is initialized.");
       if (datatools::logger::is_trace(get_logging_priority())) {
         com.tree_dump(std::cerr, "Com service:", "[trace] ");
       }
       _pimpl_->com = &com;
       _services_.sync();
-
+      
+      // Negotiation service:
+      DT_LOG_DEBUG(get_logging_priority(), "Negotiation service...");
+      datatools::properties nego_config;
+      if (_mconfig_.has_section(nego_service_name())) {
+        nego_config = _mconfig_.get_section(nego_service_name());
+      }
       {
-        const datatools::service_dict_type & services_dict = _services_.get_bus_of_services();
-        DT_LOG_TRACE(get_logging_priority(), "Session dict size = " << services_dict.size());
-        for (const auto & p : services_dict) {
-          DT_LOG_TRACE(get_logging_priority(), "Key='" << p.first << "'");
-        }
+        vire::cmsclient::negotiation_service & nego_handle =
+          dynamic_cast<vire::cmsclient::negotiation_service&>(_services_.load_no_init(nego_service_name(),
+                                                                                      "vire::cmsclient::negotiation_service"));
+        // XXX
+        nego_handle.set_logging_priority(datatools::logger::PRIO_DEBUG);
+        nego_handle.set_client(*this);
+        nego_handle.set_gate_user_login(get_setup_infos().get_gate_client_user_login());
+        nego_handle.set_gate_user_password(get_setup_infos().get_gate_client_user_password());
       }
-
-      // Session manager:
-      DT_LOG_TRACE(get_logging_priority(), "Session manager...");
-      datatools::properties session_config;
-      if (_mconfig_.has_section("session")) {
-        session_config = _mconfig_.get_section("session");
+      _services_.configure_no_init(nego_service_name(), nego_config);
+      DT_LOG_DEBUG(get_logging_priority(), "Negotiation service is configured.");
+      vire::cmsclient::negotiation_service & nego =
+        _services_.grab<vire::cmsclient::negotiation_service>(nego_service_name());
+      DT_LOG_DEBUG(get_logging_priority(), "Negotiation service is initialized.");
+      if (datatools::logger::is_trace(get_logging_priority())) {
+        nego.tree_dump(std::cerr, "Negotiation service:", "[trace] ");
       }
-      vire::cmsclient::session_manager & session =
-        dynamic_cast<vire::cmsclient::session_manager&>(_services_.load_no_init(session_service_name(),
-                                                                                "vire::cmsclient::session_manager"));
-      session.set_logging(get_logging_priority());
-      session.set_client(*this);
-      session.initialize(session_config,
-                         const_cast<datatools::service_dict_type&>(_services_.get_bus_of_services()));
-
-      {
-        const datatools::service_dict_type & services_dict = _services_.get_bus_of_services();
-        DT_LOG_TRACE(get_logging_priority(), "Session dict size = " << services_dict.size());
-        for (const auto & p : services_dict) {
-          DT_LOG_TRACE(get_logging_priority(), "Key='" << p.first << "'");
-        }
-      }
-      _pimpl_->session = &session;
+      _pimpl_->nego = &nego;
       _services_.sync();
 
-      DT_LOG_TRACE(get_logging_priority(), "session service is setup.");
+      // // Session manager:
+      // DT_LOG_DEBUG(get_logging_priority(), "Session manager...");
+      // datatools::properties session_config;
+      // if (_mconfig_.has_section(session_service_name())) {
+      //   session_config = _mconfig_.get_section(session_service_name());
+      // }
+      // vire::cmsclient::session_manager & session =
+      //   dynamic_cast<vire::cmsclient::session_manager&>(_services_.load_no_init(session_service_name(),
+      //                                                                           "vire::cmsclient::session_manager"));
+      // session.set_logging(get_logging_priority());
+      // session.set_client(*this);
+      // session.initialize(session_config,
+      //                    const_cast<datatools::service_dict_type&>(_services_.get_bus_of_services()));
+      // {
+      //   const datatools::service_dict_type & services_dict = _services_.get_bus_of_services();
+      //   DT_LOG_DEBUG(get_logging_priority(), "Session dict size = " << services_dict.size());
+      //   for (const auto & p : services_dict) {
+      //     DT_LOG_DEBUG(get_logging_priority(), "Key='" << p.first << "'");
+      //   }
+      // }
+      // _pimpl_->session = &session;
+      // _services_.sync();
 
-      _init_com_();
+      if (datatools::logger::is_trace(get_logging_priority())) {
+        _services_.tree_dump(std::cerr, "Services:", "[trace] ");
+      }
+
+      {
+        const datatools::service_dict_type & services_dict = _services_.get_bus_of_services();
+        DT_LOG_DEBUG(get_logging_priority(), "Session dict size = " << services_dict.size());
+        for (const auto & p : services_dict) {
+          DT_LOG_DEBUG(get_logging_priority(), "Key='" << p.first << "'");
+        }
+      }
+
+      DT_LOG_DEBUG(get_logging_priority(), "session service is setup.");
       
       DT_LOG_TRACE_EXITING(get_logging_priority());
       return;
     }
 
-    void client::_stop_system_services()
+    void client::_stop_system_services_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
 
-      _terminate_com_();
+      // if (_services_.is_a<vire::cmsclient::session_manager>(session_service_name())) {
+      //   _pimpl_->session = nullptr;
+      //   _services_.drop(session_service_name());
+      // }
 
-      if (_services_.is_a<vire::cmsclient::session_manager>(session_service_name())) {
-        _pimpl_->session = nullptr;
-        _services_.drop(session_service_name());
+      if (_services_.is_a<vire::cmsclient::negotiation_service>(nego_service_name())) {
+        _pimpl_->nego = nullptr;
+        _services_.drop(nego_service_name());
       }
 
       if (_services_.is_a<vire::com::manager>(com_service_name())) {
@@ -460,7 +527,7 @@ namespace vire {
       return;
     }
 
-    void client::_start_business_services()
+    void client::_start_business_services_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       // Devices manager:
@@ -489,7 +556,7 @@ namespace vire {
       return;
     }
 
-    void client::_stop_business_services()
+    void client::_stop_business_services_()
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::vector<std::string> list_of_services;

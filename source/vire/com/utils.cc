@@ -43,6 +43,60 @@ namespace vire {
       }
     }
 
+    void build_system_login(const std::string & prefix_,
+                            const std::string & access_label_,
+                            std::string & login_)
+    {
+      std::ostringstream outs;
+      outs << prefix_ << access_label_;
+      login_ = outs.str();
+      return;
+    }
+    
+    std::string make_system_login(const std::string & prefix_,
+                                  const std::string & access_label_)
+    {
+      std::string login;
+      build_system_login(prefix_, access_label_, login);
+      return login;
+    }
+    
+    const std::string & server_cms_access_label()
+    {
+      static const std::string _k("vireservercms");
+      return _k;
+    }
+
+    const std::string & server_gate_access_label()
+    {
+      static const std::string _k("vireservergate");
+      return _k;
+    }
+
+     const std::string & client_gate_access_label()
+    {
+      static const std::string _k("vireclientgate");
+      return _k;
+    }
+
+    const std::string & server_subcontractor_system_access_label()
+    {
+      static const std::string _k("vireserverscsys");
+      return _k;
+    }
+
+     const std::string & server_client_system_access_label()
+    {
+      static const std::string _k("vireserverclientsys");
+      return _k;
+    }
+
+    const std::string & private_mailbox_key()
+    {
+      static const std::string _k("private_mailbox");
+      return _k;
+    }
+    
     const std::string & message_id_key()
     {
       static const std::string _k("message_id");
@@ -91,87 +145,90 @@ namespace vire {
       return _l;
     }
 
-    std::string to_string(const actor_category_type category_)
+    std::string to_string(const access_category_type category_)
     {
       switch(category_) {
-      case ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: return "server-subcontractor-system";
-      case ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM: return "server-client-system";
-      case ACTOR_CATEGORY_SERVER_GATE: return "server-gate";
-      case ACTOR_CATEGORY_SERVER_CMS: return "server-cms";
-      case ACTOR_CATEGORY_CLIENT_SYSTEM : return "client-system";
-      case ACTOR_CATEGORY_CLIENT_CMS : return "client-cms";
-      case ACTOR_CATEGORY_CLIENT_GATE : return "client-gate";
-      case ACTOR_CATEGORY_SUBCONTRACTOR : return "subcontractor";
+      case ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM: return "server-subcontractor-system";
+      case ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM: return "server-client-system";
+      case ACCESS_CATEGORY_SERVER_GATE: return "server-gate";
+      case ACCESS_CATEGORY_SERVER_CMS: return "server-cms";
+      case ACCESS_CATEGORY_CLIENT_SYSTEM : return "client-system";
+      case ACCESS_CATEGORY_CLIENT_CMS : return "client-cms";
+      case ACCESS_CATEGORY_CLIENT_GATE : return "client-gate";
+      case ACCESS_CATEGORY_SUBCONTRACTOR : return "subcontractor";
       default:
         break;
       }
       return "";
     }
 
-    const std::set<actor_category_type> & actor_categories_with_unique_user()
+    const std::set<access_category_type> & access_categories_with_unique_user()
     {
-      static std::set<actor_category_type> _s;
+      static std::set<access_category_type> _s;
       if (_s.size()) {
-        _s.insert(ACTOR_CATEGORY_SERVER_CMS);
-        _s.insert(ACTOR_CATEGORY_SERVER_GATE);
-        _s.insert(ACTOR_CATEGORY_CLIENT_GATE);
+        _s.insert(ACCESS_CATEGORY_SERVER_CMS);
+        _s.insert(ACCESS_CATEGORY_SERVER_GATE);
+        _s.insert(ACCESS_CATEGORY_CLIENT_GATE);
+        // _s.insert(ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM);
+        // _s.insert(ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM);
       }
       return _s;
     }
 
-    bool is_unique_user(const actor_category_type category_)
+    bool is_unique_user(const access_category_type category_)
     {
-      return actor_categories_with_unique_user().count(category_);
+      return access_categories_with_unique_user().count(category_);
     }
 
-    bool from_string(const std::string & label_, actor_category_type & category_)
+    bool from_string(const std::string & label_, access_category_type & category_)
     {
-      category_ = ACTOR_CATEGORY_INVALID;
-      if (label_ == to_string(ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM)) {
-        category_ = ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM;
+      category_ = ACCESS_CATEGORY_INVALID;
+      if (label_ == to_string(ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM)) {
+        category_ = ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM)) {
-        category_ = ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM;
+      if (label_ == to_string(ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM)) {
+        category_ = ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_SERVER_GATE)) {
-        category_ = ACTOR_CATEGORY_SERVER_GATE;
+      if (label_ == to_string(ACCESS_CATEGORY_SERVER_GATE)) {
+        category_ = ACCESS_CATEGORY_SERVER_GATE;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_SERVER_CMS)) {
-        category_ = ACTOR_CATEGORY_SERVER_CMS;
+      if (label_ == to_string(ACCESS_CATEGORY_SERVER_CMS)) {
+        category_ = ACCESS_CATEGORY_SERVER_CMS;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_CLIENT_SYSTEM)) {
-        category_ = ACTOR_CATEGORY_CLIENT_SYSTEM;
+      if (label_ == to_string(ACCESS_CATEGORY_CLIENT_SYSTEM)) {
+        category_ = ACCESS_CATEGORY_CLIENT_SYSTEM;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_CLIENT_CMS)) {
-        category_ = ACTOR_CATEGORY_CLIENT_CMS;
+      if (label_ == to_string(ACCESS_CATEGORY_CLIENT_CMS)) {
+        category_ = ACCESS_CATEGORY_CLIENT_CMS;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_CLIENT_GATE)) {
-        category_ = ACTOR_CATEGORY_CLIENT_GATE;
+      if (label_ == to_string(ACCESS_CATEGORY_CLIENT_GATE)) {
+        category_ = ACCESS_CATEGORY_CLIENT_GATE;
       }
-      if (label_ == to_string(ACTOR_CATEGORY_SUBCONTRACTOR)) {
-        category_ = ACTOR_CATEGORY_SUBCONTRACTOR;
+      if (label_ == to_string(ACCESS_CATEGORY_SUBCONTRACTOR)) {
+        category_ = ACCESS_CATEGORY_SUBCONTRACTOR;
       }
-      return category_ != ACTOR_CATEGORY_INVALID;
+      return category_ != ACCESS_CATEGORY_INVALID;
     }
 
-    bool actor_category_requires_target(const actor_category_type category_)
+    bool access_category_requires_target(const access_category_type category_)
     {
       switch(category_) {
-      case ACTOR_CATEGORY_SERVER_GATE:
-      case ACTOR_CATEGORY_SERVER_CMS:
-      case ACTOR_CATEGORY_CLIENT_CMS:
-      case ACTOR_CATEGORY_CLIENT_GATE:
+      case ACCESS_CATEGORY_SERVER_GATE:
+      case ACCESS_CATEGORY_SERVER_CMS:
+      case ACCESS_CATEGORY_CLIENT_GATE:
+      // case ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM:
+      // case ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM:
         return false;
       }
       return true;
     }
 
-    bool actor_category_is_persistant(const actor_category_type category_)
+    bool access_category_is_persistant(const access_category_type category_)
     {
       switch(category_) {
-      case ACTOR_CATEGORY_SERVER_GATE:
-      case ACTOR_CATEGORY_SERVER_CMS:
-      case ACTOR_CATEGORY_SUBCONTRACTOR:
+      case ACCESS_CATEGORY_SERVER_GATE:
+      case ACCESS_CATEGORY_SERVER_CMS:
+      case ACCESS_CATEGORY_SUBCONTRACTOR:
         return true;
      }
       return false;

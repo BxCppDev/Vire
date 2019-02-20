@@ -1,7 +1,7 @@
 //! \file  vire/com/i_transport_manager.h
 //! \brief Vire com transport manager interface
 //
-// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2018-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -67,20 +67,42 @@ namespace vire {
       //! Reset the driver
       void reset();
 
+      //! Check if a domain exists
       virtual bool has_domain(const std::string & domain_name_) const = 0;
       
+      //! Add a domain of given category
       virtual void add_domain(const std::string & domain_name_,
                               const domain_category_type category_) = 0;
       
+      //! Remove a domain 
       virtual void remove_domain(const std::string & domain_name_) = 0;
  
+      //! Check if a user exists
       virtual bool has_user(const std::string & login_) const = 0;
       
+      //! Add a user of given category
       virtual void add_user(const std::string & login_,
                             const std::string & password_,
-                            const actor_category_type category_) = 0;
+                            const access_category_type category_) = 0;
       
+      //! Remove a user 
       virtual void remove_user(const std::string & login_) = 0;
+
+      // //! Grant domain access to a user
+      // virtual void grant_access(const std::string & login_,
+      //                          const std::string & domain_name_) = 0;     
+      
+      //! Add transport resources associated to a subcontractor
+      virtual void add_subcontractor(const subcontractor_info & sc_info_) = 0;
+     
+      //! Remove transport resources associated to a subcontractor
+      virtual void remove_subcontractor(const subcontractor_info & sc_info_) = 0;
+    
+      //! Add transport resources associated to a client
+      virtual void add_client(const client_info & client_info_) = 0;
+     
+      //! Remove transport resources associated to a client
+      virtual void remove_client(const client_info & client_info_) = 0;
 
       //! Smart print
       void print_tree(std::ostream & out_ = std::clog,

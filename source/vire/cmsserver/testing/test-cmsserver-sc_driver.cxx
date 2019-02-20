@@ -1,7 +1,7 @@
-// test-cmsserver-sc_info.cxx
+// test-cmsserver-sc_driver.cxx
 
 // Ourselves:
-#include <vire/cmsserver/sc_info.h>
+#include <vire/cmsserver/sc_driver.h>
 
 // Standard library:
 #include <cstdlib>
@@ -21,10 +21,11 @@
 
 // This project:
 #include <vire/vire.h>
-#include <vire/cmsserver/ui/sc_info_panel.h>
+#include <vire/cmsserver/ui/sc_driver_panel.h>
+#include <vire/sandbox/sandbox.h>
 
-#include "tools.h"
-#include "sc_info_runner.h"
+// #include "tools.h"
+#include "sc_driver_runner.h"
 #include "../../cms/testing/image_status_runner.h"
 
 struct params
@@ -32,21 +33,21 @@ struct params
   bool gui = false;
 };
 
-void test_sc_info_1(params);
+void test_sc_driver_1(params);
 
 int main(int argc_, char ** argv_)
 {
   vire::initialize();
   int error_code = EXIT_SUCCESS;
   try {
-    std::clog << "Test program for the 'vire::cmsserver::sc_info' class."
+    std::clog << "Test program for the 'vire::cmsserver::sc_driver' class."
               << std::endl;
     params the_params;
     if (argc_ > 1 && std::string(argv_[1]) == "--gui") {
       the_params.gui = true;
     }
 
-    test_sc_info_1(the_params);
+    test_sc_driver_1(the_params);
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -60,22 +61,36 @@ int main(int argc_, char ** argv_)
   return (error_code);
 }
 
-void test_sc_info_1(params params_)
+void test_sc_driver_1(params params_)
 {
   bool gui = params_.gui;
 
-  std::clog << "\ntest_sc_info_1: basics" << std::endl;
-
+  std::clog << "\ntest_sc_driver_1: basics" << std::endl;
+    
+  vire::user::manager userMgr;
+  vire::sandbox::init_users(userMgr);
+  userMgr.print_tree(std::clog, datatools::i_tree_dumpable::make_base_print_options("Users:"));
+  
   vire::device::manager deviceMgr;
   vire::sandbox::init_devices(deviceMgr);
+  {
+    boost::property_tree::ptree options;
+    options.put("title", "Virtual device manager: ");
+    // options.put("tree.list_instances", true);
+    deviceMgr.print_tree(std::clog, options);
+    std::clog << std::endl;
+  }
 
   vire::resource::manager resourceMgr;
   vire::sandbox::init_resources(resourceMgr, deviceMgr);
+  resourceMgr.print_tree(std::clog, datatools::i_tree_dumpable::make_base_print_options("Resources:"));
 
   vire::com::manager comMgr;
-  vire::sandbox::init_com(comMgr, resourceMgr);
-   
-  vire::cmsserver::sc_info scInfo;
+  vire::sandbox::init_com(comMgr, resourceMgr, vire::cms::application::CATEGORY_SERVER);
+  comMgr.print_tree(std::clog, datatools::i_tree_dumpable::make_base_print_options("Com:"));
+
+  /*
+  vire::cmsserver::sc_driver scInfo;
   scInfo.set_name("orleans");
   scInfo.set_display_name("Orleans");
   scInfo.set_terse_description("Orleans CMS subcontractor interface");
@@ -89,7 +104,7 @@ void test_sc_info_1(params params_)
   scInfo.print_tree(std::clog, datatools::i_tree_dumpable::make_base_print_options("Subcontractor:"));
   std::clog << std::endl;
 
-  vire::cmsserver::testing::sc_info_runner scRunner(scInfo);
+  vire::cmsserver::testing::sc_driver_runner scRunner(scInfo);
   
   vire::cms::image_status & sc1
     = scInfo.grab_mounted_device_info("SuperNEMO:/Demonstrator/CMS/Coil/PS").status;
@@ -107,14 +122,16 @@ void test_sc_info_1(params params_)
   std::thread t2(stRunner1);
   std::thread t3(stRunner2);
   std::thread t4(stRunner3);
-
+  */
+  
+  /*
   if (gui) {
     int argc = 1;
-    const char * argv[] = { "test-cmsserver-sc_info" };
+    const char * argv[] = { "test-cmsserver-sc_driver" };
     QApplication app(argc, (char **) argv);
 
-    using vire::cmsserver::ui::sc_info_panel;
-    sc_info_panel * scInfoPanel = new sc_info_panel;
+    using vire::cmsserver::ui::sc_driver_panel;
+    sc_driver_panel * scInfoPanel = new sc_driver_panel;
     scInfoPanel->set_subcontractor_info(scInfo);
 
     QWidget window;
@@ -128,7 +145,7 @@ void test_sc_info_1(params params_)
   t2.join();
   t3.join();
   t4.join();
-
+  */
   std::clog << std::endl;
   return;
 }

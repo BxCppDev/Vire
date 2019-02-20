@@ -1,8 +1,8 @@
 //! \file  vire/cms/base RPC worker.h
 //! \brief Vire CMS base RPC worker
 //
-// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
-// Copyright (c) 2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2019 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 //
 // This file is part of Vire.
@@ -96,7 +96,10 @@ namespace vire {
       
     private:
 
+      /// Logging priority threshold
       datatools::logger::priority _logging_ = datatools::logger::PRIO_FATAL;
+      
+      /// Set of supported payload type IDs
       std::set<std::string> _supported_payload_type_ids_;
       
       // Factory stuff :

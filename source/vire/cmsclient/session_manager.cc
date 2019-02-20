@@ -68,17 +68,6 @@ namespace vire {
       return;
     }
 
-    datatools::logger::priority session_manager::get_logging() const
-    {
-      return _logging_;
-    }
-
-    void session_manager::set_logging(const datatools::logger::priority l_)
-    {
-      _logging_ = l_;
-      return;
-    }
-
     bool session_manager::is_initialized() const
     {
       return _initialized_;

@@ -8,7 +8,8 @@ list(APPEND VireLibrary_HEADERS
   com/json_encoding_driver.h
   com/protobuf_encoding_driver.h
   com/mailbox.h
-  com/actor.h
+  com/access_profile.h
+  com/access_hub.h
   com/domain.h
   com/domain_builder.h
   com/i_transport_driver.h
@@ -33,7 +34,8 @@ list(APPEND VireLibrary_SOURCES
   com/json_encoding_driver.cc
   com/protobuf_encoding_driver.cc
   com/mailbox.cc
-  com/actor.cc
+  com/access_profile.cc
+  com/access_hub.cc
   com/domain.cc
   com/domain_builder.cc
   com/i_transport_driver.cc
@@ -55,4 +57,6 @@ list(APPEND VireLibrary_TESTS
   com/testing/test-com-domain.cxx
   com/testing/test-com-domain_builder.cxx
   com/testing/test-com-manager.cxx
+  com/testing/test-com-access_profile.cxx
+  com/testing/test-com-access_hub.cxx
   )

@@ -1,7 +1,7 @@
-//! \file  vire/com/base_plug.h
-//! \brief Vire com base plug
+/// \file  vire/com/base_plug.h
+/// \brief Vire com base plug
 //
-// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -34,25 +34,23 @@
 // This project:
 #include <vire/com/utils.h>
 #include <vire/com/i_encoding_driver.h>
-// #include <vire/com/i_transport_driver.h>
 
 namespace vire {
 
   namespace com {
 
-    class actor;
+    class access_hub;
     class domain;
-    class plug_factory;
    
-    //! \brief Base communication plug
+    /// \brief Base communication plug
     class base_plug
       : public datatools::i_tree_dumpable
     {
     protected:
 
-      //! Constructor
+      /// Constructor
       base_plug(const std::string & name_,
-                const actor & parent_,
+                const access_hub & parent_,
                 const domain & domain_,
                 const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
 
@@ -62,14 +60,14 @@ namespace vire {
       
       void set_logging(const datatools::logger::priority);
        
-      //! Destructor
+      /// Destructor
       virtual ~base_plug();
 
-      //! Return the name
+      /// Return the name
       const std::string & get_name() const;
 
-      //! Return the parent actor
-      const actor & get_parent() const;
+      /// Return the parent actor
+      const access_hub & get_parent() const;
 
       const domain & get_domain() const;
       
@@ -77,34 +75,30 @@ namespace vire {
 
       datatools::properties & grab_metadata();
 
-      //! Return category
+      /// Return category
       virtual plug_category_type get_category() const = 0;
      
-      //! Return the next message unique ID
+      /// Return the next message unique ID
       int get_next_message_id() const;
 
-      //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
+      /// Smart print
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
 
     protected:
       
-      //! Pop the next message unique ID
+      /// Pop the next message unique ID
       int _pop_next_message_id();
 
     private:
 
       // Configuration:
-      std::string    _name_;   //!< Plug name (unique key for the parent actor)
-      const actor &  _parent_; //!< parent actor
-      const domain & _domain_; //!< Domain scope
+      std::string         _name_;   ///< Plug name (unique key for the parent actor)
+      const access_hub &  _parent_; ///< Parent hub
+      const domain &      _domain_; ///< Domain scope
       datatools::logger::priority _logging_;
       datatools::properties _metadata_;
       int32_t               _next_message_id_ = 0;
-
-      friend plug_factory;
 
     };
 

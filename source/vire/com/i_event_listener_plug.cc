@@ -27,7 +27,8 @@
 
 // This project:
 #include <vire/com/domain.h>
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/access_profile.h>
 #include <vire/com/utils.h>
 #include <vire/time/utils.h>
 #include <vire/message/message.h>
@@ -41,13 +42,13 @@ namespace vire {
    
     void i_event_listener_plug::_populate_allowed_mailboxes_()
     {
-      domain_category_type domCat = get_domain().get_category();
-      actor_category_type actorCat = get_parent().get_category();
+      const domain_category_type domCat = get_domain().get_category();
+      const access_category_type accessCat = get_parent().get_profile().get_category();
 
       bool supported = false;
 
       if (domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
-        // Only for ACTOR_CATEGORY_CLIENT_SYSTEM:
+        // Only for ACCESS_CATEGORY_CLIENT_SYSTEM:
         _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
         supported = true;
       }
@@ -60,11 +61,11 @@ namespace vire {
       }
  
       if (domCat == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
-        if (actorCat == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+        if (accessCat == ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
           _allowed_mailboxes_.insert(mailbox_system_subcontractor_event_name());
           supported = true;
         }
-        if (actorCat == ACTOR_CATEGORY_SUBCONTRACTOR) {
+        if (accessCat == ACCESS_CATEGORY_SUBCONTRACTOR) {
           _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
           supported = true;
         }  
@@ -77,7 +78,7 @@ namespace vire {
     }
 
     i_event_listener_plug::i_event_listener_plug(const std::string & name_,
-                                                 const actor & parent_,
+                                                 const access_hub & parent_,
                                                  const domain & domain_,
                                                  const datatools::logger::priority logging_)
       : base_plug(name_, parent_, domain_, logging_)
@@ -107,8 +108,8 @@ namespace vire {
                   std::logic_error,
                   "Subscription mailbox '" << subinfo_.mailbox_name << "' is not allowed in event listener '" << get_name() << "'!");
 
-      domain_category_type domCat = get_domain().get_category();
-      actor_category_type actorCat = get_parent().get_category();
+      const domain_category_type domCat = get_domain().get_category();
+      const access_category_type accessCat = get_parent().get_profile().get_category();
 
       if (domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
         DT_THROW_IF(!subinfo_.addr.is_protocol(),
@@ -151,7 +152,8 @@ namespace vire {
       
     void i_event_listener_plug::_set_private_address(const std::string & address_value_)
     {
-      _private_address_ = address(ADDR_CATEGORY_PRIVATE, address_value_);
+      // _private_address_ = address(ADDR_CATEGORY_PRIVATE, address_value_);
+      _private_address_ = address(ADDR_CATEGORY_PROTOCOL, address_value_);
       return;
     }
       

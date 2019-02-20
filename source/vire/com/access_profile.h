@@ -1,8 +1,8 @@
-//! \file  vire/com/actor.h
-//! \brief Vire communication actor
+//! \file  vire/com/access_profile.h
+//! \brief Vire communication access profile
 //
-// Copyright (c) 2016-2018 by François Mauger <mauger@lpccaen.in2p3.fr>
-//                            Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2019 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -19,8 +19,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VIRE_COM_ACTOR_H
-#define VIRE_COM_ACTOR_H
+#ifndef VIRE_COM_ACCESS_PROFILE_H
+#define VIRE_COM_ACCESS_PROFILE_H
 
 // Standard library:
 #include <string>
@@ -37,6 +37,7 @@
 
 // This project:
 #include <vire/com/utils.h>
+#include <vire/com/access_hub.h>
 
 namespace vire {
 
@@ -47,62 +48,54 @@ namespace vire {
     class manager;
     class domain;
     
-    //! \brief Actor description
-    //!
-    //! Vire uses 3 types of actors for a given control and monitoring system
-    //! associated to an experiment:
-    //! * a unique Vire server,
-    //! * an arbitrary number of Vire clients,
-    //! * optional Vire subcontractors (generally at least one) responsible
-    //!   of the management of hardware devices.
-    //!
-    class actor
+    //! \brief Access profile
+    class access_profile
       : public ::datatools::i_tree_dumpable
       , private boost::noncopyable
     {
     public:
  
-      typedef std::map<std::string, std::shared_ptr<base_plug>> plug_dict_type;
+      // typedef std::map<std::string, std::shared_ptr<base_plug>> plug_dict_type;
       typedef std::map<std::string, const domain *> domain_dict_type;
-
+      
       //! Constructor
-      actor(const manager & com_,
-            const actor_category_type category_,
-            const std::string & target_,
-            const std::string & name_,
-            const std::string & password_);
+      access_profile(const manager & com_,
+                     const access_category_type category_,
+                     const std::string & target_,
+                     const std::string & name_,
+                     const std::string & password_);
 
       //! Destructor
-      virtual ~actor();
+      virtual ~access_profile();
 
-      //! Check actor validity
+      //! Check validity
       bool is_valid() const;
 
       //! Check if name is set
       bool has_name() const;
 
-      //! Set the actor name
+      //! Set the name
       void set_name(const std::string & name_);
 
-      //! Return the actor name
+      //! Return the name
       const std::string & get_name() const;
 
       //! Check if category is set
       bool has_category() const;
 
-      //! Set the actor category
-      void set_category(const actor_category_type & category_);
+      //! Set the category
+      void set_category(const access_category_type & category_);
 
-      //! Return the actor category
-      actor_category_type get_category() const;
+      //! Return the category
+      access_category_type get_category() const;
 
-      //! Check if actor password is set
+      //! Check if password is set
       bool has_password() const;
 
-      //! Set the actor password
+      //! Set the password
       void set_password(const std::string & password_);
 
-      //! Return the actor password
+      //! Return the password
       const std::string & get_password() const;
 
       //! Check if a
@@ -111,10 +104,10 @@ namespace vire {
       //! Check if target is set
       bool has_target() const;
 
-      //! Set the actor target
+      //! Set the target
       void set_target(const std::string & target_);
 
-      //! Return the actor target
+      //! Return the target
       const std::string & get_target() const;
 
       //! Return the metadata
@@ -122,69 +115,53 @@ namespace vire {
 
       //! Return the metadata
       const datatools::properties & get_metadata() const;
-       
-      //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
-      
-      bool has_plug(const std::string & plug_name_) const;
- 
-      bool add_plug(const std::string & local_domain_name_,
-                    const plug_category_type plug_category_,
-                    std::string & plug_name_);
-      
-      void remove_plug(const std::string & plug_name_);
-      
-      const std::shared_ptr<base_plug> & get_plug(const std::string & plug_name_) const;
-                    
-      const plug_dict_type & get_plugs() const;
-     
-      bool is_locked() const;
 
-      void lock();
+      /// Smart print
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
+
+      // void lock();
+      bool is_locked() const;
 
       const manager & get_com() const;
  
       plug_factory & grab_plug_factory();
 
       bool has_domain(const std::string & domain_label_) const;
-      
-      const domain & get_domain(const std::string & domain_label_) const;
-
+ 
       void build_list_of_domain_local_labels(std::set<std::string> & domain_labels_) const;
 
+      const domain & get_domain(const std::string & domain_label_) const;
+
+      // XXX useful ???
       void build_list_of_domain_names(std::set<std::string> & domain_names_) const;
 
+      access_hub_ptr_type create_access_hub(const std::string & name_,
+                                            const std::string & select_domain_ = "all",
+                                            const bool lock_ = true) const;
+
     private:
-           
-      void _build_default_plugs_();
       
       void _build_domains_indexation_();
       
     private:
 
-      bool                  _locked_ = false;
       const manager *       _com_    = nullptr;
-      actor_category_type   _category_; //!< Actor category
-      std::string           _name_;     //!< Actor name
-      std::string           _password_; //!< Actor password to access the underlying com system
+      access_category_type   _category_; //!< Access category
       std::string           _target_;   //!< Client or subcontractor unique identifier
+      std::string           _name_;     //!< Access name/login to access the underlying com system
+      std::string           _password_; //!< Access password to access the underlying com system
       datatools::properties _metadata_; //!< Metadata
-      domain_dict_type      _domains_;  //!< Local domains     
-      plug_dict_type        _plugs_;    //!< Plugs
- 
-      std::unique_ptr<plug_factory> _plug_factory_;
-      friend plug_factory;
-      
+      domain_dict_type      _domains_;  //!< Local indexation of accessible domains
+      bool                  _locked_ = false; //!< Lock flag
+     
     };
 
   } // namespace com
 
 } // namespace vire
 
-#endif // VIRE_COM_ACTOR_H
+#endif // VIRE_COM_ACCESS_PROFILE_H
 
 // Local Variables: --
 // mode: c++ --

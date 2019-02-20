@@ -69,6 +69,9 @@ namespace vire {
       // Check validity
       bool is_valid() const;
 
+      // Check if the message identifier is set
+      bool has_message_id() const;
+
       //! Set the message identifier
       void set_message_id(const message_identifier &);
 
@@ -87,6 +90,9 @@ namespace vire {
       //! Return the UTC timestamp
       const boost::posix_time::ptime & get_timestamp() const;
 
+      /// Check if the category of the message is set
+      bool has_category() const;
+      
       /// Set the category of the message
       void set_category(const message_category);
 

@@ -150,8 +150,9 @@ namespace vire {
       _libinfo_registration_();
 
       // Setup services:
-      DT_LOG_TRACE(_logging_, "Vire library system singleton services...");
-      _services_.set_name("vireLibrarySystemServices");
+      const std::string vireLibrarySystemServicesName = "vireLibrarySystemServices";
+      DT_LOG_TRACE(_logging_, "Vire library system singleton services ('" << vireLibrarySystemServicesName << "')...");
+      _services_.set_name(vireLibrarySystemServicesName);
       _services_.set_description("Vire Library System Singleton Services");
       _services_.set_allow_dynamic_services(true);
       _services_.initialize();
@@ -239,13 +240,14 @@ namespace vire {
 
       // Bundled submodules:
       {
-        DT_LOG_TRACE(_logging_, "Registration of Vire library in the Bayeux/datatools' kernel...");
+        const std::string vire_lib_name = "vire";
+        DT_LOG_TRACE(_logging_, "Registration of Vire library as '" << vire_lib_name << "' in the Bayeux/datatools' kernel...");
         // Vire itself:
-        DT_THROW_IF (lib_info_reg.has("vire"),
+        DT_THROW_IF (lib_info_reg.has(vire_lib_name),
                      std::logic_error,
                      "Vire is already registered !");
         datatools::properties & vire_lib_infos
-          = lib_info_reg.registration("vire",
+          = lib_info_reg.registration(vire_lib_name,
                                       "Vire provides a offline and real-time software environment for the description, control,"
                                       "monitoring and running of an experiment.",
                                       vire::version::get_version()
@@ -284,9 +286,10 @@ namespace vire {
 
       // SuperNEMO Sandbox:
       {
-        DT_LOG_TRACE(_logging_, "Registration of Vire SuperNEMO sandbox library in the Bayeux/datatools' kernel...");
+        const std::string sandbox_snemo_lib_name = "snemo";
+        DT_LOG_TRACE(_logging_, "Registration of Vire SuperNEMO sandbox library as '" << sandbox_snemo_lib_name << "' in the Bayeux/datatools' kernel...");
         datatools::properties & vire_snemo_lib_infos
-          = lib_info_reg.registration("snemo",
+          = lib_info_reg.registration(sandbox_snemo_lib_name,
                                       "Vire SuperNEMO sandbox",
                                       vire::version::get_version()
                                       );
@@ -294,7 +297,7 @@ namespace vire {
         // Register the Vire resource path in the datatools' kernel:
         boost::filesystem::path p = vire::get_resource_files_dir();
         p /= "sandbox";
-        p /= "snemo";
+        p /= sandbox_snemo_lib_name;
         vire_snemo_lib_infos.store_string(datatools::library_info::keys::install_resource_dir(),
                                           p.string());
         DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox resource files dir is documented.");
@@ -308,11 +311,39 @@ namespace vire {
         DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox library entry is now registered in the Bayeux/datatools' kernel.");
       }
 
+      // SuperNEMO Demonstrator Sandbox:
+      {
+        const std::string sandbox_snemock_lib_name = "snemock";
+        DT_LOG_TRACE(_logging_, "Registration of Vire SuperNEMO Demonstrator sandbox library as '" << sandbox_snemock_lib_name << "' in the Bayeux/datatools' kernel...");
+        datatools::properties & vire_snemock_lib_infos
+          = lib_info_reg.registration(sandbox_snemock_lib_name,
+                                      "Vire SuperNEMO Demonstrator sandbox",
+                                      vire::version::get_version()
+                                      );
+
+        // Register the Vire resource path in the datatools' kernel:
+        boost::filesystem::path p = vire::get_resource_files_dir();
+        p /= "sandbox";
+        p /= sandbox_snemock_lib_name;
+        vire_snemock_lib_infos.store_string(datatools::library_info::keys::install_resource_dir(),
+                                           p.string());
+        DT_LOG_TRACE(_logging_, "Vire SuperNEMO Demonstrator sandbox resource files dir is documented.");
+
+        // If the 'VIRE_SANDBOX_SNEMO_RESOURCE_FILES_DIR' environment variable is set, it will supersede
+        // the official registered resource path above through the 'datatools::fetch_path_with_env'
+        // function:
+        vire_snemock_lib_infos.store_string(datatools::library_info::keys::env_resource_dir(),
+                                           "VIRE_SANDBOX_SNEMOCK_RESOURCE_FILES_DIR");
+        DT_LOG_TRACE(_logging_, "Vire resource files dir env is documented.");
+        DT_LOG_TRACE(_logging_, "Vire SuperNEMO Demonstrator sandbox library entry is now registered in the Bayeux/datatools' kernel.");
+      }
+
       // Orleans Sandbox:
       {
-        DT_LOG_TRACE(_logging_, "Registration of Vire Orleans sandbox library in the Bayeux/datatools' kernel...");
+        const std::string sandbox_orleans_lib_name = "orleans";
+        DT_LOG_TRACE(_logging_, "Registration of Vire Orleans sandbox library as '" << sandbox_orleans_lib_name << "' in the Bayeux/datatools' kernel...");
         datatools::properties & vire_orleans_lib_infos
-          = lib_info_reg.registration("orleans",
+          = lib_info_reg.registration(sandbox_orleans_lib_name,
                                       "Vire Orleans sandbox",
                                       vire::version::get_version()
                                       );
@@ -320,7 +351,7 @@ namespace vire {
         // Register the Vire resource path in the datatools' kernel:
         boost::filesystem::path p = vire::get_resource_files_dir();
         p /= "sandbox";
-        p /= "orleans";
+        p /= sandbox_orleans_lib_name;
         vire_orleans_lib_infos.store_string(datatools::library_info::keys::install_resource_dir(),
                                             p.string());
         DT_LOG_TRACE(_logging_, "Vire Orleans sandbox resource files dir is documented.");
@@ -349,22 +380,28 @@ namespace vire {
 
           // Unregistration of all registered submodules from the kernel's
           // library info register:
+          if (lib_info_reg.has("snemock")) {
+            DT_LOG_TRACE(_logging_, "Deregistration of the Vire SuperNEMO Demonstrator sandbox library 'snemock' from the Bayeux/datatools' kernel...");
+            lib_info_reg.unregistration("snemock");
+            DT_LOG_TRACE(_logging_, "Vire SuperNEMO Demonstrator sandbox library 'snemock' has been deregistered from the Bayeux/datatools' kernel.");
+          }
+
           if (lib_info_reg.has("snemo")) {
-            DT_LOG_TRACE(_logging_, "Deregistration of the Vire SuperNEMO sandbox library from the Bayeux/datatools' kernel...");
+            DT_LOG_TRACE(_logging_, "Deregistration of the Vire SuperNEMO sandbox library 'snemo' from the Bayeux/datatools' kernel...");
             lib_info_reg.unregistration("snemo");
-            DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox library has been deregistered from the Bayeux/datatools' kernel.");
+            DT_LOG_TRACE(_logging_, "Vire SuperNEMO sandbox library 'snemo' has been deregistered from the Bayeux/datatools' kernel.");
           }
 
           if (lib_info_reg.has("orleans")) {
-            DT_LOG_TRACE(_logging_, "Deregistration of the Vire Orleans sandbox library from the Bayeux/datatools' kernel...");
+            DT_LOG_TRACE(_logging_, "Deregistration of the Vire Orleans sandbox library 'orleans' from the Bayeux/datatools' kernel...");
             lib_info_reg.unregistration("orleans");
-            DT_LOG_TRACE(_logging_, "Vire Orleans sandbox library has been deregistered from the Bayeux/datatools' kernel.");
+            DT_LOG_TRACE(_logging_, "Vire Orleans sandbox library 'orleans' has been deregistered from the Bayeux/datatools' kernel.");
           }
 
           if (lib_info_reg.has("vire")) {
-            DT_LOG_TRACE(_logging_, "Deregistration of the Vire library from the Bayeux/datatools' kernel...");
+            DT_LOG_TRACE(_logging_, "Deregistration of the Vire library 'vire' from the Bayeux/datatools' kernel...");
             lib_info_reg.unregistration("vire");
-            DT_LOG_TRACE(_logging_, "Vire library has been deregistered from the Bayeux/datatools' kernel.");
+            DT_LOG_TRACE(_logging_, "Vire library 'vire' has been deregistered from the Bayeux/datatools' kernel.");
           }
         }
       }

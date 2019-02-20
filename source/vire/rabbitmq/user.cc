@@ -44,7 +44,7 @@ namespace vire {
 
     user::user(const std::string & login_,
                const std::string & password_,
-               const vire::com::actor_category_type category_)
+               const vire::com::access_category_type category_)
     {
       set_login(login_);
       set_password(password_);
@@ -90,16 +90,16 @@ namespace vire {
     {
       if (_login_.empty()) return false;
       if (_password_.empty()) return false;
-      if (_category_ == vire::com::ACTOR_CATEGORY_INVALID) return false;
+      if (_category_ == vire::com::ACCESS_CATEGORY_INVALID) return false;
       return true;
     }
 
-    const vire::com::actor_category_type user::get_category() const
+    const vire::com::access_category_type user::get_category() const
     {
       return _category_;
     }
   
-    void user::set_category(const vire::com::actor_category_type category_)
+    void user::set_category(const vire::com::access_category_type category_)
     {
       _category_ = category_;
       return;
@@ -126,10 +126,10 @@ namespace vire {
         }
       }
 
-      if (_category_ == vire::com::ACTOR_CATEGORY_INVALID) {
+      if (_category_ == vire::com::ACCESS_CATEGORY_INVALID) {
         if (config_.has_key("category")) {
           std::string category_repr = config_.fetch_string("category");
-          vire::com::actor_category_type category;
+          vire::com::access_category_type category;
           DT_THROW_IF(!vire::com::from_string(category_repr, category),
                       std::logic_error,
                       "Not a valid use category '" << category_repr << "'!");
@@ -148,7 +148,7 @@ namespace vire {
     {
       _login_.clear();
       _password_.clear();
-      _category_ = vire::com::ACTOR_CATEGORY_INVALID;
+      _category_ = vire::com::ACCESS_CATEGORY_INVALID;
       return;
     }
 

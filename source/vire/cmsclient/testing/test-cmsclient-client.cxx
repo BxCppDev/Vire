@@ -1,7 +1,7 @@
 //! \file vire/cmsclient/testing/test-vireclient-client.cxx
 //! \brief Test Vire CMS client
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -36,9 +36,9 @@
 // This project:
 #include <vire/vire.h>
 
-void test_cmsclient_client_1(bool interactive_ = false);
+void test_cmsclient_client_1(const bool interactive_ = false);
 
-int main(int /* argc_ */, char ** /* argv_ */)
+int main(int argc_, char ** argv_)
 {
   vire::initialize();
   int error_code = EXIT_SUCCESS;
@@ -72,25 +72,28 @@ int main(int /* argc_ */, char ** /* argv_ */)
   return error_code;
 }
 
-void test_cmsclient_client_1(bool interactive_)
+void test_cmsclient_client_1(const bool /* interactive_ */)
 {
   std::clog << "\ntest_cmsclient_client_1: basics" << std::endl;
 
   // Client configuration:
-  datatools::multi_properties clientParams0;
   std::string clientParams0Config = \
-    "@snemo:config/snemo/demonstrator/cms/clients/client-devel1.conf";
+    "@snemock:config/cms/test1/client/virecmsclient.conf";
   datatools::fetch_path_with_env(clientParams0Config);
+  datatools::multi_properties clientParams0;
   clientParams0.read(clientParams0Config);
-  clientParams0.tree_dump (std::clog, "Vire CMS client configuration: ");
+  std::clog << "Configuration for Vire CMS client #0:" << std::endl;
+  clientParams0.print_tree(std::clog);
+  std::clog << std::endl;
 
   // Client #0:
   vire::cmsclient::client client0;
-  client0.set_logging(datatools::logger::PRIO_TRACE);
+  client0.set_logging_priority(datatools::logger::PRIO_DEBUG);
   client0.initialize(clientParams0);
-  client0.tree_dump(std::clog, "Client 0: ");
-  client0.reset();
+  std::clog << "Client 0:" << std::endl;
+  client0.print_tree(std::clog);
   std::clog << std::endl;
+  client0.reset();
 
   return;
 }

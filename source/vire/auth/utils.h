@@ -30,7 +30,7 @@ namespace vire {
 
     /// Return the number of days from epoch to today
     int32_t today_from_epoch();
-
+    
   } // namespace auth
 
 } // namespace vire

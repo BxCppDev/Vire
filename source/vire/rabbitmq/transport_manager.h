@@ -51,9 +51,26 @@ namespace vire {
       
       void add_user(const std::string & login_,
                     const std::string & password_,
-                    const vire::com::actor_category_type category_) override;
+                    const vire::com::access_category_type category_) override;
       
       void remove_user(const std::string & login_) override;
+
+      //! Add transport resources associated to a subcontractor
+      void add_subcontractor(const vire::com::subcontractor_info & sc_info_) override;
+      
+      //! Remove transport resources associated to a subcontractor
+      void remove_subcontractor(const vire::com::subcontractor_info & sc_info_) override;
+
+      //! Add transport resources associated to a client
+      void add_client(const vire::com::client_info & client_info_) override;
+      
+      //! Remove transport resources associated to a client
+      void remove_client(const vire::com::client_info & client_info_) override;
+
+      // void grant_access_to(const std::string & user_login_,
+      //                      const access_category_type user_category_,
+      //                      const std::string & domain_name_,
+      //                      const domain_category_type domain_category_) override;
       
     private:
 

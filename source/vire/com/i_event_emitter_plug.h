@@ -32,7 +32,7 @@ namespace vire {
 
   namespace com {
 
-    //! \brief User credentials data
+    //! \brief Event emitter plug interface
     class i_event_emitter_plug
       : public base_plug
     {
@@ -42,17 +42,20 @@ namespace vire {
 
       //! Constructor
       i_event_emitter_plug(const std::string & name_,
-                           const actor & parent_,
+                           const access_hub & parent_,
                            const domain & domain_,
                            const std::string & default_mailbox_name_ = "",
                            const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
+      
      public:
       
       //! Destructor
       virtual ~i_event_emitter_plug();
 
+      //! Return the set of allowed mailboxes
       const std::set<std::string> & get_allowed_mailboxes() const;
 
+      //! Check if the default mailbox name is set
       bool has_default_mailbox_name() const;
       
       //! Return the default mailbox name
@@ -60,7 +63,6 @@ namespace vire {
 
       //! Return category
       plug_category_type get_category() const override final;
-
       
       //! Send an event payload to the implicit mailbox of the domain
       com_status send_event(const address & address_,
@@ -72,16 +74,18 @@ namespace vire {
                             const vire::utility::const_payload_ptr_type & event_payload_);
 
     private:
-      
+
+      //! Backend action at event sending
       virtual com_status _at_send_event_(const std::string & mailbox_name_,
                                          const address & address_,
                                          const raw_message_type & raw_event_) = 0;
-      
+
+      //! Populate allowed mailboxes
       void _populate_allowed_mailboxes_();
       
     private:
      
-      std::set<std::string> _allowed_mailboxes_; ///< List of allowed mailboxes
+      std::set<std::string> _allowed_mailboxes_;    ///< List of allowed mailboxes
       std::string           _default_mailbox_name_; ///< Default domain mailbox (exchange)
 
     };

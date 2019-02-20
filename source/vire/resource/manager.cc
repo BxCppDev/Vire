@@ -1,6 +1,6 @@
 // vire/resource/manager.cc
 //
-// Copyright (c) 2015 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2015-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -552,7 +552,7 @@ namespace vire {
       return;
     }
 
-    void manager::load_tables(uint32_t load_flags_)
+    void manager::load_tables(const uint32_t load_flags_)
     {
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Resource manager is not initialized!");
@@ -565,7 +565,7 @@ namespace vire {
       return;
     }
 
-    void manager::store_tables(uint32_t store_flags_) const
+    void manager::store_tables(const uint32_t store_flags_) const
     {
       DT_THROW_IF(!is_initialized(), std::logic_error,
                   "Resource manager is not initialized!");
@@ -576,6 +576,27 @@ namespace vire {
       return;
     }
 
+    bool manager::has_devices_service() const
+    {
+      return _devices_ != nullptr;
+    }
+    
+    
+    const vire::device::manager & manager::get_devices_service() const
+    {
+      return *_devices_;
+    }
+
+    void manager::set_devices_service(const vire::device::manager & devices_)
+    {
+      DT_THROW_IF(is_initialized(), std::logic_error,
+                  "Resource manager is already initialized!");
+      DT_THROW_IF(!devices_.is_initialized(), std::logic_error,
+                  "Device manager is not initialized!");
+      _devices_ = &devices_;
+      return;
+    }
+ 
     bool manager::has_devices_service_name() const
     {
       return !_devices_service_name_.empty();
@@ -628,34 +649,27 @@ namespace vire {
 
       if (do_build_from_devices) {
         DT_LOG_DEBUG(get_logging_priority(), "About to build resources from devices definitions.");
-        if (!has_devices_service_name()) {
-          if (config_.has_key("devices_service_name")) {
-            std::string  device_manager_name = config_.fetch_string("devices_service_name");
-            set_devices_service_name(device_manager_name);
-          }
-        }
-        // if (has_devices_service_name()) {
-        //   // Automatically pickup the first device manager from the service manager:
-        //   datatools::find_service_name_with_id(service_dict_,
-        //                                        "vire::device::manager",
-        //                                        get_devices_service_name());
-        // }
-        DT_THROW_IF(!has_devices_service_name(),
-                    std::logic_error,
-                    "No device manager service name is set!");
-        const vire::device::manager & device_mgr
-          = datatools::get<vire::device::manager>(service_dict_,
-                                                  get_devices_service_name());
 
-        // datatools::service_dict_type::const_iterator found =
-        //   service_dict_.find(device_manager_name);
-        // DT_THROW_IF(found == service_dict_.end(),
-        //             std::logic_error,
-        //             "No device manager found in the service manager!");
-        // const vire::device::manager & device_mgr
-        //   = dynamic_cast<const vire::device::manager &>(found->second->get_service_handle().get());
+        if (!has_devices_service()) {
+          if (!has_devices_service_name()) {
+            if (config_.has_key("devices_service_name")) {
+              std::string  device_manager_name = config_.fetch_string("devices_service_name");
+              set_devices_service_name(device_manager_name);
+            }
+          }
+          DT_THROW_IF(!has_devices_service_name(),
+                      std::logic_error,
+                      "No device manager service name is set!");
+          DT_THROW_IF(!datatools::service_of_type_exists(service_dict_, "vire::device::manager", get_devices_service_name()),
+                      std::logic_error,
+                      "No device manager service named '" << get_devices_service_name() << "' found in the service bus!");
+          const vire::device::manager & device_mgr
+            = datatools::get<vire::device::manager>(service_dict_, get_devices_service_name());
+          set_devices_service(device_mgr);
+        }
+        
         uint32_t dev_flags = 0;
-        build_resources_from_devices(device_mgr, dev_flags);
+        build_resources_from_devices(dev_flags);
         DT_LOG_DEBUG(get_logging_priority(), "Number of resources : " << get_number_of_resources());
        }
 
@@ -747,7 +761,7 @@ namespace vire {
     }
 
     // virtual
-    void manager::_load_roles_table(const std::string & source_, uint32_t /* flags_ */)
+    void manager::_load_roles_table(const std::string & source_, const uint32_t /* flags_ */)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::string source = source_;
@@ -791,7 +805,7 @@ namespace vire {
     }
 
     // virtual
-    void manager::_store_roles_table(const std::string & target_, uint32_t /* flags_ */) const
+    void manager::_store_roles_table(const std::string & target_, const uint32_t /* flags_ */) const
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       std::string target = target_;
@@ -1046,6 +1060,115 @@ namespace vire {
       return;
     }
 
+    void manager::print_tree(std::ostream & out_,
+                             const boost::property_tree::ptree & options_) const
+    {
+      i_tree_dumpable::base_print_options popts;
+      popts.configure_from(options_);
+
+      std::ostringstream outs;
+      
+      this->base_service::print_tree(outs,
+                                     base_print_options::force_inheritance(options_));
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Roles table path : '" << _roles_table_path_ << "'" << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Don't load tables : " << std::boolalpha << _dont_load_tables_ << "" << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Don't store tables : " << std::boolalpha << _dont_store_tables_ << "" << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Don't backup tables : " << std::boolalpha << _dont_backup_tables_ << "" << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Next candidate resource ID : [" << manager::candidate_resource_id() << ']' << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Next candidate role ID : [" << manager::candidate_role_id() << ']' << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Cached set of resource IDs: ";
+      if (has_cached_resource_ids()) {
+        outs << '[' << _data_->cached_resource_ids->size() << ']';
+      } else {
+        outs << "<none>";
+      }
+      outs << std::endl;
+
+      outs << popts.indent << datatools::i_tree_dumpable::tag
+           << "Resources : ";
+      if (_data_->resources.size() == 0) {
+        outs << "<none>";
+      } else {
+        outs << '[' << _data_->resources.size() << ']';
+      }
+      outs << std::endl;
+
+      {
+        const resource_set_by_id & id_index = _data_->resources.get<resource_tag_id>();
+        for (resource_set_by_id::const_iterator it = id_index.begin();
+             it != id_index.end();
+             it++) {
+          resource_set_by_id::const_iterator jt = it;
+          outs << popts.indent;
+          outs << datatools::i_tree_dumpable::skip_tag;
+          if (++jt == id_index.end()) {
+            outs << datatools::i_tree_dumpable::last_tag;
+          } else {
+            outs << datatools::i_tree_dumpable::tag;
+          }
+          const resource & r = *it;
+          outs << "Resource ID=[" << r.get_id() << "] (access='" << vire::utility::to_string(r.get_access()) << "'";
+          if (r.is_number_of_tokens_unlimited()) {
+            outs << ",unlimited";
+          } else if (r.is_number_of_tokens_limited()) {
+            outs << ",limited=" << r.get_max_number_of_tokens();
+          }
+          outs << ") : ";
+          outs << "Path='" << r.get_path() << "'";
+          if (r.has_responsible()) {
+            outs << " (resp='" << r.get_responsible() << "')";
+          }
+          outs << std::endl;
+        }
+      }
+
+      {
+        outs << popts.indent << datatools::i_tree_dumpable::inherit_tag(popts.inherit)
+             << "Roles : ";
+        if (_data_->roles.size() == 0) {
+          outs << "<none>";
+        } else {
+          outs << '[' << _data_->roles.size() << ']';
+        }
+        outs << std::endl;
+
+        const role_set_by_id & id_index = _data_->roles.get<role_tag_id>();
+        for (role_set_by_id::const_iterator it = id_index.begin();
+             it != id_index.end();
+             it++) {
+          role_set_by_id::const_iterator jt = it;
+          outs << popts.indent;
+          outs << datatools::i_tree_dumpable::inherit_skip_tag(popts.inherit);
+          if (++jt == id_index.end()) {
+            outs << datatools::i_tree_dumpable::last_tag;
+          } else {
+            outs << datatools::i_tree_dumpable::tag;
+          }
+          const role & r = *it;
+          outs << "Role ID=[" << r.get_id() << "] : ";
+          outs << "Name='" << r.get_name() << "' ";
+          outs << "Path='" << r.get_path() << "' ";
+          outs << std::endl;
+        }
+      }
+
+      out_ << outs.str();
+      return;
+    }
+
     void manager::tree_dump(std::ostream & out_,
                             const std::string & title_,
                             const std::string & indent_,
@@ -1152,14 +1275,22 @@ namespace vire {
     }
 
     void manager::build_resources_from_internal_services(const datatools::service_manager & service_manager_,
-                                                         uint32_t flags_)
+                                                         const uint32_t flags_)
     {
       //
       return;
     }
 
+    void manager::build_resources_from_devices(const uint32_t flags_ )
+    {
+      DT_LOG_TRACE_ENTERING(get_logging_priority());
+      DT_THROW_IF(!has_devices_service(), std::logic_error, "No handled device manager service!");
+      build_resources_from_devices(*_devices_, flags_);
+      DT_LOG_TRACE_EXITING(get_logging_priority());
+    }
+    
     void manager::build_resources_from_devices(const vire::device::manager & device_manager_,
-                                               uint32_t /* flags_ */)
+                                               const uint32_t /* flags_ */)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       try {

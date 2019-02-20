@@ -42,9 +42,9 @@ namespace vire {
   namespace com {
 
     class domain;
-    class actor;
+    class access_hub;
     
-    //! \brief User credentials data
+    //! \brief Event listener plug interface
     class i_event_listener_plug
       : public base_plug
     {
@@ -52,7 +52,7 @@ namespace vire {
 
       //! Constructor
       i_event_listener_plug(const std::string & name_,
-                            const actor & parent_,
+                            const access_hub & parent_,
                             const domain & domain_,
                             const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
  
@@ -61,39 +61,48 @@ namespace vire {
       //! Destructor
       virtual ~i_event_listener_plug();
 
+      //! Return the set of allowed mailboxes
       const std::set<std::string> & get_allowed_mailboxes() const;
 
       //! Return category
       plug_category_type get_category() const override final;
 
+      //! Add asubscription
       void add_subscription(const subscription_info & subinfo_);
-      
+
+      //! Return the list of subscriptions
       const subscription_info_list & get_subscriptions() const;
       
       //! Receive an event payload from the list of subscriptions
       com_status receive_next_event(vire::utility::const_payload_ptr_type & event_payload_);
 
+      //! Check if a private address is set
       bool has_private_address() const;
 
+      //! Return the private address
       const address & get_private_address() const;
       
     protected:
-      
+
+      //! Set the private address
       void _set_private_address(const std::string &);
       
     private:
       
+      //! Backend action at next event reception
       virtual com_status _at_receive_next_event_(raw_message_type & raw_event_) = 0;
       
+      //! Backend action at subscription adding
       virtual void _at_add_subscription_(const subscription_info & subinfo_) = 0;
      
+      //! Populate allowed mailboxes
       void _populate_allowed_mailboxes_();
       
     private:
      
       std::set<std::string>  _allowed_mailboxes_; ///< List of allowed mailboxes
-      subscription_info_list _subscriptions_;
-      address                _private_address_;
+      subscription_info_list _subscriptions_;     ///< List of subscriptions
+      address                _private_address_;   ///< Private address
       
     };
 

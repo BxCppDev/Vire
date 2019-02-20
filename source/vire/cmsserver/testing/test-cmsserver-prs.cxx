@@ -93,7 +93,7 @@ void test_prs_2()
   std::clog << "\ntest_prs_2: configuration" << std::endl;
   vire::cmsserver::uc_parametrised_resource_specifications prs;
 
-  std::string prsCfgPath = "${VIRE_TESTING_TWO_DIR}/config/prs.conf";
+  std::string prsCfgPath = "${VIRE_TESTING_ONE_DIR}/config/prs.conf";
   datatools::fetch_path_with_env(prsCfgPath);
   datatools::properties prsCfg;
   prsCfg.read_configuration(prsCfgPath);

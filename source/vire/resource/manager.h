@@ -77,6 +77,15 @@ namespace vire {
       //! Destructor
       virtual ~manager();
 
+      //! Check if the devices service is set
+      bool has_devices_service() const;
+
+      //! Return the handle to the devices service
+      const vire::device::manager & get_devices_service() const;
+
+      //! Set the handle to the devices service
+      void set_devices_service(const vire::device::manager &);
+      
       //! Check if the name of the device manager service is set
       bool has_devices_service_name() const;
 
@@ -138,13 +147,18 @@ namespace vire {
       //! Reset the manager
       virtual int reset();
 
+      // Make these methods private ???
+      
       //! Build resources from internal services
       void build_resources_from_internal_services(const datatools::service_manager & service_manager_,
-                                                  uint32_t flags_ = 0);
+                                                  const uint32_t flags_ = 0);
 
-      //! Build resources from a device manager
+      //! Build resources from the handled device manager
+      void build_resources_from_devices(const uint32_t flags_ = 0);
+
+      //! Build resources from an external device manager
       void build_resources_from_devices(const vire::device::manager & device_manager_,
-                                        uint32_t flags_ = 0);
+                                        const uint32_t flags_ = 0);
 
       //! Check the initialization flag
       virtual bool is_initialized() const;
@@ -186,7 +200,7 @@ namespace vire {
       bool has_resource_by_name(const std::string & name_) const;
 
       //! Check the existence of a resource given its RID
-      bool has_resource_by_id(int32_t id_) const;
+      bool has_resource_by_id(const int32_t id_) const;
 
       //! Return a const reference to an existing resource given its path
       const resource & get_resource_by_path(const std::string & path_) const;
@@ -195,7 +209,7 @@ namespace vire {
       const resource & get_resource_by_name(const std::string & name_) const;
 
       //! Return a const reference to an existing resource given its RID
-      const resource & get_resource_by_id(int32_t id_) const;
+      const resource & get_resource_by_id(const int32_t id_) const;
 
       //! Check if the set of resource identifiers (RID) is cached
       bool has_cached_resource_ids() const;
@@ -236,7 +250,7 @@ namespace vire {
       bool has_role_by_name(const std::string & name_) const;
 
       //! Check the existence of a role given its identifier
-      bool has_role_by_id(int32_t role_id_) const;
+      bool has_role_by_id(const int32_t role_id_) const;
 
       //! Return a const reference to an existing role given its path
       const role & get_role_by_path(const std::string & path_) const;
@@ -245,7 +259,7 @@ namespace vire {
       const role & get_role_by_name(const std::string & name_) const;
 
       //! Return a const reference to an existing role given its identifier
-      const role & get_role_by_id(int32_t role_rid_) const;
+      const role & get_role_by_id(const int32_t role_rid_) const;
 
       //! Build a set of role identifiers (RLID)
       void build_set_of_role_ids(std::set<int32_t> & role_ids_) const;
@@ -256,7 +270,13 @@ namespace vire {
       //! Build a set of role paths
       void build_set_of_role_paths(std::set<std::string> & role_paths_) const;
 
+      /// Smart print
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
+
       //! Smart print
+      ///
+      /// \deprecated
       virtual void tree_dump(std::ostream & out_ = std::clog,
                              const std::string & title_  = "",
                              const std::string & indent_ = "",
@@ -289,10 +309,10 @@ namespace vire {
       void _do_build_universe_role();
 
       //! Load roles table
-      virtual void _load_roles_table(const std::string & source_, uint32_t flags_);
+      virtual void _load_roles_table(const std::string & source_, const uint32_t flags_);
 
       //! Store roles tables
-      virtual void _store_roles_table(const std::string & target_, uint32_t flags_) const;
+      virtual void _store_roles_table(const std::string & target_, const uint32_t flags_) const;
 
     private:
 
@@ -315,7 +335,8 @@ namespace vire {
       bool        _dont_store_tables_;    //!< Flag to store tables at reset
       bool        _dont_backup_tables_;   //!< Flag to backup tables
       std::string _devices_service_name_; //!< Device manager service name
-
+      const vire::device::manager * _devices_ = nullptr; //!< Handle to the device manager service
+      
       // Working data:
       // PIMPL-ized data structure:
       struct data;

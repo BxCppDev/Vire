@@ -36,7 +36,6 @@
 // This project:
 #include <vire/utility/model_identifier.h>
 #include <vire/com/mailbox.h>
-// #include <vire/com/actor.h>
 #include <vire/com/i_encoding_driver.h>
 #include <vire/com/i_transport_driver.h>
 #include <vire/com/utils.h>
@@ -138,35 +137,33 @@ namespace vire {
       //! Check if the category is monitoring
       bool is_monitoring() const;
 
-      //! Check the transport type identifier
-      bool has_transport_type_id() const;
+      //! Check the transport driver type identifier
+      bool has_transport_driver_type_id() const;
 
-      //! Set the transport type identifier
-      void set_transport_type_id(const vire::utility::model_identifier &);
+      //! Set the transport driver type identifier
+      void set_transport_driver_type_id(const vire::utility::model_identifier &);
 
-      //! Set the transport type identifier
-      void set_transport_type_id(const std::string &);
+      //! Set the transport driver type identifier
+      void set_transport_driver_type_id(const std::string &);
 
-      //! Return the transport type identifier
-      const vire::utility::model_identifier & get_transport_type_id() const;
+      //! Return the transport driver type identifier
+      const vire::utility::model_identifier & get_transport_driver_type_id() const;
 
-      //! Check the encoding type identifier
-      bool has_encoding_type_id() const;
+      //! Check the encoding driver type identifier
+      bool has_encoding_driver_type_id() const;
+
+      //! Set the encoding driver type identifier
+      void set_encoding_driver_type_id(const vire::utility::model_identifier &);
 
       //! Set the encoding type identifier
-      void set_encoding_type_id(const vire::utility::model_identifier &);
+      void set_encoding_driver_type_id(const std::string &);
 
-      //! Set the encoding type identifier
-      void set_encoding_type_id(const std::string &);
+      //! Return the encoding driver type identifier
+      const vire::utility::model_identifier & get_encoding_driver_type_id() const;
 
-      //! Return the encoding type identifier
-      const vire::utility::model_identifier & get_encoding_type_id() const;
-
-      //! Smart print
-      virtual void tree_dump(std::ostream & out_ = std::clog,
-                             const std::string & title_  = "",
-                             const std::string & indent_ = "",
-                             bool inherit_ = false) const;
+      /// Smart print
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
 
       //! Invalidate the domain
       void initialize(const datatools::properties & config_);
@@ -204,9 +201,9 @@ namespace vire {
       //! Return a non mutable reference to a mailbox
       const mailbox & get_mailbox(const std::string & name_) const;
 
-      //! Check usage permission access to a given mailbox by a category of actor
+      //! Check usage permission access to a given mailbox by a access category
       bool grant_access(const std::string & mailbox_name_,
-                        const actor_category_type actor_cat_,
+                        const access_category_type access_cat_,
                         const mailbox::usage_permission_flag useperm_) const;
 
       // //! Generate a new unique name for a private mailbox
@@ -248,8 +245,8 @@ namespace vire {
       // Configuration:
       std::string                     _name_;                           //!< Domain unique name
       domain_category_type            _category_ = DOMAIN_CATEGORY_INVALID; //!< Domain category
-      vire::utility::model_identifier _transport_type_id_;              //!< Transport type identifier associated to the domain
-      vire::utility::model_identifier _encoding_type_id_;               //!< Encoding type identifier associated to the domain
+      vire::utility::model_identifier _transport_driver_type_id_;       //!< Transport driver type identifier associated to the domain
+      vire::utility::model_identifier _encoding_driver_type_id_;        //!< Encoding driver type identifier associated to the domain
       mailbox_dict_type               _mailboxes_;                      //!< Dictionary of mailboxes
       boost::uuids::random_generator  _mailbox_uuid_gen_;
       datatools::properties           _transport_driver_params_;

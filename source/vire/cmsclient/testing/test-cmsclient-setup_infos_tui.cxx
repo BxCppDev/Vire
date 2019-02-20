@@ -29,7 +29,7 @@
 // This project:
 #include <vire/vire.h>
 
-void test_cmsclient_situi_1(bool interactive_ = false);
+void test_cmsclient_setup_infos_tui_1(bool interactive_ = false);
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -41,7 +41,7 @@ int main(int /* argc_ */, char ** /* argv_ */)
     bool interactive = false;
     interactive = true;
 
-    test_cmsclient_situi_1(interactive);
+    test_cmsclient_setup_infos_tui_1(interactive);
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -55,22 +55,18 @@ int main(int /* argc_ */, char ** /* argv_ */)
   return error_code;
 }
 
-void test_cmsclient_situi_1(bool interactive_)
+void test_cmsclient_setup_infos_tui_1(bool interactive_)
 {
-  std::clog << "\ntest_cmsclient_situi_1: basics" << std::endl;
+  std::clog << "\ntest_cmsclient_setup_infos_tui_1: basics" << std::endl;
 
   // Configuration:
   datatools::properties setupInfosParams;
-  setupInfosParams.store("setup_id", "SuperNEMO");
-  setupInfosParams.store("host", "localhost");
-  setupInfosParams.store("port", 5671);
-  setupInfosParams.store("domain_name_prefix", "/supernemo/demonstrator");
-  setupInfosParams.store("transport_protocol_id", "vire::com::rabbitmq_transport_driver");
-  setupInfosParams.store("encoding_protocol_id", "vire::com::protobuf_encoding_driver");
-  setupInfosParams.store("gate_login", "snclient");
-  setupInfosParams.store("gate_password", "IeM8rohghu");
-  setupInfosParams.store_flag("nolock");
-  setupInfosParams.tree_dump(std::clog, "Vire CMS setup infos: ");
+  std::string setupInfosConfigPath = "@snemock:config/cms/test1/client/setup_infos.conf";
+  datatools::fetch_path_with_env(setupInfosConfigPath);
+  std::clog << "setupInfosConfigPath = '" << setupInfosConfigPath << "'" << std::endl;
+  setupInfosParams.read_configuration(setupInfosConfigPath);
+  std::clog << "setupInfosParams:" << std::endl;
+  setupInfosParams.print_tree(std::clog);
 
   // Setup infos:
   vire::cmsclient::setup_infos setupInfos;
@@ -85,7 +81,6 @@ void test_cmsclient_situi_1(bool interactive_)
   } else {
     std::cerr << "[error] Setup infos dialog failed!" << std::endl;
   }
-
 
   setupInfos.reset();
   std::clog << std::endl;

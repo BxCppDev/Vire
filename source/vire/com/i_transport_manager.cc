@@ -123,8 +123,7 @@ namespace vire {
 
       return;
     }
-
-      
+  
     // std::string i_transport_manager::new_private_mailbox_address(const mailbox::mode_type mode_)
     // {
     //   std::string addr;

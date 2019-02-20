@@ -1,5 +1,5 @@
-//! \file  vire/com/i_transport_driver.h
-//! \brief Vire com transport driver interface
+/// \file  vire/com/i_transport_driver.h
+/// \brief Vire com transport driver interface
 //
 // Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -38,86 +38,86 @@ namespace vire {
 
     class domain;
 
-    //! \brief Transport driver interface
+    /// \brief Transport driver interface
     class i_transport_driver
     {
     public:
 
-      //! Default constructor
+      /// Default constructor
       i_transport_driver();
 
-      //! Constructor
+      /// Constructor
       i_transport_driver(domain & domain_);
 
-      //! Destructor
+      /// Destructor
       virtual ~i_transport_driver();
 
-      //! Check if domain is set
+      /// Check if domain is set
       bool has_domain() const;
 
-      //! Set the domain
+      /// Set the domain
       void set_domain(domain & domain_);
 
-      //! Return a non mutable handle to the domain
+      /// Return a non mutable handle to the domain
       const domain & get_domain() const;
 
-      //! Return a mutable handle to the domain
+      /// Return a mutable handle to the domain
       domain & grab_domain();
 
-      //! Check initialization flag
+      /// Check initialization flag
       bool is_initialized() const;
 
-      //! Initialize the driver from the domain it is associated to
+      /// Initialize the driver from the domain it is associated to
       void initialize();
 
-      //! Initialize the driver from a set of configuration parameters
+      /// Initialize the driver from a set of configuration parameters
       void initialize(const datatools::properties &);
 
-      //! Reset the driver
+      /// Reset the driver
       void reset();
 
-      //! Create a new private mailbox address
+      /// Create a new private mailbox address
       std::string new_private_mailbox_address(const mailbox::mode_type);
 
-      // //! Send a message
+      // /// Send a message
       // int send(const mailbox & mailbox_,
       //          const vire::message::message & msg_,
       //          const datatools::properties & msg_metadata_);
 
-      // //! Receive a message
+      // /// Receive a message
       // int receive(vire::message::message & msg_,
       //             datatools::properties & msg_metadata_);
 
     private:
 
-      //! Initialization
+      /// Initialization
       virtual void _initialize_impl_(const datatools::properties &) = 0;
 
-      //! Reset
+      /// Reset
       virtual void _reset_impl_() = 0;
 
-      //! Return the address of a new private mailbox
+      /// Return the address of a new private mailbox
       virtual std::string _new_private_mailbox_address_impl_(const mailbox::mode_type) = 0;
 
-      //!
+      ///
       // virtual std::string _create_private_service_mailbox_(const std::string & name_) = 0;
 
-      //! Send a Vire message to from a source string buffer
+      // /// Send a Vire message to from a source string buffer
       // virtual int _send_impl_(const mailbox & mailbox_,
       // const vire::message::message & msg_,
       //  const datatools::properties & msg_metadata_) = 0;
 
-      // //! Receive a target object from a source string buffer
+      // /// Receive a target object from a source string buffer
       // virtual int _receive_impl_(vire::message::message & msg_,
       //                           datatools::properties & msg_metadata_) = 0;
 
     private:
 
       // Management:
-      bool _initialized_ = false; //!< Initialization flag
+      bool _initialized_ = false; ///< Initialization flag
 
       // Configuration:
-      domain * _domain_ = nullptr;
+      domain * _domain_ = nullptr; ///< Handle to the domain the driver is associated to
 
       // Factory stuff :
       DATATOOLS_FACTORY_SYSTEM_REGISTER_INTERFACE(i_transport_driver)

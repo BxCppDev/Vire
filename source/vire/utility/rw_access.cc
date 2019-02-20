@@ -40,7 +40,7 @@ namespace vire {
       type_ = RW_INVALID;
       const camp::Enum & metaAccessTypeEnum = camp::enumByType<rw_access_type>();
       if (metaAccessTypeEnum.hasName(label_)) {
-        type_= static_cast<rw_access_type>(metaAccessTypeEnum.value(label_));
+        type_ = static_cast<rw_access_type>(metaAccessTypeEnum.value(label_));
         return true;
       }
       return false;

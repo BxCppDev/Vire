@@ -1,6 +1,6 @@
 //! \file vire/com/domain_builder.cc
 //
-// Copyright (c) 2017 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2017-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -165,8 +165,8 @@ namespace vire {
     void domain_builder::_set_defaults_()
     {
       _domain_name_prefix_.clear();
-      _transport_type_id_.reset();
-      _encoding_type_id_.reset();
+      _transport_driver_type_id_.reset();
+      _encoding_driver_type_id_.reset();
       return;
     }
 
@@ -191,16 +191,16 @@ namespace vire {
     bool domain_builder::is_valid() const
     {
       if (!has_domain_name_prefix()) return false;
-      if (!has_encoding_type_id()) return false;
-      if (!has_transport_type_id()) return false;
+      if (!has_encoding_driver_type_id()) return false;
+      if (!has_transport_driver_type_id()) return false;
       return true;
     }
 
     void domain_builder::reset()
     {
       _domain_name_prefix_.clear();
-      _transport_type_id_.reset();
-      _encoding_type_id_.reset();
+      _transport_driver_type_id_.reset();
+      _encoding_driver_type_id_.reset();
       return;
    }
 
@@ -223,36 +223,36 @@ namespace vire {
       return _domain_name_prefix_;
     }
 
-    bool domain_builder::has_encoding_type_id() const
+    bool domain_builder::has_encoding_driver_type_id() const
     {
-      return _encoding_type_id_.is_valid();
+      return _encoding_driver_type_id_.is_valid();
     }
 
-    void domain_builder::set_encoding_type_id(const vire::utility::model_identifier & encoding_type_id_)
+    void domain_builder::set_encoding_driver_type_id(const vire::utility::model_identifier & encoding_driver_type_id_)
     {
-      _encoding_type_id_ = encoding_type_id_;
+      _encoding_driver_type_id_ = encoding_driver_type_id_;
       return;
     }
 
-    const vire::utility::model_identifier & domain_builder::get_encoding_type_id() const
+    const vire::utility::model_identifier & domain_builder::get_encoding_driver_type_id() const
     {
-      return _encoding_type_id_;
+      return _encoding_driver_type_id_;
     }
 
-    bool domain_builder::has_transport_type_id() const
+    bool domain_builder::has_transport_driver_type_id() const
     {
-      return _transport_type_id_.is_valid();
+      return _transport_driver_type_id_.is_valid();
     }
 
-    void domain_builder::set_transport_type_id(const vire::utility::model_identifier & transport_type_id_)
+    void domain_builder::set_transport_driver_type_id(const vire::utility::model_identifier & transport_driver_type_id_)
     {
-      _transport_type_id_ = transport_type_id_;
+      _transport_driver_type_id_ = transport_driver_type_id_;
       return;
     }
 
-    const vire::utility::model_identifier & domain_builder::get_transport_type_id() const
+    const vire::utility::model_identifier & domain_builder::get_transport_driver_type_id() const
     {
-      return _transport_type_id_;
+      return _transport_driver_type_id_;
     }
 
     void domain_builder::build_clients_gate_domain(domain & dom_) const 
@@ -263,11 +263,11 @@ namespace vire {
       if (!dom_.has_category()) {
         dom_.set_category(vire::com::DOMAIN_CATEGORY_GATE);
       }
-      if (!dom_.has_transport_type_id()) {
-        dom_.set_transport_type_id(_transport_type_id_);
+      if (!dom_.has_transport_driver_type_id()) {
+        dom_.set_transport_driver_type_id(_transport_driver_type_id_);
       }
-      if (!dom_.has_encoding_type_id()) {
-        dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_encoding_driver_type_id()) {
+        dom_.set_encoding_driver_type_id(_encoding_driver_type_id_);
       }
 
       mailbox::permissions_type gate_perms = mailbox::usage_permission_from_string("--s---p--");
@@ -288,11 +288,11 @@ namespace vire {
       if (!dom_.has_category()) {
         dom_.set_category(vire::com::DOMAIN_CATEGORY_CONTROL);
       }
-      if (!dom_.has_transport_type_id()) {
-        dom_.set_transport_type_id(_transport_type_id_);
+      if (!dom_.has_transport_driver_type_id()) {
+        dom_.set_transport_driver_type_id(_transport_driver_type_id_);
       }
-      if (!dom_.has_encoding_type_id()) {
-        dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_encoding_driver_type_id()) {
+        dom_.set_encoding_driver_type_id(_encoding_driver_type_id_);
       }
 
       mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("--s---p--");
@@ -313,11 +313,11 @@ namespace vire {
       if (!dom_.has_category()) {
         dom_.set_category(vire::com::DOMAIN_CATEGORY_MONITORING);
       }
-      if (!dom_.has_transport_type_id()) {
-        dom_.set_transport_type_id(_transport_type_id_);
+      if (!dom_.has_transport_driver_type_id()) {
+        dom_.set_transport_driver_type_id(_transport_driver_type_id_);
       }
-      if (!dom_.has_encoding_type_id()) {
-        dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_encoding_driver_type_id()) {
+        dom_.set_encoding_driver_type_id(_encoding_driver_type_id_);
       }
 
       mailbox::permissions_type rr_perms = mailbox::usage_permission_from_string("p-s--sp--");
@@ -357,11 +357,11 @@ namespace vire {
       if (!dom_.has_category()) {
         dom_.set_category(vire::com::DOMAIN_CATEGORY_CLIENT_SYSTEM);
       }
-      if (!dom_.has_transport_type_id()) {
-        dom_.set_transport_type_id(_transport_type_id_);
+      if (!dom_.has_transport_driver_type_id()) {
+        dom_.set_transport_driver_type_id(_transport_driver_type_id_);
       }
-      if (!dom_.has_encoding_type_id()) {
-        dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_encoding_driver_type_id()) {
+        dom_.set_encoding_driver_type_id(_encoding_driver_type_id_);
       }
 
       mailbox::permissions_type rts_perms = mailbox::usage_permission_from_string("--s---p--");
@@ -390,11 +390,11 @@ namespace vire {
       if (!dom_.has_category()) {
         dom_.set_category(vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM);
       }
-      if (!dom_.has_transport_type_id()) {
-        dom_.set_transport_type_id(_transport_type_id_);
+      if (!dom_.has_transport_driver_type_id()) {
+        dom_.set_transport_driver_type_id(_transport_driver_type_id_);
       }
-      if (!dom_.has_encoding_type_id()) {
-        dom_.set_encoding_type_id(_encoding_type_id_);
+      if (!dom_.has_encoding_driver_type_id()) {
+        dom_.set_encoding_driver_type_id(_encoding_driver_type_id_);
       }
 
       mailbox::permissions_type rts_perms = mailbox::usage_permission_from_string("--sp-----");
@@ -430,7 +430,33 @@ namespace vire {
                        true);
       return;
     }
+     
+    void domain_builder::print_tree(std::ostream & out_,
+                                    const boost::property_tree::ptree & options_) const
+    {
+      base_print_options popts;
+      popts.configure_from(options_);
+      std::ostringstream outs;
+      if (!popts.title.empty()) {
+        outs << popts.indent << popts.title << std::endl;
+      }
+             
+      outs << popts.indent << tag
+           << "Domain name prefix : "
+           << "'" << this->_domain_name_prefix_ << "'" << std::endl;
+            
+      outs << popts.indent << tag
+           << "Transport type ID : "
+           << "'" << this->_transport_driver_type_id_.to_string() << "'" << std::endl;
+            
+      outs << popts.indent << inherit_tag(popts.inherit)
+           << "Encoding type ID : "
+           << "'" << this->_encoding_driver_type_id_.to_string() << "'" << std::endl;
 
+      out_ << outs.str();
+      return;
+    }
+    
   } // namespace com
 
 } // namespace vire

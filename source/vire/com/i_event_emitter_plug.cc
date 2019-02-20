@@ -22,7 +22,8 @@
 #include <vire/com/i_event_emitter_plug.h>
 
 // This project:
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/access_profile.h>
 #include <vire/com/domain.h>
 #include <vire/com/utils.h>
 #include <vire/time/utils.h>
@@ -37,13 +38,13 @@ namespace vire {
     
     void i_event_emitter_plug::_populate_allowed_mailboxes_()
     {
-      domain_category_type domCat = get_domain().get_category();
-      actor_category_type actorCat = get_parent().get_category();
+      const domain_category_type domCat = get_domain().get_category();
+      const access_category_type accessCat = get_parent().get_profile().get_category();
 
       bool supported = false;
       if (domCat == DOMAIN_CATEGORY_MONITORING) {
-        if (actorCat == ACTOR_CATEGORY_SUBCONTRACTOR
-            || actorCat == ACTOR_CATEGORY_SERVER_CMS) {
+        if (accessCat == ACCESS_CATEGORY_SUBCONTRACTOR
+            || accessCat == ACCESS_CATEGORY_SERVER_CMS) {
           _allowed_mailboxes_.insert(mailbox_monitoring_log_event_name());
           _allowed_mailboxes_.insert(mailbox_monitoring_alarm_event_name());
           _allowed_mailboxes_.insert(mailbox_monitoring_pubsub_event_name());
@@ -53,7 +54,7 @@ namespace vire {
       }
  
       if (domCat == DOMAIN_CATEGORY_CLIENT_SYSTEM) {
-        if (actorCat == ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM) {
+        if (accessCat == ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM) {
           _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
           _default_mailbox_name_ = mailbox_system_vireserver_event_name();
           supported = true;
@@ -61,12 +62,12 @@ namespace vire {
       }
  
       if (domCat == DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM) {
-        if (actorCat == ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
+        if (accessCat == ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM) {
           _allowed_mailboxes_.insert(mailbox_system_vireserver_event_name());
           _default_mailbox_name_ = mailbox_system_vireserver_event_name();
           supported = true;
         }
-        if (actorCat == ACTOR_CATEGORY_SUBCONTRACTOR) {
+        if (accessCat == ACCESS_CATEGORY_SUBCONTRACTOR) {
           _allowed_mailboxes_.insert(mailbox_system_subcontractor_event_name());
           _default_mailbox_name_ = mailbox_system_subcontractor_event_name();
           supported = true;
@@ -74,12 +75,12 @@ namespace vire {
       }
       DT_THROW_IF(!supported,
                   std::logic_error,
-                  "Unsupported combinaison of domain/actor categories for emitter plug '" << get_name() << "'!");
+                  "Unsupported combinaison of domain/access categories for emitter plug '" << get_name() << "'!");
       return;
     }
 
     i_event_emitter_plug::i_event_emitter_plug(const std::string & name_,
-                                               const actor & parent_,
+                                               const access_hub & parent_,
                                                const domain & domain_,
                                                const std::string & default_mailbox_name_,
                                                const datatools::logger::priority logging_)
@@ -182,6 +183,8 @@ namespace vire {
       const i_encoding_driver & encoder = get_domain().get_encoding_driver();
 
       raw_message_type raw_msg_event;
+      // Encode the raw buffer:
+      encoder.encode(msg_event, raw_msg_event);
       if (datatools::logger::is_debug(logging)) {
         std::cerr << "********** RAW EVENT BUFFER ********** " << std::endl;
         for (char byte : raw_msg_event.buffer)  {
@@ -191,20 +194,23 @@ namespace vire {
             std::cerr << '?';
           }
         }
-        std::cerr << "\n************************************ " << std::endl;
+        std::cerr << "\n************************************** " << std::endl;
       }
     
       // Populate raw metadata:
       if (msg_event.get_header().get_message_id().is_valid()) {
-        raw_msg_event.metadata.store(message_id_key(), msg_event.get_header().get_message_id().to_string());
+        raw_msg_event.metadata.store(message_id_key(),
+                                     msg_event.get_header().get_message_id().to_string());
       }
+      
       // Send the event through the transport implementation:
-      if (!address_.is_private()) {
-        status = _at_send_event_(mailbox_name_, address_, raw_msg_event);
-      } else {
-        // Let the routing key find the path without a public mailbox (exchange)
-        status = _at_send_event_("", address_, raw_msg_event);
-      }
+      status = _at_send_event_(mailbox_name_, address_, raw_msg_event);
+      // if (!address_.is_private()) {
+      //   status = _at_send_event_(mailbox_name_, address_, raw_msg_event);
+      // } else {
+      //   // Let the routing key find the path without a public mailbox (exchange)
+      //   status = _at_send_event_(mailbox_name_, address_, raw_msg_event);
+      // }
 
       return status;
     }

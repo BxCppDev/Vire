@@ -36,6 +36,7 @@
 // This package:
 #include <vire/rabbitmq/user.h>
 #include <vire/rabbitmq/vhost.h>
+#include <vire/com/utils.h>
 
 namespace rabbitmq {
   class rabbit_mgr;
@@ -101,59 +102,73 @@ namespace vire {
       /// Set the server port
       void set_server_port(const int);
 
+      /// Check if the system user name prefix is set
       bool has_system_user_name_prefix() const;
 
+      /// Return the system user name prefix
       const std::string & get_system_user_name_prefix() const;
 
+      /// Set the system user name prefix
       void set_system_user_name_prefix(const std::string &);
 
+      /// Check if the vhost name prefix is set
       bool has_vhost_name_prefix() const;
 
+      /// Return the vhost name prefix
       const std::string & get_vhost_name_prefix() const;
 
+      /// Set the vhost name prefix
       void set_vhost_name_prefix(const std::string &);
 
+      /// Check if the admin login is set
       bool has_admin_login() const;
 
+      /// Return the admin login
       const std::string & get_admin_login() const;
 
+      /// Set the admin login
       void set_admin_login(const std::string &);
 
+      /// Check if the admin password is set
       bool has_admin_password() const;
 
+      /// Return the admin password
       const std::string & get_admin_password() const;
 
+      /// Set the admin password
       void set_admin_password(const std::string &);
 
-      /// \brief Dictionary of system users
-      typedef std::map<vire::com::actor_category_type, user> system_user_dict_type;
+      /// \brief Dictionary of system user information records
+      typedef std::map<vire::com::access_category_type, user> system_user_dict_type;
 
       /// Return the dictionary of system users
-      const system_user_dict_type & get_system_users() const;
+      const system_user_dict_type & get_system_user_infos() const;
 
       /// Change the password of a specific system user
       ///
       /// This method must be invoked after the
       /// set_system_user_name_prefix method
-      void set_system_user_password(const vire::com::actor_category_type category_,
+      void set_system_user_password(const vire::com::access_category_type category_,
                                     const std::string & password_);
 
       /// Return the system user of a given category
-      const user & get_system_user(const vire::com::actor_category_type category_) const;
+      const user & get_system_user(const vire::com::access_category_type category_) const;
 
-      /// Check if the system user of a given category is set
-      bool has_system_user(const vire::com::actor_category_type category_) const;
+      /// Check if the system user of a given category is declared
+      bool has_system_user(const vire::com::access_category_type category_) const;
       
-      /// Add a system_user
-      void add_system_user(const user & u_);
+      /// Declare a system_user
+      void declare_system_user(const user & u_);
 
-      /// Add a system_user
-      void add_system_user(const std::string & login_,
+      /// Declare a system_user
+      void declare_system_user(const std::string & login_,
                            const std::string & password_,
-                           const vire::com::actor_category_type category_);
+                           const vire::com::access_category_type category_);
 
+      /// Return the const RabbitMQ manager
       const ::rabbitmq::rabbit_mgr & get_manager() const;
 
+      /// Return the mutable RabbitMQ manager
       ::rabbitmq::rabbit_mgr & grab_manager();
 
       /// Check if a management vhost is set
@@ -171,7 +186,7 @@ namespace vire {
 
       /// Check if a management user is set
       bool has_user(const std::string & login_,
-                    const vire::com::actor_category_type category_ = vire::com::ACTOR_CATEGORY_INVALID) const;
+                    const vire::com::access_category_type category_ = vire::com::ACCESS_CATEGORY_INVALID) const;
       
       /// Add a management user
       void add_user(const user & user_);
@@ -188,21 +203,10 @@ namespace vire {
       
       /// Compute the list of management users
       void fetch_users(std::set<std::string> & logins_,
-                       const vire::com::actor_category_type category_ = vire::com::ACTOR_CATEGORY_INVALID) const;
-
-      /// \brief Subcontractor information record
-      struct subcontractor_info
-      {
-        std::string id;                 //!< Unique identifier of the subcontractor
-        std::string description;        //!< Description of the subcontractor
-        std::string user_login;         //!< RabbitMQ user login of the subcontractor
-        std::string user_password;      //!< RabbitMQ user password of the subcontractor
-        bool        persistent = true;  //!< Persitence flag for RabbitMQ resources associated to this subcontractor
-        std::string system_vhost_name;  //!< Name of the system vhost associated to this subcontractor
-      };
+                       const vire::com::access_category_type category_ = vire::com::ACCESS_CATEGORY_INVALID) const;
 
       /// \brief Dictionary of subcontractor information records
-      typedef std::map<std::string, subcontractor_info> sc_dict_type;
+      typedef std::map<std::string, vire::com::subcontractor_info> sc_dict_type;
 
       /// Check if a subcontractor is defined
       bool has_subcontractor(const std::string & sc_id_) const;
@@ -214,89 +218,89 @@ namespace vire {
       /// - one system interface user (server side)
       /// - one user (subcontractor side)
       ///
-      void add_subcontractor(const subcontractor_info & sc_info_);
+      void add_subcontractor(const vire::com::subcontractor_info & sc_info_);
 
       /// Remove subcontractor from the RabbitMQ system
       void remove_subcontractor(const std::string & sc_id_);
 
       /// Return the subcontractor associated with a given identifier
-      const subcontractor_info & get_subcontractor_info(const std::string & sc_id_) const;
+      const vire::com::subcontractor_info & get_subcontractor_info(const std::string & sc_id_) const;
       
       /// Return the subcontractor associated with a given system vhost
-      const subcontractor_info & get_subcontractor_info_per_vhost(const std::string & vhost_name_) const;
+      const vire::com::subcontractor_info & get_subcontractor_info_per_vhost(const std::string & vhost_name_) const;
      
       /// Return the subcontractor associated with a given user
-      const subcontractor_info & get_subcontractor_info_per_user(const std::string & user_login_) const;
+      const vire::com::subcontractor_info & get_subcontractor_info_per_user(const std::string & user_login_) const;
       
       /// Return the dictionary of subcontractor information records
       const sc_dict_type & get_subcontractor_infos() const;
 
-      /// \brief Client information record
-      struct client_info
-      {
-        std::string id;                   //!< Unique identifier of the client
-        std::string description;          //!< Description of the client
-        std::string sys_user_login;       //!< RabbitMQ system user login of the client
-        std::string sys_user_password;    //!< RabbitMQ system user password of the client
-        std::string cms_user_login;       //!< RabbitMQ CMS user login of the client
-        std::string cms_user_password;    //!< RabbitMQ CMS user password of the client
-        bool        with_control = false; //!< Flag for access to control vhost
-        std::string system_vhost_name;    //!< Name of the system vhost associated to this client
-      };
-
       /// \brief Dictionary of client information records
-      typedef std::map<std::string, client_info> client_dict_type;
+      typedef std::map<std::string, vire::com::client_info> client_dict_type;
 
       /// Check if a client is defined
       bool has_client(const std::string & client_id_) const;
 
-      void create_client(const client_info & client_info_);
+      /// Add resources for a new connected client in the RabbitMQ system
+      ///
+      /// This implies to add:
+      /// - one virtual host (client system domain)
+      /// - one system interface user (server side)
+      /// - one client CMS user (client side)
+      ///
+      void add_client(const vire::com::client_info & client_info_);
 
       void change_client_passwords(const std::string & client_id_,
                                    const std::string & sys_user_password_,
                                    const std::string & cms_user_password_);
       
-      void destroy_client(const std::string & client_id_);
+      /// Remove a client from the RabbitMQ system
+      void remove_client(const std::string & client_id_);
             
       /// Return the client associated with a given identifier
-      const client_info & get_client_info(const std::string & cl_id_) const;
+      const vire::com::client_info & get_client_info(const std::string & cl_id_) const;
             
       /// Return the client associated with a given system vhost
-      const client_info & get_client_info_per_vhost(const std::string & vhost_name_) const;
+      const vire::com::client_info & get_client_info_per_vhost(const std::string & vhost_name_) const;
  
     private:
 
       /// Return the dictionary of system users after initialization if needed
-      system_user_dict_type & _grab_system_users_();
+      system_user_dict_type & _grab_system_users_infos_();
+
+      /// Set default attributes:
+      void _set_defaults_();
       
-      void _init_system_users_();
+      void _init_system_users_infos_();
       void _setup_vire_cms_system_users_();
       void _setup_vire_cms_system_domains_();
       void _dismantle_vire_cms_system_users_();
       void _dismantle_vire_cms_system_domains_();
 
-      void _setup_vire_cms_subcontractors_();
+      // Subcontractors:
+      // void _setup_vire_cms_subcontractors_();
       void _dismantle_vire_cms_subcontractors_();
       void _setup_vire_cms_subcontractor_(const std::string & sc_id_);
       void _dismantle_vire_cms_subcontractor_(const std::string & sc_id_);
       void _setup_vire_cms_domains_subcontractor_system_(const std::string & sc_id_);
 
+      // Clients:
+      void _dismantle_vire_cms_clients_();
       void _setup_vire_cms_client_(const std::string & client_id_);
+      void _dismantle_vire_cms_client_(const std::string & client_id_);
       void _setup_vire_cms_domains_client_system_(const std::string & cl_id_);
+      void _destroy_vire_cms_domains_client_system_(const std::string & vhost_name_);
 
-      void _set_defaults_();
       void _setup_vire_cms_domains_clients_gate_(const std::string & vhost_name);
       void _setup_vire_cms_domains_control_(const std::string & vhost_name_);
       void _setup_vire_cms_domains_monitoring_(const std::string & vhost_name_);
-      void _destroy_vire_cms_domains_client_system_(const std::string & vhost_name_);
-      // void _force_destroy_vire_cms_();
 
       /// Check if a vhost with given name is created in the RabbitMQ server scope
       bool _has_vhost_(const std::string & name_) const;
       
       /// Check if an user with given name is created in the RabbitMQ server scope
       bool _has_user_(const std::string & login_) const;
-      
+       
       /// Check if an exchange with given name is created in a given vhost in the RabbitMQ server scope
       bool _has_exchange_(const std::string & vhost_, const std::string & exchange_name_) const;
 
@@ -318,22 +322,25 @@ namespace vire {
       std::string _admin_password_;    //!< Administrator password (mandatory)
 
       // System users management:
-      system_user_dict_type _system_users_; //!< List of system users
-
-      // Subcontractor agent (vhosts+users)
-      sc_dict_type _subcontractor_infos_; //!< Collection of subcontractor information records
-
-      // Client agent (vhosts+users)
-      client_dict_type _client_infos_; //!< Collection of client information records
+      system_user_dict_type _system_users_infos_; //!< List of system user information records
       
       // Working data:
+      
       std::map<std::string, user>  _users_;  //!< List of managed users
       std::map<std::string, vhost> _vhosts_; //!< List of managed vhosts
-      std::string                  _vhost_gate_name_;
-      std::string                  _vhost_control_name_;
-      std::string                  _vhost_monitoring_name_;
+      
+      // - System domains:
+      std::string                  _vhost_gate_name_; //!< Name of the unique gate vhost/domain
+      std::string                  _vhost_control_name_; //!< Name of the unique control vhost/domain
+      std::string                  _vhost_monitoring_name_; //!< Name of the unique monitoring vhost/domain
+      
+      // - Subcontractors (vhosts+users)
+      sc_dict_type _subcontractor_infos_; //!< Collection of subcontractor information records
+
+      // - Clients (vhosts+users)
+      client_dict_type _client_infos_; //!< Collection of client information records
  
-      // Private implementation:
+      // - Private implementation:
       class pimpl_type;
       std::unique_ptr<pimpl_type> _pimpl_;
 

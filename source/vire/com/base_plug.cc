@@ -1,6 +1,6 @@
 //! \file vire/com/base_plug.cc
 //
-// Copyright (c) 2016 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2016-2019 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -22,7 +22,7 @@
 
 // This project:
 #include <vire/com/manager.h>
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
 #include <vire/com/domain.h>
 #include <vire/time/utils.h>
 #include <vire/message/message.h>
@@ -32,7 +32,7 @@ namespace vire {
   namespace com {
 
     base_plug::base_plug(const std::string & name_,
-                         const actor & parent_,
+                         const access_hub & parent_,
                          const domain & domain_,
                          const datatools::logger::priority logging_)
       : _name_(name_)
@@ -64,7 +64,7 @@ namespace vire {
       return _name_;
     }
  
-    const actor & base_plug::get_parent() const
+    const access_hub & base_plug::get_parent() const
     {
       return _parent_;
     }
@@ -94,30 +94,33 @@ namespace vire {
       return _next_message_id_++;
     }
 
-    void base_plug::tree_dump(std::ostream & out_,
-                              const std::string & title_,
-                              const std::string & indent_,
-                              bool inherit_) const
+                   
+    void base_plug::print_tree(std::ostream & out_,
+                               const boost::property_tree::ptree & options_) const
     {
-      if (!title_.empty()) {
-        out_ << indent_ << title_ << std::endl;
+      base_print_options popts;
+      popts.configure_from(options_);
+      std::ostringstream outs;
+      if (!popts.title.empty()) {
+        outs << popts.indent << popts.title << std::endl;
       }
 
-      out_ << indent_ << tag
+      outs << popts.indent << tag
            << "Name:   '" << get_name() << "'" << std::endl;
 
-      out_ << indent_ << tag
+      outs << popts.indent << tag
            << "Parent: '" << get_parent().get_name() << "'" << std::endl;
 
-      out_ << indent_ << tag
+      outs << popts.indent << tag
            << "Domain: '" << get_domain().get_name() << "'" << std::endl;
 
-      out_ << indent_ << tag
+      outs << popts.indent << tag
            << "Category : '" << to_string(get_category()) << "'" << std::endl;
 
-      out_ << indent_ << inherit_tag(inherit_)
+      outs << popts.indent << inherit_tag(popts.inherit)
            << "Logging: '" << _logging_ << "'" << std::endl;
 
+      out_ << outs.str();
       return;
     }
 

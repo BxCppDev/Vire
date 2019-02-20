@@ -1,8 +1,8 @@
 //! \file  vire/com/i_service_server_plug.h
 //! \brief Vire com service server plug interface
 //
-// Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
-// Copyright (c) 2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
+// Copyright (c) 2019 by François Mauger <mauger@lpccaen.in2p3.fr>
+// Copyright (c) 2019 by Jean Hommet <hommet@lpccaen.in2p3.fr>
 //
 // This file is part of Vire.
 //
@@ -29,8 +29,6 @@
 #include <vire/com/subscription_info.h>
 #include <vire/utility/base_payload.h>
 
-// Using base RPC worker
-
 namespace vire {
 
   namespace com {
@@ -45,7 +43,7 @@ namespace vire {
 
       //! Constructor
       i_service_server_plug(const std::string & name_,
-                            const actor & parent_,
+                            const access_hub & parent_,
                             const domain & domain_,
                             const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
       
@@ -60,24 +58,40 @@ namespace vire {
       //! Return category
       plug_category_type get_category() const override final;
 
+      //! Add subscription
       void add_subscription(const subscription_info & subinfo_);
 
+      //! Return the list of subscriptions
       const subscription_info_list & get_subscriptions() const;
 
-      // com_status receive_send(const address & address_,
-      //                         const vire::utility::const_payload_ptr_type & request_payload_,
-      //                         vire::utility::const_payload_ptr_type & response_payload_);
+      //! Receive the next request
+      com_status receive_next_request(vire::utility::const_payload_ptr_type & request_payload_,
+                                      address & response_address_,
+                                      vire::message::message_identifier & origine_msg_id_,
+                                      address & async_response_address_);
+
+      //! Send back response
+      com_status send_back_response(const address & response_address_,
+                                    const vire::message::message_identifier & in_reply_to_,
+                                    const vire::utility::const_payload_ptr_type & response_payload_);
 
     private:
-      
-      // virtual com_status _at_receive_send_(const address & address_,
-      //                                      const raw_message_type & raw_request_,
-      //                                      raw_message_type & raw_response_) = 0;
 
+      //! Backend action at subscription adding
+      virtual void _at_add_subscription_(const subscription_info & subinfo_) = 0;
+  
+      //! Backend action at next request reception
+      virtual com_status _at_receive_next_request_(raw_message_type & raw_request_,
+                                                   address & response_address_) = 0;
+
+      //! Backend action at response sending back 
+      virtual com_status _at_send_back_response_(const address & response_address_,
+                                                 const raw_message_type & raw_response_) = 0;
+      
     private:
       
-      std::string _mailbox_name_; ///< Domain mailbox (exchange)
-      subscription_info_list _subscriptions_;
+      std::string            _mailbox_name_;  ///< Domain mailbox (exchange)
+      subscription_info_list _subscriptions_; ///< List of subscriptions
 
     };
 

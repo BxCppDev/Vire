@@ -33,7 +33,8 @@
 // This project:
 #include <vire/vire.h>
 
-void test_cmsclient_si_1(bool interactive_ = false);
+void test_cmsclient_setup_infos_1(bool interactive_ = false);
+void test_cmsclient_setup_infos_2(bool interactive_ = false);
 
 int main(int /* argc_ */, char ** /* argv_ */)
 {
@@ -45,7 +46,9 @@ int main(int /* argc_ */, char ** /* argv_ */)
     bool interactive = false;
     interactive = true;
 
-    test_cmsclient_si_1(interactive);
+    test_cmsclient_setup_infos_1(interactive);
+
+    test_cmsclient_setup_infos_2(interactive);
 
     std::clog << "The end." << std::endl;
   } catch (std::exception & x) {
@@ -59,26 +62,51 @@ int main(int /* argc_ */, char ** /* argv_ */)
   return error_code;
 }
 
-void test_cmsclient_si_1(bool interactive_)
+void test_cmsclient_setup_infos_1(bool interactive_)
 {
-  std::clog << "\ntest_cmsclient_si_1: basics" << std::endl;
+  std::clog << "\ntest_cmsclient_setup_infos_1: basics" << std::endl;
 
   // Configuration:
   datatools::properties setupInfosParams;
   setupInfosParams.store("setup_id", "SuperNEMO");
   setupInfosParams.store("host", "localhost");
   setupInfosParams.store("port", 5671);
-  setupInfosParams.store("domain_name_prefix", "/supernemo/demonstrator");
+  setupInfosParams.store("domain_name_prefix", "/__snemod__");
   setupInfosParams.store("transport_protocol_id", "vire::com::rabbitmq_transport_driver");
   setupInfosParams.store("encoding_protocol_id", "vire::com::protobuf_encoding_driver");
-  setupInfosParams.store("gate_login", "snclient");
-  setupInfosParams.store("gate_password", "IeM8rohghu");
+  setupInfosParams.store("gate_client_user_login", "snemod_vireclientgate");
+  setupInfosParams.store("gate_client_user_password", "snemod_vireclientgate");
   setupInfosParams.tree_dump(std::clog, "Vire CMS setup infos: ");
 
   // Setup infos:
   vire::cmsclient::setup_infos setupInfos;
   setupInfos.initialize(setupInfosParams);
-  setupInfos.tree_dump(std::clog, "Setup infos: ");
+  std::clog << "Setup infos: \n";
+  setupInfos.print_tree(std::clog);
+  setupInfos.reset();
+  std::clog << std::endl;
+
+  return;
+}
+
+void test_cmsclient_setup_infos_2(bool interactive_)
+{
+  std::clog << "\ntest_cmsclient_setup_infos_2: configuration from file" << std::endl;
+
+  // Configuration:
+  datatools::properties setupInfosParams;
+  std::string setupInfosConfigPath = "@snemock:config/cms/test1/client/setup_infos.conf";
+  datatools::fetch_path_with_env(setupInfosConfigPath);
+  std::clog << "setupInfosConfigPath = '" << setupInfosConfigPath << "'" << std::endl;
+  setupInfosParams.read_configuration(setupInfosConfigPath);
+  std::clog << "setupInfosParams:" << std::endl;
+  setupInfosParams.print_tree(std::clog);
+
+  // Setup infos:
+  vire::cmsclient::setup_infos setupInfos;
+  setupInfos.initialize(setupInfosParams);
+  std::clog << "Setup infos: \n";
+  setupInfos.print_tree(std::clog);
   setupInfos.reset();
   std::clog << std::endl;
 

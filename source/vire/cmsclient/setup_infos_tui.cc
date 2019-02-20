@@ -53,21 +53,21 @@ namespace vire {
       if (sinfo_.has_domain_name_prefix()) {
         domainNamePrefix = sinfo_.get_domain_name_prefix();
       }
-      std::string transportProtocolId;
-      if (sinfo_.has_transport_protocol_id()) {
-        transportProtocolId = sinfo_.get_transport_protocol_id().to_string();
+      std::string transportDriverTypeId;
+      if (sinfo_.has_transport_driver_type_id()) {
+        transportDriverTypeId = sinfo_.get_transport_driver_type_id().to_string();
       }
-      std::string encodingProtocolId;
-      if (sinfo_.has_encoding_protocol_id()) {
-        encodingProtocolId = sinfo_.get_encoding_protocol_id().to_string();
+      std::string encodingDriverTypeId;
+      if (sinfo_.has_encoding_driver_type_id()) {
+        encodingDriverTypeId = sinfo_.get_encoding_driver_type_id().to_string();
       }
       std::string gateLogin;
-      if (sinfo_.has_gate_login()) {
-        gateLogin = sinfo_.get_gate_login();
+      if (sinfo_.has_gate_client_user_login()) {
+        gateLogin = sinfo_.get_gate_client_user_login();
       }
       std::string gatePassword;
-      if (sinfo_.has_gate_password()) {
-        gatePassword = sinfo_.get_gate_password();
+      if (sinfo_.has_gate_client_user_password()) {
+        gatePassword = sinfo_.get_gate_client_user_password();
       }
 
       {
@@ -134,35 +134,35 @@ namespace vire {
 
       {
         std::string tmp;
-        std::clog << "Enter the transport protocol ";
-        if (!transportProtocolId.empty()) {
-          std::clog << '[' << transportProtocolId << ']';
+        std::clog << "Enter the transport driver type ID ";
+        if (!transportDriverTypeId.empty()) {
+          std::clog << '[' << transportDriverTypeId << ']';
         }
         std::clog << " : " << std::flush;
         std::getline(std::cin, tmp);
         if (!tmp.empty()) {
-          transportProtocolId = tmp;
+          transportDriverTypeId = tmp;
         }
         std::clog << std::endl;
       }
 
       {
         std::string tmp;
-        std::clog << "Enter the encoding protocol ";
-        if (!encodingProtocolId.empty()) {
-          std::clog << '[' << encodingProtocolId << ']';
+        std::clog << "Enter the encoding driver type ID ";
+        if (!encodingDriverTypeId.empty()) {
+          std::clog << '[' << encodingDriverTypeId << ']';
         }
         std::clog << " : " << std::flush;
         std::getline(std::cin, tmp);
         if (!tmp.empty()) {
-          encodingProtocolId = tmp;
+          encodingDriverTypeId = tmp;
         }
         std::clog << std::endl;
       }
 
       {
         std::string tmp;
-        std::clog << "Enter the gate login ";
+        std::clog << "Enter the gate client user login ";
         if (!gateLogin.empty()) {
           std::clog << '[' << gateLogin << ']';
         }
@@ -178,7 +178,7 @@ namespace vire {
         std::string tmp;
         vire::auth::password_entry passwordEntry;
         std::ostringstream message;
-        message << "Enter the gate password ";
+        message << "Enter the gate client user password ";
         if (!gateLogin.empty()) {
           message << '[' << std::setfill ('*') << std::setw(gatePassword.size()) << '*' << ']';
         }
@@ -194,8 +194,8 @@ namespace vire {
       // std::clog << "Vire CMS server host = " << serverHost << std::endl;
       // std::clog << "Vire CMS server port = " << serverPort << std::endl;
       // std::clog << "Domain name prefix = " << domainNamePrefix << std::endl;
-      // std::clog << "Transport protocol ID = " << transportProtocolId << std::endl;
-      // std::clog << "Encoding protocol ID = " << encodingProtocolId << std::endl;
+      // std::clog << "Transport driver type ID = " << transportDriverTypeId << std::endl;
+      // std::clog << "Encoding driver type ID = " << encodingDriverTypeId << std::endl;
       // std::clog << "Gate login = " << gateLogin << std::endl;
       // std::clog << "Gate password = " << std::setfill ('*') << std::setw(gatePassword.size()) << '*' << std::endl;
       if (!sinfo_.has_setup_id()
@@ -218,29 +218,29 @@ namespace vire {
           || ( sinfo_.get_domain_name_prefix() != domainNamePrefix)) {
         sinfo_.set_domain_name_prefix(domainNamePrefix);
       }
-      if (!sinfo_.has_transport_protocol_id()
-          || ( sinfo_.get_transport_protocol_id().to_string() != transportProtocolId)) {
+      if (!sinfo_.has_transport_driver_type_id()
+          || ( sinfo_.get_transport_driver_type_id().to_string() != transportDriverTypeId)) {
         vire::utility::model_identifier tpmodel;
-        if (!tpmodel.from_string(transportProtocolId)) {
+        if (!tpmodel.from_string(transportDriverTypeId)) {
           return false;
         }
-        sinfo_.set_transport_protocol_id(tpmodel);
+        sinfo_.set_transport_driver_type_id(tpmodel);
       }
-      if (!sinfo_.has_encoding_protocol_id()
-          || ( sinfo_.get_encoding_protocol_id().to_string() != encodingProtocolId)) {
+      if (!sinfo_.has_encoding_driver_type_id()
+          || ( sinfo_.get_encoding_driver_type_id().to_string() != encodingDriverTypeId)) {
         vire::utility::model_identifier epmodel;
-        if (!epmodel.from_string(encodingProtocolId)) {
+        if (!epmodel.from_string(encodingDriverTypeId)) {
           return false;
         }
-        sinfo_.set_encoding_protocol_id(epmodel);
+        sinfo_.set_encoding_driver_type_id(epmodel);
       }
-      if (!sinfo_.has_gate_login()
-          || ( sinfo_.get_gate_login() != gateLogin)) {
-        sinfo_.set_gate_login(gateLogin);
+      if (!sinfo_.has_gate_client_user_login()
+          || ( sinfo_.get_gate_client_user_login() != gateLogin)) {
+        sinfo_.set_gate_client_user_login(gateLogin);
       }
-      if (!sinfo_.has_gate_password()
-          || ( sinfo_.get_gate_password() != gatePassword)) {
-        sinfo_.set_gate_password(gatePassword);
+      if (!sinfo_.has_gate_client_user_password()
+          || ( sinfo_.get_gate_client_user_password() != gatePassword)) {
+        sinfo_.set_gate_client_user_password(gatePassword);
       }
 
       return true;

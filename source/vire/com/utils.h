@@ -27,6 +27,9 @@
 // Third party:
 #include <bayeux/datatools/properties.h>
 
+// This project:
+#include <vire/utility/model_identifier.h>
+
 namespace vire {
 
   namespace com {
@@ -40,33 +43,48 @@ namespace vire {
       COM_TIMEOUT     = 4  //!< Timeout error
     };
 
-    //! \brief Actor categories
-    enum actor_category_type {
-      ACTOR_CATEGORY_INVALID                     =  0, ///< Invalid actor category
-      ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM = 10, ///< Server subcontractor system category (in CMS server)
-      ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM        = 11, ///< Server client system category (in CMS server)
-      ACTOR_CATEGORY_SERVER_GATE                 = 12, ///< Server gate system category (in CMS server, unique user)
-      ACTOR_CATEGORY_SERVER_CMS                  = 13, ///< Server CMS category (in CMS server, unique user)
-      ACTOR_CATEGORY_CLIENT_SYSTEM               = 20, ///< Client system category (in CMS clients)
-      ACTOR_CATEGORY_CLIENT_CMS                  = 21, ///< Client CMS category (in CMS server or clients)
-      ACTOR_CATEGORY_CLIENT_GATE                 = 22, ///< Server gate system category (in CMS server, unique user)
-      ACTOR_CATEGORY_SUBCONTRACTOR               = 30, ///< Subcontractor category (in CMS subcontractors)
+    //! \brief Access categories
+    enum access_category_type {
+      ACCESS_CATEGORY_INVALID                     =  0, ///< Invalid access category
+      ACCESS_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM = 10, ///< Server subcontractor system category (in CMS serve)
+      ACCESS_CATEGORY_SERVER_CLIENT_SYSTEM        = 11, ///< Server client system category (in CMS server)
+      ACCESS_CATEGORY_SERVER_GATE                 = 12, ///< Server gate system category (in CMS server, unique user)
+      ACCESS_CATEGORY_SERVER_CMS                  = 13, ///< Server CMS category (in CMS server, unique user)
+      ACCESS_CATEGORY_CLIENT_SYSTEM               = 20, ///< Client system category (in CMS clients)
+      ACCESS_CATEGORY_CLIENT_CMS                  = 21, ///< Client CMS category (in CMS server or clients)
+      ACCESS_CATEGORY_CLIENT_GATE                 = 22, ///< Server gate system category (in CMS server, unique user)
+      ACCESS_CATEGORY_SUBCONTRACTOR               = 30, ///< Subcontractor category (in CMS subcontractors)
     };
 
-    const std::set<actor_category_type> & actor_categories_with_unique_user();
+    const std::set<access_category_type> & access_categories_with_unique_user();
     
-    bool is_unique_user(const actor_category_type);
+    bool is_unique_user(const access_category_type);
     
-    //! Return the label associated to an actor category
-    std::string to_string(const actor_category_type);
+    //! Return the label associated to an access category
+    std::string to_string(const access_category_type);
        
-    //! Return the actor category type associated to a label
-    bool from_string(const std::string &, actor_category_type &);
+    //! Return the access category type associated to a label
+    bool from_string(const std::string &, access_category_type &);
 
-    bool actor_category_requires_target(const actor_category_type);
+    bool access_category_requires_target(const access_category_type);
  
-    bool actor_category_is_persistant(const actor_category_type);
+    bool access_category_is_persistant(const access_category_type);
 
+    const std::string & server_cms_access_label();
+    const std::string & server_gate_access_label();
+    const std::string & client_gate_access_label();
+    const std::string & server_subcontractor_system_access_label();
+    const std::string & server_client_system_access_label();
+
+    //! Build a standard access login from prefix and access profile label
+    void build_system_login(const std::string & prefix_,
+                            const std::string & access_label_,
+                            std::string & login_);
+
+    //! Return a standard access login from prefix and login base
+    std::string make_system_login(const std::string & prefix_,
+                                  const std::string & access_label_);
+      
     //! \brief Domain categories
     enum domain_category_type {
       DOMAIN_CATEGORY_INVALID              = 0, ///< Invalid domain category
@@ -87,6 +105,12 @@ namespace vire {
     //! Return the domain category type associated to a label
     bool from_string(const std::string &, domain_category_type &);
 
+    /// \brief Raw message record
+    ///
+    /// This record contains :
+    /// - a dictionnary of simple properties to store
+    ///   metadata about a message,
+    /// - a raw buffer of characters to encode the message payload
     struct raw_message_type
     {
       typedef std::vector<char> buffer_type;
@@ -104,6 +128,7 @@ namespace vire {
     const std::string & domain_control_label();
     const std::string & domain_monitoring_label();
 
+    const std::string & private_mailbox_key(); ///< Corresponds to "reply-to" basic_properties in RabbitMQ
     const std::string & message_id_key();
     const std::string & correlation_id_key();
     const std::string & address_key();
@@ -133,6 +158,38 @@ namespace vire {
     const std::string & mailbox_monitoring_log_event_name();
     const std::string & mailbox_monitoring_alarm_event_name();
     const std::string & mailbox_monitoring_pubsub_event_name();
+
+    /// \brief Subcontractor management information record
+    struct subcontractor_info
+    {
+      std::string id;                 //!< Unique identifier of the subcontractor
+      std::string description;        //!< Description of the subcontractor
+      std::string user_login;         //!< User login of the subcontractor
+      std::string user_password;      //!< User password of the subcontractor
+      std::string sys_svr_login;      //!< Server side system access login of the subcontractor
+      std::string sys_svr_password;   //!< Server side system access password of the subcontractor
+      bool        persistent = true;  //!< Persitence flag for transport resources associated to the subcontractor
+      std::string system_domain_name; //!< Name of the system domain associated to the subcontractor
+      vire::utility::model_identifier system_transport_driver_type_id; //!< Transport driver of the system domain associated to the subcontractor
+      vire::utility::model_identifier system_encoding_driver_type_id;  //!< Encoding driver of the system domain associated to the subcontractor
+    };
+  
+    /// \brief Client management information record
+    struct client_info
+    {
+      std::string id;                   //!< Unique identifier of the client
+      std::string description;          //!< Description of the client
+      std::string sys_user_login;       //!< System user login of the client
+      std::string sys_user_password;    //!< System user password of the client
+      std::string sys_svr_login;        //!< System server access login of the client
+      std::string sys_svr_password;     //!< System server access password of the client
+      std::string cms_user_login;       //!< CMS user login of the client
+      std::string cms_user_password;    //!< CMS user password of the client
+      bool        with_control = false; //!< Flag for access to control domain
+      std::string system_domain_name;   //!< Name of the system domain associated to the client
+      vire::utility::model_identifier system_transport_driver_type_id; //!< Transport driver of the system domain associated to the client
+      vire::utility::model_identifier system_encoding_driver_type_id;  //!< Encoding driver of the system domain associated to the client
+    };
 
   } // namespace com
 

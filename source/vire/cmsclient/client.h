@@ -47,6 +47,8 @@ namespace vire {
     {
     public:
 
+      static std::string nego_service_name();
+
       static std::string log_service_name();
 
       static std::string com_service_name();
@@ -126,29 +128,23 @@ namespace vire {
                               const boost::property_tree::ptree & options_
                               = datatools::i_tree_dumpable::empty_options()) const;
 
-    protected:
+    private:
 
       void _init_main_(const datatools::properties &);
 
       void _reset_main_();
 
-      void _start_system_services();
+      void _start_system_services_();
 
-      void _stop_system_services();
+      void _stop_system_services_();
 
-      void _start_business_services();
+      void _start_business_services_();
 
-      void _stop_business_services();
-
-    private:
+      void _stop_business_services_();
 
       void _at_init_();
 
       void _at_reset_();
-
-      void _init_com_();
-
-      void _terminate_com_();
 
     private:
 

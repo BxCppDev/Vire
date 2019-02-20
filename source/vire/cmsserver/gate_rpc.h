@@ -56,7 +56,7 @@ namespace vire {
 
     private:
 
-      gate * _gate_ = nullptr;
+      gate * _gate_ = nullptr; ///< Gate parent
 
     };
 

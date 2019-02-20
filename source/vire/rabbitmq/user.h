@@ -49,7 +49,7 @@ namespace vire {
       /// Constructor
       user(const std::string & login_,
            const std::string & password_,
-           const vire::com::actor_category_type category_);
+           const vire::com::access_category_type category_);
 
       /// Check is a login is valid
       static bool validate_login(const std::string & login_);
@@ -73,10 +73,10 @@ namespace vire {
       bool match_password(const std::string & word_) const;
 
       /// Set the user's category
-      void set_category(const vire::com::actor_category_type category_);
+      void set_category(const vire::com::access_category_type category_);
 
       /// Return  the user's category
-      const vire::com::actor_category_type get_category() const;
+      const vire::com::access_category_type get_category() const;
 
       /// Check if the user is complete (all mandatory fields are set)
       bool is_complete() const;
@@ -94,7 +94,7 @@ namespace vire {
       
       std::string   _login_;    //!< Login of the RabbitMQ Vire user
       std::string   _password_; //!< Password
-      vire::com::actor_category_type _category_ = vire::com::ACTOR_CATEGORY_INVALID; //!< User category
+      vire::com::access_category_type _category_ = vire::com::ACCESS_CATEGORY_INVALID; //!< User category
       
       friend manager_service;
       

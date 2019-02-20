@@ -75,15 +75,20 @@ namespace vire {
 
     bool message_header::is_valid() const
     {
-      if (! _message_id_.is_valid()) return false;
-      if (_category_ == MESSAGE_INVALID) return false;
+      if (! has_message_id()) return false;
+      if (!has_category()) return false;
       if (! _body_layout_id_.is_valid()) return false;
       if (! ::vire::time::is_valid(_timestamp_)) return false;
-      if (_in_reply_to_) {
+      if (has_in_reply_to()) {
         if (!_in_reply_to_.get().is_valid()) return false;
       }
       if (_asynchronous_ && _async_address_.empty()) return false;
       return true;
+    }
+
+    bool message_header::has_message_id() const
+    {
+      return _message_id_.is_valid();
     }
 
     void message_header::set_message_id(const message_identifier & mid_)
@@ -117,6 +122,11 @@ namespace vire {
     const boost::posix_time::ptime & message_header::get_timestamp() const
     {
       return _timestamp_;
+    }
+
+    bool message_header::has_category() const
+    {
+      return _category_ != MESSAGE_INVALID;
     }
 
     void message_header::set_category(const message_category cat_)

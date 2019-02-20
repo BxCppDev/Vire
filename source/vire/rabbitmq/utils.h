@@ -30,6 +30,10 @@ namespace vire {
   namespace rabbitmq {
 
     bool convert(const vire::com::address &, std::string & key_);
+
+    const std::string & server_host_key();
+
+    const std::string & server_port_key();
     
   } // namespace rabbitmq
 

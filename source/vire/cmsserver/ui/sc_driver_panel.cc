@@ -1,4 +1,4 @@
-// vire/cmsserver/ui/sc_info_panel.cc
+// vire/cmsserver/ui/sc_driver_panel.cc
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmsserver/ui/sc_info_panel.h>
+#include <vire/cmsserver/ui/sc_driver_panel.h>
 
 // Third party:
 // - Qt:
@@ -42,37 +42,37 @@ namespace vire {
     
     namespace ui {
 
-      sc_info_panel::sc_info_panel(QWidget * parent_)
+      sc_driver_panel::sc_driver_panel(QWidget * parent_)
         : QWidget(parent_)
       {
         return;
       }
 
       // virtual
-      sc_info_panel::~sc_info_panel()
+      sc_driver_panel::~sc_driver_panel()
       {
         return;
       }
       
-      bool sc_info_panel::has_subcontractor_info() const
+      bool sc_driver_panel::has_driver() const
       {
-        return _subcontractor_info_ != nullptr;
+        return _driver_ != nullptr;
       }
 
-      void sc_info_panel::set_subcontractor_info(sc_info & sc_info_)
+      void sc_driver_panel::set_driver(sc_driver & sc_driver_)
       {
-        _subcontractor_info_ = &sc_info_;
-        _subcontractor_info_emitter_ = &_subcontractor_info_->grab_emitter();
+        _driver_ = &sc_driver_;
+        _driver_emitter_ = &_driver_->grab_emitter();
         _construct_();
         return;
       }
       
-      QSize sc_info_panel::sizeHint() const
+      QSize sc_driver_panel::sizeHint() const
       {
         return QSize(200,100);
       }
       
-      void sc_info_panel::_construct_()
+      void sc_driver_panel::_construct_()
       {
         using datatools::qt::led;
 
@@ -84,11 +84,11 @@ namespace vire {
        
         _sc_name_value_label_ = new QLabel(this);
         _sc_name_value_label_->setFixedHeight(14);
-        _sc_name_value_label_->setText(_subcontractor_info_->get_name().c_str());
+        _sc_name_value_label_->setText(_driver_->get_name().c_str());
 
         // std::string tooltipText;
         // if (
-        // _sc_name_value_label_->setTooltip(_subcontractor_info_->get_name().c_str());
+        // _sc_name_value_label_->setTooltip(_driver_->get_name().c_str());
         _sc_name_value_label_->setStyleSheet("QLabel { background-color : white; color : black; }");
         _sc_name_value_label_->setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
 
@@ -123,7 +123,7 @@ namespace vire {
         
         QGridLayout * mounted_devices_layout = new QGridLayout;
         std::set<std::string> mdev_names;
-        _subcontractor_info_->build_mounted_devices(mdev_names);
+        _driver_->build_mounted_devices(mdev_names);
         int dev_counter = 0;
         int row_skip = 1;
 
@@ -162,7 +162,7 @@ namespace vire {
 
         using vire::cms::ui::image_status_panel;
         for (const auto & mdev_name : mdev_names) {
-          sc_info::device_info & devInfo = _subcontractor_info_->grab_mounted_device_info(mdev_name);
+          sc_driver::device_info & devInfo = _driver_->grab_mounted_device_info(mdev_name);
           image_status_panel * devStatusPanel = new vire::cms::ui::image_status_panel;
           devStatusPanel->set_no_labels(true);    
           devStatusPanel->set_status(devInfo.status);
@@ -193,9 +193,9 @@ namespace vire {
         // QCoreApplication::processEvents();
         slot_update_connection();
 
-        QObject::connect(_subcontractor_info_emitter_, SIGNAL(connection_changed()),
+        QObject::connect(_driver_emitter_, SIGNAL(connection_changed()),
                          this, SLOT(slot_update_connection()));
-        QObject::connect(_subcontractor_info_emitter_, SIGNAL(auto_connect_changed()),
+        QObject::connect(_driver_emitter_, SIGNAL(auto_connect_changed()),
                          this, SLOT(slot_update_auto_connect()));
         QObject::connect(_connection_button_, SIGNAL(clicked()),
                          this, SLOT(slot_connect()));
@@ -207,13 +207,13 @@ namespace vire {
         return;
       }
          
-      void sc_info_panel::slot_connect()
+      void sc_driver_panel::slot_connect()
       {
-        std::cerr << "************ devel: sc_info_panel::slot_connect: Entering..." << std::endl;
-        if (!_subcontractor_info_) return;
-        if (!_subcontractor_info_->is_connected()) {
+        std::cerr << "************ devel: sc_driver_panel::slot_connect: Entering..." << std::endl;
+        if (!_driver_) return;
+        if (!_driver_->is_connected()) {
           try {
-            _subcontractor_info_->connect();
+            _driver_->connect();
           } catch (std::exception & error) {
             std::string error_message = error.what();
             QErrorMessage errorMessageDialog(this);
@@ -224,21 +224,21 @@ namespace vire {
             errorMessageDialog.showMessage(error_message.c_str());
           }
         }
-        if (!_subcontractor_info_->is_connected()) {
+        if (!_driver_->is_connected()) {
           QErrorMessage errorMessageDialog(this);
           errorMessageDialog.showMessage("Connection failed!");
         }
-        std::cerr << "************ devel: sc_info_panel::slot_connect: Exiting." << std::endl;
+        std::cerr << "************ devel: sc_driver_panel::slot_connect: Exiting." << std::endl;
         return;
       }
          
-      void sc_info_panel::slot_disconnect()
+      void sc_driver_panel::slot_disconnect()
       {
-        std::cerr << "************ devel: sc_info_panel::slot_disconnect: Entering..." << std::endl;
-        if (!_subcontractor_info_) return;
-        if (_subcontractor_info_->is_connected()) {
+        std::cerr << "************ devel: sc_driver_panel::slot_disconnect: Entering..." << std::endl;
+        if (!_driver_) return;
+        if (_driver_->is_connected()) {
           try {
-            _subcontractor_info_->disconnect();
+            _driver_->disconnect();
           } catch (std::exception & error) {
             std::string error_message = error.what();
             QErrorMessage errorMessageDialog(this);
@@ -249,29 +249,29 @@ namespace vire {
             errorMessageDialog.showMessage(error_message.c_str());
           }
         }
-        if (_subcontractor_info_->is_connected()) {
+        if (_driver_->is_connected()) {
           QErrorMessage errorMessageDialog(this);
           errorMessageDialog.showMessage("Disconnection failed!");
         }
-        std::cerr << "************ devel: sc_info_panel::slot_disconnect: Exiting." << std::endl;
+        std::cerr << "************ devel: sc_driver_panel::slot_disconnect: Exiting." << std::endl;
         return;
       }
              
-      void sc_info_panel::slot_toggle_autoconnect()
+      void sc_driver_panel::slot_toggle_autoconnect()
       {
-        if (!_subcontractor_info_) return;
-         if (_subcontractor_info_->is_auto_connect()) {
-           _subcontractor_info_->set_auto_connect(false);
+        if (!_driver_) return;
+         if (_driver_->is_auto_connect()) {
+           _driver_->set_auto_connect(false);
          } else {
-           _subcontractor_info_->set_auto_connect(true);
+           _driver_->set_auto_connect(true);
          }
         return;
       }
   
-      void sc_info_panel::slot_update_auto_connect()
+      void sc_driver_panel::slot_update_auto_connect()
       {
-        if (!_subcontractor_info_) return;
-        if (_subcontractor_info_->is_auto_connect()) {
+        if (!_driver_) return;
+        if (_driver_->is_auto_connect()) {
           _autoconnect_check_->setCheckState(Qt::Checked);
         } else  {
           _autoconnect_check_->setCheckState(Qt::Unchecked);
@@ -279,10 +279,10 @@ namespace vire {
         return;
       }
    
-      void sc_info_panel::slot_update_connection()
+      void sc_driver_panel::slot_update_connection()
       {
-        if (!_subcontractor_info_) return;
-        if (_subcontractor_info_->is_connected()) {
+        if (!_driver_) return;
+        if (_driver_->is_connected()) {
           _connection_led_->set_value(true);
           _connection_button_->setEnabled(false);
           _disconnection_button_->setEnabled(true);

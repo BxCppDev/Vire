@@ -139,7 +139,6 @@ namespace vire {
 
       // Management:
       bool _initialized_ = false;            //!< Initialization status
-      datatools::logger::priority _logging_; //!< Logging priority threshold
       fsm_state _state_ = FSM_STATE_INVALID; //!< Session management FSM current state
       bool _stop_run_requested_ = false;     //!< Requested stop flag
 

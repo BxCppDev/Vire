@@ -31,7 +31,7 @@
 
 // This project:
 #include <vire/time/utils.h>
-#include <vire/cmsserver/ui/sc_info_panel.h>
+#include <vire/cmsserver/ui/sc_driver_panel.h>
 
 namespace vire {
 
@@ -78,17 +78,17 @@ namespace vire {
         std::set<std::string> sc_names;
         _manager_->build_subcontractor_names(sc_names);
 
-        using vire::cmsserver::sc_info;
-        using vire::cmsserver::ui::sc_info_panel;
+        using vire::cmsserver::sc_driver;
+        using vire::cmsserver::ui::sc_driver_panel;
         for (const std::string & sc_name : sc_names) {
-          sc_info & scInfo = _manager_->grab_subcontractor_info(sc_name);
-          sc_info_panel * scInfoPanel = new sc_info_panel(this);
-          scInfoPanel->set_subcontractor_info(scInfo);
+          sc_driver & scDriver = _manager_->grab_driver(sc_name);
+          sc_driver_panel * scDriverPanel = new sc_driver_panel(this);
+          scDriverPanel->set_driver(scDriver);
           std::string display_name = sc_name;
-          if (scInfo.has_display_name()) {
-            display_name = scInfo.get_display_name();
+          if (scDriver.has_display_name()) {
+            display_name = scDriver.get_display_name();
           }
-          scTabs->addTab(scInfoPanel, display_name.c_str());
+          scTabs->addTab(scDriverPanel, display_name.c_str());
         }
 
         QVBoxLayout * main_layout = new QVBoxLayout;

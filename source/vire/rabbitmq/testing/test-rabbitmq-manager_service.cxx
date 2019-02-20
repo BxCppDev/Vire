@@ -100,11 +100,9 @@ void service_set_params(vire::rabbitmq::manager_service & serv_, const bool dest
   serv_.set_admin_login("supernemo_adm");
   serv_.set_admin_password("sesame");
   // System users:
-  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_CMS, "vireservercms");
-  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_GATE, "vireservergate");
-  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_CLIENT_GATE, "vireclientgate");
-  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM, "vireserverscsys");
-  serv_.set_system_user_password(vire::com::ACTOR_CATEGORY_SERVER_CLIENT_SYSTEM, "vireserverclientsys");
+  serv_.set_system_user_password(vire::com::ACCESS_CATEGORY_SERVER_CMS,  "vireservercms");
+  serv_.set_system_user_password(vire::com::ACCESS_CATEGORY_SERVER_GATE, "vireservergate");
+  serv_.set_system_user_password(vire::com::ACCESS_CATEGORY_CLIENT_GATE, "vireclientgate");
   serv_.set_destroy_all_at_reset(destroy_);
 
   return;
@@ -137,27 +135,6 @@ void test0(const params_type & params_)
   serv.set_logging_priority(logging);
   service_set_params(serv, params_.destroy);
 
-  // Subcontractors:
-  {
-    vire::rabbitmq::manager_service::subcontractor_info sc_info;
-    sc_info.id            = "cmslapp";
-    sc_info.description   = "CMS/LAPP interface";
-    sc_info.user_login    = "cmslapp";
-    sc_info.user_password = "cmslapp";
-    sc_info.persistent    = true;
-    serv.add_subcontractor(sc_info);
-  }
- 
-  {
-    vire::rabbitmq::manager_service::subcontractor_info sc_info;
-    sc_info.id            = "orleans";
-    sc_info.description   = "Orleans CMS interface";
-    sc_info.user_login    = "orleans";
-    sc_info.user_password = "orleans";
-    sc_info.persistent    = false;
-    serv.add_subcontractor(sc_info);
-  }
-
   serv.initialize_simple();
   {
     boost::property_tree::ptree options;
@@ -170,15 +147,44 @@ void test0(const params_type & params_)
   ::rabbitmq::rabbit_mgr & mgr = serv.grab_manager();
   mgr_report(mgr);
 
-  vire::rabbitmq::manager_service::client_info cl_info;
-  cl_info.id = "XYZTUVW";
-  cl_info.description = "A remote client";
-  cl_info.sys_user_login = "XYZTUVW.sys";
-  cl_info.sys_user_password = "XYZTUVW";
-  cl_info.cms_user_login = "XYZTUVW";
-  cl_info.cms_user_password = "XYZTUVW";
-  cl_info.with_control = false;
-  serv.create_client(cl_info);
+  // Subcontractors:
+  vire::com::subcontractor_info sc_info1;
+  {
+    sc_info1.id            = "cmslapp";
+    sc_info1.description   = "CMS/LAPP interface";
+    sc_info1.user_login    = "cmslapp";
+    sc_info1.user_password = "cmslapp";
+    sc_info1.sys_svr_login    = "__syscmslapp__";
+    sc_info1.sys_svr_password = "__syscmslapp__";
+    sc_info1.persistent    = true;
+    serv.add_subcontractor(sc_info1);
+  }
+ 
+  vire::com::subcontractor_info sc_info2;
+  {
+    sc_info2.id            = "orleans";
+    sc_info2.description   = "Orleans CMS interface";
+    sc_info2.user_login    = "orleans";
+    sc_info2.user_password = "orleans";
+    sc_info2.sys_svr_login    = "__sysorleans__";
+    sc_info2.sys_svr_password = "__sysorleans__";
+    sc_info2.persistent    = false;
+    serv.add_subcontractor(sc_info2);
+  }
+
+  vire::com::client_info cl_info;
+  {
+    cl_info.id = "XYZTUVW";
+    cl_info.description = "A remote client";
+    cl_info.sys_user_login    = "XYZTUVW.sys";
+    cl_info.sys_user_password = "XYZTUVW";
+    cl_info.sys_svr_login     = "XYZTUVW.svrsys";
+    cl_info.sys_svr_password  = "XYZTUVW";
+    cl_info.cms_user_login    = "XYZTUVW";
+    cl_info.cms_user_password = "XYZTUVW";
+    cl_info.with_control = false;
+    serv.add_client(cl_info);
+  }
 
   if (params_.interactive) {
     std::cout << "Type [Enter] to continue..." << std::endl;
@@ -198,7 +204,9 @@ void test0(const params_type & params_)
     std::getline(std::cin, word);
   }
   
-  serv.destroy_client(cl_info.id);
+  serv.remove_client(cl_info.id);
+  serv.remove_subcontractor(sc_info2.id);
+  serv.remove_subcontractor(sc_info1.id);
   
   serv.reset();
 

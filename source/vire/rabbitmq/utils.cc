@@ -33,7 +33,7 @@ namespace vire {
     {
       key_.clear();
       
-      if (addr_.is_protocol() || addr_.is_private()) {
+      if (addr_.is_protocol()) {
         key_ = addr_.get_value();
         return true;
       }
@@ -46,7 +46,18 @@ namespace vire {
       return false;
     }
 
-  
+    const std::string & server_host_key()
+    {
+      static const std::string _key("rabbitmq.server_host");
+      return _key;
+    }
+    
+    const std::string & server_port_key()
+    {
+      static const std::string _key("rabbitmq.server_port");
+      return _key;
+    }
+
  } // namespace rabbitmq
 
 } // namespace vire

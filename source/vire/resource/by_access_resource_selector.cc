@@ -142,7 +142,7 @@ namespace vire {
     void by_access_resource_selector::set_access_by_label(const std::string & access_label_)
     {
       ::vire::utility::rw_access_type rw_access = ::vire::utility::RW_INVALID;
-      DT_THROW_IF(::vire::utility::from_string(access_label_, rw_access),
+      DT_THROW_IF(!::vire::utility::from_string(access_label_, rw_access),
                   std::logic_error,
                   "Invalid R/W access label '" << access_label_ << "'!");
       _access_ = rw_access;

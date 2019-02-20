@@ -1,4 +1,4 @@
-//! \file vire/cmsserver/sc_info.cc
+//! \file vire/cmsserver/sc_driver.cc
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 //
@@ -18,7 +18,7 @@
 // along with Vire. If not, see <http://www.gnu.org/licenses/>.
 
 // Ourselves:
-#include <vire/cmsserver/sc_info.h>
+#include <vire/cmsserver/sc_driver.h>
 
 // Standard Library:
 // #include <chrono>
@@ -36,85 +36,88 @@
 #include <vire/utility/path.h>
 #include <vire/resource/resource.h>
 #include <vire/com/manager.h>
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
 #include <vire/com/i_service_client_plug.h>
+#include <vire/user/simple_password_generator.h>
+#include <vire/cmsserver/sc_manager.h>
 
 namespace vire {
 
   namespace cmsserver {
  
-    sc_info_signal_emitter::sc_info_signal_emitter(sc_info & sc_info_)
-      : _subcontractor_info_(sc_info_)
+    sc_driver_signal_emitter::sc_driver_signal_emitter(sc_driver & sc_driver_)
+      : _driver_(sc_driver_)
     {
       return;
     }
 
-    const sc_info & sc_info_signal_emitter::get_subcontractor_info() const
+    const sc_driver & sc_driver_signal_emitter::get_driver() const
     {
-      return _subcontractor_info_;
+      return _driver_;
     }
       
-    sc_info & sc_info_signal_emitter::grab_subcontractor_info() const
+    sc_driver & sc_driver_signal_emitter::grab_driver() const
     {
-      return _subcontractor_info_;
+      return _driver_;
     }
 
-    void sc_info_signal_emitter::emit_auto_connect_change()
+    void sc_driver_signal_emitter::emit_auto_connect_change()
     {
       emit auto_connect_changed();
     }
 
-    void sc_info_signal_emitter::emit_connection_change()
+    void sc_driver_signal_emitter::emit_connection_change()
     {
       emit connection_changed();
     }
 
-    void sc_info_signal_emitter::emit_device_status_change(std::string device_path_)
+    void sc_driver_signal_emitter::emit_device_status_change(std::string device_path_)
     {
       emit device_status_changed(device_path_);
     }
  
-    sc_info_signal_emitter & sc_info::_grab_emitter_()
+    sc_driver_signal_emitter & sc_driver::_grab_emitter_()
     {
       if (!_emitter_) {
-        _emitter_.reset(new sc_info_signal_emitter(*this));
+        _emitter_.reset(new sc_driver_signal_emitter(*this));
       }
       return *_emitter_.get();
     }
 
-    const sc_info_signal_emitter & sc_info::get_emitter() const
+    const sc_driver_signal_emitter & sc_driver::get_emitter() const
     {
-      sc_info * mutable_this = const_cast<sc_info*>(this);
+      sc_driver * mutable_this = const_cast<sc_driver*>(this);
       return mutable_this->_grab_emitter_();
     }
    
-    sc_info_signal_emitter & sc_info::grab_emitter()
+    sc_driver_signal_emitter & sc_driver::grab_emitter()
     {
       return _grab_emitter_();
     }
  
-    float sc_info::default_connection_timeout()
+    float sc_driver::default_connection_timeout()
     {
       static const float _t(2.0 * CLHEP::second);
       return _t;
     }
 
-    sc_info::sc_info()
+    sc_driver::sc_driver(sc_manager & scman_)
+    {
+      _manager_ = &scman_;
+      return;
+    }
+
+    sc_driver::~sc_driver()
     {
       return;
     }
 
-    sc_info::~sc_info()
-    {
-      return;
-    }
-
-    bool sc_info::is_auto_connect() const
+    bool sc_driver::is_auto_connect() const
     {
       return _auto_connect_;
     }
 
-    void sc_info::set_auto_connect(const bool flag_)
+    void sc_driver::set_auto_connect(const bool flag_)
     {
       bool changed = false;
       if (_auto_connect_ != flag_) {
@@ -127,46 +130,58 @@ namespace vire {
       return;
     }
 
-    bool sc_info::has_max_connection_attempts() const
+    bool sc_driver::has_max_connection_attempts() const
     {
       return _max_connection_attempts_ > 0;
     }
     
-    std::size_t sc_info::get_max_connection_attempts() const
+    std::size_t sc_driver::get_max_connection_attempts() const
     {
       return _max_connection_attempts_;
     }
     
-    void sc_info::set_max_connection_attempts(const std::size_t max_)
+    void sc_driver::set_max_connection_attempts(const std::size_t max_)
     {
       _max_connection_attempts_ = max_;
       return;
     }
     
-    void sc_info::set_com_manager(vire::com::manager & com_)
+    void sc_driver::set_com_manager(vire::com::manager & com_)
     {
       _com_ = &com_;
       return;
     }
 
-    void sc_info::set_device_manager(const vire::device::manager & devices_)
+    void sc_driver::set_device_manager(const vire::device::manager & devices_)
     {
       _devices_ = &devices_;
       return;
     }
       
-    void sc_info::set_resource_manager(const vire::resource::manager & resources_)
+    void sc_driver::set_resource_manager(const vire::resource::manager & resources_)
     {
       _resources_ = &resources_;
       return;
     }
-  
-    bool sc_info::is_connected() const
+
+    void sc_driver::set_svr_login(const std::string & login_)
+    {
+      _svr_login_ = login_;
+      return;
+    }
+    
+    void sc_driver::set_svr_password(const std::string & password_)
+    {
+      _svr_password_ = password_;
+      return;
+    } 
+
+    bool sc_driver::is_connected() const
     {
       return _connected_;
     }
     
-    void sc_info::set_connected(const bool connected_)
+    void sc_driver::set_connected(const bool connected_)
     {
       bool changed = false;
       if (_connected_ != connected_) {
@@ -180,7 +195,7 @@ namespace vire {
       return;
     }
 
-    void sc_info::build_mounted_devices(std::set<std::string> & names_) const
+    void sc_driver::build_mounted_devices(std::set<std::string> & names_) const
     {
       names_.clear();
       for (const auto & p : _mounted_devices_) {
@@ -189,7 +204,7 @@ namespace vire {
       return;
     }
 
-    void sc_info::add_mounted_device(const std::string & device_path_,
+    void sc_driver::add_mounted_device(const std::string & device_path_,
                                      const std::string & selection_)
     {
       DT_THROW_IF(is_initialized(),
@@ -218,12 +233,12 @@ namespace vire {
       return;
     }
 
-    bool sc_info::has_mounted_device(const std::string & device_path_)
+    bool sc_driver::has_mounted_device(const std::string & device_path_)
     {
       return _mounted_devices_.count(device_path_) > 0;
     }
 
-    void sc_info::remove_mounted_device(const std::string & device_path_)
+    void sc_driver::remove_mounted_device(const std::string & device_path_)
     {
       DT_THROW_IF(is_initialized(),
                   std::logic_error,
@@ -234,18 +249,18 @@ namespace vire {
       return;
     }
 
-    bool sc_info::is_initialized() const
+    bool sc_driver::is_initialized() const
     {
       return _initialized_;
     }
       
-    void sc_info::initialize_simple()
+    void sc_driver::initialize_simple()
     {
       initialize(datatools::empty_config());
       return;
     }
       
-    void sc_info::initialize(const datatools::properties & config_)
+    void sc_driver::initialize(const datatools::properties & config_)
     {
       DT_LOG_TRACE_ENTERING(get_logging_priority());
       this->datatools::enriched_base::initialize(config_, false);
@@ -256,6 +271,10 @@ namespace vire {
       DT_THROW_IF(!has_name(),
                   std::logic_error,
                   "Subcontractor has no name!");
+      
+      DT_THROW_IF(_com_ == nullptr,
+                  std::logic_error,
+                  "Subcontractor has no com manager service!");
       
       DT_THROW_IF(_devices_ == nullptr,
                   std::logic_error,
@@ -316,7 +335,25 @@ namespace vire {
       if (config_.has_key("subcontractor_password")) {
         _sc_password_ = config_.fetch_string("subcontractor_password");
       }
- 
+
+      // Default drivers:
+      _sc_sys_transport_driver_type_id_ = _com_->get_default_transport_driver_type_id();
+      _sc_sys_encoding_driver_type_id_  = _com_->get_default_encoding_driver_type_id();
+      
+      if (config_.has_key("sys_transport_driver_type_id")) {
+        std::string id = config_.fetch_string("sys_transport_driver_type_id");
+        vire::utility::model_identifier transport_driver_type_id;
+        transport_driver_type_id.from_string(id);
+        _sc_sys_transport_driver_type_id_ = transport_driver_type_id;
+      }
+      
+      if (config_.has_key("sys_encoding_driver_type_id")) {
+        std::string id = config_.fetch_string("sys_encoding_driver_type_id");
+        vire::utility::model_identifier encoding_driver_type_id;
+        encoding_driver_type_id.from_string(id);
+        _sc_sys_encoding_driver_type_id_ = encoding_driver_type_id;
+      }
+      
       _at_init_();
       
       _initialized_ = true;
@@ -324,70 +361,69 @@ namespace vire {
       return;
     }
     
-    void sc_info::_at_init_()
-    {
-      std::string sc_name = get_name();
-      std::cerr << "****** sc_info::_at_init_ : sc_name = '" << sc_name << "'" << std::endl;
-      std::cerr << "****** sc_info::_at_init_ : com     = " << _com_ << std::endl;
-      std::string domain_name_prefix
-        = _com_->get_domain_maker().get_domain_name_prefix();
-      std::cerr << "****** sc_info::_at_init_ : domain_name_prefix = '= " << domain_name_prefix << "'" << std::endl;
-      std::string sc_sys_domain_name 
-        = vire::com::domain_builder::build_cms_subcontractor_system_name(domain_name_prefix, sc_name);
-      if (!_com_->has_domain(sc_sys_domain_name)) {
-        vire::com::domain & sc_sys_domain = _com_->create_domain(sc_sys_domain_name,
-                                                                 vire::com::DOMAIN_CATEGORY_SUBCONTRACTOR_SYSTEM,
-                                                                 _com_->get_default_transport_type_id(),
-                                                                 _com_->get_default_encoding_type_id()); 
-        _com_->get_domain_maker().build_subcontractor_system_domain(sc_sys_domain, sc_name);
-      }
-      
-      if (_svr_login_.empty()) {
-        _svr_login_ = "vireserver";
-      }
-      if (_svr_password_.empty()) {
-        _svr_password_ = "vireserver";
-      }
-      
+    void sc_driver::_at_init_()
+    {     
       if (_sc_login_.empty()) {
         _sc_login_ = get_name();
       }
       if (_sc_password_.empty()) {
         _sc_password_ = _sc_login_;
       }
-      _com_->create_actor(_svr_login_,
-                          _svr_password_,
-                          vire::com::ACTOR_CATEGORY_SERVER_SUBCONTRACTOR_SYSTEM,
-                          get_name());
-      _com_->create_actor(_sc_login_,
-                          _sc_password_,
-                          vire::com::ACTOR_CATEGORY_SUBCONTRACTOR,
-                          get_name());
+  
+      // Create server side S/C access profile login and password:
+      if (_svr_login_.empty()) {
+        std::string login_rand;
+        _manager_->grab_password_gen().generate_password(login_rand, LOGIN_LENGTH);
+        _svr_login_ = _manager_->get_com().get_system_access_login_prefix() + login_rand;
+      }
+      if (_svr_password_.empty()) {
+        _manager_->grab_password_gen().generate_password(_svr_password_, PASSWORD_LENGTH);
+      }
+
+      std::string sc_name = get_name();
+      DT_LOG_DEBUG(get_logging_priority(), "sc_name = '" << sc_name << "'");
+      DT_LOG_DEBUG(get_logging_priority(), "com     @" << _com_);
+      std::string domain_name_prefix = _com_->get_domain_name_prefix();
+      DT_LOG_DEBUG(get_logging_priority(), "domain_name_prefix = '" << domain_name_prefix << "'");
+      std::string sc_sys_domain_name 
+        = vire::com::domain_builder::build_cms_subcontractor_system_name(domain_name_prefix, sc_name);
+
+      _info_.reset(new vire::com::subcontractor_info);
+      vire::com::subcontractor_info & sc_info = *_info_;
+      sc_info.id = get_name();
+      sc_info.description = get_terse_description();
+      sc_info.user_login = _sc_login_;
+      sc_info.user_password = _sc_password_;
+      sc_info.sys_svr_login = _svr_login_;
+      sc_info.sys_svr_password = _svr_password_;
+      sc_info.persistent = true;
+      sc_info.system_domain_name = sc_sys_domain_name;
+      sc_info.system_transport_driver_type_id = _sc_sys_transport_driver_type_id_;
+      sc_info.system_encoding_driver_type_id = _sc_sys_encoding_driver_type_id_;
+      // Create transport resources:
+      _com_->create_sc_transport(sc_info);
+
+      // Create hub for connection ops:
+      vire::com::access_profile & server_access_profile
+        = _com_->grab_access_profile(_svr_login_);
+      _connection_hub_ = server_access_profile.create_access_hub("connection");
+      
       return;
     }
     
-    void sc_info::_at_reset_()
+    void sc_driver::_at_reset_()
     {
-      // Clear server actors:
-      if (_com_->has_actor(_sc_login_)) {
-        _com_->remove_actor(_sc_login_);
-      }
-      if (_com_->has_actor(_svr_login_)) {
-        _com_->remove_actor(_svr_login_);
-      }
-      {
-        std::string sc_name = get_name();
-        std::string sc_sys_domain_name
-          = vire::com::domain_builder::build_cms_subcontractor_system_name(_com_->get_domain_maker().get_domain_name_prefix(),
-                                                                           sc_name);
-        if (_com_->has_domain(sc_sys_domain_name)) {
-          _com_->remove_domain(sc_sys_domain_name);
-        }
-      }
+      // Clear hub for connection ops:
+      _connection_hub_.reset();
+
+      // Clear transport resources:
+      const vire::com::subcontractor_info & sc_info = *_info_;
+      _com_->remove_sc_transport(sc_info);
+      _info_.reset();
       return;
     }
 
-    void sc_info::reset()
+    void sc_driver::reset()
     {
      DT_LOG_TRACE_ENTERING(get_logging_priority());
       DT_THROW_IF(!is_initialized(),
@@ -396,7 +432,6 @@ namespace vire {
       if (is_connected()) {
         disconnect();
       }
-      _connected_ = false;
 
       _at_reset_();
 
@@ -407,30 +442,30 @@ namespace vire {
       return;
     }
 
-    bool sc_info::has_connection_start_time() const
+    bool sc_driver::has_connection_start_time() const
     {
       return _connection_start_time_ > vire::time::system_epoch();
     }
                         
-    const vire::time::system_time_point & sc_info::get_connection_start_time() const
+    const vire::time::system_time_point & sc_driver::get_connection_start_time() const
     {
        return _connection_start_time_;
     }
 
-    bool sc_info::can_reconnect() const
+    bool sc_driver::can_reconnect() const
     {
       return has_max_connection_attempts()
         && (_number_of_failed_connection_attempts_ < get_max_connection_attempts());
     }
 
-    std::size_t sc_info::get_number_of_failed_connection_attempts() const
+    std::size_t sc_driver::get_number_of_failed_connection_attempts() const
     {
       return _number_of_failed_connection_attempts_;
     }
 
-    const std::set<std::string> & sc_info::get_resource_path() const
+    const std::set<std::string> & sc_driver::get_resource_path() const
     {
-      sc_info * mutable_this = const_cast<sc_info*>(this);
+      sc_driver * mutable_this = const_cast<sc_driver*>(this);
       if (!_resource_paths_) {
         DT_LOG_DEBUG(get_logging_priority(),
                      "Compute the list of resources associated to subcontractor '"
@@ -446,7 +481,7 @@ namespace vire {
       return *_resource_paths_.get();
     }
 
-    void sc_info::connect()
+    void sc_driver::connect()
     {
       bool connection_success = false;
       
@@ -467,10 +502,11 @@ namespace vire {
       }
 
       // Connection protocol:
-      if (_com_->has_actor(_svr_login_)) {
-        const vire::com::actor & serverActor = _com_->get_actor(_svr_login_);
+      if (_connection_hub_) {
+        // const vire::com::actor_profile & serverActorProfile = _com_->get_actor_profile(_svr_login_);
         std::shared_ptr<vire::com::i_service_client_plug> clientPlugPtr =
-          std::dynamic_pointer_cast<vire::com::i_service_client_plug>(serverActor.get_plug("subcontractor.service.client"));
+          std::dynamic_pointer_cast<vire::com::i_service_client_plug>(_connection_hub_->grab_plug(vire::com::domain_system_label(),
+                                                                                                    "subcontractor.service.client"));
         vire::com::address addr(vire::com::ADDR_CATEGORY_PROTOCOL, vire::com::system_connection_key());
         // address = "";
         vire::utility::const_payload_ptr_type connRespPtr;
@@ -517,7 +553,7 @@ namespace vire {
           
         }
       } else {
-        std::cerr << "****  --> no actor " << _svr_login_ << std::endl;
+        std::cerr << "****  --> no hub " << _svr_login_ << std::endl;
       }
        
       if (connection_success) {
@@ -532,7 +568,7 @@ namespace vire {
       return;
     }
     
-    void sc_info::disconnect()
+    void sc_driver::disconnect()
     {
       bool disconnection_success = false;
 
@@ -544,10 +580,10 @@ namespace vire {
       bool do_disconnect = true;
       //do_disconnect = false; // Hack to skip disconnection protocol
       // Disconnection protocol:
-      if (do_disconnect && _com_->has_actor(_svr_login_)) {
-        const vire::com::actor & serverActor = _com_->get_actor(_svr_login_);
+      if (do_disconnect && _connection_hub_) {
         std::shared_ptr<vire::com::i_service_client_plug> clientPlugPtr =
-          std::dynamic_pointer_cast<vire::com::i_service_client_plug>(serverActor.get_plug("subcontractor.service.client"));
+          std::dynamic_pointer_cast<vire::com::i_service_client_plug>(_connection_hub_->grab_plug(vire::com::domain_system_label(),
+                                                                                                    "subcontractor.service.client"));
         vire::com::address addr(vire::com::ADDR_CATEGORY_PROTOCOL, vire::com::system_connection_key());
         // address = "";
         vire::utility::const_payload_ptr_type disconnRespPtr;
@@ -607,7 +643,7 @@ namespace vire {
       return;
     }
 
-    void sc_info::_process_connection_success_(const vire::cms::connection_success & conn_)
+    void sc_driver::_process_connection_success_(const vire::cms::connection_success & conn_)
     {
       const std::vector<vire::cms::resource_status_record> & resSnapshots = conn_.get_resource_snapshots();
       for (auto & diPair : _mounted_devices_) {
@@ -621,7 +657,7 @@ namespace vire {
       return;
     }
                         
-    void sc_info::_process_disconnection_success_(const vire::cms::disconnection_success & disconn_)
+    void sc_driver::_process_disconnection_success_(const vire::cms::disconnection_success & disconn_)
     {
       for (auto & diPair : _mounted_devices_) {
         device_info & devInfo = diPair.second;
@@ -634,19 +670,19 @@ namespace vire {
       return;
     }
 
-    void sc_info::_on_connect_()
+    void sc_driver::_on_connect_()
     {
       _grab_emitter_().emit_connection_change();
       return;
     }
     
-    void sc_info::_on_disconnect_()
+    void sc_driver::_on_disconnect_()
     {
       _grab_emitter_().emit_connection_change();    
       return;
     }
 
-    const sc_info::device_info & sc_info::get_mounted_device_info(const std::string & device_path_) const
+    const sc_driver::device_info & sc_driver::get_mounted_device_info(const std::string & device_path_) const
     {
       std::map<std::string, device_info>::const_iterator found = _mounted_devices_.find(device_path_);
       DT_THROW_IF(found == _mounted_devices_.end(),
@@ -655,7 +691,7 @@ namespace vire {
       return found->second;
     }
  
-    sc_info::device_info & sc_info::grab_mounted_device_info(const std::string & device_path_)
+    sc_driver::device_info & sc_driver::grab_mounted_device_info(const std::string & device_path_)
     {
       std::map<std::string, device_info>::iterator found = _mounted_devices_.find(device_path_);
       DT_THROW_IF(found == _mounted_devices_.end(),
@@ -664,7 +700,7 @@ namespace vire {
       return found->second;
     }
  
-    void sc_info::print_tree(std::ostream & out_,
+    void sc_driver::print_tree(std::ostream & out_,
                              const boost::property_tree::ptree & options_) const
     {
       datatools::i_tree_dumpable::base_print_options popts;

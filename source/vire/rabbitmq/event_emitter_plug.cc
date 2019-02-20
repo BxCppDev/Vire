@@ -36,7 +36,8 @@
 #include <vire/message/message.h>
 #include <vire/com/manager.h>
 #include <vire/com/domain.h>
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/access_profile.h>
 #include <vire/rabbitmq/utils.h>
 
 namespace vire {
@@ -58,7 +59,7 @@ namespace vire {
     };   
     
     event_emitter_plug::event_emitter_plug(const std::string & name_,
-                                           const vire::com::actor & parent_,
+                                           const vire::com::access_hub & parent_,
                                            const vire::com::domain & domain_,
                                            const std::string & mailbox_name_,
                                            const datatools::logger::priority logging_)
@@ -77,18 +78,18 @@ namespace vire {
     void event_emitter_plug::_construct_()
     {
       _pimpl_.reset(new pimpl_type);
-      const datatools::properties & com_aux = get_parent().get_com().get_auxiliaries();
-      DT_THROW_IF(!com_aux.has_key("rabbitmq.server_host"),
+      const datatools::properties & com_aux = get_parent().get_profile().get_com().get_auxiliaries();
+      DT_THROW_IF(!com_aux.has_key(server_host_key()),
                   std::logic_error,
                   "No RabbitMQ server host!");
-      DT_THROW_IF(!com_aux.has_key("rabbitmq.server_port"),
+      DT_THROW_IF(!com_aux.has_key(server_port_key()),
                   std::logic_error,
                   "No RabbitMQ server port!");
-      _pimpl_->conn_params.host = com_aux.fetch_string("rabbitmq.server_host");
-      _pimpl_->conn_params.port = com_aux.fetch_positive_integer("rabbitmq.server_port");
+      _pimpl_->conn_params.host = com_aux.fetch_string(server_host_key());
+      _pimpl_->conn_params.port = com_aux.fetch_positive_integer(server_port_key());
       _pimpl_->conn_params.vhost = get_domain().get_name();
-      _pimpl_->conn_params.login = get_parent().get_name();
-      _pimpl_->conn_params.passwd = get_parent().get_password();
+      _pimpl_->conn_params.login = get_parent().get_profile().get_name();
+      _pimpl_->conn_params.passwd = get_parent().get_profile().get_password();
       datatools::logger::priority logging = datatools::logger::PRIO_DEBUG;
       if (datatools::logger::is_debug(logging)) {
         DT_LOG_DEBUG(logging, "RabbitMQ server parameters: ");
@@ -105,7 +106,10 @@ namespace vire {
                                                        publisher_confirm));
       } catch (std::exception & x) {
         DT_THROW(std::logic_error,
-                 "Could not create a connection to the RabbitMQ server: " << x.what());
+                 "Could not create a connection to the RabbitMQ server at '" << _pimpl_->conn_params.host << ":"
+                 << _pimpl_->conn_params.port << "' entering vhost '" << _pimpl_->conn_params.vhost << "'"
+                 << " with user '" << _pimpl_->conn_params.login << "@" << _pimpl_->conn_params.passwd << "' : " 
+                 << x.what());
       }
       DT_THROW_IF(!_pimpl_->conn->is_ok(),
                   std::logic_error,

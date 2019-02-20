@@ -31,10 +31,13 @@
 #include <datatools/base_service.h>
 #include <datatools/properties.h>
 #include <datatools/bit_mask.h>
+#include <datatools/command_utils.h>
 
 // This project:
 // #include <vire/time/utils.h>
 #include <vire/cmsserver/session_possibility.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/manager.h>
 
 namespace vire {
 
@@ -50,26 +53,20 @@ namespace vire {
       /// Default maximum number of connections
       static const std::size_t DEFAULT_MAX_NUMBER_OF_CONNECTIONS = 100;
 
-      /// Default constructor
-      gate(uint32_t flags_ = 0);
-
-      /// Destructor
-      virtual ~gate();
-
       /// \brief Connection info
       class connection_info
       {
       public:
 
         /// Default constructor
-        connection_info(uint32_t flags_ = 0);
+        connection_info(const uint32_t flags_ = 0);
 
         /// Destructor
         ~connection_info();
 
         bool has_id() const;
 
-        void set_id(int32_t id_);
+        void set_id(const int32_t id_);
 
         void clear_id();
 
@@ -101,12 +98,18 @@ namespace vire {
 
       private:
 
-        int32_t     _id_;
-        std::string _key_;
-        std::string _user_login_;
-        boost::posix_time::time_period _time_interval_;
+        int32_t     _id_;   ///< Connection identifier
+        std::string _key_;  ///< Session key
+        std::string _user_login_; ///< Vire user login
+        boost::posix_time::time_period _time_interval_; ///< Time interval of the connection
 
       };
+
+      /// Default constructor
+      gate(uint32_t flags_ = 0);
+
+      /// Destructor
+      virtual ~gate();
 
       /// Check if login is set
       bool has_login() const;
@@ -126,18 +129,59 @@ namespace vire {
       /// Return password
       const std::string & get_password() const;
 
+      /// Check if client login is set
+      bool has_client_login() const;
+
+      /// Set client login
+      void set_client_login(const std::string &);
+
+      /// Return client login
+      const std::string & get_client_login() const;
+
+      /// Check if client password is set
+      bool has_client_password() const;
+
+      /// Set client password
+      void set_client_password(const std::string &);
+
+      /// Return client password
+      const std::string & get_client_password() const;
+
       /// Authenticate
       bool authenticate(const std::string & login_, const std::string & password_) const;
 
       /// Set the maximum number of connections
-      void set_max_number_of_connections(std::size_t);
+      void set_max_number_of_connections(const std::size_t);
 
       /// Return the maximum number of connections
       std::size_t get_max_number_of_connections() const;
 
-      // /// Process a client connection request
-      // int process(const client_connection_request & request_,
-      // client_connection_request_response_type & response_);
+      //! Set thecom name
+      void set_com_name(const std::string & name_);
+
+      //! Return the com name
+      const std::string & get_com_name() const;
+
+      /// Check if handle to the communication service is set
+      bool has_com() const;
+      
+      /// Set the handle to the communication service 
+      void set_com(vire::com::manager & com_);
+      
+      /// Return a const handle to the communication service
+      const vire::com::manager & get_com() const;
+
+      /// Return a mutable handle to the communication service
+      vire::com::manager & grab_com();
+
+      /// Check if the gate access hub handle is set
+      bool has_gate_hub() const;
+      
+      /// Return a const handle to the gate access hub
+      const vire::com::access_hub & get_gate_hub() const;
+
+      /// Return a mutable handle to the gate access hub
+      vire::com::access_hub & grab_gate_hub();
 
       //! Check the initialization flag
       virtual bool is_initialized() const;
@@ -152,43 +196,60 @@ namespace vire {
       //! Main
       void run();
 
-      void get_possible(const std::string & vire_user_login_,
-                        const std::string & vire_user_password_,
-                        const boost::posix_time::ptime & at_,
-                        const std::string & role_id_,
-                        const uint32_t flags_,
-                        std::vector<session_possibility> & possible_);
+      /*
+      datatools::command::returned_info compute_possible(const std::string & vire_user_login_,
+                                                         const std::string & vire_user_password_,
+                                                         const boost::posix_time::ptime & at_,
+                                                         const std::string & role_id_,
+                                                         const uint32_t flags_,
+                                                         std::vector<session_possibility> & possible_);
 
-      void create_session(const std::string & vire_user_login_,
-                          const std::string & vire_user_password_,
-                          const boost::posix_time::time_period & from_to_,
-                          const std::string & usecase_id_,
-                          const datatools::properties & usecase_params_,
-                          int32_t & session_id_);
+      datatools::command::returned_info create_session(const std::string & vire_user_login_,
+                                                       const std::string & vire_user_password_,
+                                                       const boost::posix_time::time_period & from_to_,
+                                                       const std::string & usecase_id_,
+                                                       const datatools::properties & usecase_params_,
+                                                       int32_t & session_id_);
 
-      void enter_session(const std::string & vire_user_login_,
-                         const std::string & vire_user_password_,
-                         int32_t & session_id_,
-                         std::string & session_key_,
-                         boost::posix_time::time_period & from_to_);
+      datatools::command::returned_info enter_session(const std::string & vire_user_login_,
+                                                      const std::string & vire_user_password_,
+                                                      int32_t & session_id_,
+                                                      std::string & session_key_,
+                                                      boost::posix_time::time_period & from_to_);
+      */
 
+      /// Smart print
+      void print_tree(std::ostream & out_ = std::clog,
+                      const boost::property_tree::ptree & options_ = empty_options()) const override;
+      
     private:
 
       //! Set default attributes' values
       void _set_defaults_();
 
+      //! Special operations at initialization
+      void _at_init_();
+
+      //! Special operations at reset
+      void _at_reset_();
+ 
     private:
 
       // Management:
-      bool _initialized_; //!< Initialization flag
+      bool _initialized_ = false; //!< Initialization flag
 
       // Configuration:
-      std::string _login_;
-      std::string _password_;
-      std::size_t _max_number_of_connections_ = DEFAULT_MAX_NUMBER_OF_CONNECTIONS; ///< Maximum number of connections
-
+      std::string _login_;    //!< Login (gate domain access)
+      std::string _password_; //!< Password (gate domain access)
+      std::string _client_login_;    //!< Client side login (client side gate domain access)
+      std::string _client_password_; //!< Client side password (client side gate domain access)
+      std::size_t _max_number_of_connections_ = DEFAULT_MAX_NUMBER_OF_CONNECTIONS; //!< Maximum number of connections
+      std::string _com_name_; //!< Name of the com service
+      vire::com::manager * _com_ = nullptr; //!< Handle to an external com service
+      
       // Working data:
-
+      vire::com::access_hub_ptr_type _gate_hub_;
+      
       //! Auto-registration of this service class in a central service database of Bayeux/datatools
       DATATOOLS_SERVICE_REGISTRATION_INTERFACE(gate)
 

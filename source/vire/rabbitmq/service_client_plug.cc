@@ -1,4 +1,4 @@
-//! \file vire/rabbitmq/service_client_plug.cc
+/// \file vire/rabbitmq/service_client_plug.cc
 //
 // Copyright (c) 2018 by François Mauger <mauger@lpccaen.in2p3.fr>
 // Copyright (c) 2018 by Jean Hommet <hommet@lpccaen.in2p3.fr>
@@ -36,7 +36,8 @@
 #include <vire/message/message.h>
 #include <vire/com/manager.h>
 #include <vire/com/domain.h>
-#include <vire/com/actor.h>
+#include <vire/com/access_hub.h>
+#include <vire/com/access_profile.h>
 #include <vire/rabbitmq/utils.h>
 
 namespace vire {
@@ -52,14 +53,14 @@ namespace vire {
         return;
       }
       
-      bxrabbitmq::connection_parameters       conn_params;
-      std::unique_ptr<bxrabbitmq::connection> conn;
-      bxrabbitmq::channel *                   channel = nullptr;
-      bxrabbitmq::queue_parameters            q_par;
+      bxrabbitmq::connection_parameters       conn_params;       ///< Connection parameters
+      std::unique_ptr<bxrabbitmq::connection> conn;              ///< Connection
+      bxrabbitmq::channel *                   channel = nullptr; ///< Channel
+      bxrabbitmq::queue_parameters            q_par;             ///< Callback queue parameters
     };   
    
     service_client_plug::service_client_plug(const std::string & name_,
-                                             const vire::com::actor & parent_,
+                                             const vire::com::access_hub & parent_,
                                              const vire::com::domain & domain_,
                                              const datatools::logger::priority logging_)
       : i_service_client_plug(name_,parent_, domain_, logging_)
@@ -77,27 +78,25 @@ namespace vire {
     void service_client_plug::_construct_()
     {
       _pimpl_.reset(new pimpl_type);
-      const datatools::properties & com_aux = get_parent().get_com().get_auxiliaries();
-      DT_THROW_IF(!com_aux.has_key("rabbitmq.server_host"),
+      const datatools::properties & com_aux = get_parent().get_profile().get_com().get_auxiliaries();
+      DT_THROW_IF(!com_aux.has_key(server_host_key()),
                   std::logic_error,
                   "No RabbitMQ server host!");
-      DT_THROW_IF(!com_aux.has_key("rabbitmq.server_port"),
+      DT_THROW_IF(!com_aux.has_key(server_port_key()),
                   std::logic_error,
                   "No RabbitMQ server port!");
-      _pimpl_->conn_params.host = com_aux.fetch_string("rabbitmq.server_host");
-      _pimpl_->conn_params.port = com_aux.fetch_positive_integer("rabbitmq.server_port");
+      _pimpl_->conn_params.host = com_aux.fetch_string(server_host_key());
+      _pimpl_->conn_params.port = com_aux.fetch_positive_integer(server_port_key());
       _pimpl_->conn_params.vhost = get_domain().get_name();
-      _pimpl_->conn_params.login = get_parent().get_name();
-      _pimpl_->conn_params.passwd = get_parent().get_password();
+      _pimpl_->conn_params.login = get_parent().get_profile().get_name();
+      _pimpl_->conn_params.passwd = get_parent().get_profile().get_password();
       datatools::logger::priority logging = datatools::logger::PRIO_DEBUG;
-      if (datatools::logger::is_debug(logging)) {
-        DT_LOG_DEBUG(logging, "RabbitMQ server parameters: ");
-        DT_LOG_DEBUG(logging, "  - host   = " << _pimpl_->conn_params.host);
-        DT_LOG_DEBUG(logging, "  - port   = " << _pimpl_->conn_params.port);
-        DT_LOG_DEBUG(logging, "  - vhost  = " << _pimpl_->conn_params.vhost);
-        DT_LOG_DEBUG(logging, "  - login  = " << _pimpl_->conn_params.login);
-        DT_LOG_DEBUG(logging, "  - passwd = " << _pimpl_->conn_params.passwd);
-      }
+      DT_LOG_DEBUG(logging, "RabbitMQ server parameters: ");
+      DT_LOG_DEBUG(logging, "  - host   = " << _pimpl_->conn_params.host);
+      DT_LOG_DEBUG(logging, "  - port   = " << _pimpl_->conn_params.port);
+      DT_LOG_DEBUG(logging, "  - vhost  = " << _pimpl_->conn_params.vhost);
+      DT_LOG_DEBUG(logging, "  - login  = " << _pimpl_->conn_params.login);
+      DT_LOG_DEBUG(logging, "  - passwd = " << _pimpl_->conn_params.passwd);
       bool publisher_confirm = true;
       // publisher_confirm = false;
       _pimpl_->conn.reset(new bxrabbitmq::connection(_pimpl_->conn_params, publisher_confirm));
@@ -108,9 +107,7 @@ namespace vire {
       _pimpl_->q_par.name = "";
       _pimpl_->q_par.exclusive = true;
       _pimpl_->channel->queue_declare(_pimpl_->q_par);
-      if (datatools::logger::is_debug(logging)) {
-        DT_LOG_DEBUG(logging, "  - queue = " <<_pimpl_->q_par.name);
-      }
+      DT_LOG_DEBUG(logging, "  - queue = " << _pimpl_->q_par.name);
       return;
     }
 
@@ -153,8 +150,8 @@ namespace vire {
           = _pimpl_->channel->consume_message(msgresponse, routing_key, prop_in, delivery, timeout_sec_);
         raw_response_.metadata.store(vire::com::address_key(), routing_key);
         if (mqstatus == bxrabbitmq::CONSUME_OK) {
-          if (not prop_in.has_correlation_id ()) continue;
-          if (prop_in.get_correlation_id () == prop_out.get_correlation_id ()) {
+          if (not prop_in.has_correlation_id()) continue;
+          if (prop_in.get_correlation_id() == prop_out.get_correlation_id()) {
             status = vire::com::COM_SUCCESS;
             raw_response_.buffer = vire::com::raw_message_type::buffer_type(msgresponse.begin(),
                                                                             msgresponse.end());

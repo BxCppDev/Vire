@@ -62,22 +62,27 @@ namespace vire {
     {
       Q_OBJECT
     public:
-      
+
+      /// Constructor
       server_signal_emitter(server & server_);
 
+      /// Return the server handle
       const server & get_server() const;
       
+      /// Return the mutable server handle
       server & grab_server() const;
 
+      /// Emit a stop signal
       void emit_stop();
 
     signals:
       
+      /// Stop signal
       void sig_stop();
   
     private:
 
-      server & _server_;
+      server & _server_; ///< CMS server handle
 
     };
 
@@ -97,13 +102,15 @@ namespace vire {
 
       static std::string users_service_name();
 
-      static std::string sc_service_name();
-
       static std::string auth_service_name();
 
       static std::string com_service_name();
 
+      static std::string sc_service_name();
+
       static std::string sessions_service_name();
+
+      static std::string gate_service_name();
 
       static std::string agenda_service_name();
 
@@ -113,88 +120,86 @@ namespace vire {
 
       static std::string clients_service_name();
 
-      static std::string gate_service_name();
-
-      //! Default constructor
+      /// Default constructor
       server();
 
-      //! Destructor
+      /// Destructor
       virtual ~server();
 
-      //! Return the logging threshold
+      /// Return the logging threshold
       datatools::logger::priority get_logging() const;
 
-      //! Set the logging threshold
+      /// Set the logging threshold
       void set_logging(const datatools::logger::priority);
 
-      //! Check if setup ID is set
+      /// Check if setup ID is set
       bool has_setup_id() const;
 
-      //! Return the setup ID
+      /// Return the setup ID
       const ::vire::utility::instance_identifier & get_setup_id() const;
 
-      //! Set the setup ID
-      //!
-      //! @code
-      //! vire::cmssserver::server svr;
-      //! vire::utility::instance_identifier sid("SuperNEMO");
-      //! svr.set_setup_id(sid);
-      //! @endcode
+      /// Set the setup ID
+      ///
+      /// @code
+      /// vire::cmssserver::server svr;
+      /// vire::utility::instance_identifier sid("SuperNEMO");
+      /// svr.set_setup_id(sid);
+      /// @endcode
       void set_setup_id(const ::vire::utility::instance_identifier &);
 
-      //! Check if CMS top path is set
+      /// Check if CMS top path is set
       bool has_cms_top_path() const;
 
-      //! Set the CMS top path
-      //!
-      //! @code
-      //! vire::cmssserver::server svr;
-      //! svr.set_cms_top_path("SuperNEMO:/Demonstrator/CMS");
-      //! @endcode
-      //!
-      //! If setup ID is not set, set it to the scheme of the top_path.
+      /// Set the CMS top path
+      ///
+      /// @code
+      /// vire::cmssserver::server svr;
+      /// svr.set_cms_top_path("SuperNEMO:/Demonstrator/CMS");
+      /// @endcode
+      ///
+      /// If setup ID is not set, set it to the scheme of the top_path.
       void set_cms_top_path(const std::string &);
 
-      //! Return the CMS top path
+      /// Return the CMS top path
       const std::string & get_cms_top_path() const;
 
-      //! Return the DLL loading default path
+      /// Return the DLL loading default path
       const std::string & get_dll_load_default_path() const;
 
-      //! Set the DLL loading default path
+      /// Set the DLL loading default path
       void set_dll_load_default_path(const std::string &);
 
-      //! Add a DLL load directive
+      /// Add a DLL load directive
       void add_dll_load_directive(const std::string &);
 
-      //! Return the DLL load directives
+      /// Return the DLL load directives
       std::vector<std::string> get_dll_load_directives() const;
 
-      //! Check initialization status
+      /// Check initialization status
       bool is_initialized() const;
 
-      //! Initialize the server
+      /// Initialize the server
       void initialize(const datatools::properties &);
 
-      //! Terminate the server
+      /// Terminate the server
       void reset();
 
-      //! Smart print
+      /// Smart print
       virtual void tree_dump(std::ostream & out_ = std::clog,
                              const std::string & title_  = "",
                              const std::string & indent_ = "",
                              bool inherit_ = false) const;
 
-      //! Return the mutable service manager
+      /// Return the mutable service manager
       datatools::service_manager & grab_services();
 
-      //! Return the non mutable service manager
+      /// Return the non mutable service manager
       const datatools::service_manager & get_services() const;
 
-      //! Run the server
+      /// Run the server
       void run() override;
 
-      //! Request stop
+      /// Request stop
       void stop() override;
 
       const vire::running::run_control & get_rc() const override;
@@ -211,19 +216,11 @@ namespace vire {
 
       void _init_core_(const datatools::properties &);
 
-      void _start_pre_system_services();
-
-      void _start_business_services();
+      void _start_services_();
 
       void _compute_resource_responsible_();
-      
-      void _start_post_system_services();
-
-      void _stop_post_system_services();
-
-      void _stop_business_services();
-
-      void _stop_pre_system_services();
+ 
+      void _stop_services_();
 
       void _reset_core_();
 
@@ -243,27 +240,31 @@ namespace vire {
     private:
 
       // Management:
-      bool                        _initialized_ = false;
-      datatools::logger::priority _logging_;
+      
+      bool                        _initialized_ = false; ///< Initialization flag
+      /// Logging priority threshold
+      datatools::logger::priority _logging_     = datatools::logger::PRIO_FATAL;
 
       // Configuration:
-      ::vire::utility::instance_identifier _setup_id_;     //!< Setup ID
-      std::string                          _cms_top_path_; //!< CMS top path
-      datatools::multi_properties          _mconfig_;      //!< Server configuration parameters
-      std::string                          _dll_load_default_path_;
-      std::vector<std::string>             _dll_load_directives_;
-      std::size_t                          _tick_ms_ = 500;
+      
+      ::vire::utility::instance_identifier _setup_id_;     ///< Setup ID
+      std::string                          _cms_top_path_; ///< CMS top path
+      datatools::multi_properties          _mconfig_;      ///< Server configuration parameters
+      std::string                          _dll_load_default_path_; ///< DLL/plugin default load path
+      std::vector<std::string>             _dll_load_directives_;   ///< DLL/plugin loading directives
+      std::size_t                          _tick_ms_ = 500;         ///< Thread tick period (ms)
 
       // Working:
-      std::unique_ptr<datatools::library_loader>  _dll_loader_;
-      std::unique_ptr<datatools::service_manager> _services_;
-      vire::running::run_control  _rc_; ///< Run control
+      
+      std::unique_ptr<datatools::library_loader>  _dll_loader_; ///< DLL loader
+      std::unique_ptr<datatools::service_manager> _services_;   ///< Service manager
+      vire::running::run_control                  _rc_;         ///< Run control
 
       struct pimpl_type;
-      std::unique_ptr<pimpl_type> _pimpl_;
+      std::unique_ptr<pimpl_type> _pimpl_; ///< Private implementation
       
       // Qt signal emitter wrapper:
-      std::unique_ptr<server_signal_emitter> _emitter_;
+      std::unique_ptr<server_signal_emitter> _emitter_; ///< Signal emitter wrapper
 
     };
 

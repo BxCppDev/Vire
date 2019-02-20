@@ -42,7 +42,7 @@ namespace vire {
 
       //! Constructor
       i_service_client_plug(const std::string & name_,
-                            const actor & parent_,
+                            const access_hub & parent_,
                             const domain & domain_,
                             const datatools::logger::priority logging_ = datatools::logger::PRIO_FATAL);
       
@@ -57,23 +57,21 @@ namespace vire {
       //! Return category
       plug_category_type get_category() const override final;
 
-      // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
+      // Timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
       com_status send_receive(const address & address_,
                               const vire::utility::const_payload_ptr_type & request_payload_,
                               vire::utility::const_payload_ptr_type & response_payload_,
                               const double timeout_ = -1.0);
 
-      // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
+      // Timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
       com_status send_receive_async(const address & async_address_,
                                     const address & address_,
                                     const vire::utility::const_payload_ptr_type & request_payload_,
                                     vire::utility::const_payload_ptr_type & response_payload_,
                                     const double timeout_ = -1.0);
-
-      
+  
     private:
 
-      // timeout is expressed in time unit (example: double timeout = 3.14 * CLHEP::second)
       com_status _send_receive_(const address & async_address_,
                                 const address & address_,
                                 const vire::utility::const_payload_ptr_type & request_payload_,
